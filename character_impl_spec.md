@@ -1,10 +1,11 @@
 # 🛠️ 캐릭터 시트 시스템 — 구현 착수 스펙 (Implementation Spec)
 
 - **작성일**: 2026-07-11
-- **상태**: **P0~P2 코드 완료** (실 Comfy 파일럿 E2E는 서버 가동 후)
+- **상태**: **P0~P2 코드 + 파일럿 E2E 완료** / **용도 프로필(profile) 스펙 추가·구현 대기**
 - **상위 설계**: [character_sheet_system_design.md](character_sheet_system_design.md)
 - **영상 로드맵**: [video_pipeline_roadmap.md](video_pipeline_roadmap.md)
 - **프리셋 데이터**: [characters/sheet_presets.json](characters/sheet_presets.json)
+- **용도 프로필 SSOT**: [characters/profiles.json](characters/profiles.json)
 - **패키지 템플릿**: [characters/_template/](characters/_template/)
 - **파일럿 브리프**: [characters/pilots/mina_park_v1_brief.md](characters/pilots/mina_park_v1_brief.md)
 
@@ -14,9 +15,9 @@
 
 ```text
 현재 활성 트랙: CHARACTER_L2_SOFT_FACTORY
-기간 목표: P0(완료) → P1 → P2 → (선택) P7 shot_with_character
-동결: L3 LoRA 학습, ControlNet WF, I2V 구현은 본 트랙 완료 후
-예외: I2V는 별도 브랜치/세션에서 "스파이크만" 가능. 캐릭터 CLI와 섞지 말 것.
+완료: P0 문서/템플릿, P1 CLI 재현성, P2 create/expand/approve, 파일럿 mina_park_v1 E2E
+다음: P2.5 용도 프로필(video_ref | artbook) 구현 → P4 ControlNet turnaround / P7 shot
+동결: L3 LoRA 학습, I2V 본구현은 별 트랙 (스파이크만 허용)
 ```
 
 | 결정 항목 | 확정 값 (파일럿 기본) | 비고 |
@@ -24,7 +25,9 @@
 | 매체 | `cinematic_photoreal` (실사) | Moody Pro 기본 |
 | 일관성 레벨 | **L2** (I2I + approved refs) | L3는 후속 |
 | 검수 | **사람 approve 필수** (`approved/` 승격) | 자동 QA는 후순위 |
-| 파일럿 포맷 | 세로 쇼츠 준비용 캐릭터 팩 (9:16 키프레임은 P7) | 시트 자체는 1:1 또는 3:4 |
+| **기본 용도 프로필** | **`video_ref`** | 영상 일관성 첨부용 |
+| 선택 용도 프로필 | `artbook` | 고해상·풀시트·(후속) 업스케일/그리드 |
+| 파일럿 포맷 | 세로 쇼츠 준비용 캐릭터 팩 | 시트 기본 1:1, 전신은 세로 허용 |
 | 기본 모델 | `pro` | real/wild 선택 가능 |
 
 ---
@@ -47,6 +50,112 @@
 | 10 | 수동 런북 (L1 검증) | ✅ 본 문서 §9 |
 | 11 | 파일럿 캐릭터 브리프 | ✅ `pilots/mina_park_v1_brief.md` |
 | 12 | 구현 작업 티켓 순서 | ✅ 본 문서 §10 |
+| 13 | 용도 프로필 스펙 (`video_ref` / `artbook`) | ✅ 스펙·`profiles.json` / ⬜ CLI 연동 |
+
+---
+
+## 1.5 용도 프로필 (Purpose Profiles) — 스펙
+
+### 1.5.1 목적
+
+캐릭터 시트 도구를 **한 가지 해상도·MVP 세트에 고정하지 않고**, 사용 목적에 따라 설정을 고른다.
+
+| 프로필 ID | 이름 | 목적 |
+|-----------|------|------|
+| **`video_ref`** | 영상 레퍼용 | 샷 키프레임·I2I·I2V에 붙이는 **일관성 첨부 팩** (기본) |
+| **`artbook`** | 아트북용 | **결과물 자체**가 되는 고디테일 프레젠테이션/인쇄 지향 시트 |
+
+핵심 원칙:
+
+```text
+동일 캐릭터 패키지 (bible / identity / approved 공유)
+        +
+프로필별: 해상도 · MVP 시트 목록 · candidates · export · (후속) upscale/grid
+        +
+Comfy 엔진 WF는 복제하지 않음 (T2I / I2I / ControlNet 공용)
+```
+
+- 인쇄 아트북용이면 해상도·시트 커버리지·후처리가 더 높아야 함.
+- 영상 레퍼용이면 1024급·얇은 MVP·속도가 우선 (현재 파일럿과 정합).
+
+### 1.5.2 SSOT 파일
+
+| 파일 | 역할 |
+|------|------|
+| [characters/profiles.json](characters/profiles.json) | 프로필 정의 **SSOT** |
+| [characters/sheet_presets.json](characters/sheet_presets.json) | 시트별 prompt/denoise (프로필 무관 엔진 레시피) |
+| `bible.active_profile` | 패키지가 마지막으로 사용한 프로필 |
+| `bible.exports` / `exports/<profile>/` | 프로필별 export 상태·경로 (구현 시) |
+
+### 1.5.3 프로필 비교 (요약)
+
+| 항목 | `video_ref` (기본) | `artbook` |
+|------|--------------------|-----------|
+| 품질 우선순위 | speed_consistency | detail_print |
+| master face | 1024×1024 | 1536×1536 |
+| full body / turn / costume | 1024×1536 | 1536×2304 |
+| MVP 그룹 | master + expression | master + turnaround + expression + costume + pose |
+| candidates (sheet 기본) | 2 | 4 |
+| upscale | off | on (scale 2, Phase 2) |
+| grid export | off | on (Phase 2) |
+| export 경로 | `exports/video_ref/` | `exports/artbook/` |
+
+상세 수치·alias 목록은 **`profiles.json`이 항상 우선**한다.
+
+### 1.5.4 CLI 계약 (구현 대상 — Ticket P2.5)
+
+```bash
+# 기본 = video_ref
+python character_create.py --id hero_v1 --name "Hero" --profile video_ref ...
+
+# 아트북 모드 (고해상·풀 MVP)
+python character_create.py --id hero_v1 --name "Hero" --profile artbook --force ...
+python character_expand_sheets.py --id hero_v1 --profile artbook --sheets all_mvp
+```
+
+| 인자 | 적용 CLI | 기본 | 동작 |
+|------|----------|------|------|
+| `--profile` | create, expand, (후속) export | `video_ref` | `profiles.json` 로드 후 size/mvp/candidates 적용 |
+| (파생) `all_mvp` | expand | | 프로필의 `mvp_sheet_groups` / `all_mvp_key` 기준 |
+
+**구현 규칙**
+
+1. width/height는 프로필 `sizes`에서 시트 타입별로 선택해 T2I/I2I에 전달 (I2I는 입력 해상도 제약이 있으면 문서화).
+2. `missing_mvp` 계산은 프로필별 `mvp_aliases` 사용 (video_ref는 turn/costume 없어도 L2-video 완료 가능).
+3. artbook 고해상 재생성 시 **character_id를 바꾸지 않음** — 같은 패키지에 export만 분리.
+4. 워크플로우 JSON을 프로필마다 복제하지 말 것.
+
+### 1.5.5 bible / manifest 확장 필드
+
+```json
+{
+  "active_profile": "video_ref",
+  "exports": {
+    "video_ref": {
+      "status": "approved",
+      "updated_at": "ISO-8601",
+      "path": "exports/video_ref"
+    },
+    "artbook": {
+      "status": "draft",
+      "updated_at": null,
+      "path": "exports/artbook"
+    }
+  }
+}
+```
+
+`manifest.level`은 당분간 공유 L1/L2/L3를 유지하고, 프로필별 완료는 `exports.<profile>.status`로 구분한다.
+
+### 1.5.6 단계적 구현 (과설계 방지)
+
+| Phase | 내용 | 상태 |
+|-------|------|------|
+| **Spec** | 본 절 + `profiles.json` | ✅ |
+| **P2.5a** | `--profile` 로드, 기본 `video_ref`, MVP alias/candidates/size 적용 | ⬜ |
+| **P2.5b** | create/expand가 프로필 size를 generate_* 에 전달 | ⬜ |
+| **P2.5c** | `exports/<profile>/` 복사·bible.exports 갱신 | ⬜ |
+| **P2.5d** | artbook upscale + grid export | ⬜ 후순위 (P3와 연계 가능) |
 
 ---
 
@@ -61,17 +170,20 @@ agent_custom/
     schemas/
       bible.schema.json
       manifest.schema.json
-    sheet_presets.json         # 전역 시트 생성 프리셋
+    sheet_presets.json         # 시트 prompt/denoise SSOT
+    profiles.json              # 용도 프로필 SSOT (video_ref | artbook)
     pilots/
       mina_park_v1_brief.md
     <character_id>/            # 실제 캐릭터 패키지
-  character_create.py          # P2 신규
-  character_expand_sheets.py   # P2 신규
-  character_approve.py         # P2 신규
+      exports/video_ref/       # P2.5
+      exports/artbook/         # P2.5
+  character_create.py          # P2 (+ P2.5 --profile)
+  character_expand_sheets.py   # P2 (+ P2.5 --profile)
+  character_approve.py         # P2
   shot_with_character.py       # P7 신규
   generate_moody.py            # P1 패치
   generate_moody_i2i.py        # P1 패치
-  lib/                         # (권장) 공용 모듈
+  lib/
     comfy_client.py
     prompt_assembly.py
     character_package.py
@@ -83,7 +195,7 @@ agent_custom/
 
 ```text
 characters/<id>/
-  bible.json
+  bible.json              # active_profile, exports (P2.5)
   manifest.json
   prompts/positive_core.txt
   prompts/negative_core.txt
@@ -225,11 +337,11 @@ meta/{same_basename}.json
 | 키 | 값 | 적용 |
 |----|-----|------|
 | `default_model` | `pro` | 전 시트 |
-| `t2i_width` | `1024` | master (EmptySD3Latent 등 워크플로 기본 유지 시 워크플로 값 우선) |
-| `t2i_height` | `1024` | master |
-| `sheet_width/height` | 워크플로 기본 (변경 시 P1에서 노출) | I2I는 입력 해상도 따름 |
-| `candidates_master` | `4` | create |
-| `candidates_sheet` | `2` | expand 항목당 |
+| `t2i_width` / `t2i_height` | 프로필 `sizes` 따름 | 기본 프로필 `video_ref` → face 1024×1024 |
+| `sheet_width/height` | 프로필 `sizes` 따름 | artbook은 더 큼; I2I는 입력 제약 시 문서화 |
+| `candidates_master` | 프로필 기본 (video 4 / artbook 4) | create |
+| `candidates_sheet` | 프로필 기본 (video 2 / artbook 4) | expand 항목당 |
+| `default_profile` | `video_ref` | `profiles.json` |
 | `i2i_cfg_default` | `3.5` | 시트 I2I |
 | `i2i_sampler` | `euler` | 고정 (Rule 3) |
 | `i2i_scheduler` | `normal` | 고정 |
@@ -625,12 +737,22 @@ python generate_moody_i2i.py ^
 - [x] 완료
 
 ### Ticket P2-E — 파일럿 E2E (Comfy 필요)
-1. [ ] create mina_park_v1 (`--from-brief-samples`)
-2. [ ] 사람이 master 1장 approve
-3. [ ] expand all_mvp
-4. [ ] 주요 컷 approve
-5. [ ] `bible.status=approved` / missing_mvp 해소
-6. [ ] process.md 결과 기록
+1. [x] create mina_park_v1 (`--from-brief-samples`)
+2. [x] master approve (`s10002__c02`)
+3. [x] expand all_mvp (12/12)
+4. [x] MVP alias approve 전부
+5. [x] `bible.status=approved` / `level=L2`
+6. [x] process.md + `characters/mina_park_v1/PILOT_NOTES.md`
+7. [ ] 품질 개선: ControlNet turnaround / full-body master (후속)
+
+### Ticket P2.5 — 용도 프로필 (`video_ref` | `artbook`)
+- [x] 스펙 문서 §1.5 + [characters/profiles.json](characters/profiles.json)
+- [x] **P2.5a** `lib/profiles.py` + `--profile` (create/expand/approve)
+- [x] **P2.5b** create: 프로필 size → T2I width/height (I2I는 size_hint 메타; 입력 해상도 유지)
+- [x] **P2.5c** 프로필별 `mvp_aliases` / `missing_mvp` / `all_mvp`
+- [x] **P2.5d** `bible.active_profile` + `exports/` 디렉터리 생성 + exports.status
+- [ ] **P2.5e** artbook upscale + grid (후순위, P3 연계)
+- DoD: video_ref 기본·얇은 MVP ✅ / artbook dry-run size·full master ✅
 
 ### Ticket P7-A — `shot_with_character.py` (파일럿 후)
 
@@ -703,11 +825,13 @@ def expand_character(id, sheets, source, model, candidates, presets_path):
 |------|------|
 | [character_sheet_system_design.md](character_sheet_system_design.md) | 배경·리서치·장기 로드맵 |
 | [character_impl_spec.md](character_impl_spec.md) | **이 문서 — 코딩 계약** |
-| [characters/sheet_presets.json](characters/sheet_presets.json) | 시트 프리셋 SSOT |
+| [characters/sheet_presets.json](characters/sheet_presets.json) | 시트 프리셋 SSOT (prompt/denoise) |
+| [characters/profiles.json](characters/profiles.json) | **용도 프로필 SSOT** (video_ref / artbook) |
 | [characters/schemas/bible.schema.json](characters/schemas/bible.schema.json) | bible 스키마 |
 | [characters/schemas/manifest.schema.json](characters/schemas/manifest.schema.json) | manifest 스키마 |
 | [characters/_template/](characters/_template/) | 패키지 템플릿 |
 | [characters/pilots/mina_park_v1_brief.md](characters/pilots/mina_park_v1_brief.md) | 파일럿 정의 |
+| [characters/mina_park_v1/PILOT_NOTES.md](characters/mina_park_v1/PILOT_NOTES.md) | 실서버 E2E 품질 메모 |
 
 ---
 
@@ -716,3 +840,5 @@ def expand_character(id, sheets, source, model, candidates, presets_path):
 | 날짜 | 내용 |
 |------|------|
 | 2026-07-11 | 구현 착수 스펙 초판 — P0 산출물과 동기화 |
+| 2026-07-11 | P1~P2 구현·파일럿 E2E 반영 |
+| 2026-07-11 | **용도 프로필 스펙** 추가 (`video_ref` / `artbook`), Ticket **P2.5**, `profiles.json` |

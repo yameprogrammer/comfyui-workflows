@@ -16,6 +16,14 @@ from lib.character_package import (
     validate_character_id,
 )
 from lib.comfy_client import utc_now_iso, write_meta
+from lib.profiles import (
+    PROFILE_IDS,
+    apply_profile_to_bible,
+    ensure_export_dirs,
+    get_profile,
+    profile_all_mvp_preset_ids,
+    size_for_sheet,
+)
 from lib.prompt_assembly import assemble_prompt
 
 
@@ -29,21 +37,30 @@ EXIT_PARTIAL = 31
 EXIT_COMFY = 40
 
 
-def resolve_preset_ids(presets: dict, sheets_arg: str, only: str | None) -> list[str]:
+def resolve_preset_ids(
+    presets: dict,
+    sheets_arg: str,
+    only: str | None,
+    profile: dict,
+) -> list[str]:
     if only:
         return [x.strip() for x in only.split(",") if x.strip()]
 
-    groups = presets.get("mvp_sheet_groups", {})
     tokens = [t.strip() for t in sheets_arg.split(",") if t.strip()]
+    groups = presets.get("mvp_sheet_groups", {})
     result: list[str] = []
+
     for token in tokens:
+        if token in ("all_mvp", "mvp"):
+            result.extend(profile_all_mvp_preset_ids(profile, presets))
+            continue
         if token in groups:
             result.extend(groups[token])
         elif token in presets.get("presets", {}):
             result.append(token)
         else:
             raise KeyError(token)
-    # unique preserve order
+
     seen = set()
     ordered = []
     for pid in result:
@@ -56,10 +73,25 @@ def resolve_preset_ids(presets: dict, sheets_arg: str, only: str | None) -> list
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Expand character sheets using I2I presets")
     parser.add_argument("--id", required=True)
-    parser.add_argument("--sheets", required=True, help="turnaround,expression,costume | all_mvp | preset ids")
-    parser.add_argument("--source", default=None, help="Source image (default: approved master / primary_ref)")
+    parser.add_argument(
+        "--sheets",
+        required=True,
+        help="turnaround,expression,costume | all_mvp (profile-aware) | preset ids",
+    )
+    parser.add_argument("--source", default=None, help="Source image (default: approved master)")
     parser.add_argument("--model", "-m", choices=["real", "pro", "wild"], default=None)
-    parser.add_argument("--candidates", type=int, default=2)
+    parser.add_argument(
+        "--profile",
+        choices=list(PROFILE_IDS),
+        default=None,
+        help="Purpose profile (default: package active_profile or video_ref)",
+    )
+    parser.add_argument(
+        "--candidates",
+        type=int,
+        default=None,
+        help="Per-preset candidates (default: profile candidates_sheet_default)",
+    )
     parser.add_argument("--presets-file", default=None)
     parser.add_argument("--only", default=None, help="Comma preset ids filter")
     parser.add_argument("--seed-base", type=int, default=None)
@@ -78,14 +110,32 @@ def main(argv=None) -> int:
         print(f"[ERROR] code=11 message=package missing {args.id}", file=sys.stderr)
         return EXIT_PACKAGE_MISSING
 
+    profile_id = args.profile or pkg.active_profile_id()
+    try:
+        profile = get_profile(profile_id)
+    except KeyError as e:
+        print(f"[ERROR] code=2 message={e}", file=sys.stderr)
+        return EXIT_USAGE
+
+    # persist active profile on expand
+    apply_profile_to_bible(pkg.bible, profile)
+    pkg.save_bible()
+    ensure_export_dirs(pkg.root, profile)
+
+    candidates = (
+        args.candidates
+        if args.candidates is not None
+        else int(profile.get("candidates_sheet_default") or 2)
+    )
+    model = args.model or profile.get("default_model") or "pro"
+
     presets = load_presets(args.presets_file)
     try:
-        preset_ids = resolve_preset_ids(presets, args.sheets, args.only)
+        preset_ids = resolve_preset_ids(presets, args.sheets, args.only, profile)
     except KeyError as e:
         print(f"[ERROR] code=21 message=unknown sheet/preset {e}", file=sys.stderr)
         return EXIT_PRESET_MISSING
 
-    # filter out pure t2i master presets from expand
     expand_ids = []
     for pid in preset_ids:
         p = presets["presets"].get(pid)
@@ -113,25 +163,27 @@ def main(argv=None) -> int:
         )
         return EXIT_SOURCE_MISSING
 
-    model = args.model or "pro"
     positive_core = pkg.read_positive_core()
     negative_core = pkg.read_negative_core()
     quality_tags = presets.get("global", {}).get("quality_tags", "")
     global_negative = presets.get("global", {}).get("global_negative", "")
 
+    print(f"Profile: {profile_id}")
     print(f"Source: {source_path}")
     print(f"Presets ({len(expand_ids)}): {', '.join(expand_ids)}")
+    print(f"Candidates/preset: {candidates}")
 
     if args.dry_run:
         for pid in expand_ids:
             p = presets["presets"][pid]
+            w, h = size_for_sheet(profile, p.get("sheet", ""), p.get("view"))
             prompt = assemble_prompt(
                 core=positive_core,
                 instruction=p.get("instruction", ""),
                 style_lock=p.get("style_lock", ""),
                 quality_tags=quality_tags,
             )
-            print(f"\n[{pid}] denoise={p.get('denoise')} cfg={p.get('cfg')}")
+            print(f"\n[{pid}] denoise={p.get('denoise')} cfg={p.get('cfg')} size_hint={w}x{h}")
             print(f"  prompt: {prompt[:160]}...")
         return EXIT_OK
 
@@ -141,7 +193,8 @@ def main(argv=None) -> int:
 
     for pid in expand_ids:
         preset = presets["presets"][pid]
-        for c in range(1, args.candidates + 1):
+        w, h = size_for_sheet(profile, preset.get("sheet", ""), preset.get("view"))
+        for c in range(1, candidates + 1):
             job_index += 1
             if args.seed_base is not None:
                 seed = args.seed_base + job_index - 1
@@ -149,7 +202,6 @@ def main(argv=None) -> int:
                 seed = random.randint(1, 1125899906842624)
 
             instruction = preset.get("instruction", "")
-            # costume.default can override from bible wardrobe
             if pid == "costume.default":
                 wardrobe = (pkg.bible.get("appearance") or {}).get("wardrobe_default")
                 if wardrobe:
@@ -190,7 +242,12 @@ def main(argv=None) -> int:
             denoise = float(preset.get("denoise") if preset.get("denoise") is not None else 0.85)
             cfg = float(preset.get("cfg") if preset.get("cfg") is not None else 3.5)
 
-            print(f"\n=== {pid} c{c} denoise={denoise} seed={seed} ===")
+            print(
+                f"\n=== [{profile_id}] {pid} c{c} denoise={denoise} seed={seed} "
+                f"size_hint={w}x{h} ==="
+            )
+            # I2I inherits input resolution; size_hint logged for profile/docs.
+            # Full body re-size requires latent resize workflow (future / ControlNet).
             result = generate_i2i_image(
                 input_image_path=source_path,
                 prompt_text=prompt,
@@ -221,6 +278,8 @@ def main(argv=None) -> int:
                     "variant": preset["variant"],
                     "candidate": c,
                     "preset_id": pid,
+                    "profile": profile_id,
+                    "size_hint": [w, h],
                     "seed": result.get("seed", seed),
                 }
             )
@@ -238,15 +297,20 @@ def main(argv=None) -> int:
                     "seed": result.get("seed", seed),
                     "candidate": c,
                     "preset_id": pid,
+                    "profile": profile_id,
                     "created_at": utc_now_iso(),
                 }
             )
             success += 1
 
+    pkg.recompute_missing_mvp(profile_id)
     pkg.save_manifest()
-    pkg.append_changelog(f"expand sheets success={success} failures={failures}")
+    pkg.append_changelog(
+        f"expand profile={profile_id} success={success} failures={failures}"
+    )
 
-    print(f"\nOK character_id={args.id} success={success} failures={failures}")
+    print(f"\nOK character_id={args.id} profile={profile_id} success={success} failures={failures}")
+    print(f"missing_mvp={pkg.manifest.get('missing_mvp')}")
     print("NEXT: character_approve.py 로 좋은 컷을 approved/ 에 승격")
 
     if success == 0:

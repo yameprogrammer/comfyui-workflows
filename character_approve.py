@@ -11,6 +11,7 @@ from lib.character_package import (
     CharacterPackage,
     validate_character_id,
 )
+from lib.profiles import PROFILE_IDS, apply_profile_to_bible, get_profile
 
 
 EXIT_OK = 0
@@ -37,6 +38,12 @@ def main(argv=None) -> int:
         default=None,
         help="Force bible/manifest status",
     )
+    parser.add_argument(
+        "--profile",
+        choices=list(PROFILE_IDS),
+        default=None,
+        help="MVP gate profile (default: package active_profile)",
+    )
     args = parser.parse_args(argv)
 
     if not validate_character_id(args.id):
@@ -53,6 +60,15 @@ def main(argv=None) -> int:
     except FileNotFoundError:
         print(f"[ERROR] code=11 message=package missing {args.id}", file=sys.stderr)
         return EXIT_PACKAGE_MISSING
+
+    if args.profile:
+        try:
+            profile = get_profile(args.profile)
+            apply_profile_to_bible(pkg.bible, profile)
+            pkg.save_bible()
+        except KeyError as e:
+            print(f"[ERROR] code=2 message={e}", file=sys.stderr)
+            return EXIT_USAGE
 
     source = pkg.resolve(args.from_path)
     try:

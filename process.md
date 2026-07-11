@@ -6,6 +6,48 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] P2.5 용도 프로필 코드 연동 (video_ref / artbook)
+* **작업 에이전트**: Grok
+* **작업 목표**: 스펙 P2.5에 따라 `--profile` 로 영상 레퍼/아트북 설정을 선택 가능하게 구현.
+* **판단**: 파일럿 후 우선순위 2위였던 **P2.5를 먼저** 진행 (video_ref MVP 정식화 → 이후 ControlNet 품질).
+* **주요 변경 사항**:
+  1. **`lib/profiles.py`**: profiles.json 로드, size_for_sheet, profile_all_mvp_preset_ids, export dirs, bible.exports
+  2. **CLI**: `character_create/expand/approve` 에 `--profile` (기본 `video_ref`)
+  3. **create**: 프로필 size → T2I `width/height`; artbook은 full-body master 기본 포함
+  4. **expand**: `all_mvp` 가 프로필별 (video_ref=expression 6종만; artbook=turn+expr+costume…)
+  5. **missing_mvp**: 프로필 `mvp_aliases` 기준 (`video_ref`는 turn/costume 불필요)
+  6. **mina_park_v1** 를 `active_profile=video_ref` 로 재계산 → missing_mvp=[] 유지
+  7. approve SameFileError 방어
+* **한계**: I2I는 입력 이미지 해상도를 따르므로 expand의 size_hint는 메타/로그 수준 (전신 리사이즈는 ControlNet/후속).
+* **다음**: P4 ControlNet turnaround 연동 (선택 시트 품질).
+
+### [2026-07-11] 캐릭터 시트 용도 프로필 스펙 문서화 (video_ref / artbook)
+* **작업 에이전트**: Grok
+* **작업 목표**: 시트 도구를 사용 목적(영상 레퍼 vs 아트북)에 따라 설정할 수 있도록 스펙·작업 계획에 반영.
+* **주요 변경 사항**:
+  1. **`characters/profiles.json` 신규** — `video_ref`(기본, ~1024, MVP=master+expression) / `artbook`(~1536+, 풀시트, upscale/grid 옵션).
+  2. **`character_impl_spec.md` §1.5** — 프로필 원칙, CLI `--profile`, bible.exports, 단계적 구현 P2.5a~e.
+  3. **`character_sheet_system_design.md`** — §0.3 용도 프로필, Phase **P2.5**, 우선순위·다음 액션 갱신.
+  4. README / characters/README / agent_rules 교차 언급.
+* **상태**: 스펙·SSOT 완료. **코드 `--profile` 연동은 미착수 (Ticket P2.5)**.
+* **다음**: P2.5a CLI 로드 또는 P4 ControlNet (품질) 중 선택 착수.
+
+### [2026-07-11] 파일럿 mina_park_v1 E2E 실행 (Comfy 실생성)
+* **작업 에이전트**: Grok
+* **작업 목표**: L2 Soft Factory 파이프라인을 ComfyUI 실서버에서 end-to-end 검증.
+* **실행**:
+  1. `character_create.py --id mina_park_v1 --from-brief-samples --model pro --candidates 4 --seed-base 10001` → 마스터 4장 성공
+  2. master 승격: `s10002__c02` → `approved/master_front.png`
+  3. `character_expand_sheets.py --sheets all_mvp --candidates 1 --seed-base 20001` → 12/12 성공 (~5분)
+  4. MVP alias 전부 approve → `status=approved`, `level=L2`, `missing_mvp=[]`
+* **품질 발견**:
+  * Expression 변화는 soft I2I로 양호 (identity 유지 + 표정 반영).
+  * Turnaround side/back/full-body 는 master 상반신 구도에 묶여 각도·전신 전환 실패에 가까움 (denoise 0.82–0.85 불충분).
+  * Costume도 구도 유지로 전신 의상 시트 미달. mole 좌우 드리프트 관측.
+* **결론**: 도구 파이프라인 검증 완료. 프로급 multi-view는 **ControlNet turnaround + full-body master** 후속 필수.
+* **상세**: `characters/mina_park_v1/PILOT_NOTES.md`
+* **다음 추천**: ControlNet expand 연동, 또는 full-body master 재생성 후 costume/turn 재확장.
+
 ### [2026-07-11] Krea 2 Turbo 모델 T2I 워크플로우 신규 추가
 * **작업 에이전트**: Antigravity
 * **작업 목표**: 초고속 12B DiT 오픈소스 모델인 Krea 2 Turbo T2I 파이프라인 구성 및 이미지 검증.

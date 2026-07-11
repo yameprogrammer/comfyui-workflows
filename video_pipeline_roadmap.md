@@ -210,5 +210,6 @@ T2I·I2I는 영상의 **“정지 컷 공장”**이다. 영상 품질의 상한
 - [moody_workflow_guide.md](moody_workflow_guide.md) — Moody T2I/I2I 상세 가이드
 - [character_sheet_system_design.md](character_sheet_system_design.md) — 캐릭터 시트 기획·리서치
 - [character_impl_spec.md](character_impl_spec.md) — 캐릭터 시트 **구현 착수 스펙** (Character ref pack 코딩 SSOT)
+- [characters/profiles.json](characters/profiles.json) — 용도 프로필 (`video_ref` 기본 / `artbook`)
 - [agent_rules.md](agent_rules.md) — 에이전트 협업 규칙
 - [process.md](process.md) — 작업 이력 로그

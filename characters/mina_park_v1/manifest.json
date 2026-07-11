@@ -1,0 +1,256 @@
+{
+  "character_id": "mina_park_v1",
+  "package_version": "0.1.0",
+  "status": "approved",
+  "created_at": "2026-07-11T12:42:27+00:00",
+  "updated_at": "2026-07-11T12:56:52+00:00",
+  "base_model": "moody_pro",
+  "level": "L2",
+  "assets": [
+    {
+      "path": "refs/master/mina_park_v1__master__upper__neutral__s10001__c01.png",
+      "meta_path": "meta/mina_park_v1__master__upper__neutral__s10001__c01.json",
+      "sheet": "master",
+      "view": "upper",
+      "variant": "neutral",
+      "seed": 10001,
+      "candidate": 1,
+      "preset_id": "master.front_upper",
+      "created_at": "2026-07-11T12:42:55+00:00"
+    },
+    {
+      "path": "refs/master/mina_park_v1__master__upper__neutral__s10002__c02.png",
+      "meta_path": "meta/mina_park_v1__master__upper__neutral__s10002__c02.json",
+      "sheet": "master",
+      "view": "upper",
+      "variant": "neutral",
+      "seed": 10002,
+      "candidate": 2,
+      "preset_id": "master.front_upper",
+      "created_at": "2026-07-11T12:43:10+00:00"
+    },
+    {
+      "path": "refs/master/mina_park_v1__master__upper__neutral__s10003__c03.png",
+      "meta_path": "meta/mina_park_v1__master__upper__neutral__s10003__c03.json",
+      "sheet": "master",
+      "view": "upper",
+      "variant": "neutral",
+      "seed": 10003,
+      "candidate": 3,
+      "preset_id": "master.front_upper",
+      "created_at": "2026-07-11T12:43:24+00:00"
+    },
+    {
+      "path": "refs/master/mina_park_v1__master__upper__neutral__s10004__c04.png",
+      "meta_path": "meta/mina_park_v1__master__upper__neutral__s10004__c04.json",
+      "sheet": "master",
+      "view": "upper",
+      "variant": "neutral",
+      "seed": 10004,
+      "candidate": 4,
+      "preset_id": "master.front_upper",
+      "created_at": "2026-07-11T12:43:38+00:00"
+    },
+    {
+      "path": "refs/turnaround/mina_park_v1__turnaround__front__stand__s20001__c01.png",
+      "meta_path": "meta/mina_park_v1__turnaround__front__stand__s20001__c01.json",
+      "sheet": "turnaround",
+      "view": "front",
+      "variant": "stand",
+      "seed": 20001,
+      "candidate": 1,
+      "preset_id": "turnaround.front",
+      "created_at": "2026-07-11T12:44:19+00:00"
+    },
+    {
+      "path": "refs/turnaround/mina_park_v1__turnaround__qf__stand__s20002__c01.png",
+      "meta_path": "meta/mina_park_v1__turnaround__qf__stand__s20002__c01.json",
+      "sheet": "turnaround",
+      "view": "qf",
+      "variant": "stand",
+      "seed": 20002,
+      "candidate": 1,
+      "preset_id": "turnaround.qf",
+      "created_at": "2026-07-11T12:44:45+00:00"
+    },
+    {
+      "path": "refs/turnaround/mina_park_v1__turnaround__side__stand__s20003__c01.png",
+      "meta_path": "meta/mina_park_v1__turnaround__side__stand__s20003__c01.json",
+      "sheet": "turnaround",
+      "view": "side",
+      "variant": "stand",
+      "seed": 20003,
+      "candidate": 1,
+      "preset_id": "turnaround.side",
+      "created_at": "2026-07-11T12:45:11+00:00"
+    },
+    {
+      "path": "refs/turnaround/mina_park_v1__turnaround__back__stand__s20004__c01.png",
+      "meta_path": "meta/mina_park_v1__turnaround__back__stand__s20004__c01.json",
+      "sheet": "turnaround",
+      "view": "back",
+      "variant": "stand",
+      "seed": 20004,
+      "candidate": 1,
+      "preset_id": "turnaround.back",
+      "created_at": "2026-07-11T12:45:38+00:00"
+    },
+    {
+      "path": "refs/expression/mina_park_v1__expression__close__neutral__s20005__c01.png",
+      "meta_path": "meta/mina_park_v1__expression__close__neutral__s20005__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "neutral",
+      "seed": 20005,
+      "candidate": 1,
+      "preset_id": "expression.neutral",
+      "created_at": "2026-07-11T12:46:04+00:00"
+    },
+    {
+      "path": "refs/expression/mina_park_v1__expression__close__joy__s20006__c01.png",
+      "meta_path": "meta/mina_park_v1__expression__close__joy__s20006__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "joy",
+      "seed": 20006,
+      "candidate": 1,
+      "preset_id": "expression.joy",
+      "created_at": "2026-07-11T12:46:31+00:00"
+    },
+    {
+      "path": "refs/expression/mina_park_v1__expression__close__sad__s20007__c01.png",
+      "meta_path": "meta/mina_park_v1__expression__close__sad__s20007__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "sad",
+      "seed": 20007,
+      "candidate": 1,
+      "preset_id": "expression.sad",
+      "created_at": "2026-07-11T12:46:58+00:00"
+    },
+    {
+      "path": "refs/expression/mina_park_v1__expression__close__angry__s20008__c01.png",
+      "meta_path": "meta/mina_park_v1__expression__close__angry__s20008__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "angry",
+      "seed": 20008,
+      "candidate": 1,
+      "preset_id": "expression.angry",
+      "created_at": "2026-07-11T12:47:25+00:00"
+    },
+    {
+      "path": "refs/expression/mina_park_v1__expression__close__surprise__s20009__c01.png",
+      "meta_path": "meta/mina_park_v1__expression__close__surprise__s20009__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "surprise",
+      "seed": 20009,
+      "candidate": 1,
+      "preset_id": "expression.surprise",
+      "created_at": "2026-07-11T12:47:51+00:00"
+    },
+    {
+      "path": "refs/expression/mina_park_v1__expression__close__think__s20010__c01.png",
+      "meta_path": "meta/mina_park_v1__expression__close__think__s20010__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "think",
+      "seed": 20010,
+      "candidate": 1,
+      "preset_id": "expression.think",
+      "created_at": "2026-07-11T12:48:18+00:00"
+    },
+    {
+      "path": "refs/costume/mina_park_v1__costume__full__default_outfit__s20011__c01.png",
+      "meta_path": "meta/mina_park_v1__costume__full__default_outfit__s20011__c01.json",
+      "sheet": "costume",
+      "view": "full",
+      "variant": "default_outfit",
+      "seed": 20011,
+      "candidate": 1,
+      "preset_id": "costume.default",
+      "created_at": "2026-07-11T12:48:44+00:00"
+    },
+    {
+      "path": "refs/costume/mina_park_v1__costume__full__alt1_outfit__s20012__c01.png",
+      "meta_path": "meta/mina_park_v1__costume__full__alt1_outfit__s20012__c01.json",
+      "sheet": "costume",
+      "view": "full",
+      "variant": "alt1_outfit",
+      "seed": 20012,
+      "candidate": 1,
+      "preset_id": "costume.alt1",
+      "created_at": "2026-07-11T12:49:10+00:00"
+    }
+  ],
+  "approved": {
+    "master_front": {
+      "path": "approved/master_front.png",
+      "source": "refs/master/mina_park_v1__master__upper__neutral__s10002__c02.png",
+      "approved_at": "2026-07-11T12:43:48+00:00"
+    },
+    "turn_front": {
+      "path": "approved/turn_front.png",
+      "source": "refs/turnaround/mina_park_v1__turnaround__front__stand__s20001__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    },
+    "turn_qf": {
+      "path": "approved/turn_qf.png",
+      "source": "refs/turnaround/mina_park_v1__turnaround__qf__stand__s20002__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    },
+    "turn_side": {
+      "path": "approved/turn_side.png",
+      "source": "refs/turnaround/mina_park_v1__turnaround__side__stand__s20003__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    },
+    "turn_back": {
+      "path": "approved/turn_back.png",
+      "source": "refs/turnaround/mina_park_v1__turnaround__back__stand__s20004__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    },
+    "expr_neutral": {
+      "path": "approved/expr_neutral.png",
+      "source": "refs/expression/mina_park_v1__expression__close__neutral__s20005__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    },
+    "expr_joy": {
+      "path": "approved/expr_joy.png",
+      "source": "refs/expression/mina_park_v1__expression__close__joy__s20006__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    },
+    "expr_sad": {
+      "path": "approved/expr_sad.png",
+      "source": "refs/expression/mina_park_v1__expression__close__sad__s20007__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    },
+    "expr_angry": {
+      "path": "approved/expr_angry.png",
+      "source": "refs/expression/mina_park_v1__expression__close__angry__s20008__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    },
+    "expr_surprise": {
+      "path": "approved/expr_surprise.png",
+      "source": "refs/expression/mina_park_v1__expression__close__surprise__s20009__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    },
+    "expr_think": {
+      "path": "approved/expr_think.png",
+      "source": "refs/expression/mina_park_v1__expression__close__think__s20010__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    },
+    "costume_default": {
+      "path": "approved/costume_default.png",
+      "source": "refs/costume/mina_park_v1__costume__full__default_outfit__s20011__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    },
+    "costume_alt1": {
+      "path": "approved/costume_alt1.png",
+      "source": "refs/costume/mina_park_v1__costume__full__alt1_outfit__s20012__c01.png",
+      "approved_at": "2026-07-11T12:49:21+00:00"
+    }
+  },
+  "missing_mvp": [],
+  "mvp_profile": "video_ref"
+}

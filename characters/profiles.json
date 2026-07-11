@@ -1,0 +1,113 @@
+{
+  "version": "1.0.0",
+  "description": "Character sheet purpose profiles. Same package/identity; different resolution, MVP sheets, export, and quality defaults.",
+  "default_profile": "video_ref",
+  "profiles": {
+    "video_ref": {
+      "id": "video_ref",
+      "label": "영상 레퍼용 (consistency pack)",
+      "purpose": "Keyframe / I2I / I2V identity attachment for video production. Not print.",
+      "quality_priority": "speed_consistency",
+      "default_model": "pro",
+      "sizes": {
+        "master_face": [1024, 1024],
+        "master_full_body": [1024, 1536],
+        "expression": [1024, 1024],
+        "turnaround": [1024, 1536],
+        "costume": [1024, 1536],
+        "pose": [1024, 1536]
+      },
+      "mvp_sheet_groups": ["master", "expression"],
+      "optional_sheet_groups": ["costume", "turnaround", "pose"],
+      "all_mvp_key": "video_ref_mvp",
+      "candidates_master_default": 4,
+      "candidates_sheet_default": 2,
+      "upscale": {
+        "enabled": false,
+        "scale": 1
+      },
+      "grid_export": false,
+      "export_subdir": "exports/video_ref",
+      "notes": [
+        "Primary profile for agent video pipeline",
+        "1024 base is intentional for speed and I2V keyframes",
+        "Turnaround optional until ControlNet path is wired"
+      ]
+    },
+    "artbook": {
+      "id": "artbook",
+      "label": "아트북용 (presentation / print-oriented)",
+      "purpose": "High-detail character presentation sheets; the images are deliverables, not only refs.",
+      "quality_priority": "detail_print",
+      "default_model": "pro",
+      "sizes": {
+        "master_face": [1536, 1536],
+        "master_full_body": [1536, 2304],
+        "expression": [1536, 1536],
+        "turnaround": [1536, 2304],
+        "costume": [1536, 2304],
+        "pose": [1536, 2304]
+      },
+      "mvp_sheet_groups": [
+        "master",
+        "turnaround",
+        "expression",
+        "costume",
+        "pose"
+      ],
+      "optional_sheet_groups": ["head", "color"],
+      "all_mvp_key": "artbook_mvp",
+      "candidates_master_default": 4,
+      "candidates_sheet_default": 4,
+      "upscale": {
+        "enabled": true,
+        "scale": 2,
+        "note": "Phase 2: post-approve upscale into exports/artbook; engine may still generate at profile base size first"
+      },
+      "grid_export": true,
+      "export_subdir": "exports/artbook",
+      "notes": [
+        "Do not use as default for batch video work",
+        "Shares bible/identity with video_ref; re-bake heroes at higher res when needed",
+        "Full multi-view quality still requires ControlNet for turnaround"
+      ]
+    }
+  },
+  "mvp_aliases": {
+    "video_ref": [
+      "master_front",
+      "expr_neutral",
+      "expr_joy",
+      "expr_sad",
+      "expr_angry",
+      "expr_surprise",
+      "expr_think"
+    ],
+    "artbook": [
+      "master_front",
+      "master_full",
+      "turn_front",
+      "turn_qf",
+      "turn_side",
+      "turn_back",
+      "expr_neutral",
+      "expr_joy",
+      "expr_sad",
+      "expr_angry",
+      "expr_surprise",
+      "expr_think",
+      "costume_default",
+      "costume_alt1"
+    ]
+  },
+  "implementation": {
+    "cli_flag": "--profile",
+    "default": "video_ref",
+    "ssot_file": "characters/profiles.json",
+    "bible_fields": ["active_profile", "exports"],
+    "do_not": [
+      "Duplicate Comfy workflow JSON per profile",
+      "Fork identity into separate character_ids for the same person solely by purpose"
+    ]
+  }
+}

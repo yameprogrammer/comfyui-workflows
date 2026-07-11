@@ -148,28 +148,33 @@ class CharacterPackage:
         with open(path, "a", encoding="utf-8") as f:
             f.write(f"- {utc_now_iso()}: {line}\n")
 
-    def recompute_missing_mvp(self) -> list[str]:
+    def active_profile_id(self) -> str:
+        return self.bible.get("active_profile") or "video_ref"
+
+    def recompute_missing_mvp(self, profile_id: str | None = None) -> list[str]:
+        """Profile-aware MVP gate. video_ref does not require turnaround/costume."""
+        from lib.profiles import mvp_aliases_for
+
+        pid = profile_id or self.active_profile_id()
+        try:
+            required = mvp_aliases_for(pid)
+        except KeyError:
+            required = [
+                "master_front",
+                "expr_neutral",
+                "expr_joy",
+                "expr_sad",
+                "expr_angry",
+                "expr_surprise",
+                "expr_think",
+            ]
         approved_keys = set(self.manifest.get("approved", {}).keys())
-        # master_full optional for soft MVP gate; still tracked
-        required = [
-            "master_front",
-            "turn_front",
-            "turn_qf",
-            "turn_side",
-            "turn_back",
-            "expr_neutral",
-            "expr_joy",
-            "expr_sad",
-            "expr_angry",
-            "expr_surprise",
-            "expr_think",
-            "costume_default",
-            "costume_alt1",
-        ]
         missing = [k for k in required if k not in approved_keys]
         self.manifest["missing_mvp"] = missing
-        if not missing and self.manifest.get("level") in (None, "L1"):
-            self.manifest["level"] = "L2"
+        self.manifest["mvp_profile"] = pid
+        if not missing:
+            if self.manifest.get("level") in (None, "L1"):
+                self.manifest["level"] = "L2"
         return missing
 
     def approve(self, source_path: str, alias: str, set_primary: bool = False) -> str:
@@ -181,7 +186,10 @@ class CharacterPackage:
         dest_name = f"{alias}.png"
         dest_path = self.path("approved", dest_name)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        shutil.copy2(source_path, dest_path)
+        src_abs = os.path.abspath(source_path)
+        dst_abs = os.path.abspath(dest_path)
+        if src_abs != dst_abs:
+            shutil.copy2(source_path, dest_path)
 
         rel_dest = f"approved/{dest_name}"
         # store source relative if under package
@@ -219,6 +227,15 @@ class CharacterPackage:
             self.bible["status"] = "approved"
             self.manifest["status"] = "approved"
             self.manifest["level"] = "L2"
+            # mark active profile export complete
+            from lib.profiles import sync_export_status
+
+            sync_export_status(
+                self.bible,
+                self.active_profile_id(),
+                "approved",
+                utc_now_iso(),
+            )
 
         self.save_bible()
         self.save_manifest()
@@ -260,7 +277,10 @@ def fill_bible_from_create(
     positive_core: str,
     negative_core: str,
     appearance_prompt: str,
+    profile_id: str = "video_ref",
 ) -> dict:
+    from lib.profiles import apply_profile_to_bible, get_profile
+
     now = utc_now_iso()
     base_model = {"real": "moody_real", "pro": "moody_pro", "wild": "moody_wild"}.get(model, "moody_pro")
     bible["id"] = character_id
@@ -277,6 +297,11 @@ def fill_bible_from_create(
     bible["prompts"]["positive_core"] = positive_core
     bible["prompts"]["negative_core"] = negative_core
     bible["prompts"]["trigger"] = character_id
+    try:
+        profile = get_profile(profile_id)
+        apply_profile_to_bible(bible, profile)
+    except KeyError:
+        bible["active_profile"] = profile_id or "video_ref"
     bible["prompts"]["positive_core_file"] = "prompts/positive_core.txt"
     bible["prompts"]["negative_core_file"] = "prompts/negative_core.txt"
     bible.setdefault("identity", {})
@@ -285,7 +310,14 @@ def fill_bible_from_create(
     return bible
 
 
-def fill_manifest_from_create(manifest: dict, character_id: str, model: str) -> dict:
+def fill_manifest_from_create(
+    manifest: dict,
+    character_id: str,
+    model: str,
+    profile_id: str = "video_ref",
+) -> dict:
+    from lib.profiles import mvp_aliases_for
+
     now = utc_now_iso()
     base_model = {"real": "moody_real", "pro": "moody_pro", "wild": "moody_wild"}.get(model, "moody_pro")
     manifest["character_id"] = character_id
@@ -297,4 +329,9 @@ def fill_manifest_from_create(manifest: dict, character_id: str, model: str) -> 
     manifest["level"] = "L1"
     manifest["assets"] = []
     manifest["approved"] = {}
+    manifest["mvp_profile"] = profile_id
+    try:
+        manifest["missing_mvp"] = list(mvp_aliases_for(profile_id))
+    except KeyError:
+        pass
     return manifest

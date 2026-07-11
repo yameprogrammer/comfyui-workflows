@@ -29,9 +29,11 @@
 ### Rule 6. 캐릭터 패키지 및 구현 스펙 준수
 * 캐릭터 시트/일관성 관련 **코드 구현** 시 상위 설계([character_sheet_system_design.md](character_sheet_system_design.md))보다 **구현 스펙([character_impl_spec.md](character_impl_spec.md))** 을 우선한다.
 * 시트별 denoise·프롬프트·approve 별칭은 **`characters/sheet_presets.json`을 SSOT**로 사용한다. 하드코딩 시 파일과 반드시 동기화할 것.
+* 용도(영상 레퍼 vs 아트북) 설정은 **`characters/profiles.json`을 SSOT**로 한다. 기본 프로필은 **`video_ref`**. 해상도·MVP를 임의 하드코딩하지 말 것.
 * 스토리 키프레임·영상용 인물 샷은 **`approved/`에 승격된 레퍼런스**만 기본 입력으로 사용한다 (`status=draft` 패키지를 본 촬영에 쓰지 말 것).
-* 활성 트랙이 `CHARACTER_L2_SOFT_FACTORY`인 동안 **L3 LoRA 학습 / ControlNet / I2V 본구현을 같은 PR에 섞지 않는다** (스파이크는 별도 세션).
+* 활성 트랙이 `CHARACTER_L2_SOFT_FACTORY`인 동안 **L3 LoRA 학습 / I2V 본구현을 같은 PR에 섞지 않는다** (스파이크는 별도 세션). ControlNet turnaround·프로필(P2.5)은 캐릭터 트랙 내 허용.
 * 새 캐릭터 폴더는 `characters/_template/` 구조를 벗어나 임의로 만들지 않는다.
+* 동일 인물을 위해 artbook/video 용도로 **character_id를 쪼개지 않는다** — 프로필·exports로 분기한다.
  
 ### Rule 7. Z-Image-Turbo 공식 ControlNet (Union 2.1) 운용 규정
 * Z-Image-Turbo 전용 Union 2.1 컨트롤넷 모델 파일(`Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors`)은 일반 `controlnet` 폴더가 아닌 **`models/model_patches/`** 폴더에 배치해야 로더가 정상적으로 스캔합니다.

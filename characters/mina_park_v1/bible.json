@@ -1,0 +1,112 @@
+{
+  "id": "mina_park_v1",
+  "display_name": "Mina Park",
+  "version": "0.1.0",
+  "status": "approved",
+  "created_at": "2026-07-11T12:42:27+00:00",
+  "updated_at": "2026-07-11T12:56:52+00:00",
+  "style": {
+    "medium": "cinematic_photoreal",
+    "base_model": "moody_pro",
+    "look": "Cinematic still photo of Mina Park, mid-20s Korean woman, oval face, soft jawline, warm brown eyes, straight natural brows, natural realistic skin texture, shoulder-length dark brown soft wavy hair, s"
+  },
+  "appearance": {
+    "age_range": "mid-20s",
+    "gender_presentation": "female",
+    "ethnicity_notes": "East Asian / Korean",
+    "face": "oval face, soft jawline, warm brown eyes, straight natural brows",
+    "hair": "shoulder-length dark brown soft wavy hair",
+    "body": "slim-athletic",
+    "distinctive": [
+      "small mole under left eye (may drift under I2I)"
+    ],
+    "wardrobe_default": "black crew-neck t-shirt, light wash blue jeans, white sneakers, minimal jewelry",
+    "wardrobe_alt1": "light beige trench coat, white blouse, dark trousers, simple sneakers"
+  },
+  "prompts": {
+    "positive_core": "Mina Park, mid-20s Korean woman, oval face, soft jawline, warm brown eyes, straight natural brows, natural realistic skin texture, shoulder-length dark brown soft wavy hair, slim-athletic build, small mole under left eye, cinematic photoreal character reference",
+    "negative_core": "identity shift, different person, face morph, extra fingers, deformed hands, mutated face, bad anatomy, blurry face, watermark, text, logo, duplicate face, mannequin, doll, age change, glasses, tattoos, blonde hair, heavy makeup, busy background, extreme smile, action pose",
+    "trigger": "mina_park_v1",
+    "positive_core_file": "prompts/positive_core.txt",
+    "negative_core_file": "prompts/negative_core.txt"
+  },
+  "identity": {
+    "mode": "refs_only",
+    "lora_path": null,
+    "lora_strength_default": null,
+    "primary_ref": "approved/master_front.png",
+    "fallback_refs": []
+  },
+  "consistency_rules": {
+    "must_keep": [
+      "face identity",
+      "dark brown shoulder-length hair",
+      "mole near eye if stable"
+    ],
+    "may_change": [
+      "outfit",
+      "lighting",
+      "background",
+      "pose",
+      "expression"
+    ],
+    "forbidden": [
+      "glasses",
+      "heavy tattoos",
+      "blonde hair"
+    ]
+  },
+  "performance": {
+    "personality": [
+      "reserved",
+      "observant",
+      "warm when comfortable"
+    ],
+    "default_expression": "soft neutral",
+    "mannerisms": [
+      "tucks hair behind ear when thinking"
+    ]
+  },
+  "sheet_index": {
+    "master": [
+      "approved/master_front.png"
+    ],
+    "turnaround": [
+      "approved/turn_front.png",
+      "approved/turn_qf.png",
+      "approved/turn_side.png",
+      "approved/turn_back.png"
+    ],
+    "expression": [
+      "approved/expr_neutral.png",
+      "approved/expr_joy.png",
+      "approved/expr_sad.png",
+      "approved/expr_angry.png",
+      "approved/expr_surprise.png",
+      "approved/expr_think.png"
+    ],
+    "costume": [
+      "approved/costume_default.png",
+      "approved/costume_alt1.png"
+    ]
+  },
+  "video_defaults": {
+    "preferred_keyframe_ref": "approved/master_front.png",
+    "i2v_motion_style": "subtle natural motion, cinematic camera, gentle wind",
+    "max_identity_risk_denoise": 0.78,
+    "aspect_ratio_target": "9:16"
+  },
+  "active_profile": "video_ref",
+  "exports": {
+    "video_ref": {
+      "status": "approved",
+      "updated_at": "2026-07-11T12:56:52+00:00",
+      "path": "exports/video_ref"
+    },
+    "artbook": {
+      "status": "draft",
+      "updated_at": null,
+      "path": "exports/artbook"
+    }
+  }
+}
