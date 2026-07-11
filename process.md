@@ -6,6 +6,15 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] assemble_video — FFmpeg 에피소드 조립
+* **작업 에이전트**: Grok
+* **작업 목표**: work/deliver 클립 concat + optional BGM → exports/final.
+* **주요 변경**:
+  1. `lib/ffmpeg_util.py` — find_ffmpeg, concat_videos, mux_bgm
+  2. `scripts/assemble_video.py` — --episode, --stage auto|work|deliver, --bgm / --no-bgm
+* **실측**: 0.5s color 클립 2개 concat → final mp4 OK (~3.6KB)
+* **다음**: LTX / 실 미니 에피소드 파일럿 / VO 다중 오디오 트랙
+
 ### [2026-07-11] episode_i2v / episode_upscale 배치 CLI
 * **작업 에이전트**: Grok
 * **작업 목표**: approved 키프레임 → work 클립 → deliver 업스케일 배치.

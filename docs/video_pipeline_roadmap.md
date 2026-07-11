@@ -208,10 +208,10 @@ assemble_video.py ...
 | **P1b** | format / I2V preset / multi-backend SSOT | ✅ |
 | **P1c** | 업스케일 multi-backend ≤4K | ✅ |
 | **P-L** | 로케이션 팩 설계 → CLI → 파일럿 | CLI ✅ / 파일럿 ⬜ |
-| **P-S** | 스토리보드·샷·배치 I2V/업스케일 | CLI ✅ / assemble ⬜ |
+| **P-S** | 스토리보드·샷·배치 I2V/업스케일/조립 | ✅ |
 | **P-E1** | 미니 에피소드 E2E (1 char + 1 loc + 6 shots) | ⬜ |
 | **P3** | LTX2.3 백엔드 연동 | ⬜ |
-| **P4** | FFmpeg 조립 + 오디오 | ⬜ |
+| **P4** | FFmpeg 조립 + 오디오 | ✅ assemble_video (BGM 옵션) |
 | **P5** | T2V/V2V/립싱크 등 | ⬜ |
 
 ---
@@ -226,7 +226,7 @@ assemble_video.py ...
 | **연속성의 뼈대** | 캐릭터+로케 고정 + 클립 연장 | 부분 |
 | **룩의 뼈대** | `looks/` style core | ✅ 템플릿 |
 | **퀄리티의 뼈대** | 업스케일 ≤4K | ✅ MVP |
-| **완성의 뼈대** | FFmpeg 조립 + 오디오 | ⬜ |
+| **완성의 뼈대** | FFmpeg 조립 + BGM | ✅ MVP |
 | **백엔드 확장** | LTX2.3 등 | ⬜ |
 
 ---
@@ -236,7 +236,7 @@ assemble_video.py ...
 1. `locations/` 템플릿 + create/expand/approve CLI (L1–L3)
 2. `stories/` + `shot_compose` (S1–S3)
 3. 미니 에피소드 P-E1
-4. `assemble_video.py` + LTX 백엔드
+4. LTX 백엔드 / 실 미니 에피소드 파일럿
 
 ---
 

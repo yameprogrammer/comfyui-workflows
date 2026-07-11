@@ -85,7 +85,7 @@ Script / beat sheet
 |--------|------|------|
 | Work clip | `generate_i2v.py` | 필수 |
 | Deliver clip | `upscale_video.py` | 납품 시 |
-| Final cut | assemble (예정) | 에피소드 |
+| Final cut | `assemble_video.py` | 에피소드 |
 
 ---
 
@@ -322,7 +322,7 @@ python scripts/episode_upscale.py --episode mina_cafe_ep01 --preset deliver_1080
 | **S5** | `episode_i2v` 배치 | S4, generate_i2v | ✅ |
 | **S6** | first–last continuity 옵션 | S5 | ⬜ |
 | **S7** | board panels / animatic | S2 | ⬜ |
-| **S8** | episode upscale + assemble 연동 | S5, D4/D5 | ✅ upscale 배치 / assemble ⬜ |
+| **S8** | episode upscale + assemble 연동 | S5, D4/D5 | ✅ |
 
 ---
 

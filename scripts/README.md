@@ -32,6 +32,7 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `shot_approve.py` | keyframe_status 승격 | I2V 전 게이트 |
 | `episode_i2v.py` | approved 키프레임 배치 I2V | → `clips/work/` |
 | `episode_upscale.py` | work 클립 배치 업스케일 | → `clips/deliver/` |
+| `assemble_video.py` | FFmpeg concat + optional BGM | → `exports/final/` |
 | `generate_krea.py` | Krea T2I | `t2i_krea` |
 | `character_create.py` | 패키지 + 마스터 후보 | t2i |
 | `character_approve.py` | refs → approved 승격 | — |
