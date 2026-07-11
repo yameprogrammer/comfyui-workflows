@@ -6,6 +6,19 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] 턴어라운드 품질 경로: full-body master + ControlNet
+* **작업 에이전트**: Grok
+* **선행 커밋**: `0ae21a4` (CN 인프라)
+* **작업 목표**: 클로즈업 VAEEncode 고정을 깨고 전신 multi-view 후보 품질 개선.
+* **주요 변경 사항**:
+  1. **`lib/fullbody_source.py`**: 전신 master T2I 자동 생성(의상 강제·nude 네거티브), `ensure_fullbody_source`
+  2. **expand**: 턴어라운드 시 full-body 소스 우선 + `--ensure-fullbody` / `--engine controlnet_empty`
+  3. **controlnet**: `--empty-latent` (EmptySD3 rewire, denoise 1.0)
+  4. **실측**: clothed full-body master `s60011` 성공 → `approved/master_full.png`
+  5. full-body 소스 CN 턴 4장: **전신 구도 유지 성공**; front 양호, side 약한 회전, back 아직 정면 고정 + 스틱 라인 아티팩트
+* **결론**: “클로즈업 소스”가 주범이었음. full-body master가 필수. 측면/후면 정밀 각도는 포즈 맵 품질 추가 개선 필요.
+* **다음**: OpenPose/실사 포즈 레퍼 또는 empty-latent+LoRA 정밀 각도.
+
 ### [2026-07-11] P4 ControlNet turnaround 연동 (인프라)
 * **작업 에이전트**: Grok
 * **선행 커밋**: `1045511` (P2.5 프로필 롤백 포인트)

@@ -25,15 +25,20 @@
 L2 Soft Factory is **validated as a tool pipeline**, not as pro-grade multi-view model sheets yet.
 
 ### ControlNet turnaround pass (2026-07-11, seeds 30001–30004)
-- Command: `character_expand_sheets.py --sheets turnaround --engine controlnet --candidates 1`
-- Result: **pipeline OK (4/4)**, **view change NOT OK** — still upper-body portraits; stick-figure edge lines can bleed into face (thin vertical artifacts).
-- denoise 0.95 + strength 0.9 retest (`cn_test_side_d95.png`) still portrait.
-- Root cause: `I2I-ControlNet-moody` VAEEncodes the face ref as latent base → composition attractor dominates ControlNet pose.
+- Face-source CN: pipeline OK, **portrait lock** (failure). Stick lines can artifact.
+
+### Full-body source CN pass (2026-07-11, seeds 70001–70004) — improved
+- Generated clothed full-body master `s60011` → `approved/master_full.png`
+- CN from **master_full**:
+  - **front**: usable full-body (some pose-template grid lines on clothes)
+  - **side**: full-body kept, angle only mild (not true profile)
+  - **back**: still mostly front-facing + stick artifacts
+- Root cause update: portrait VAEEncode was the main composition killer; full-body source fixes framing. **View angle** still needs better pose maps / higher structural control.
 
 **Next technical steps**
-1. Empty-latent (or SD3 empty) + ControlNet pose workflow (identity via prompt/LoRA, not portrait VAEEncode)
-2. True full-body master T2I (prompt must say full body, not close-up) as CN source
-3. Stronger OpenPose/depth templates if available in Comfy install
+1. Better pose maps (OpenPose/real photo silhouettes) for true side/back
+2. Tune denoise/strength per view; optional `controlnet_empty` + LoRA for hard angles
+3. Quarantine old failed face-source turnaround files under `refs/turnaround`
 
 ## Paths
 

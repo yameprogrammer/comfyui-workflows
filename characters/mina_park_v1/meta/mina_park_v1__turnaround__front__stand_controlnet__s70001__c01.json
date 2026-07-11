@@ -1,0 +1,39 @@
+{
+  "character_id": "mina_park_v1",
+  "sheet": "turnaround",
+  "view": "front",
+  "variant": "stand",
+  "seed": 70001,
+  "model": "pro",
+  "workflow": "I2I-ControlNet-moody",
+  "mode": "i2i_controlnet",
+  "empty_latent": false,
+  "prompt": "Mina Park, mid-20s Korean woman, oval face, soft jawline, warm brown eyes, straight natural brows, natural realistic skin texture, shoulder-length dark brown soft wavy hair, slim-athletic build, small mole under left eye, cinematic photoreal character reference, same exact person, full body turnaround sheet view, front orthographic standing pose, arms slightly away from body, neutral expression, facing camera, head-to-toe visible, plain light gray background, even studio lighting, character model sheet, consistent proportions, cinematic still photo, realistic skin texture, highly detailed, sharp focus, natural color grading",
+  "prompt_instruction": "same exact person, full body turnaround sheet view, front orthographic standing pose, arms slightly away from body, neutral expression, facing camera, head-to-toe visible, plain light gray background, even studio lighting, character model sheet, consistent proportions, cinematic still photo, realistic skin texture, highly detailed, sharp focus, natural color grading",
+  "core_prefix": "Mina Park, mid-20s Korean woman, oval face, soft jawline, warm brown eyes, straight natural brows, natural realistic skin texture, shoulder-length dark brown soft wavy hair, slim-athletic build, small mole under left eye, cinematic photoreal character reference",
+  "core_suffix": "",
+  "negative": "identity shift, different person, face morph, extra fingers, deformed hands, mutated face, bad anatomy, blurry face, watermark, text, logo, duplicate face, mannequin, doll, age change, glasses, tattoos, blonde hair, heavy makeup, busy background, extreme smile, action pose, three-quarter view, profile, sitting, dramatic pose, busy background, cropped feet, close-up only, identity shift, different person, face morph, extra fingers, deformed hands, mutated face, bad anatomy, blurry face, watermark, text, logo, duplicate face, mannequin, doll",
+  "denoise": 0.78,
+  "cfg": 3.5,
+  "control_strength": 0.78,
+  "steps": 20,
+  "sampler": "euler",
+  "scheduler": "normal",
+  "latent_size": [
+    1024,
+    1536
+  ],
+  "source_image": "F:\\ComfyUI_workflows\\agent_custom\\characters\\mina_park_v1\\approved\\master_full.png",
+  "control_image": "F:\\ComfyUI_workflows\\agent_custom\\characters\\pose_templates\\stand_front_1024x1536.png",
+  "created_at": "2026-07-11T13:12:46+00:00",
+  "comfy_prompt_id": "6fc5198f-df60-47f6-82e5-9bf2376ac052",
+  "output_path": "F:\\ComfyUI_workflows\\agent_custom\\characters\\mina_park_v1\\refs\\turnaround\\mina_park_v1__turnaround__front__stand_controlnet__s70001__c01.png",
+  "candidate": 1,
+  "preset_id": "turnaround.front",
+  "profile": "video_ref",
+  "engine": "controlnet",
+  "size_hint": [
+    1024,
+    1536
+  ]
+}

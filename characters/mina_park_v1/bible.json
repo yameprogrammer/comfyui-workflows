@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "status": "approved",
   "created_at": "2026-07-11T12:42:27+00:00",
-  "updated_at": "2026-07-11T13:00:01+00:00",
+  "updated_at": "2026-07-11T13:11:47+00:00",
   "style": {
     "medium": "cinematic_photoreal",
     "base_model": "moody_pro",
@@ -69,7 +69,8 @@
   },
   "sheet_index": {
     "master": [
-      "approved/master_front.png"
+      "approved/master_front.png",
+      "approved/master_full.png"
     ],
     "turnaround": [
       "approved/turn_front.png",
@@ -100,7 +101,7 @@
   "exports": {
     "video_ref": {
       "status": "approved",
-      "updated_at": "2026-07-11T12:56:52+00:00",
+      "updated_at": "2026-07-11T13:11:46+00:00",
       "path": "exports/video_ref"
     },
     "artbook": {

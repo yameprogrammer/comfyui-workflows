@@ -612,8 +612,10 @@ Character Package
 - [x] Z-Image ControlNet 러너 연동 (`generate_moody_controlnet.py` + expand)
 - [x] 포즈 템플릿 생성기 (`lib/pose_templates.py`) + edge preprocess
 - [x] turnaround preset → `engine: controlnet` 기본
-- [ ] **품질**: Empty-latent CN WF 또는 full-body source로 multi-view 성공 검증
-- [ ] OpenPose/depth 템플릿 강화 (스틱 라인 아티팩트 제거)
+- [x] **full-body master 경로** (`lib/fullbody_source.py`) + expand 자동 ensure
+- [x] empty-latent CN 옵션 (`--engine controlnet_empty` / `--empty-latent`)
+- [x] 실측: full-body 소스로 전신 구도 유지 성공 (side/back 각도·아티팩트는 잔여)
+- [ ] OpenPose/실사 포즈 맵으로 side/back 각도 정밀화
 
 #### P5~P6 — LoRA (L3)
 - [ ] 데이터셋 최소 기준 문서 (15~40장, 각도/표정 다양, 클린 BG 권장)

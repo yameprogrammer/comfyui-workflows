@@ -17,6 +17,7 @@ from lib.character_package import (
     validate_character_id,
 )
 from lib.comfy_client import utc_now_iso, write_meta
+from lib.fullbody_source import ensure_fullbody_source, find_fullbody_source
 from lib.pose_templates import ensure_pose_template, ensure_view_pose
 from lib.profiles import (
     PROFILE_IDS,
@@ -99,9 +100,23 @@ def main(argv=None) -> int:
     parser.add_argument("--seed-base", type=int, default=None)
     parser.add_argument(
         "--engine",
-        choices=["auto", "i2i", "controlnet"],
+        choices=["auto", "i2i", "controlnet", "controlnet_empty"],
         default="auto",
-        help="auto: use preset.engine (turnaround defaults to controlnet); i2i|controlnet force",
+        help=(
+            "auto: preset.engine; controlnet: I2I+CN from character image; "
+            "controlnet_empty: Empty latent+CN (pose+prompt only)"
+        ),
+    )
+    parser.add_argument(
+        "--ensure-fullbody",
+        action="store_true",
+        default=True,
+        help="If turnaround needs CN I2I, generate full-body master when missing (default on)",
+    )
+    parser.add_argument(
+        "--no-ensure-fullbody",
+        action="store_true",
+        help="Do not auto-generate full-body master",
     )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--strict", action="store_true", help="Exit 31 on partial failure")
@@ -159,17 +174,39 @@ def main(argv=None) -> int:
         print("[ERROR] code=2 message=no expandable presets selected", file=sys.stderr)
         return EXIT_USAGE
 
+    needs_turnaround = any(
+        (presets["presets"].get(pid) or {}).get("sheet") == "turnaround" for pid in expand_ids
+    )
+    ensure_fb = args.ensure_fullbody and not args.no_ensure_fullbody
+
     if args.source:
         source_path = pkg.resolve(args.source)
     else:
-        source_path = pkg.default_source_ref()
+        source_path = None
+        # Prefer full-body for structure-changing CN I2I turnaround
+        if needs_turnaround and args.engine != "controlnet_empty":
+            if ensure_fb:
+                source_path = ensure_fullbody_source(
+                    pkg,
+                    model=model,
+                    profile_id=profile_id,
+                    force_generate=False,
+                    timeout_sec=args.timeout,
+                )
+            else:
+                source_path = find_fullbody_source(pkg)
+        if not source_path:
+            source_path = pkg.default_source_ref()
 
-    if not source_path or not os.path.exists(source_path):
-        print(
-            "[ERROR] code=20 message=source missing — approve master_front first or pass --source",
-            file=sys.stderr,
-        )
-        return EXIT_SOURCE_MISSING
+    # controlnet_empty does not require character image
+    if args.engine != "controlnet_empty":
+        if not source_path or not os.path.exists(source_path):
+            print(
+                "[ERROR] code=20 message=source missing — approve master or pass --source "
+                "(turnaround prefers full-body master)",
+                file=sys.stderr,
+            )
+            return EXIT_SOURCE_MISSING
 
     positive_core = pkg.read_positive_core()
     negative_core = pkg.read_negative_core()
@@ -177,7 +214,7 @@ def main(argv=None) -> int:
     global_negative = presets.get("global", {}).get("global_negative", "")
 
     print(f"Profile: {profile_id}")
-    print(f"Source: {source_path}")
+    print(f"Source: {source_path or '(none — empty latent CN)'}")
     print(f"Presets ({len(expand_ids)}): {', '.join(expand_ids)}")
     print(f"Candidates/preset: {candidates}")
 
@@ -187,6 +224,8 @@ def main(argv=None) -> int:
         eng = (preset.get("engine") or "i2i").lower()
         if eng in ("controlnet", "cn"):
             return "controlnet"
+        if eng in ("controlnet_empty", "cn_empty", "t2i_controlnet"):
+            return "controlnet_empty"
         return "i2i"
 
     if args.dry_run:
@@ -270,18 +309,21 @@ def main(argv=None) -> int:
                 f"seed={seed} size_hint={w}x{h} ==="
             )
 
-            if engine == "controlnet":
+            if engine in ("controlnet", "controlnet_empty"):
                 pose_id = preset.get("pose_template")
                 if pose_id:
                     control_path = ensure_pose_template(pose_id, width=w, height=h)
                 else:
                     control_path = ensure_view_pose(preset.get("view") or "front", width=w, height=h)
                 print(f"Control pose template: {control_path}")
+                use_empty = engine == "controlnet_empty"
+                # Full-body I2I+CN: slightly higher denoise helps pose change without total identity wipe
+                cn_denoise = 1.0 if use_empty else max(denoise, 0.72)
                 result = generate_controlnet_image(
                     input_image_path=source_path,
                     control_image_path=control_path,
                     prompt_text=prompt_instruction,
-                    denoise_val=denoise,
+                    denoise_val=cn_denoise,
                     cfg_val=cfg,
                     control_strength=strength,
                     model_type=model,
@@ -291,6 +333,9 @@ def main(argv=None) -> int:
                     core_prefix=positive_core,
                     meta_out=meta_path,
                     timeout_sec=args.timeout,
+                    empty_latent=use_empty,
+                    latent_width=w,
+                    latent_height=h,
                 )
             else:
                 result = generate_i2i_image(

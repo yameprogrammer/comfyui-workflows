@@ -28,6 +28,24 @@ from lib.comfy_client import (
 from lib.prompt_assembly import assemble_prompt, load_text
 
 
+def _rewire_empty_latent(api_prompt: dict, width: int, height: int, batch_size: int = 1) -> str:
+    """Replace KSampler latent input with EmptySD3LatentImage (T2I+ControlNet path)."""
+    empty_id = "9001"
+    api_prompt[empty_id] = {
+        "class_type": "EmptySD3LatentImage",
+        "inputs": {
+            "width": int(width),
+            "height": int(height),
+            "batch_size": int(batch_size),
+        },
+    }
+    for _nid, node in api_prompt.items():
+        if node.get("class_type") == "KSampler":
+            node["inputs"]["latent_image"] = [empty_id, 0]
+            node["inputs"]["denoise"] = 1.0
+    return empty_id
+
+
 def generate_controlnet_image(
     input_image_path,
     control_image_path,
@@ -44,13 +62,23 @@ def generate_controlnet_image(
     meta_out=None,
     server_address=DEFAULT_SERVER,
     timeout_sec=600,
+    empty_latent: bool = False,
+    latent_width: int | None = None,
+    latent_height: int | None = None,
 ):
+    """
+    ControlNet I2I (default) or empty-latent T2I+ControlNet.
+
+    empty_latent=True: ignore portrait VAEEncode base; identity from prompt only
+    (use strong positive_core / later LoRA). Pose from control image.
+    """
     workflow_path = os.path.join(WORKSPACE_ROOT, "I2I-ControlNet-moody.json")
     selected_model = MODEL_MAPPING.get(model_type.lower(), MODEL_MAPPING["real"])
 
-    if not os.path.exists(input_image_path):
-        print(f"Error: Face/character reference not found at {input_image_path}")
-        return fail_result(error="SOURCE_MISSING", message=input_image_path)
+    if not empty_latent:
+        if not input_image_path or not os.path.exists(input_image_path):
+            print(f"Error: Face/character reference not found at {input_image_path}")
+            return fail_result(error="SOURCE_MISSING", message=input_image_path)
     if not os.path.exists(control_image_path):
         print(f"Error: Control/pose image not found at {control_image_path}")
         return fail_result(error="CONTROL_MISSING", message=control_image_path)
@@ -62,14 +90,22 @@ def generate_controlnet_image(
         from lib.edge_preprocess import write_canny_rgb
 
         os.makedirs(COMFYUI_INPUT_DIR, exist_ok=True)
-        shutil.copy2(input_image_path, os.path.join(COMFYUI_INPUT_DIR, temp_input_name))
+        if not empty_latent:
+            shutil.copy2(input_image_path, os.path.join(COMFYUI_INPUT_DIR, temp_input_name))
+        else:
+            # Dummy pixels for LoadImage node 54 (unused latent path after rewire)
+            from PIL import Image
+
+            dummy = Image.new("RGB", (64, 64), (128, 128, 128))
+            dummy.save(os.path.join(COMFYUI_INPUT_DIR, temp_input_name))
         write_canny_rgb(
             control_image_path,
             os.path.join(COMFYUI_INPUT_DIR, temp_control_name),
             low=50,
             high=150,
         )
-        print("Processed control image (Canny/edges) and copied refs to ComfyUI input.")
+        mode = "empty_latent" if empty_latent else "i2i_latent"
+        print(f"Processed control edges; mode={mode}")
     except Exception as e:
         print(f"Error copying/processing reference images: {e}")
         return fail_result(error="INPUT_COPY_FAILED", message=str(e))
@@ -134,6 +170,13 @@ def generate_controlnet_image(
         api_prompt[zimage_cn_node_id]["inputs"]["strength"] = control_strength
         print(f"Set ZImageFunControlnet Strength: {control_strength}")
 
+    applied_w = latent_width or 1024
+    applied_h = latent_height or 1536
+    if empty_latent:
+        _rewire_empty_latent(api_prompt, applied_w, applied_h)
+        denoise_val = 1.0
+        print(f"Rewired EmptySD3LatentImage {applied_w}x{applied_h}, denoise forced 1.0")
+
     new_seed = seed if seed is not None else random.randint(1, 1125899906842624)
     applied_steps = None
     if sampler_node_id:
@@ -192,7 +235,8 @@ def generate_controlnet_image(
         "seed": new_seed,
         "model": model_type,
         "workflow": "I2I-ControlNet-moody",
-        "mode": "i2i_controlnet",
+        "mode": "t2i_controlnet" if empty_latent else "i2i_controlnet",
+        "empty_latent": empty_latent,
         "prompt": final_prompt,
         "prompt_instruction": prompt_text,
         "core_prefix": core_prefix or "",
@@ -204,7 +248,10 @@ def generate_controlnet_image(
         "steps": applied_steps,
         "sampler": "euler",
         "scheduler": "normal",
-        "source_image": os.path.abspath(input_image_path),
+        "latent_size": [applied_w, applied_h],
+        "source_image": (
+            os.path.abspath(input_image_path) if input_image_path and not empty_latent else None
+        ),
         "control_image": os.path.abspath(control_image_path),
         "created_at": utc_now_iso(),
         "comfy_prompt_id": prompt_id,
@@ -225,7 +272,13 @@ def generate_controlnet_image(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="ControlNet-assisted I2I on Moody models")
-    parser.add_argument("--input", "-i", type=str, required=True, help="Character/face reference image")
+    parser.add_argument(
+        "--input",
+        "-i",
+        type=str,
+        default=None,
+        help="Character reference image (required unless --empty-latent)",
+    )
     parser.add_argument("--control", type=str, required=True, help="Pose/control reference image")
     parser.add_argument("--prompt", "-p", type=str, default=None)
     parser.add_argument("--prompt-file", type=str, default=None)
@@ -241,6 +294,13 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--meta-out", type=str, default=None)
     parser.add_argument("--timeout", type=int, default=600)
+    parser.add_argument(
+        "--empty-latent",
+        action="store_true",
+        help="T2I+ControlNet: EmptySD3 latent (no portrait VAEEncode base)",
+    )
+    parser.add_argument("--width", type=int, default=1024, help="Empty latent width")
+    parser.add_argument("--height", type=int, default=1536, help="Empty latent height")
     args = parser.parse_args()
 
     if args.prompt_file:
@@ -249,6 +309,9 @@ if __name__ == "__main__":
         prompt_text = args.prompt
     else:
         parser.error("Either --prompt or --prompt-file is required")
+
+    if not args.empty_latent and not args.input:
+        parser.error("--input is required unless --empty-latent")
 
     negative_text = load_text(args.negative_file) if args.negative_file else (args.negative or "")
     core_prefix = load_text(args.core_prefix_file) if args.core_prefix_file else ""
@@ -269,5 +332,8 @@ if __name__ == "__main__":
         core_suffix=core_suffix,
         meta_out=args.meta_out,
         timeout_sec=args.timeout,
+        empty_latent=args.empty_latent,
+        latent_width=args.width,
+        latent_height=args.height,
     )
     sys.exit(0 if result.get("ok") else 1)
