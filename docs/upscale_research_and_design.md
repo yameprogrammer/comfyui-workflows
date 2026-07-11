@@ -69,7 +69,7 @@
 | GPU | **RTX 4090** (torch CUDA OK) |
 | SeedVR2 노드 | `custom_nodes/seedvr2_videoupscaler` |
 | SeedVR2 가중치 | `models/SEEDVR2/seedvr2_ema_7b_fp16` + **fp8 mixed**, `ema_vae_fp16` |
-| SeedVR2 CLI | `inference_cli.py` (`--resolution`, `--dit_model`, batch, VAE tile…) |
+| SeedVR2 CLI | `inference_cli.py` (`--resolution`, `--dit_model`, batch, VAE tile…). portable python에 **`rotary-embedding-torch` 필요** (미설치 시 import 실패) |
 | RTX VSR | Comfy 노드 **`RTXVideoSuperResolution`** 로드됨 |
 | ESRGAN 계열 | RealESRGAN_x4plus, 4xRealWebPhoto_v4_dat2, Nomos, Remacri, AnimeSharp… |
 | UltimateSDUpscale | 설치됨 (확산 타일 — 모델 의존, 2차) |

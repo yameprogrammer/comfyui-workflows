@@ -14,7 +14,9 @@
   1. `docs/upscale_research_and_design.md`
   2. `upscale_backends.json` + `lib/upscale_backends.py` + `lib/upscale_runners.py`
   3. `scripts/upscale_image.py` / `upscale_video.py` (`esrgan`/`rtx_vsr`/`seedvr2`/`seedvr2_max`, presets 720–2160)
-* **다음**: 실측 벤치(1080/4K), 필요 시 agent UI WF 스냅샷·FlashVSR 로컬 경로.
+* **의존성 픽스**: SeedVR2 CLI가 `ModuleNotFoundError: rotary_embedding_torch` 로 기동 실패 → portable python에 `rotary-embedding-torch` 설치 후 `--help` 정상.
+* **실측**: ESRGAN `deliver_1080` 이미지 스모크 OK. SeedVR2 장시간 벤치는 후속.
+* **다음**: SeedVR2/RTX 실측 벤치(1080/4K), agent UI WF 스냅샷 선택.
 
 ### [2026-07-11] 영상 format 프로필 — 비율은 프로젝트마다
 * **작업 에이전트**: Grok
