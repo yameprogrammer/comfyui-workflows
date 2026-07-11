@@ -113,7 +113,7 @@ def generate_controlnet_image(input_image_path, control_image_path, prompt_text,
         # Preprocess control image using OpenCV Canny edge detector to extract outlines
         import cv2
         img = cv2.imread(control_image_path, cv2.IMREAD_GRAYSCALE)
-        edges = cv2.Canny(img, 100, 200)
+        edges = cv2.Canny(img, 50, 150)
         # Convert single channel to RGB for ComfyUI node compatibility
         edges_rgb = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
         cv2.imwrite(os.path.join(comfyui_input_dir, temp_control_name), edges_rgb)
