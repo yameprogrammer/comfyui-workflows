@@ -95,7 +95,10 @@ def generate_image(prompt_text, model_type="real", output_filename=None):
     selected_model = model_mapping.get(model_type.lower(), model_mapping["real"])
     
     if output_filename is None:
-        output_filename = os.path.join(r"F:\ComfyUI_workflows\agent_custom", f"output_{model_type}.png")
+        output_filename = os.path.join(r"F:\generated_images", f"output_{model_type}.png")
+        
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_filename), exist_ok=True)
         
     print(f"Loading base workflow: {workflow_path}")
     with open(workflow_path, 'r', encoding='utf-8') as f:

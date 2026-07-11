@@ -115,7 +115,10 @@ def generate_i2i_image(input_image_path, prompt_text, denoise_val=0.45, cfg_val=
     selected_model = model_mapping.get(model_type.lower(), model_mapping["real"])
     
     if output_filename is None:
-        output_filename = os.path.join(r"F:\ComfyUI_workflows\agent_custom", f"output_i2i_{model_type}.png")
+        output_filename = os.path.join(r"F:\generated_images", f"output_i2i_{model_type}.png")
+        
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_filename), exist_ok=True)
         
     # 4. Load base I2I workflow
     print(f"Loading I2I workflow: {workflow_path}")
