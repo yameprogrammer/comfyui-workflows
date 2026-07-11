@@ -6,6 +6,43 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] SI2V 품질 QA — 파이프 OK ≠ 립싱크 합격
+* **작업 에이전트**: Grok
+* **v1 육안**: 입 움직임은 있으나 립싱크 실패급 + 손/표정 붕괴
+* **v2**: master_front + 25fps + 20step + voicey EQ → identity 안정, 입 개폐 약함, **정밀 립싱크 미달**
+* **교훈**: 생성 exit 0만 보고 합격 판정 금지; 풀 믹스 뮤비 구간은 보컬 분리 필요
+* **다음**: MelBand/보컬 stem 경로 또는 클린 VO 테스트
+
+### [2026-07-11] InfiniteTalk SI2V 실생성 스모크 OK
+* **작업 에이전트**: Grok
+* **경로**: Wan2.1 I2V 14B Q4 GGUF + InfiniTetalk-Single fp16 + Tencent wav2vec (HF download node)
+* **실측**: 소나기 5s slice + mina S02 → `clips/work/S02_s2v_smoke.mp4` (~3min, 640², 81f, 6step)
+* **수정**: `audio_slice` 재인코딩(메타 깨짐 방지); InfiniteTalk hardlink to diffusion_models; `generate_s2v.py` live inject
+* **다음**: episode_s2v 배치, 품질 튜닝(해상도/steps), music_video 샷 연동
+
+### [2026-07-11] 오디오 P1 layered + 소나기 music_locked 스모크 + S2V scaffold
+* **작업 에이전트**: Grok
+* **P1**: `collect_timeline_events` / `mix_timeline_under_video` (atrim+adelay+amix); `audio_slice.py`
+* **실측**: `소나기mastered.wav` → `assemble --mix-policy music_locked` → final **12.2s h264+aac**
+* **SI2V**: 이후 실생성 스모크에서 확인
+* **슬라이스**: t=38–43s → `audio/dialogue/sonagi_v1_slice5.wav`
+
+### [2026-07-11] 오디오·모션 드라이버 설계 + P0 구현
+* **작업 에이전트**: Grok
+* **작업 목표**: 뮤비/스토리 등 프로덕션 모드와 대사·SFX·SI2V를 BGM 한 줄로 뭉개지 않도록 계약 고정 후 조립 기초.
+* **설계**: [docs/audio_motion_production_modes.md](docs/audio_motion_production_modes.md)
+  - 축: `production_mode` × `motion_driver` × `mix_policy`
+  - stems: masters/music/dialogue/vo/sfx
+  - 계획 P0 계약·조립 → P1 샷 타임라인 → P2 SI2V → P3 TTS
+* **구현 (P0)**:
+  1. `lib/audio_package.py` — mode defaults, readiness, stem resolve
+  2. `lib/ffmpeg_util.mix_audio_under_video` — multi-stem amix
+  3. `scripts/assemble_video.py` — mix_policy 분기 (`video_only`/`music_locked`/`bgm_under`/`dialogue_sfx_first_bgm_late`)
+  4. `scripts/audio_status.py`
+  5. schema/template/commission 필드; `episode_i2v` 가 non-i2v 드라이버 스킵
+* **정책 참고**: 업스케일 기본 **rtx_vsr** (SeedVR2 실무 비권장)
+* **다음**: P1 layered 타임라인 · P2 generate_s2v
+
 ### [2026-07-11] shot_compose --all / assets_list / pipeline stages
 * **작업 에이전트**: Grok
 * **작업 목표**: 배치 키프레임 컴포즈 + 자산 목록/에피소드 점검 + 파이프에 assets·compose 단계.
