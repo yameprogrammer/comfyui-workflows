@@ -4,10 +4,11 @@
 - **상태**: **P0~P2 코드 + 파일럿 E2E 완료** / **용도 프로필(profile) 스펙 추가·구현 대기**
 - **상위 설계**: [character_sheet_system_design.md](character_sheet_system_design.md)
 - **영상 로드맵**: [video_pipeline_roadmap.md](video_pipeline_roadmap.md)
-- **프리셋 데이터**: [characters/sheet_presets.json](characters/sheet_presets.json)
-- **용도 프로필 SSOT**: [characters/profiles.json](characters/profiles.json)
-- **패키지 템플릿**: [characters/_template/](characters/_template/)
-- **파일럿 브리프**: [characters/pilots/mina_park_v1_brief.md](characters/pilots/mina_park_v1_brief.md)
+- **프리셋 데이터**: [../characters/sheet_presets.json](../characters/sheet_presets.json)
+- **용도 프로필 SSOT**: [../characters/profiles.json](../characters/profiles.json)
+- **패키지 템플릿**: [../characters/_template/](../characters/_template/)
+- **파일럿 브리프**: [../characters/pilots/mina_park_v1_brief.md](../characters/pilots/mina_park_v1_brief.md)
+- **CLI**: `../scripts/` · 워크플로우: `../workflows/agent/`
 
 ---
 
@@ -82,8 +83,8 @@ Comfy 엔진 WF는 복제하지 않음 (T2I / I2I / ControlNet 공용)
 
 | 파일 | 역할 |
 |------|------|
-| [characters/profiles.json](characters/profiles.json) | 프로필 정의 **SSOT** |
-| [characters/sheet_presets.json](characters/sheet_presets.json) | 시트별 prompt/denoise (프로필 무관 엔진 레시피) |
+| [characters/profiles.json](../characters/profiles.json) | 프로필 정의 **SSOT** |
+| [characters/sheet_presets.json](../characters/sheet_presets.json) | 시트별 prompt/denoise (프로필 무관 엔진 레시피) |
 | `bible.active_profile` | 패키지가 마지막으로 사용한 프로필 |
 | `bible.exports` / `exports/<profile>/` | 프로필별 export 상태·경로 (구현 시) |
 
@@ -106,11 +107,11 @@ Comfy 엔진 WF는 복제하지 않음 (T2I / I2I / ControlNet 공용)
 
 ```bash
 # 기본 = video_ref
-python character_create.py --id hero_v1 --name "Hero" --profile video_ref ...
+python scripts/character_create.py --id hero_v1 --name "Hero" --profile video_ref ...
 
 # 아트북 모드 (고해상·풀 MVP)
-python character_create.py --id hero_v1 --name "Hero" --profile artbook --force ...
-python character_expand_sheets.py --id hero_v1 --profile artbook --sheets all_mvp
+python scripts/character_create.py --id hero_v1 --name "Hero" --profile artbook --force ...
+python scripts/character_expand_sheets.py --id hero_v1 --profile artbook --sheets all_mvp
 ```
 
 | 인자 | 적용 CLI | 기본 | 동작 |
@@ -165,6 +166,11 @@ python character_expand_sheets.py --id hero_v1 --profile artbook --sheets all_mv
 
 ```text
 agent_custom/
+  agent_rules.md / process.md / README.md
+  workflows/agent/             # 워크플로우 JSON SSOT + catalog.json
+  scripts/                     # CLI: generate_*, character_*, shot_*
+  lib/                         # comfy_client, character_package, ...
+  docs/                        # 스펙·로드맵
   characters/
     _template/                 # 새 캐릭터 복사 원본
     schemas/
@@ -177,16 +183,6 @@ agent_custom/
     <character_id>/            # 실제 캐릭터 패키지
       exports/video_ref/       # P2.5
       exports/artbook/         # P2.5
-  character_create.py          # P2 (+ P2.5 --profile)
-  character_expand_sheets.py   # P2 (+ P2.5 --profile)
-  character_approve.py         # P2
-  shot_with_character.py       # P7 신규
-  generate_moody.py            # P1 패치
-  generate_moody_i2i.py        # P1 패치
-  lib/
-    comfy_client.py
-    prompt_assembly.py
-    character_package.py
 ```
 
 ### 2.2 캐릭터 패키지 필수 파일
@@ -467,7 +463,7 @@ final_prompt = join_nonempty([
 
 ```bash
 cd F:\ComfyUI_workflows\agent_custom
-python character_create.py ...
+python scripts/character_create.py ...
 ```
 
 ### 6.1 `character_create.py`
@@ -475,7 +471,7 @@ python character_create.py ...
 **목적:** 패키지 폴더 생성 + bible draft + master 후보 T2I N장.
 
 ```bash
-python character_create.py \
+python scripts/character_create.py \
   --id mina_park_v1 \
   --name "Mina Park" \
   --model pro \
@@ -528,7 +524,7 @@ NEXT: 후보를 고른 뒤 character_approve.py 로 master_front 승격
 **목적:** approved master(또는 지정 ref)에서 시트 배치 생성.
 
 ```bash
-python character_expand_sheets.py \
+python scripts/character_expand_sheets.py \
   --id mina_park_v1 \
   --sheets turnaround,expression,costume \
   --source approved/master_front.png \
@@ -563,7 +559,7 @@ python character_expand_sheets.py \
 ### 6.3 `character_approve.py`
 
 ```bash
-python character_approve.py \
+python scripts/character_approve.py \
   --id mina_park_v1 \
   --from refs/master/....c02.png \
   --as master_front
@@ -591,7 +587,7 @@ python character_approve.py \
 ### 6.4 `shot_with_character.py` (P7 — 계약만 선정의, 구현은 P2 후)
 
 ```bash
-python shot_with_character.py \
+python scripts/shot_with_character.py \
   --id mina_park_v1 \
   --shot "medium shot, rainy night street, holding umbrella" \
   --ref approved/master_front.png \
@@ -689,7 +685,7 @@ duplicate face, age change, glasses (unless character wears glasses)
 ### 9.2 마스터 1장 (P1 패치 후)
 
 ```bash
-python generate_moody.py ^
+python scripts/generate_moody.py ^
   -m pro ^
   --seed 10001 ^
   --prompt-file characters/pilots/samples/mina_positive_master.txt ^
@@ -699,7 +695,7 @@ python generate_moody.py ^
 ### 9.3 파생 1장
 
 ```bash
-python generate_moody_i2i.py ^
+python scripts/generate_moody_i2i.py ^
   -i characters/mina_park_v1/refs/master/manual_master.png ^
   -m pro -d 0.85 -c 3.5 ^
   --core-prefix-file characters/mina_park_v1/prompts/positive_core.txt ^
@@ -746,7 +742,7 @@ python generate_moody_i2i.py ^
 7. [ ] 품질 개선: ControlNet turnaround / full-body master (후속)
 
 ### Ticket P2.5 — 용도 프로필 (`video_ref` | `artbook`)
-- [x] 스펙 문서 §1.5 + [characters/profiles.json](characters/profiles.json)
+- [x] 스펙 문서 §1.5 + [characters/profiles.json](../characters/profiles.json)
 - [x] **P2.5a** `lib/profiles.py` + `--profile` (create/expand/approve)
 - [x] **P2.5b** create: 프로필 size → T2I width/height (I2I는 size_hint 메타; 입력 해상도 유지)
 - [x] **P2.5c** 프로필별 `mvp_aliases` / `missing_mvp` / `all_mvp`
@@ -834,13 +830,13 @@ def expand_character(id, sheets, source, model, candidates, presets_path):
 |------|------|
 | [character_sheet_system_design.md](character_sheet_system_design.md) | 배경·리서치·장기 로드맵 |
 | [character_impl_spec.md](character_impl_spec.md) | **이 문서 — 코딩 계약** |
-| [characters/sheet_presets.json](characters/sheet_presets.json) | 시트 프리셋 SSOT (prompt/denoise) |
-| [characters/profiles.json](characters/profiles.json) | **용도 프로필 SSOT** (video_ref / artbook) |
-| [characters/schemas/bible.schema.json](characters/schemas/bible.schema.json) | bible 스키마 |
-| [characters/schemas/manifest.schema.json](characters/schemas/manifest.schema.json) | manifest 스키마 |
-| [characters/_template/](characters/_template/) | 패키지 템플릿 |
-| [characters/pilots/mina_park_v1_brief.md](characters/pilots/mina_park_v1_brief.md) | 파일럿 정의 |
-| [characters/mina_park_v1/PILOT_NOTES.md](characters/mina_park_v1/PILOT_NOTES.md) | 실서버 E2E 품질 메모 |
+| [characters/sheet_presets.json](../characters/sheet_presets.json) | 시트 프리셋 SSOT (prompt/denoise) |
+| [characters/profiles.json](../characters/profiles.json) | **용도 프로필 SSOT** (video_ref / artbook) |
+| [characters/schemas/bible.schema.json](../characters/schemas/bible.schema.json) | bible 스키마 |
+| [characters/schemas/manifest.schema.json](../characters/schemas/manifest.schema.json) | manifest 스키마 |
+| [characters/_template/](../characters/_template/) | 패키지 템플릿 |
+| [characters/pilots/mina_park_v1_brief.md](../characters/pilots/mina_park_v1_brief.md) | 파일럿 정의 |
+| [characters/mina_park_v1/PILOT_NOTES.md](../characters/mina_park_v1/PILOT_NOTES.md) | 실서버 E2E 품질 메모 |
 
 ---
 

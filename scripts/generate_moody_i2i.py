@@ -1,3 +1,4 @@
+import _bootstrap  # noqa: F401  # repo root + scripts on path
 import argparse
 import os
 import random
@@ -8,7 +9,6 @@ from lib.comfy_client import (
     COMFYUI_INPUT_DIR,
     DEFAULT_SERVER,
     MODEL_MAPPING,
-    WORKSPACE_ROOT,
     convert_ui_to_api,
     download_image,
     extract_first_image,
@@ -22,6 +22,7 @@ from lib.comfy_client import (
     write_meta,
 )
 from lib.prompt_assembly import assemble_prompt, load_text
+from lib.workflow_paths import default_workflow, resolve_workflow
 
 
 def generate_i2i_image(
@@ -38,8 +39,9 @@ def generate_i2i_image(
     meta_out=None,
     server_address=DEFAULT_SERVER,
     timeout_sec=600,
+    workflow=None,
 ):
-    workflow_path = os.path.join(WORKSPACE_ROOT, "I2I-moody.json")
+    workflow_path = resolve_workflow(workflow) if workflow else default_workflow("i2i_moody")
     selected_model = MODEL_MAPPING.get(model_type.lower(), MODEL_MAPPING["real"])
 
     if not os.path.exists(input_image_path):
@@ -220,6 +222,12 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=None, help="Fixed seed")
     parser.add_argument("--meta-out", type=str, default=None, help="Meta JSON path")
     parser.add_argument("--timeout", type=int, default=600, help="Comfy wait timeout seconds")
+    parser.add_argument(
+        "--workflow",
+        type=str,
+        default=None,
+        help="Workflow path or catalog alias (default: workflows/agent I2I-moody)",
+    )
 
     args = parser.parse_args()
 
@@ -247,5 +255,6 @@ if __name__ == "__main__":
         core_suffix=core_suffix,
         meta_out=args.meta_out,
         timeout_sec=args.timeout,
+        workflow=args.workflow,
     )
     sys.exit(0 if result.get("ok") else 1)

@@ -2,6 +2,7 @@
 """Promote a generated ref image into approved/ with a stable alias."""
 
 from __future__ import annotations
+import _bootstrap  # noqa: F401  # repo root + scripts on path
 
 import argparse
 import sys

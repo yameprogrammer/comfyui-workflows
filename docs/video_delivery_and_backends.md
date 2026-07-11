@@ -2,7 +2,7 @@
 
 - **작성일**: 2026-07-11
 - **상태**: 설계 확정 (문서) / 업스케일·LTX CLI는 구현 대기
-- **관련**: [video_pipeline_roadmap.md](video_pipeline_roadmap.md), [generate_i2v.py](generate_i2v.py), [I2V-wan22-a14b.json](I2V-wan22-a14b.json)
+- **관련**: [video_pipeline_roadmap.md](video_pipeline_roadmap.md), [../scripts/generate_i2v.py](../scripts/generate_i2v.py), [../workflows/agent/I2V-wan22-a14b.json](../workflows/agent/I2V-wan22-a14b.json)
 
 ---
 
@@ -120,9 +120,9 @@
 
 ```bash
 # 백엔드 선택 — 기본 wan22
-python generate_i2v.py --backend wan22 -i key.png -p "slow push-in" -o work.mp4 --preset work_16x9_540
+python scripts/generate_i2v.py --backend wan22 -i key.png -p "slow push-in" -o work.mp4 --preset work_16x9_540
 
-python generate_i2v.py --backend ltx23 -i key.png -p "slow push-in" -o work.mp4 --preset work_16x9_540
+python scripts/generate_i2v.py --backend ltx23 -i key.png -p "slow push-in" -o work.mp4 --preset work_16x9_540
 
 # 납품 업스케일 (후속 스크립트)
 python upscale_video.py -i work.mp4 -o deliver.mp4 --preset deliver_16x9_1080

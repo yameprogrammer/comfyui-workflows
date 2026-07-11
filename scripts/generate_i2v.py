@@ -5,13 +5,14 @@ Image-to-Video via ComfyUI (multi-backend planned).
 Current default backend: Wan2.2 I2V A14B (ComfyUI-WanVideoWrapper) GGUF High/Low
 + lightx2v 4-step LoRAs. Workflow: I2V-wan22-a14b.json
 
-Delivery policy (see video_delivery_and_backends.md):
+Delivery policy (see docs/video_delivery_and_backends.md):
   - Generate at work resolution with final aspect ratio (prefer 16:9 work presets).
   - Upscale to at least 1080p in a later pipeline stage — do not treat work-res as final.
   - Future: --backend wan22|ltx23 and --preset work_16x9_540 / deliver_16x9_1080.
 """
 
 from __future__ import annotations
+import _bootstrap  # noqa: F401  # repo root + scripts on path
 
 import argparse
 import json
@@ -27,7 +28,6 @@ import urllib.request
 from lib.comfy_client import (
     COMFYUI_INPUT_DIR,
     DEFAULT_SERVER,
-    WORKSPACE_ROOT,
     ensure_parent_dir,
     fail_result,
     ok_result,
@@ -37,8 +37,9 @@ from lib.comfy_client import (
 )
 from lib.comfy_ui_convert import convert_ui_to_api, fetch_object_info
 from lib.prompt_assembly import load_text
+from lib.workflow_paths import default_workflow
 
-DEFAULT_WORKFLOW = os.path.join(WORKSPACE_ROOT, "I2V-wan22-a14b.json")
+DEFAULT_WORKFLOW = default_workflow("i2v_wan22_a14b")
 DEFAULT_NEGATIVE = (
     "static, still image, blurry, low quality, worst quality, deformed, "
     "bad anatomy, watermark, text, logo, jitter, flicker"

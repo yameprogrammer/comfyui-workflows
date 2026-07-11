@@ -5,12 +5,12 @@
 ---
 
 ## 📁 파일 구조 및 위치
-모든 워크플로우와 스크립트는 사용자 PC의 아래 경로에 안전하게 보관되어 있습니다.
-* **워크플로우 폴더**: `F:\ComfyUI_workflows\agent_custom\`
-* **T2I 워크플로우**: [T2I-moody.json](file:///F:/ComfyUI_workflows/agent_custom/T2I-moody.json)
-* **T2I 실행 스크립트**: [generate_moody.py](file:///F:/ComfyUI_workflows/agent_custom/generate_moody.py)
-* **I2I 워크플로우**: [I2I-moody.json](file:///F:/ComfyUI_workflows/agent_custom/I2I-moody.json)
-* **I2I 실행 스크립트**: [generate_moody_i2i.py](file:///F:/ComfyUI_workflows/agent_custom/generate_moody_i2i.py)
+에이전트용 레이아웃 (`agent_custom` 루트 기준):
+* **워크플로우 SSOT**: `workflows/agent/`
+* **T2I 워크플로우**: [../workflows/agent/T2I-moody.json](../workflows/agent/T2I-moody.json)
+* **T2I 실행 스크립트**: [../scripts/generate_moody.py](../scripts/generate_moody.py)
+* **I2I 워크플로우**: [../workflows/agent/I2I-moody.json](../workflows/agent/I2I-moody.json)
+* **I2I 실행 스크립트**: [../scripts/generate_moody_i2i.py](../scripts/generate_moody_i2i.py)
 
 ---
 
@@ -27,13 +27,13 @@
 ### 1. 신규 이미지 생성 (T2I)
 ```bash
 # 기본 생성 (ProMix 모델 사용)
-python generate_moody.py --model pro --prompt "Cinematic photo of a Korean woman in a cozy coffee shop..."
+python scripts/generate_moody.py --model pro --prompt "Cinematic photo of a Korean woman in a cozy coffee shop..."
 ```
 
 ### 2. 이미지 입력 편집 및 일관성 변환 (I2I)
 ```bash
 # 입력 이미지를 활용하여 텀블러로 사물 교체
-python generate_moody_i2i.py -i "입력이미지경로.png" -p "holding a sleek modern insulated tumbler" -d 0.70 -c 3.5 -m pro -o "출력이미지경로.png"
+python scripts/generate_moody_i2i.py -i "입력이미지경로.png" -p "holding a sleek modern insulated tumbler" -d 0.70 -c 3.5 -m pro -o "출력이미지경로.png"
 ```
 
 ---

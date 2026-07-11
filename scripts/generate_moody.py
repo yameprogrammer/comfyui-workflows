@@ -1,3 +1,4 @@
+import _bootstrap  # noqa: F401  # repo root + scripts on path
 import argparse
 import os
 import random
@@ -6,7 +7,6 @@ import sys
 from lib.comfy_client import (
     DEFAULT_SERVER,
     MODEL_MAPPING,
-    WORKSPACE_ROOT,
     convert_ui_to_api,
     download_image,
     extract_first_image,
@@ -20,6 +20,7 @@ from lib.comfy_client import (
     write_meta,
 )
 from lib.prompt_assembly import load_text
+from lib.workflow_paths import default_workflow, resolve_workflow
 
 
 def generate_image(
@@ -35,8 +36,9 @@ def generate_image(
     meta_out=None,
     server_address=DEFAULT_SERVER,
     timeout_sec=600,
+    workflow=None,
 ):
-    workflow_path = os.path.join(WORKSPACE_ROOT, "T2I-moody.json")
+    workflow_path = resolve_workflow(workflow) if workflow else default_workflow("t2i_moody")
     selected_model = MODEL_MAPPING.get(model_type.lower(), MODEL_MAPPING["real"])
 
     if output_filename is None:
@@ -230,6 +232,12 @@ if __name__ == "__main__":
     parser.add_argument("--width", type=int, default=None, help="Override latent width")
     parser.add_argument("--height", type=int, default=None, help="Override latent height")
     parser.add_argument("--timeout", type=int, default=600, help="Comfy wait timeout seconds")
+    parser.add_argument(
+        "--workflow",
+        type=str,
+        default=None,
+        help="Workflow path or catalog alias (default: workflows/agent T2I-moody)",
+    )
 
     args = parser.parse_args()
 
@@ -248,5 +256,6 @@ if __name__ == "__main__":
         height=args.height,
         meta_out=args.meta_out,
         timeout_sec=args.timeout,
+        workflow=args.workflow,
     )
     sys.exit(0 if result.get("ok") else 1)

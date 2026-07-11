@@ -6,6 +6,30 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] 프로젝트 레이아웃 전면 정리 (에이전트 도구 구조)
+* **작업 에이전트**: Grok
+* **작업 목표**: 루트 혼재 구조를 에이전트용 레이아웃으로 재배치. 휴먼 편의보다 에이전트 탐색·SSOT 우선.
+* **주요 변경 사항**:
+  1. **`scripts/`**: `generate_*`, `character_*`, `shot_*` 이동 + `_bootstrap.py` (repo root/scripts on path)
+  2. **`docs/`**: 설계·스펙·로드맵·moody guide 이동
+  3. **루트 워크플로우 JSON 삭제** — SSOT는 `workflows/agent/` 만
+  4. 루트는 `README.md` / `agent_rules.md` / `process.md` 입구만 유지
+  5. README·agent_rules Rule 2.2·workflows 규약·catalog 경로 갱신
+* **실행 예**: `python scripts/generate_moody.py ...` (모든 CLI `--help` 스모크 OK)
+* **다음**: 기능 작업 재개 (D1 프리셋/`--backend`, 업스케일, LTX 등). 문서 본문 중 구 경로 예시는 점진 정리.
+
+### [2026-07-11] 에이전트 전용 워크플로우 디렉터리 분리
+* **작업 에이전트**: Grok
+* **작업 목표**: 휴먼 UI 워크플로우와 에이전트(스크립트)용 워크플로우를 구조적으로 분리.
+* **주요 변경 사항**:
+  1. **`workflows/agent/`**: 프로덕션 JSON 복사 + `catalog.json` (별칭 SSOT)
+  2. **`workflows/human/`**: UI 실험 전용 (스크립트 미사용)
+  3. **`lib/workflow_paths.py`**: agent 우선 → 루트 레거시 폴백 경로 해석
+  4. **`generate_moody*.py` / `generate_i2v.py` / `generate_krea.py`**: agent 경로 사용, `--workflow` 옵션
+  5. **규약 문서**: `workflows/README.md`, agent_rules Rule 2.1, README 구조 갱신
+* **상태**: 루트 `*.json` 은 폴백으로 유지(신규 편집은 agent 만). 이후 human 실험 → agent 프로모트 플로우 사용.
+* **다음**: 필요 시 루트 JSON deprecation 안내 후 제거; API-native 최소 그래프 정리(선택).
+
 ### [2026-07-11] 영상 납품 스펙·멀티 I2V 백엔드 문서화
 * **작업 에이전트**: Grok
 * **작업 목표**: 저해상 생성→1080p 업스케일 전략과 Wan2.2/LTX2.3 상황별 백엔드 구조를 문서에 고정.

@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "description": "Agent workflow aliases → filenames under workflows/agent/. Scripts resolve via lib.workflow_paths.",
+  "workflows": {
+    "t2i_moody": {
+      "file": "T2I-moody.json",
+      "role": "text_to_image",
+      "scripts": [
+        "scripts/generate_moody.py",
+        "scripts/character_create.py"
+      ]
+    },
+    "i2i_moody": {
+      "file": "I2I-moody.json",
+      "role": "image_to_image",
+      "scripts": [
+        "scripts/generate_moody_i2i.py",
+        "scripts/shot_with_character.py",
+        "scripts/character_expand_sheets.py"
+      ]
+    },
+    "i2i_controlnet_moody": {
+      "file": "I2I-ControlNet-moody.json",
+      "role": "i2i_controlnet",
+      "scripts": [
+        "scripts/generate_moody_controlnet.py",
+        "scripts/character_expand_sheets.py"
+      ]
+    },
+    "i2v_wan22_a14b": {
+      "file": "I2V-wan22-a14b.json",
+      "role": "image_to_video",
+      "backend": "wan22",
+      "scripts": ["scripts/generate_i2v.py"]
+    },
+    "t2i_krea": {
+      "file": "T2I-krea.json",
+      "role": "text_to_image",
+      "scripts": ["scripts/generate_krea.py"]
+    },
+    "t2i_z_image_turbo": {
+      "file": "T2I-z-image-turbo.json",
+      "role": "text_to_image_base",
+      "scripts": []
+    }
+  }
+}

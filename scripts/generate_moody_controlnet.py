@@ -1,6 +1,7 @@
 """ControlNet-assisted I2I on Moody / Z-Image (Union 2.1 path)."""
 
 from __future__ import annotations
+import _bootstrap  # noqa: F401  # repo root + scripts on path
 
 import argparse
 import os
@@ -12,7 +13,6 @@ from lib.comfy_client import (
     COMFYUI_INPUT_DIR,
     DEFAULT_SERVER,
     MODEL_MAPPING,
-    WORKSPACE_ROOT,
     convert_ui_to_api,
     download_image,
     extract_first_image,
@@ -26,6 +26,7 @@ from lib.comfy_client import (
     write_meta,
 )
 from lib.prompt_assembly import assemble_prompt, load_text
+from lib.workflow_paths import default_workflow, resolve_workflow
 
 
 def _rewire_empty_latent(api_prompt: dict, width: int, height: int, batch_size: int = 1) -> str:
@@ -65,6 +66,7 @@ def generate_controlnet_image(
     empty_latent: bool = False,
     latent_width: int | None = None,
     latent_height: int | None = None,
+    workflow=None,
 ):
     """
     ControlNet I2I (default) or empty-latent T2I+ControlNet.
@@ -72,7 +74,9 @@ def generate_controlnet_image(
     empty_latent=True: ignore portrait VAEEncode base; identity from prompt only
     (use strong positive_core / later LoRA). Pose from control image.
     """
-    workflow_path = os.path.join(WORKSPACE_ROOT, "I2I-ControlNet-moody.json")
+    workflow_path = (
+        resolve_workflow(workflow) if workflow else default_workflow("i2i_controlnet_moody")
+    )
     selected_model = MODEL_MAPPING.get(model_type.lower(), MODEL_MAPPING["real"])
 
     if not empty_latent:
@@ -301,6 +305,12 @@ if __name__ == "__main__":
     )
     parser.add_argument("--width", type=int, default=1024, help="Empty latent width")
     parser.add_argument("--height", type=int, default=1536, help="Empty latent height")
+    parser.add_argument(
+        "--workflow",
+        type=str,
+        default=None,
+        help="Workflow path or catalog alias (default: workflows/agent I2I-ControlNet-moody)",
+    )
     args = parser.parse_args()
 
     if args.prompt_file:
@@ -335,5 +345,6 @@ if __name__ == "__main__":
         empty_latent=args.empty_latent,
         latent_width=args.width,
         latent_height=args.height,
+        workflow=args.workflow,
     )
     sys.exit(0 if result.get("ok") else 1)

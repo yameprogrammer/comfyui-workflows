@@ -2,6 +2,7 @@
 """Expand character sheets from master ref via I2I presets."""
 
 from __future__ import annotations
+import _bootstrap  # noqa: F401  # repo root + scripts on path
 
 import argparse
 import os

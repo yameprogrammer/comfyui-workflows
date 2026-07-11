@@ -1,3 +1,4 @@
+import _bootstrap  # noqa: F401  # repo root + scripts on path
 import os
 import json
 import random
@@ -76,9 +77,21 @@ def convert_ui_to_api(ui_data):
         }
     return api_data
 
-def generate_krea_image(prompt_text, steps=8, cfg=1.0, sampler="euler_sde", scheduler="simple", output_filename=None):
+def generate_krea_image(prompt_text, steps=8, cfg=1.0, sampler="euler_sde", scheduler="simple", output_filename=None, workflow=None):
     server_address = "127.0.0.1:8188"
-    workflow_path = r"F:\ComfyUI_workflows\agent_custom\T2I-krea.json"
+    try:
+        from lib.workflow_paths import default_workflow, resolve_workflow
+        if workflow:
+            workflow_path = resolve_workflow(workflow)
+        else:
+            workflow_path = default_workflow("t2i_krea")
+    except Exception:
+        # Fallback if lib layout is unavailable
+        workflow_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "workflows", "agent", "T2I-krea.json"
+        )
+        if not os.path.isfile(workflow_path):
+            workflow_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "T2I-krea.json")
     
     if output_filename is None:
         output_filename = os.path.join(r"F:\generated_images", "output_krea.png")
