@@ -1,0 +1,60 @@
+{
+  "id": "REPLACE_CHARACTER_ID",
+  "display_name": "REPLACE_DISPLAY_NAME",
+  "version": "0.1.0",
+  "status": "draft",
+  "created_at": "REPLACE_ISO_DATE",
+  "updated_at": "REPLACE_ISO_DATE",
+  "style": {
+    "medium": "cinematic_photoreal",
+    "base_model": "moody_pro",
+    "look": "cinematic still photo, natural skin texture"
+  },
+  "appearance": {
+    "age_range": "",
+    "gender_presentation": "",
+    "ethnicity_notes": "",
+    "face": "",
+    "hair": "",
+    "body": "",
+    "distinctive": [],
+    "wardrobe_default": "",
+    "wardrobe_alt1": ""
+  },
+  "prompts": {
+    "positive_core": "",
+    "negative_core": "identity shift, different person, face morph, extra fingers, deformed hands, mutated face, bad anatomy, blurry face, watermark, text, logo, duplicate face",
+    "trigger": "REPLACE_CHARACTER_ID",
+    "positive_core_file": "prompts/positive_core.txt",
+    "negative_core_file": "prompts/negative_core.txt"
+  },
+  "identity": {
+    "mode": "refs_only",
+    "lora_path": null,
+    "lora_strength_default": null,
+    "primary_ref": null,
+    "fallback_refs": []
+  },
+  "consistency_rules": {
+    "must_keep": [],
+    "may_change": ["outfit", "lighting", "background", "pose", "expression"],
+    "forbidden": []
+  },
+  "performance": {
+    "personality": [],
+    "default_expression": "soft neutral",
+    "mannerisms": []
+  },
+  "sheet_index": {
+    "master": [],
+    "turnaround": [],
+    "expression": [],
+    "costume": []
+  },
+  "video_defaults": {
+    "preferred_keyframe_ref": "approved/master_front.png",
+    "i2v_motion_style": "subtle natural motion, cinematic camera, gentle wind",
+    "max_identity_risk_denoise": 0.78,
+    "aspect_ratio_target": "9:16"
+  }
+}

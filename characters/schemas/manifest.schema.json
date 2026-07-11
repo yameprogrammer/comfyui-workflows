@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent_custom/schemas/manifest.schema.json",
+  "title": "CharacterManifest",
+  "type": "object",
+  "required": ["character_id", "package_version", "status", "assets", "approved"],
+  "additionalProperties": true,
+  "properties": {
+    "character_id": { "type": "string" },
+    "package_version": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "in_review", "approved", "deprecated"]
+    },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" },
+    "base_model": { "type": "string" },
+    "level": {
+      "type": "string",
+      "enum": ["L1", "L2", "L3", "L4"],
+      "description": "Highest completed package level"
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sheet", "view", "variant"],
+        "properties": {
+          "path": { "type": "string" },
+          "meta_path": { "type": ["string", "null"] },
+          "sheet": { "type": "string" },
+          "view": { "type": "string" },
+          "variant": { "type": "string" },
+          "seed": { "type": ["integer", "null"] },
+          "candidate": { "type": ["integer", "null"] },
+          "preset_id": { "type": ["string", "null"] },
+          "created_at": { "type": "string" }
+        }
+      }
+    },
+    "approved": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["path", "source"],
+        "properties": {
+          "path": { "type": "string" },
+          "source": { "type": "string" },
+          "approved_at": { "type": "string" }
+        }
+      }
+    },
+    "missing_mvp": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "approve aliases still missing for L2 MVP"
+    }
+  }
+}

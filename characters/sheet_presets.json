@@ -1,0 +1,242 @@
+{
+  "version": "1.0.0",
+  "description": "SSOT for L2 soft character sheet generation (I2I-based). Used by character_expand_sheets.py",
+  "global": {
+    "default_model": "pro",
+    "default_cfg": 3.5,
+    "sampler": "euler",
+    "scheduler": "normal",
+    "quality_tags": "cinematic still photo, realistic skin texture, highly detailed, sharp focus, natural color grading",
+    "global_negative": "identity shift, different person, face morph, extra fingers, deformed hands, mutated face, bad anatomy, blurry face, watermark, text, logo, duplicate face, mannequin, doll"
+  },
+  "denoise_bands": {
+    "local_edit": 0.7,
+    "atmosphere": 0.78,
+    "expression": 0.8,
+    "turn_mild": 0.82,
+    "turn_hard": 0.85,
+    "costume": 0.84,
+    "rebuild": 0.9
+  },
+  "mvp_sheet_groups": {
+    "master": ["master.front_upper", "master.full_body"],
+    "turnaround": [
+      "turnaround.front",
+      "turnaround.qf",
+      "turnaround.side",
+      "turnaround.back"
+    ],
+    "expression": [
+      "expression.neutral",
+      "expression.joy",
+      "expression.sad",
+      "expression.angry",
+      "expression.surprise",
+      "expression.think"
+    ],
+    "costume": ["costume.default", "costume.alt1"],
+    "all_mvp": [
+      "turnaround.front",
+      "turnaround.qf",
+      "turnaround.side",
+      "turnaround.back",
+      "expression.neutral",
+      "expression.joy",
+      "expression.sad",
+      "expression.angry",
+      "expression.surprise",
+      "expression.think",
+      "costume.default",
+      "costume.alt1"
+    ]
+  },
+  "approve_alias_map": {
+    "master.front_upper": "master_front",
+    "master.full_body": "master_full",
+    "turnaround.front": "turn_front",
+    "turnaround.qf": "turn_qf",
+    "turnaround.side": "turn_side",
+    "turnaround.back": "turn_back",
+    "expression.neutral": "expr_neutral",
+    "expression.joy": "expr_joy",
+    "expression.sad": "expr_sad",
+    "expression.angry": "expr_angry",
+    "expression.surprise": "expr_surprise",
+    "expression.think": "expr_think",
+    "costume.default": "costume_default",
+    "costume.alt1": "costume_alt1"
+  },
+  "presets": {
+    "master.front_upper": {
+      "sheet": "master",
+      "view": "upper",
+      "variant": "neutral",
+      "mode": "t2i",
+      "denoise": null,
+      "cfg": null,
+      "refs_subdir": "master",
+      "instruction": "medium close-up portrait, front-facing, neutral soft expression, looking at camera",
+      "style_lock": "plain light gray seamless background, even softbox studio lighting, no harsh shadows, no scene props",
+      "negative_extra": "profile view, extreme smile, action pose, busy background, dark moody lighting",
+      "notes": "Used by character_create for hero selection"
+    },
+    "master.full_body": {
+      "sheet": "master",
+      "view": "full",
+      "variant": "neutral",
+      "mode": "t2i",
+      "denoise": null,
+      "cfg": null,
+      "refs_subdir": "master",
+      "instruction": "full body standing portrait, front view, arms relaxed at sides, neutral expression, head-to-toe visible",
+      "style_lock": "plain light gray seamless background, even studio lighting, model sheet reference style",
+      "negative_extra": "cropped feet, sitting, action pose, busy background",
+      "notes": "Optional second master for body proportions"
+    },
+    "turnaround.front": {
+      "sheet": "turnaround",
+      "view": "front",
+      "variant": "stand",
+      "mode": "i2i",
+      "denoise": 0.82,
+      "cfg": 3.5,
+      "refs_subdir": "turnaround",
+      "instruction": "same exact person, full body turnaround sheet view, front orthographic standing pose, arms slightly away from body, neutral expression, facing camera",
+      "style_lock": "plain light gray background, even studio lighting, character model sheet, consistent proportions",
+      "negative_extra": "three-quarter view, profile, sitting, dramatic pose, busy background"
+    },
+    "turnaround.qf": {
+      "sheet": "turnaround",
+      "view": "qf",
+      "variant": "stand",
+      "mode": "i2i",
+      "denoise": 0.84,
+      "cfg": 3.5,
+      "refs_subdir": "turnaround",
+      "instruction": "same exact person, full body, three-quarter front view turnaround, standing, neutral expression, clear face visibility",
+      "style_lock": "plain light gray background, even studio lighting, character model sheet",
+      "negative_extra": "full profile, back view, extreme turn, busy background"
+    },
+    "turnaround.side": {
+      "sheet": "turnaround",
+      "view": "side",
+      "variant": "stand",
+      "mode": "i2i",
+      "denoise": 0.85,
+      "cfg": 3.5,
+      "refs_subdir": "turnaround",
+      "instruction": "same exact person, full body strict side profile view, standing orthographic, facing right, neutral expression, ear and nose silhouette clear",
+      "style_lock": "plain light gray background, even studio lighting, character model sheet, side view",
+      "negative_extra": "front face, both eyes equally visible, three-quarter cheat, busy background"
+    },
+    "turnaround.back": {
+      "sheet": "turnaround",
+      "view": "back",
+      "variant": "stand",
+      "mode": "i2i",
+      "denoise": 0.85,
+      "cfg": 3.5,
+      "refs_subdir": "turnaround",
+      "instruction": "same exact person, full body back view turnaround, standing, head from behind, hair back detail visible, arms slightly away from body",
+      "style_lock": "plain light gray background, even studio lighting, character model sheet, rear view",
+      "negative_extra": "face visible, front view, looking over shoulder heavily, busy background"
+    },
+    "expression.neutral": {
+      "sheet": "expression",
+      "view": "close",
+      "variant": "neutral",
+      "mode": "i2i",
+      "denoise": 0.78,
+      "cfg": 3.5,
+      "refs_subdir": "expression",
+      "instruction": "same exact person, head and shoulders portrait, front view, completely neutral calm expression, relaxed mouth, soft eyes",
+      "style_lock": "plain light background, soft beauty lighting, expression sheet",
+      "negative_extra": "smile, crying, angry brows, open mouth shout"
+    },
+    "expression.joy": {
+      "sheet": "expression",
+      "view": "close",
+      "variant": "joy",
+      "mode": "i2i",
+      "denoise": 0.8,
+      "cfg": 3.5,
+      "refs_subdir": "expression",
+      "instruction": "same exact person, head and shoulders, genuine warm smile, happy eyes, joyful expression, still recognizable identity",
+      "style_lock": "plain light background, soft beauty lighting, expression sheet",
+      "negative_extra": "angry, crying, exaggerated cartoon expression"
+    },
+    "expression.sad": {
+      "sheet": "expression",
+      "view": "close",
+      "variant": "sad",
+      "mode": "i2i",
+      "denoise": 0.8,
+      "cfg": 3.5,
+      "refs_subdir": "expression",
+      "instruction": "same exact person, head and shoulders, subtle sad expression, downturned eyes and mouth, emotional but natural, no tears necessary",
+      "style_lock": "plain light background, soft lighting, expression sheet",
+      "negative_extra": "big smile, laughing, angry"
+    },
+    "expression.angry": {
+      "sheet": "expression",
+      "view": "close",
+      "variant": "angry",
+      "mode": "i2i",
+      "denoise": 0.8,
+      "cfg": 3.5,
+      "refs_subdir": "expression",
+      "instruction": "same exact person, head and shoulders, controlled anger, furrowed brows, tense mouth, intense eyes, still same face identity",
+      "style_lock": "plain light background, soft lighting, expression sheet",
+      "negative_extra": "smile, laughing, crying heavily"
+    },
+    "expression.surprise": {
+      "sheet": "expression",
+      "view": "close",
+      "variant": "surprise",
+      "mode": "i2i",
+      "denoise": 0.8,
+      "cfg": 3.5,
+      "refs_subdir": "expression",
+      "instruction": "same exact person, head and shoulders, surprised expression, raised eyebrows, slightly open mouth, wide eyes, natural",
+      "style_lock": "plain light background, soft lighting, expression sheet",
+      "negative_extra": "angry, crying, neutral blank face"
+    },
+    "expression.think": {
+      "sheet": "expression",
+      "view": "close",
+      "variant": "think",
+      "mode": "i2i",
+      "denoise": 0.8,
+      "cfg": 3.5,
+      "refs_subdir": "expression",
+      "instruction": "same exact person, head and shoulders, thoughtful expression, soft focused eyes looking slightly aside, subtle closed-mouth pondering look",
+      "style_lock": "plain light background, soft lighting, expression sheet",
+      "negative_extra": "big smile, shouting, extreme emotion"
+    },
+    "costume.default": {
+      "sheet": "costume",
+      "view": "full",
+      "variant": "default_outfit",
+      "mode": "i2i",
+      "denoise": 0.84,
+      "cfg": 3.5,
+      "refs_subdir": "costume",
+      "instruction": "same exact person, full body, wearing default wardrobe: black crew-neck t-shirt, light wash blue jeans, minimal jewelry, clean casual look",
+      "style_lock": "plain light gray background, even studio lighting, costume reference sheet",
+      "negative_extra": "different face, formal gown, heavy accessories overload, busy background",
+      "notes": "Override instruction from bible.appearance.wardrobe_default when implementing"
+    },
+    "costume.alt1": {
+      "sheet": "costume",
+      "view": "full",
+      "variant": "alt1_outfit",
+      "mode": "i2i",
+      "denoise": 0.84,
+      "cfg": 3.5,
+      "refs_subdir": "costume",
+      "instruction": "same exact person, full body, alternate outfit: light beige trench coat over white blouse, dark trousers, simple sneakers, clean contemporary look",
+      "style_lock": "plain light gray background, even studio lighting, costume reference sheet",
+      "negative_extra": "different face, identical to default black tee only, busy background"
+    }
+  }
+}

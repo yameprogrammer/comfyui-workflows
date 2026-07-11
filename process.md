@@ -6,6 +6,49 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] Z-Image-Turbo 공식 ControlNet (Union 2.1) 연동 워크플로우 추가
+* **작업 에이전트**: Antigravity
+* **작업 목표**: 포즈와 구조적 통제력을 극대화하여 캐릭터 일관성을 유지할 수 있도록 공식 Union 2.1 컨트롤넷 연동 파이프라인 구성.
+* **주요 변경 사항**:
+  1. **전용 노드 발굴 및 연동**: DiT 구조에 최적화된 모델 직접 패치 방식인 `ZImageFunControlnet` 및 로더 노드 `FL_ZImageControlNetPatch`를 적용하여 400 에러 해결.
+  2. **새로운 워크플로우 저장**: [I2I-ControlNet-moody.json](file:///F:/ComfyUI_workflows/agent_custom/I2I-ControlNet-moody.json) 구축.
+  3. **실행 스크립트 추가**: [generate_moody_controlnet.py](file:///F:/ComfyUI_workflows/agent_custom/generate_moody_controlnet.py) 추가하여 CLI 환경에서 캐릭터 이미지와 포즈 이미지를 손쉽게 제어 가능하도록 구성.
+  4. **모델 전용 경로 규명**: Z-Image-Turbo 컨트롤넷 파일은 `models/model_patches/` 폴더에 위치해야 로더가 정상 스캔함을 밝혀내고 배치 완료.
+* **상태**: 로더-패치 텐서 융합 및 이미지 생성 검증 완료.
+
+### [2026-07-11] 캐릭터 시트 구현 착수 스펙·P0 산출물 보강
+* **작업 에이전트**: Grok
+* **작업 목표**: 기획 문서의 구멍을 메워 P1~P2 코딩에 바로 들어갈 수 있는 수준으로 문서·템플릿·프리셋을 완성.
+* **주요 변경 사항**:
+  1. **`character_impl_spec.md` 신규**: 활성 트랙, 명명 규칙, 기본값, P1 CLI 패치 스펙, P2 CLI 계약, 프롬프트 조립, 에러 코드, 티켓 순서, 테스트 계획.
+  2. **`characters/` 트리**: `_template/`, `schemas/bible|manifest.schema.json`, `sheet_presets.json`, `pilots/mina_park_v1` + 샘플 프롬프트.
+  3. **설계 문서 P0 완료 처리**, `agent_rules.md` Rule 6(캐릭터/스펙 준수) 추가, README 링크 갱신.
+* **상태**: **P0 완료. 코드 구현은 미착수.** 다음 에이전트 추천: `character_impl_spec.md` Ticket **P1-A** (`generate_moody.py` seed/meta/prompt-file).
+* **활성 트랙**: `CHARACTER_L2_SOFT_FACTORY` (L3/I2V 본구현 비혼합).
+
+### [2026-07-11] 프로급 캐릭터 시트 시스템 기획·설계 문서화
+* **작업 에이전트**: Grok
+* **작업 목표**: AI 에이전트가 이용 가능한 프로급 캐릭터 시트 생성 도구에 대해, 업계 포맷 리서치 + 영상 연계 일관성 전략 + 작업 계획을 문서화.
+* **주요 변경 사항**:
+  1. **`character_sheet_system_design.md` 신규 작성**:
+     * 프로 model sheet 유형 (turnaround, expression, pose, color, props, construction, bible 등) 리서치 정리
+     * AI용 `characters/<id>/` 패키지 구조 및 `bible.json` 스키마 초안
+     * 아이덴티티 계층 (I2I → IP-Adapter → LoRA → ControlNet hybrid) 및 Z-Image/Moody 매핑
+     * 키프레임 고정 후 I2V로 이어지는 E2E 일관성 규칙·실패 모드
+     * 작업 Phase P0~P9 및 우선순위 (L2 Soft Factory 우선, L3 LoRA)
+  2. **`video_pipeline_roadmap.md` / `README.md`**에 캐릭터 설계 문서 교차 링크 추가.
+* **상태**: 이후 구현 스펙 보강으로 이어짐 (위 이력 참고).
+
+### [2026-07-11] 영상 제작 파이프라인 로드맵 문서화
+* **작업 에이전트**: Grok
+* **작업 목표**: AI 에이전트가 멋진 영상물을 만들기 위해 필요한 워크플로우 구성을 1차 목표 기준으로 문서화.
+* **주요 변경 사항**:
+  1. **`video_pipeline_roadmap.md` 신규 작성**: T2I/I2I 기반 위에서 영상 파이프라인에 필요한 워크플로우 레이어·우선순위·MVP 세트·구축 순서를 정리.
+  2. **1차 MVP 정의**: T2I/I2I(기존) + I2V + Character ref + Upscale/Interpolate + FFmpeg assembler.
+  3. **구축 단계 정의**: P0(I2V) → P1(체인) → P2(일관성) → P3(마감) → P4(조립) → P5(T2V/V2V 등 확장).
+  4. **README.md** 파일 구조에 로드맵 문서 링크 추가.
+* **상태**: 기획/로드맵 문서 저장 완료. 구현은 미착수. 다음 액션은 타깃 포맷(쇼츠 vs 시네마틱) 확정 후 I2V 설계.
+
 ### [2026-07-11] Moody 워크플로우 고도화 및 I2I 디버깅 완수
 * **작업 에이전트**: Antigravity
 * **작업 목표**: Moody T2I 모델 다양화 연동 및 I2I 이미지 편집 파이프라인의 오작동 해결 및 자동화 구축.

@@ -25,3 +25,15 @@
 
 ### Rule 5. 철저한 인수인계 핸드훅 남기기
 * 작업을 마칠 때에는 항상 대화의 마지막 턴이나 생성한 문서에 **[현재 워크플로우의 안정성 상태], [새롭게 밝혀낸 물리적 법칙/임계치], [다음 에이전트가 이어서 착수해야 할 작업 추천]**을 일목요연하게 전달하여 연속성을 100% 보장하십시오.
+
+### Rule 6. 캐릭터 패키지 및 구현 스펙 준수
+* 캐릭터 시트/일관성 관련 **코드 구현** 시 상위 설계([character_sheet_system_design.md](character_sheet_system_design.md))보다 **구현 스펙([character_impl_spec.md](character_impl_spec.md))** 을 우선한다.
+* 시트별 denoise·프롬프트·approve 별칭은 **`characters/sheet_presets.json`을 SSOT**로 사용한다. 하드코딩 시 파일과 반드시 동기화할 것.
+* 스토리 키프레임·영상용 인물 샷은 **`approved/`에 승격된 레퍼런스**만 기본 입력으로 사용한다 (`status=draft` 패키지를 본 촬영에 쓰지 말 것).
+* 활성 트랙이 `CHARACTER_L2_SOFT_FACTORY`인 동안 **L3 LoRA 학습 / ControlNet / I2V 본구현을 같은 PR에 섞지 않는다** (스파이크는 별도 세션).
+* 새 캐릭터 폴더는 `characters/_template/` 구조를 벗어나 임의로 만들지 않는다.
+ 
+### Rule 7. Z-Image-Turbo 공식 ControlNet (Union 2.1) 운용 규정
+* Z-Image-Turbo 전용 Union 2.1 컨트롤넷 모델 파일(`Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors`)은 일반 `controlnet` 폴더가 아닌 **`models/model_patches/`** 폴더에 배치해야 로더가 정상적으로 스캔합니다.
+* 워크플로우 결합 시 프롬프트 Conditioning을 수정하는 표준 `ControlNetApply` 노드는 400 에러를 유발하므로, 모델 자체를 직접 패치하여 KSampler로 전송하는 **`ZImageFunControlnet`** 및 로더용 **`FL_ZImageControlNetPatch`** 노드를 필수적으로 연동해야 합니다.
+* 컨트롤넷 강도는 `0.65 ~ 0.80` 사이를 권장하며, I2I 결합 시 디노이즈 `0.70` 선에서도 완벽한 자세 변환이 수행됨을 명심하십시오.

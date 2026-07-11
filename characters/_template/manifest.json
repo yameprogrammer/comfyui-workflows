@@ -1,0 +1,27 @@
+{
+  "character_id": "REPLACE_CHARACTER_ID",
+  "package_version": "0.1.0",
+  "status": "draft",
+  "created_at": "REPLACE_ISO_DATE",
+  "updated_at": "REPLACE_ISO_DATE",
+  "base_model": "moody_pro",
+  "level": "L1",
+  "assets": [],
+  "approved": {},
+  "missing_mvp": [
+    "master_front",
+    "master_full",
+    "turn_front",
+    "turn_qf",
+    "turn_side",
+    "turn_back",
+    "expr_neutral",
+    "expr_joy",
+    "expr_sad",
+    "expr_angry",
+    "expr_surprise",
+    "expr_think",
+    "costume_default",
+    "costume_alt1"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0",
+  "templates": {
+    "medium_dialogue": {
+      "framing": "medium shot, waist-up",
+      "camera": "eye-level, shallow depth of field",
+      "instruction_suffix": "natural conversation presence, subtle expression"
+    },
+    "closeup_emotion": {
+      "framing": "close-up face",
+      "camera": "85mm portrait feel",
+      "instruction_suffix": "emotional performance, identity locked"
+    },
+    "full_walk": {
+      "framing": "full body",
+      "camera": "slightly low angle tracking",
+      "instruction_suffix": "walking pose mid-stride, readable silhouette"
+    },
+    "night_mood": {
+      "framing": "medium shot",
+      "camera": "cinematic night grading",
+      "instruction_suffix": "cool rim light, city bokeh background, same wardrobe unless specified"
+    }
+  }
+}

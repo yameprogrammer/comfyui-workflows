@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.agent_custom/schemas/bible.schema.json",
+  "title": "CharacterBible",
+  "type": "object",
+  "required": [
+    "id",
+    "display_name",
+    "version",
+    "status",
+    "style",
+    "appearance",
+    "prompts",
+    "identity",
+    "consistency_rules"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Stable character_id, folder name"
+    },
+    "display_name": { "type": "string", "minLength": 1 },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "in_review", "approved", "deprecated"]
+    },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" },
+    "style": {
+      "type": "object",
+      "required": ["medium", "base_model"],
+      "properties": {
+        "medium": {
+          "type": "string",
+          "enum": [
+            "cinematic_photoreal",
+            "photoreal",
+            "anime",
+            "stylized"
+          ]
+        },
+        "base_model": {
+          "type": "string",
+          "enum": ["moody_real", "moody_pro", "moody_wild"]
+        },
+        "look": { "type": "string" }
+      }
+    },
+    "appearance": {
+      "type": "object",
+      "required": ["face", "hair", "wardrobe_default"],
+      "properties": {
+        "age_range": { "type": "string" },
+        "gender_presentation": { "type": "string" },
+        "ethnicity_notes": { "type": "string" },
+        "face": { "type": "string" },
+        "hair": { "type": "string" },
+        "body": { "type": "string" },
+        "distinctive": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "wardrobe_default": { "type": "string" },
+        "wardrobe_alt1": { "type": "string" }
+      }
+    },
+    "prompts": {
+      "type": "object",
+      "required": ["positive_core", "negative_core"],
+      "properties": {
+        "positive_core": { "type": "string" },
+        "negative_core": { "type": "string" },
+        "trigger": { "type": "string" },
+        "positive_core_file": { "type": "string" },
+        "negative_core_file": { "type": "string" }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["refs_only", "lora_plus_refs", "lora_only"]
+        },
+        "lora_path": { "type": ["string", "null"] },
+        "lora_strength_default": { "type": ["number", "null"] },
+        "primary_ref": { "type": ["string", "null"] },
+        "fallback_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "consistency_rules": {
+      "type": "object",
+      "properties": {
+        "must_keep": { "type": "array", "items": { "type": "string" } },
+        "may_change": { "type": "array", "items": { "type": "string" } },
+        "forbidden": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "performance": {
+      "type": "object",
+      "properties": {
+        "personality": { "type": "array", "items": { "type": "string" } },
+        "default_expression": { "type": "string" },
+        "mannerisms": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "sheet_index": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    },
+    "video_defaults": {
+      "type": "object",
+      "properties": {
+        "preferred_keyframe_ref": { "type": "string" },
+        "i2v_motion_style": { "type": "string" },
+        "max_identity_risk_denoise": { "type": "number" },
+        "aspect_ratio_target": { "type": "string" }
+      }
+    }
+  }
+}
