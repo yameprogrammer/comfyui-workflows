@@ -3,7 +3,7 @@
   "package_version": "0.1.0",
   "status": "approved",
   "created_at": "2026-07-11T12:42:27+00:00",
-  "updated_at": "2026-07-11T13:15:38+00:00",
+  "updated_at": "2026-07-11T13:16:03+00:00",
   "base_model": "moody_pro",
   "level": "L2",
   "assets": [
@@ -310,8 +310,8 @@
     },
     "turn_front": {
       "path": "approved/turn_front.png",
-      "source": "refs/turnaround/mina_park_v1__turnaround__front__stand__s20001__c01.png",
-      "approved_at": "2026-07-11T12:49:21+00:00"
+      "source": "refs/turnaround/mina_park_v1__turnaround__front__stand_controlnet__s70001__c01.png",
+      "approved_at": "2026-07-11T13:16:03+00:00"
     },
     "turn_qf": {
       "path": "approved/turn_qf.png",
@@ -320,8 +320,8 @@
     },
     "turn_side": {
       "path": "approved/turn_side.png",
-      "source": "refs/turnaround/mina_park_v1__turnaround__side__stand__s20003__c01.png",
-      "approved_at": "2026-07-11T12:49:21+00:00"
+      "source": "refs/turnaround/mina_park_v1__turnaround__side__stand_controlnet__s70003__c01.png",
+      "approved_at": "2026-07-11T13:16:03+00:00"
     },
     "turn_back": {
       "path": "approved/turn_back.png",

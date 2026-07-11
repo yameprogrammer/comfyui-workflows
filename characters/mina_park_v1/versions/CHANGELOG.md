@@ -22,3 +22,5 @@
 - 2026-07-11T13:11:38+00:00: generated full-body master refs/master/mina_park_v1__master__full__neutral_fullbody__s60011__c01.png
 - 2026-07-11T13:11:46+00:00: approved master_full from refs/master/mina_park_v1__master__full__neutral_fullbody__s60011__c01.png
 - 2026-07-11T13:15:38+00:00: expand profile=video_ref success=4 failures=0
+- 2026-07-11T13:16:03+00:00: approved turn_front from refs/turnaround/mina_park_v1__turnaround__front__stand_controlnet__s70001__c01.png
+- 2026-07-11T13:16:03+00:00: approved turn_side from refs/turnaround/mina_park_v1__turnaround__side__stand_controlnet__s70003__c01.png
