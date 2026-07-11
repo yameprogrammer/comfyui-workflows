@@ -709,11 +709,11 @@ Character L3 LoRA
 
 ## 12. 다음 즉시 액션
 
-1. ~~P0 / P1 / P2 / 파일럿 / P2.5 프로필~~ ✅ (업스케일·grid 제외)
-2. **P4**: ControlNet turnaround (전신/측면 품질) — 파일럿 최대 갭
-3. **P7**: `shot_with_character` (`video_ref` 패키지 사용)
+1. ~~P0~P2 / P2.5 / 파일럿 / full-body CN / P7 shot~~ ✅
+2. **포즈맵 개선** (turn 선 아티팩트·side/back 각도) — 품질 후속
+3. **I2V** 키프레임→클립 연결
 4. P2.5e artbook upscale/grid (여유 시)
-5. I2V 트랙과 합류
+5. L3 캐릭터 LoRA
 
 ---
 

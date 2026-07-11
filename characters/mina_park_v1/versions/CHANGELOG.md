@@ -24,3 +24,4 @@
 - 2026-07-11T13:15:38+00:00: expand profile=video_ref success=4 failures=0
 - 2026-07-11T13:16:03+00:00: approved turn_front from refs/turnaround/mina_park_v1__turnaround__front__stand_controlnet__s70001__c01.png
 - 2026-07-11T13:16:03+00:00: approved turn_side from refs/turnaround/mina_park_v1__turnaround__side__stand_controlnet__s70003__c01.png
+- 2026-07-11T13:18:44+00:00: shot keyframe refs/shots/mina_park_v1__shot__na__medium_dialogue__s80001__c01.png

@@ -6,6 +6,17 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] P7 shot_with_character 키프레임 CLI 추가
+* **작업 에이전트**: Grok
+* **작업 목표**: video_ref 캐릭터 패키지로 스토리 키프레임(I2I) 생성.
+* **주요 변경 사항**:
+  1. **`shot_with_character.py`**: `--shot`, `--ref`/`--expression`, `--template`, denoise/cfg/seed, draft 경고
+  2. positive_core 주입 + approved ref 기본 선택
+  3. 출력 `refs/shots/` + meta; 템플릿 `shot_templates.json`
+  4. 실측: mina 카페 medium_dialogue 샷 생성 성공 (seed 80001)
+* **상태**: P7 기본 경로 사용 가능. 다음 후보 I2V 연결 또는 포즈맵 개선.
+* **참고**: 작업 트리 커밋 전 상태는 이미 clean이었음 → 본 커밋에 P7 포함.
+
 ### [2026-07-11] 턴어라운드 품질 경로: full-body master + ControlNet
 * **작업 에이전트**: Grok
 * **선행 커밋**: `0ae21a4` (CN 인프라)

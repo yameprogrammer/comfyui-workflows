@@ -761,6 +761,9 @@ python generate_moody_i2i.py ^
 - [ ] Empty-latent / full-body-source CN 경로로 측면·후면 성공
 
 ### Ticket P7-A — `shot_with_character.py` (파일럿 후)
+- [x] CLI: shot / ref / expression / template / denoise
+- [x] positive_core + I2I; refs/shots 출력
+- [x] mina 실측 키프레임 1장
 
 
 ---
