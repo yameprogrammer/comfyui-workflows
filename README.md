@@ -106,6 +106,9 @@ python character_expand_sheets.py --id mina_park_v1 --sheets turnaround --engine
 
 # 6) Story keyframe from approved character pack
 python shot_with_character.py --id mina_park_v1 --shot "medium shot in a coffee shop, holding a cup" --template medium_dialogue --expression neutral -d 0.75
+
+# 7) Image-to-Video (Wan2.2 I2V A14B GGUF — requires models already installed)
+python generate_i2v.py -i path/to/keyframe.png -p "gentle camera push-in, subtle motion" -o F:\generated_videos\clip.mp4 --width 640 --height 640 --frames 33
 ```
 
 P1 개선: `generate_moody.py` / `generate_moody_i2i.py` 에 `--seed`, `--prompt-file`, `--meta-out`, I2I `--core-prefix-file` 지원.

@@ -6,6 +6,16 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] P8 I2V (Wan2.2 A14B GGUF) 에이전트 CLI 추가
+* **작업 에이전트**: Grok
+* **작업 목표**: 키프레임 이미지 → 짧은 영상 클립 자동화 (영상 로드맵 P0).
+* **주요 변경 사항**:
+  1. **`I2V-wan22-a14b.json`**: WanVideoWrapper 2.2 I2V A14B 예제를 로컬 GGUF High/Low + lightx2v 4step LoRA + `wan_2.1_vae` + umt5 경로로 패치; torch.compile 비활성
+  2. **`lib/comfy_ui_convert.py`**: UI→API 변환 (object_info 위젯 순서, 링크 우선)
+  3. **`generate_i2v.py`**: image/prompt/frames/size/seed CLI, 출력 mp4 복사
+  4. **실측**: mina 카페 키프레임 → `F:\generated_videos\mina_i2v_test.mp4` 성공 (~1분, 640², 33f, 6step)
+* **상태**: I2V MVP 사용 가능. 다음: 조립(FFmpeg)·포즈맵·긴 클립 튜닝.
+
 ### [2026-07-11] P7 shot_with_character 키프레임 CLI 추가
 * **작업 에이전트**: Grok
 * **작업 목표**: video_ref 캐릭터 패키지로 스토리 키프레임(I2I) 생성.

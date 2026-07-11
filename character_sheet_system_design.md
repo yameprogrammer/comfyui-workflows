@@ -709,9 +709,9 @@ Character L3 LoRA
 
 ## 12. 다음 즉시 액션
 
-1. ~~P0~P2 / P2.5 / 파일럿 / full-body CN / P7 shot~~ ✅
-2. **포즈맵 개선** (turn 선 아티팩트·side/back 각도) — 품질 후속
-3. **I2V** 키프레임→클립 연결
+1. ~~P0~P2 / P2.5 / 파일럿 / full-body CN / P7 shot / I2V MVP~~ ✅
+2. **FFmpeg 조립** (클립 concat + 오디오 슬롯)
+3. **포즈맵 개선** (turn 선 아티팩트·side/back 각도)
 4. P2.5e artbook upscale/grid (여유 시)
 5. L3 캐릭터 LoRA
 
