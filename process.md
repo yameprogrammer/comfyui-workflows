@@ -6,6 +6,14 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] deliveries/ 사용자 납품 패키징
+* **작업 에이전트**: Grok
+* **작업 목표**: 에피소드 결과물을 사용자 전달용 폴더+zip으로 스냅샷.
+* **구성**: `deliveries/<ep>__UTC/` = FINAL + STILLS + CLIPS + MANIFEST + META + README
+* **CLI**: `scripts/package_delivery.py` · `lib/delivery_package.py` · [docs/delivery_handoff.md](docs/delivery_handoff.md)
+* **실측**: hand_ep01 stills2+clips2+final → zip OK 후 정리
+* **원칙**: stories=작업실, deliveries=납품 상자, characters/locations=공유 자산(풀 복사 안 함)
+
 ### [2026-07-11] assemble_video — FFmpeg 에피소드 조립
 * **작업 에이전트**: Grok
 * **작업 목표**: work/deliver 클립 concat + optional BGM → exports/final.

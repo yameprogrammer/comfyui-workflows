@@ -15,8 +15,9 @@ agent_custom/
   lib/                                         ← 공유 코드
   characters/                                  ← 캐릭터 패키지
   looks/                                       ← 룩/스타일 코어
-  locations/                                   ← (예정) 로케이션 패키지
-  stories/                                     ← (예정) 에피소드/샷
+  locations/                                   ← 로케이션 패키지
+  stories/                                     ← 에피소드 작업실
+  deliveries/                                  ← 사용자 납품 상자 (zip)
   docs/                                        ← 설계·스펙·로드맵
 ```
 
@@ -53,7 +54,8 @@ agent_custom/
 * **설계·스펙 문서** → `docs/`
 * **캐릭터 데이터** → `characters/`
 * **룩** → `looks/`
-* **로케이션 / 스토리** → `locations/`, `stories/` (구현 시)
+* **로케이션 / 스토리** → `locations/`, `stories/`
+* **사용자 납품** → `deliveries/` (`package_delivery.py`). 작업실은 `stories/`. 상세 [docs/delivery_handoff.md](docs/delivery_handoff.md).
 * 루트에 실행 스크립트·워크플로우 JSON·장문 스펙을 새로 쌓지 말 것.
 
 ### Rule 3. Flow Matching 모델 연산의 이해 및 보존

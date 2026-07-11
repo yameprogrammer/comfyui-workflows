@@ -79,8 +79,9 @@
    optional first–last bridges
 
 6. Finish
-   upscale_video --preset deliver_1080|1440|2160  (+ format aspect)
-   assemble + audio (후속)
+   episode_upscale --preset deliver_1080|1440|2160
+   assemble_video → exports/final/
+   package_delivery → deliveries/<ep>__<stamp>/ (+ zip)  ★ 사용자 납품
 ```
 
 **병렬 가능**: 캐릭터·로케·룩 준비.  
@@ -185,11 +186,12 @@ agent_custom/
   characters/          # ✅
   locations/           # ✅ template + CLI (파일럿 생성 ⬜)
   looks/               # ✅ 템플릿 + cinematic_moody_v1
-  stories/             # ✅ template + story_init/shot_compose/approve
+  stories/             # ✅ 작업실 (에피소드)
+  deliveries/          # ✅ 사용자 납품 상자 (스냅샷+zip)
   workflows/agent/
   scripts/
-  video_backends.json  # format + work presets
-  upscale_backends.json# deliver_1080/2160 tiers
+  video_backends.json
+  upscale_backends.json
   docs/
 ```
 
@@ -206,6 +208,7 @@ agent_custom/
 | 모션 | I2V | backend/format/work | ✅ |
 | 마감 | U* | upscale ≤4K | ✅ |
 | 마감 | D5 | assemble | ✅ |
+| 납품 | D-H | package_delivery handoff | ✅ |
 | 통합 | **P-E1** | 미니 에피소드 E2E | ⬜ |
 
 **권장 구현 순서**

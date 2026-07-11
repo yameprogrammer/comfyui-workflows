@@ -98,6 +98,7 @@ python scripts/upscale_image.py --list-backends
 | [docs/video_pipeline_roadmap.md](docs/video_pipeline_roadmap.md) | 영상 파이프라인 로드맵 |
 | [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md) | format · 해상도 · I2V 백엔드 |
 | [docs/upscale_research_and_design.md](docs/upscale_research_and_design.md) | 업스케일 ≤4K |
+| [docs/delivery_handoff.md](docs/delivery_handoff.md) | 에피소드 사용자 납품 패키징 |
 | [docs/character_impl_spec.md](docs/character_impl_spec.md) | 캐릭터 **구현 SSOT** |
 | [docs/character_sheet_system_design.md](docs/character_sheet_system_design.md) | 캐릭터 장기 설계 |
 | [docs/moody_workflow_guide.md](docs/moody_workflow_guide.md) | Moody 운용 가이드 |
