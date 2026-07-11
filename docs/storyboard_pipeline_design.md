@@ -315,10 +315,10 @@ python scripts/episode_upscale.py --episode mina_cafe_ep01 --preset deliver_1080
 | ID | 내용 | 의존 | 상태 |
 |----|------|------|------|
 | **S0** | 본 설계 문서 | — | ✅ |
-| **S1** | `stories/_template` + shots.schema.json | S0 | ⬜ |
-| **S2** | `story_init` + shots.json 검증기 | S1 | ⬜ |
-| **S3** | `shot_compose` (char+loc → keyframe) | S2, L2, character L2 | ⬜ |
-| **S4** | `shot_approve` + contact sheet | S3 | ⬜ |
+| **S1** | `stories/_template` + shots.schema.json | S0 | ✅ |
+| **S2** | `story_init` + shots.json | S1 | ✅ |
+| **S3** | `shot_compose` (look+char+loc → keyframe) | S2, L2, character L2 | ✅ |
+| **S4** | `shot_approve` (+ contact sheet later) | S3 | ✅ approve / contact ⬜ |
 | **S5** | `episode_i2v` 배치 | S4, generate_i2v | ⬜ |
 | **S6** | first–last continuity 옵션 | S5 | ⬜ |
 | **S7** | board panels / animatic | S2 | ⬜ |

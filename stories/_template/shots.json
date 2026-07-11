@@ -1,0 +1,13 @@
+{
+  "episode_id": "REPLACE_EPISODE_ID",
+  "format": "cinematic_16x9",
+  "look_id": "cinematic_moody_v1",
+  "default_fps": 24,
+  "default_backend_i2v": "wan22",
+  "default_work_preset": null,
+  "default_deliver_tier": "deliver_1080",
+  "default_model": "pro",
+  "default_denoise": 0.78,
+  "default_cfg": 3.5,
+  "shots": []
+}

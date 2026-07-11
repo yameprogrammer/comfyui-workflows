@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "shot_types": {
+    "establishing": {
+      "framing": "wide establishing, environment first, no hero character or tiny figures only",
+      "prefer_source": "location"
+    },
+    "wide": {
+      "framing": "wide full-body in set, readable environment",
+      "prefer_source": "character"
+    },
+    "medium": {
+      "framing": "medium shot waist-up, dialogue-friendly",
+      "prefer_source": "character"
+    },
+    "closeup": {
+      "framing": "close-up face, shallow depth of field, set softly behind",
+      "prefer_source": "character"
+    },
+    "insert": {
+      "framing": "insert detail of prop or landmark, no face required",
+      "prefer_source": "location"
+    }
+  }
+}

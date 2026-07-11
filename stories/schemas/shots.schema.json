@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EpisodeShots",
+  "type": "object",
+  "required": ["episode_id", "format", "look_id", "shots"],
+  "properties": {
+    "episode_id": { "type": "string" },
+    "format": { "type": "string" },
+    "look_id": { "type": "string" },
+    "default_deliver_tier": { "type": "string" },
+    "shots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["shot_id", "order", "action"],
+        "properties": {
+          "shot_id": { "type": "string" },
+          "order": { "type": "integer" },
+          "duration_sec": { "type": "number" },
+          "character_ids": { "type": "array", "items": { "type": "string" } },
+          "location_id": { "type": ["string", "null"] },
+          "keyframe_status": {
+            "type": "string",
+            "enum": ["draft", "in_review", "approved", "missing"]
+          }
+        }
+      }
+    }
+  }
+}

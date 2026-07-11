@@ -25,4 +25,4 @@
 
 워크플로우 JSON: `../workflows/agent/`  
 CLI: `../scripts/`  
-데이터: `../characters/` · `../looks/` · (예정) `../locations/` · `../stories/`
+데이터: `../characters/` · `../looks/` · `../locations/` · `../stories/`

@@ -6,6 +6,16 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] 스토리 팩 S1–S4 — story_init / shot_compose / shot_approve
+* **작업 에이전트**: Grok
+* **작업 목표**: 에피소드 패키지 + look/char/loc 키프레임 조립 CLI (실 Comfy E2E는 파일럿 시).
+* **주요 변경**:
+  1. `stories/_template`, `shot_type_presets.json`, `schemas/shots.schema.json`
+  2. `lib/story_package.py` (format work size resolve, look cores)
+  3. `scripts/story_init.py`, `shot_compose.py`, `shot_approve.py`
+* **검증**: story_init dry-run+create, shot_compose dry-run (mina approved ref → 960×540), location 없으면 code=11
+* **다음**: episode_i2v 배치 / L3 로케 파일럿 / P-E1 미니 에피소드
+
 ### [2026-07-11] 로케이션 팩 L1–L2 구현 (template + CLI)
 * **작업 에이전트**: Grok
 * **작업 목표**: Location Pack 설계(L0)를 코드로 — 캐릭터 팩과 대칭 create/expand/approve.

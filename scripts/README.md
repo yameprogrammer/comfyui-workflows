@@ -27,6 +27,9 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `location_create.py` | 로케이션 패키지 + master_wide T2I | `locations/` |
 | `location_expand_sheets.py` | 각도/조명/랜드마크 I2I | location_presets.json |
 | `location_approve.py` | refs → approved 승격 | aliases: master_wide, empty_stage, … |
+| `story_init.py` | 에피소드 패키지 생성 | `stories/` + format + look |
+| `shot_compose.py` | look+char+loc → 키프레임 | format work size |
+| `shot_approve.py` | keyframe_status 승격 | I2V 전 게이트 |
 | `generate_krea.py` | Krea T2I | `t2i_krea` |
 | `character_create.py` | 패키지 + 마스터 후보 | t2i |
 | `character_approve.py` | refs → approved 승격 | — |
