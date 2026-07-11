@@ -100,6 +100,9 @@ python character_expand_sheets.py --id mina_park_v1 --sheets all_mvp --model pro
 
 # 4) 컷별 승격 예
 python character_approve.py --id mina_park_v1 --from refs/turnaround/<chosen>.png --as turn_side
+
+# 5) ControlNet turnaround (auto for turnaround presets; quality still WIP)
+python character_expand_sheets.py --id mina_park_v1 --sheets turnaround --engine controlnet --candidates 1
 ```
 
 P1 개선: `generate_moody.py` / `generate_moody_i2i.py` 에 `--seed`, `--prompt-file`, `--meta-out`, I2I `--core-prefix-file` 지원.

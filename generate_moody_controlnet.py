@@ -1,289 +1,273 @@
-import os
-import json
-import random
-import time
-import urllib.request
-import urllib.parse
+"""ControlNet-assisted I2I on Moody / Z-Image (Union 2.1 path)."""
+
+from __future__ import annotations
+
 import argparse
+import os
+import random
 import shutil
+import sys
 
-def convert_ui_to_api(ui_data):
-    """Converts ComfyUI UI format to API prompt format dynamically."""
-    api_data = {}
-    links = {}
-    
-    # Map links for easy lookup
-    for link in ui_data.get('links', []):
-        links[link[0]] = link
-        
-    for node in ui_data.get('nodes', []):
-        node_id = str(node['id'])
-        class_type = node['type']
-        widgets_values = node.get('widgets_values', [])
-        
-        inputs = {}
-        
-        # Link inputs
-        for inp in node.get('inputs', []):
-            name = inp['name']
-            link_id = inp.get('link')
-            if link_id is not None and link_id in links:
-                link = links[link_id]
-                origin_node_id = str(link[1])
-                origin_output_index = link[2]
-                inputs[name] = [origin_node_id, origin_output_index]
-                
-        # Widget inputs
-        if class_type == 'UNETLoader':
-            if len(widgets_values) >= 2:
-                inputs['unet_name'] = widgets_values[0]
-                inputs['weight_dtype'] = widgets_values[1]
-        elif class_type == 'VAELoader':
-            if len(widgets_values) >= 1:
-                inputs['vae_name'] = widgets_values[0]
-        elif class_type == 'CLIPLoader':
-            if len(widgets_values) >= 3:
-                inputs['clip_name'] = widgets_values[0]
-                inputs['type'] = widgets_values[1]
-                inputs['device'] = widgets_values[2]
-        elif class_type == 'ModelSamplingAuraFlow':
-            if len(widgets_values) >= 1:
-                inputs['shift'] = widgets_values[0]
-        elif class_type == 'CLIPTextEncode':
-            if len(widgets_values) >= 1:
-                inputs['text'] = widgets_values[0]
-        elif class_type == 'KSampler':
-            if len(widgets_values) >= 7:
-                inputs['seed'] = widgets_values[0]
-                inputs['steps'] = widgets_values[2]
-                inputs['cfg'] = widgets_values[3]
-                inputs['sampler_name'] = widgets_values[4]
-                inputs['scheduler'] = widgets_values[5]
-                inputs['denoise'] = widgets_values[6]
-        elif class_type == 'LoadImage':
-            if len(widgets_values) >= 1:
-                inputs['image'] = widgets_values[0]
-        elif class_type == 'ControlNetLoader':
-            if len(widgets_values) >= 1:
-                inputs['control_net_name'] = widgets_values[0]
-        elif class_type == 'FL_ZImageControlNetPatch':
-            if len(widgets_values) >= 2:
-                inputs['name'] = widgets_values[0]
-                inputs['auto_config'] = widgets_values[1]
-        elif class_type == 'ZImageFunControlnet':
-            if len(widgets_values) >= 1:
-                inputs['strength'] = widgets_values[0]
-        elif class_type == 'Save Image (LoraManager)':
-            if len(widgets_values) >= 2:
-                inputs['filename_prefix'] = widgets_values[0]
-                inputs['file_format'] = widgets_values[1]
-                
-        # Fill in static values that are not linked
-        for k, v in node.get('properties', {}).items():
-            if k not in inputs:
-                inputs[k] = v
-                
-        api_data[node_id] = {
-            "inputs": inputs,
-            "class_type": class_type
-        }
-    return api_data
+from lib.comfy_client import (
+    COMFYUI_INPUT_DIR,
+    DEFAULT_SERVER,
+    MODEL_MAPPING,
+    WORKSPACE_ROOT,
+    convert_ui_to_api,
+    download_image,
+    extract_first_image,
+    fail_result,
+    load_workflow,
+    ok_result,
+    queue_prompt,
+    resolve_meta_out,
+    utc_now_iso,
+    wait_for_history,
+    write_meta,
+)
+from lib.prompt_assembly import assemble_prompt, load_text
 
-def generate_controlnet_image(input_image_path, control_image_path, prompt_text, denoise_val=0.70, cfg_val=3.5, control_strength=0.75, model_type="real", output_filename=None):
-    server_address = "127.0.0.1:8188"
-    workflow_path = r"F:\ComfyUI_workflows\agent_custom\I2I-ControlNet-moody.json"
-    comfyui_input_dir = r"F:\ComfyUI_windows_portable\ComfyUI\input"
-    
-    # 1. Check inputs
+
+def generate_controlnet_image(
+    input_image_path,
+    control_image_path,
+    prompt_text,
+    denoise_val=0.70,
+    cfg_val=3.5,
+    control_strength=0.75,
+    model_type="real",
+    output_filename=None,
+    seed=None,
+    negative_text="",
+    core_prefix="",
+    core_suffix="",
+    meta_out=None,
+    server_address=DEFAULT_SERVER,
+    timeout_sec=600,
+):
+    workflow_path = os.path.join(WORKSPACE_ROOT, "I2I-ControlNet-moody.json")
+    selected_model = MODEL_MAPPING.get(model_type.lower(), MODEL_MAPPING["real"])
+
     if not os.path.exists(input_image_path):
-        print(f"Error: Face reference image not found at {input_image_path}")
-        return False
+        print(f"Error: Face/character reference not found at {input_image_path}")
+        return fail_result(error="SOURCE_MISSING", message=input_image_path)
     if not os.path.exists(control_image_path):
-        print(f"Error: Control/Pose reference image not found at {control_image_path}")
-        return False
-        
-    # 2. Copy reference images to ComfyUI input folder
+        print(f"Error: Control/pose image not found at {control_image_path}")
+        return fail_result(error="CONTROL_MISSING", message=control_image_path)
+
     temp_input_name = "temp_i2i_input.png"
     temp_control_name = "temp_control_input.png"
-    
+
     try:
-        # Copy face reference image directly
-        shutil.copy2(input_image_path, os.path.join(comfyui_input_dir, temp_input_name))
-        
-        # Preprocess control image using OpenCV Canny edge detector to extract outlines
-        import cv2
-        img = cv2.imread(control_image_path, cv2.IMREAD_GRAYSCALE)
-        edges = cv2.Canny(img, 50, 150)
-        # Convert single channel to RGB for ComfyUI node compatibility
-        edges_rgb = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
-        cv2.imwrite(os.path.join(comfyui_input_dir, temp_control_name), edges_rgb)
-        
-        print("Successfully processed control image via Canny and copied reference images to ComfyUI input folder.")
+        from lib.edge_preprocess import write_canny_rgb
+
+        os.makedirs(COMFYUI_INPUT_DIR, exist_ok=True)
+        shutil.copy2(input_image_path, os.path.join(COMFYUI_INPUT_DIR, temp_input_name))
+        write_canny_rgb(
+            control_image_path,
+            os.path.join(COMFYUI_INPUT_DIR, temp_control_name),
+            low=50,
+            high=150,
+        )
+        print("Processed control image (Canny/edges) and copied refs to ComfyUI input.")
     except Exception as e:
         print(f"Error copying/processing reference images: {e}")
-        return False
-        
-    # 3. Model Mapping
-    model_mapping = {
-        "real": "ZImageTurbo\\moodyRealMix_zitV6DPO.safetensors",
-        "pro": "ZImageTurbo\\moodyProMix_zitV12DPO.safetensors",
-        "wild": "ZImageTurbo\\moodyWildMixZIBZID_v01.safetensors"
-    }
-    selected_model = model_mapping.get(model_type.lower(), model_mapping["real"])
-    
+        return fail_result(error="INPUT_COPY_FAILED", message=str(e))
+
     if output_filename is None:
         output_filename = os.path.join(r"F:\generated_images", f"output_controlnet_{model_type}.png")
-        
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_filename), exist_ok=True)
-    
-    # 4. Load Workflow JSON
+    parent = os.path.dirname(os.path.abspath(output_filename))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+
+    final_prompt = assemble_prompt(core=core_prefix, instruction=prompt_text, suffix=core_suffix)
+
     print(f"Loading ControlNet workflow: {workflow_path}")
-    with open(workflow_path, 'r', encoding='utf-8') as f:
-        ui_data = json.load(f)
-        
+    ui_data = load_workflow(workflow_path)
     api_prompt = convert_ui_to_api(ui_data)
-    
-    # 5. Identify nodes and modify parameters
+
     prompt_node_id = None
     sampler_node_id = None
     unet_node_id = None
     input_image_node_id = None
     control_image_node_id = None
-    apply_controlnet_node_id = None
-    
+    zimage_cn_node_id = None
+
     for node_id, node in api_prompt.items():
-        if node['class_type'] == 'CLIPTextEncode':
+        ctype = node["class_type"]
+        if ctype == "CLIPTextEncode":
             prompt_node_id = node_id
-        elif node['class_type'] == 'KSampler':
+        elif ctype == "KSampler":
             sampler_node_id = node_id
-        elif node['class_type'] == 'UNETLoader':
+        elif ctype == "UNETLoader":
             unet_node_id = node_id
-        elif node['class_type'] == 'LoadImage':
-            # We have two LoadImage nodes: ID 54 and ID 60
+        elif ctype == "LoadImage":
             if node_id == "54":
                 input_image_node_id = node_id
             elif node_id == "60":
                 control_image_node_id = node_id
-        elif node['class_type'] == 'ApplyControlNet':
-            apply_controlnet_node_id = node_id
-            
-    # Modify prompt text
+            elif input_image_node_id is None:
+                input_image_node_id = node_id
+            else:
+                control_image_node_id = node_id
+        elif ctype == "ZImageFunControlnet":
+            zimage_cn_node_id = node_id
+
     if prompt_node_id:
-        api_prompt[prompt_node_id]['inputs']['text'] = prompt_text
-        print(f"Set Prompt: {prompt_text}")
-        
-    # Modify UNet model
+        api_prompt[prompt_node_id]["inputs"]["text"] = final_prompt
+        print(f"Set Prompt: {final_prompt}")
+
+    if negative_text:
+        print("[WARN] Negative saved to meta only (no dedicated negative node)")
+
     if unet_node_id:
-        api_prompt[unet_node_id]['inputs']['unet_name'] = selected_model
-        api_prompt[unet_node_id]['inputs']['weight_dtype'] = "default"
+        api_prompt[unet_node_id]["inputs"]["unet_name"] = selected_model
+        api_prompt[unet_node_id]["inputs"]["weight_dtype"] = "default"
         print(f"Set UNet Model ({model_type}): {selected_model}")
-        
-    # Modify LoadImage filenames
+
     if input_image_node_id:
-        api_prompt[input_image_node_id]['inputs']['image'] = temp_input_name
+        api_prompt[input_image_node_id]["inputs"]["image"] = temp_input_name
     if control_image_node_id:
-        api_prompt[control_image_node_id]['inputs']['image'] = temp_control_name
-        
-    # Modify ApplyControlNet strength
-    if apply_controlnet_node_id:
-        api_prompt[apply_controlnet_node_id]['inputs']['strength'] = control_strength
-        print(f"Set ControlNet Strength: {control_strength}")
-        
-    # Modify KSampler parameters (Seed, Denoise, CFG)
+        api_prompt[control_image_node_id]["inputs"]["image"] = temp_control_name
+
+    if zimage_cn_node_id:
+        api_prompt[zimage_cn_node_id]["inputs"]["strength"] = control_strength
+        print(f"Set ZImageFunControlnet Strength: {control_strength}")
+
+    new_seed = seed if seed is not None else random.randint(1, 1125899906842624)
+    applied_steps = None
     if sampler_node_id:
-        new_seed = random.randint(1, 1125899906842624)
-        api_prompt[sampler_node_id]['inputs']['seed'] = new_seed
-        api_prompt[sampler_node_id]['inputs']['denoise'] = denoise_val
-        api_prompt[sampler_node_id]['inputs']['cfg'] = cfg_val
-        api_prompt[sampler_node_id]['inputs']['sampler_name'] = "euler"
-        api_prompt[sampler_node_id]['inputs']['scheduler'] = "normal"
-        print(f"Set KSampler Seed: {new_seed}, Denoise: {denoise_val}, CFG: {cfg_val}, Sampler: euler, Scheduler: normal")
-        
-    # 6. Queue Prompt
-    p = {"prompt": api_prompt}
-    data = json.dumps(p).encode('utf-8')
-    req = urllib.request.Request(f"http://{server_address}/prompt", data=data, headers={'Content-Type': 'application/json'})
-    
+        s_in = api_prompt[sampler_node_id]["inputs"]
+        s_in["seed"] = new_seed
+        s_in["denoise"] = denoise_val
+        s_in["cfg"] = cfg_val
+        s_in["sampler_name"] = "euler"
+        s_in["scheduler"] = "normal"
+        applied_steps = s_in.get("steps")
+        print(
+            f"Set KSampler Seed: {new_seed}, Denoise: {denoise_val}, CFG: {cfg_val}, "
+            f"Sampler: euler, Scheduler: normal"
+        )
+
     print("Sending ControlNet prompt request to ComfyUI...")
     try:
-        with urllib.request.urlopen(req) as response:
-            res_data = json.loads(response.read().decode('utf-8'))
-            prompt_id = res_data['prompt_id']
-            print(f"Prompt queued successfully. Prompt ID: {prompt_id}")
+        prompt_id = queue_prompt(server_address, api_prompt)
+        print(f"Prompt queued successfully. Prompt ID: {prompt_id}")
+    except ConnectionError as e:
+        print(f"[ERROR] code=40 message={e}")
+        return fail_result(error="COMFY_UNREACHABLE", message=str(e), seed=new_seed)
     except Exception as e:
         print(f"Error queuing prompt: {e}")
-        return False
-        
-    # 7. Poll history for completion
+        return fail_result(error="QUEUE_FAILED", message=str(e), seed=new_seed)
+
     print("Executing ControlNet image editing (polling)...")
-    while True:
-        try:
-            with urllib.request.urlopen(f"http://{server_address}/history/{prompt_id}") as response:
-                history = json.loads(response.read().decode('utf-8'))
-                if prompt_id in history:
-                    print("Generation completed!")
-                    outputs = history[prompt_id].get('outputs', {})
-                    break
-        except Exception as e:
-            pass
-        time.sleep(1)
-        
-    # 8. Download Output Image
-    image_filename = None
-    image_subfolder = None
-    image_type = None
-    
-    for node_id, node_output in outputs.items():
-        if 'images' in node_output:
-            for img in node_output['images']:
-                image_filename = img['filename']
-                image_subfolder = img.get('subfolder', '')
-                image_type = img.get('type', 'output')
-                break
-                
-    if not image_filename:
-        print("Error: Output image not found in history.")
-        return False
-        
-    print(f"Downloading image: {image_filename}")
-    view_url = f"http://{server_address}/view?filename={urllib.parse.quote(image_filename)}&subfolder={urllib.parse.quote(image_subfolder)}&type={image_type}"
     try:
-        urllib.request.urlretrieve(view_url, output_filename)
+        history_entry = wait_for_history(server_address, prompt_id, timeout_sec=timeout_sec)
+    except TimeoutError as e:
+        print(f"[ERROR] code=41 message={e}")
+        return fail_result(error="COMFY_TIMEOUT", message=str(e), seed=new_seed, prompt_id=prompt_id)
+    except Exception as e:
+        return fail_result(error="HISTORY_FAILED", message=str(e), seed=new_seed, prompt_id=prompt_id)
+
+    try:
+        image_filename, image_subfolder, image_type = extract_first_image(history_entry)
+    except FileNotFoundError as e:
+        print(f"[ERROR] code=42 message={e}")
+        return fail_result(error="COMFY_NO_OUTPUT", message=str(e), seed=new_seed, prompt_id=prompt_id)
+
+    print(f"Downloading image: {image_filename}")
+    try:
+        download_image(server_address, image_filename, image_subfolder, image_type, output_filename)
         print(f"ControlNet image successfully saved to: {output_filename}")
-        return True
     except Exception as e:
         print(f"Error downloading image: {e}")
-        return False
+        return fail_result(error="DOWNLOAD_FAILED", message=str(e), seed=new_seed, prompt_id=prompt_id)
+
+    meta_path = resolve_meta_out(output_filename, meta_out)
+    meta = {
+        "character_id": None,
+        "sheet": None,
+        "view": None,
+        "variant": None,
+        "seed": new_seed,
+        "model": model_type,
+        "workflow": "I2I-ControlNet-moody",
+        "mode": "i2i_controlnet",
+        "prompt": final_prompt,
+        "prompt_instruction": prompt_text,
+        "core_prefix": core_prefix or "",
+        "core_suffix": core_suffix or "",
+        "negative": negative_text or "",
+        "denoise": denoise_val,
+        "cfg": cfg_val,
+        "control_strength": control_strength,
+        "steps": applied_steps,
+        "sampler": "euler",
+        "scheduler": "normal",
+        "source_image": os.path.abspath(input_image_path),
+        "control_image": os.path.abspath(control_image_path),
+        "created_at": utc_now_iso(),
+        "comfy_prompt_id": prompt_id,
+        "output_path": os.path.abspath(output_filename),
+    }
+    if meta_path:
+        write_meta(meta_path, meta)
+        print(f"Meta saved to: {meta_path}")
+
+    return ok_result(
+        output_path=os.path.abspath(output_filename),
+        seed=new_seed,
+        prompt_id=prompt_id,
+        meta_path=meta_path,
+        meta=meta,
+    )
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="ControlNet-assisted Image-to-Image editing on Moody models")
-    parser.add_argument("--input", "-i", type=str, required=True,
-                        help="Path to the source character/face image")
-    parser.add_argument("--control", "-c_img", type=str, required=True,
-                        help="Path to the pose/control reference image")
-    parser.add_argument("--prompt", "-p", type=str, required=True,
-                        help="Prompt describing the scene and modifications")
-    parser.add_argument("--denoise", "-d", type=float, default=0.70,
-                        help="Denoise value (default 0.70 for strong face preservation)")
-    parser.add_argument("--cfg", "-c", type=float, default=3.5,
-                        help="CFG scale (default 3.5)")
-    parser.add_argument("--strength", "-s", type=float, default=0.75,
-                        help="ControlNet strength (default 0.75)")
-    parser.add_argument("--model", "-m", type=str, choices=["real", "pro", "wild"], default="real",
-                        help="Moody model type (real, pro, wild)")
-    parser.add_argument("--output", "-o", type=str, default=None,
-                        help="Path to save output image")
-                        
+    parser = argparse.ArgumentParser(description="ControlNet-assisted I2I on Moody models")
+    parser.add_argument("--input", "-i", type=str, required=True, help="Character/face reference image")
+    parser.add_argument("--control", type=str, required=True, help="Pose/control reference image")
+    parser.add_argument("--prompt", "-p", type=str, default=None)
+    parser.add_argument("--prompt-file", type=str, default=None)
+    parser.add_argument("--negative", type=str, default="")
+    parser.add_argument("--negative-file", type=str, default=None)
+    parser.add_argument("--core-prefix-file", type=str, default=None)
+    parser.add_argument("--core-suffix-file", type=str, default=None)
+    parser.add_argument("--denoise", "-d", type=float, default=0.70)
+    parser.add_argument("--cfg", "-c", type=float, default=3.5)
+    parser.add_argument("--strength", "-s", type=float, default=0.75, help="ControlNet strength")
+    parser.add_argument("--model", "-m", type=str, choices=["real", "pro", "wild"], default="real")
+    parser.add_argument("--output", "-o", type=str, default=None)
+    parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--meta-out", type=str, default=None)
+    parser.add_argument("--timeout", type=int, default=600)
     args = parser.parse_args()
-    
-    generate_controlnet_image(
+
+    if args.prompt_file:
+        prompt_text = load_text(args.prompt_file)
+    elif args.prompt:
+        prompt_text = args.prompt
+    else:
+        parser.error("Either --prompt or --prompt-file is required")
+
+    negative_text = load_text(args.negative_file) if args.negative_file else (args.negative or "")
+    core_prefix = load_text(args.core_prefix_file) if args.core_prefix_file else ""
+    core_suffix = load_text(args.core_suffix_file) if args.core_suffix_file else ""
+
+    result = generate_controlnet_image(
         input_image_path=args.input,
         control_image_path=args.control,
-        prompt_text=args.prompt,
+        prompt_text=prompt_text,
         denoise_val=args.denoise,
         cfg_val=args.cfg,
         control_strength=args.strength,
         model_type=args.model,
-        output_filename=args.output
+        output_filename=args.output,
+        seed=args.seed,
+        negative_text=negative_text,
+        core_prefix=core_prefix,
+        core_suffix=core_suffix,
+        meta_out=args.meta_out,
+        timeout_sec=args.timeout,
     )
+    sys.exit(0 if result.get("ok") else 1)

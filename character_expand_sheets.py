@@ -8,6 +8,7 @@ import os
 import random
 import sys
 
+from generate_moody_controlnet import generate_controlnet_image
 from generate_moody_i2i import generate_i2i_image
 from lib.character_package import (
     CharacterPackage,
@@ -16,6 +17,7 @@ from lib.character_package import (
     validate_character_id,
 )
 from lib.comfy_client import utc_now_iso, write_meta
+from lib.pose_templates import ensure_pose_template, ensure_view_pose
 from lib.profiles import (
     PROFILE_IDS,
     apply_profile_to_bible,
@@ -95,6 +97,12 @@ def main(argv=None) -> int:
     parser.add_argument("--presets-file", default=None)
     parser.add_argument("--only", default=None, help="Comma preset ids filter")
     parser.add_argument("--seed-base", type=int, default=None)
+    parser.add_argument(
+        "--engine",
+        choices=["auto", "i2i", "controlnet"],
+        default="auto",
+        help="auto: use preset.engine (turnaround defaults to controlnet); i2i|controlnet force",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--strict", action="store_true", help="Exit 31 on partial failure")
     parser.add_argument("--timeout", type=int, default=600)
@@ -173,17 +181,29 @@ def main(argv=None) -> int:
     print(f"Presets ({len(expand_ids)}): {', '.join(expand_ids)}")
     print(f"Candidates/preset: {candidates}")
 
+    def resolve_engine(preset: dict) -> str:
+        if args.engine != "auto":
+            return args.engine
+        eng = (preset.get("engine") or "i2i").lower()
+        if eng in ("controlnet", "cn"):
+            return "controlnet"
+        return "i2i"
+
     if args.dry_run:
         for pid in expand_ids:
             p = presets["presets"][pid]
             w, h = size_for_sheet(profile, p.get("sheet", ""), p.get("view"))
+            eng = resolve_engine(p)
             prompt = assemble_prompt(
                 core=positive_core,
                 instruction=p.get("instruction", ""),
                 style_lock=p.get("style_lock", ""),
                 quality_tags=quality_tags,
             )
-            print(f"\n[{pid}] denoise={p.get('denoise')} cfg={p.get('cfg')} size_hint={w}x{h}")
+            print(
+                f"\n[{pid}] engine={eng} denoise={p.get('denoise')} cfg={p.get('cfg')} "
+                f"size_hint={w}x{h} pose={p.get('pose_template')}"
+            )
             print(f"  prompt: {prompt[:160]}...")
         return EXIT_OK
 
@@ -194,6 +214,7 @@ def main(argv=None) -> int:
     for pid in expand_ids:
         preset = presets["presets"][pid]
         w, h = size_for_sheet(profile, preset.get("sheet", ""), preset.get("view"))
+        engine = resolve_engine(preset)
         for c in range(1, candidates + 1):
             job_index += 1
             if args.seed_base is not None:
@@ -215,8 +236,9 @@ def main(argv=None) -> int:
                         f"same exact person, full body, alternate outfit: {wardrobe}"
                     )
 
-            prompt = assemble_prompt(
-                core=positive_core,
+            # expand instruction is full prompt body; core_prefix applied inside generators
+            prompt_instruction = assemble_prompt(
+                core="",
                 instruction=instruction,
                 style_lock=preset.get("style_lock", ""),
                 quality_tags=quality_tags,
@@ -231,7 +253,7 @@ def main(argv=None) -> int:
                 args.id,
                 sheet=preset["sheet"],
                 view=preset["view"],
-                variant=preset["variant"],
+                variant=preset["variant"] + (f"_{engine}" if engine == "controlnet" else ""),
                 seed=seed,
                 candidate=c,
             )
@@ -241,25 +263,49 @@ def main(argv=None) -> int:
 
             denoise = float(preset.get("denoise") if preset.get("denoise") is not None else 0.85)
             cfg = float(preset.get("cfg") if preset.get("cfg") is not None else 3.5)
+            strength = float(preset.get("control_strength") if preset.get("control_strength") is not None else 0.75)
 
             print(
-                f"\n=== [{profile_id}] {pid} c{c} denoise={denoise} seed={seed} "
-                f"size_hint={w}x{h} ==="
+                f"\n=== [{profile_id}] {pid} engine={engine} c{c} denoise={denoise} "
+                f"seed={seed} size_hint={w}x{h} ==="
             )
-            # I2I inherits input resolution; size_hint logged for profile/docs.
-            # Full body re-size requires latent resize workflow (future / ControlNet).
-            result = generate_i2i_image(
-                input_image_path=source_path,
-                prompt_text=prompt,
-                denoise_val=denoise,
-                cfg_val=cfg,
-                model_type=model,
-                output_filename=out_path,
-                seed=seed,
-                negative_text=negative,
-                meta_out=meta_path,
-                timeout_sec=args.timeout,
-            )
+
+            if engine == "controlnet":
+                pose_id = preset.get("pose_template")
+                if pose_id:
+                    control_path = ensure_pose_template(pose_id, width=w, height=h)
+                else:
+                    control_path = ensure_view_pose(preset.get("view") or "front", width=w, height=h)
+                print(f"Control pose template: {control_path}")
+                result = generate_controlnet_image(
+                    input_image_path=source_path,
+                    control_image_path=control_path,
+                    prompt_text=prompt_instruction,
+                    denoise_val=denoise,
+                    cfg_val=cfg,
+                    control_strength=strength,
+                    model_type=model,
+                    output_filename=out_path,
+                    seed=seed,
+                    negative_text=negative,
+                    core_prefix=positive_core,
+                    meta_out=meta_path,
+                    timeout_sec=args.timeout,
+                )
+            else:
+                result = generate_i2i_image(
+                    input_image_path=source_path,
+                    prompt_text=prompt_instruction,
+                    denoise_val=denoise,
+                    cfg_val=cfg,
+                    model_type=model,
+                    output_filename=out_path,
+                    seed=seed,
+                    negative_text=negative,
+                    core_prefix=positive_core,
+                    meta_out=meta_path,
+                    timeout_sec=args.timeout,
+                )
 
             if not result.get("ok"):
                 failures += 1
@@ -279,6 +325,7 @@ def main(argv=None) -> int:
                     "candidate": c,
                     "preset_id": pid,
                     "profile": profile_id,
+                    "engine": engine,
                     "size_hint": [w, h],
                     "seed": result.get("seed", seed),
                 }

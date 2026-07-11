@@ -6,6 +6,20 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] P4 ControlNet turnaround 연동 (인프라)
+* **작업 에이전트**: Grok
+* **선행 커밋**: `1045511` (P2.5 프로필 롤백 포인트)
+* **작업 목표**: 캐릭터 expand가 턴어라운드 시 I2I-ControlNet-moody + 포즈 템플릿을 사용하도록 연결.
+* **주요 변경 사항**:
+  1. **`generate_moody_controlnet.py`**: lib 공통화, seed/meta/core-prefix, dict 반환, `ZImageFunControlnet` strength 수정
+  2. **`lib/pose_templates.py`**: front/qf/side/back 스틱 실루엣 자동 생성
+  3. **`lib/edge_preprocess.py`**: Canny(OpenCV) 또는 PIL FIND_EDGES 폴백
+  4. **`character_expand_sheets.py`**: `--engine auto|i2i|controlnet`, turnaround preset → controlnet
+  5. **`sheet_presets.json`**: turnaround에 engine/pose_template/control_strength
+* **실측 (mina, seed 30001–30004)**: 4장 생성 성공. 그러나 **전신/측면 전환은 실패** — 얼굴 클로즈업 유지 + 스틱 라인 아티팩트. 원인: 워크플로가 얼굴 이미지를 VAEEncode한 I2I 베이스라 구도 attractor가 강함. denoise 0.95 재시도에도 동일.
+* **다음 품질 작업**: Empty latent + ControlNet 포즈 전용 WF, 또는 진짜 full-body master를 소스로 쓰는 경로; OpenPose 계열 템플릿 강화.
+* **상태**: 파이프라인 연동 완료 / multi-view 품질 미해결.
+
 ### [2026-07-11] P2.5 용도 프로필 코드 연동 (video_ref / artbook)
 * **작업 에이전트**: Grok
 * **작업 목표**: 스펙 P2.5에 따라 `--profile` 로 영상 레퍼/아트북 설정을 선택 가능하게 구현.

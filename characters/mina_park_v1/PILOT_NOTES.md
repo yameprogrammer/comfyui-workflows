@@ -24,10 +24,16 @@
 ### Implication
 L2 Soft Factory is **validated as a tool pipeline**, not as pro-grade multi-view model sheets yet.
 
+### ControlNet turnaround pass (2026-07-11, seeds 30001–30004)
+- Command: `character_expand_sheets.py --sheets turnaround --engine controlnet --candidates 1`
+- Result: **pipeline OK (4/4)**, **view change NOT OK** — still upper-body portraits; stick-figure edge lines can bleed into face (thin vertical artifacts).
+- denoise 0.95 + strength 0.9 retest (`cn_test_side_d95.png`) still portrait.
+- Root cause: `I2I-ControlNet-moody` VAEEncodes the face ref as latent base → composition attractor dominates ControlNet pose.
+
 **Next technical steps**
-1. Turnaround via **I2I-ControlNet-moody** + pose templates (side/back openpose)
-2. Generate a **true full-body master** (T2I `master.full_body`) before costume/turn sheets
-3. Optional: higher denoise rebuild band only for structure-changing presets, with human re-pick
+1. Empty-latent (or SD3 empty) + ControlNet pose workflow (identity via prompt/LoRA, not portrait VAEEncode)
+2. True full-body master T2I (prompt must say full body, not close-up) as CN source
+3. Stronger OpenPose/depth templates if available in Comfy install
 
 ## Paths
 

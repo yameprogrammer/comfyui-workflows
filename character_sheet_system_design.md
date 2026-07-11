@@ -609,9 +609,11 @@ Character Package
 - [ ] 사람 검수용 `sheets/full_model_sheet.png` 생성
 
 #### P4 — ControlNet (품질 점프)
-- [ ] Z-Image 호환 ControlNet 모델 확보·검증
-- [ ] `CHAR-turnaround-controlnet.json` 워크플로
-- [ ] 파이썬 매핑 (`convert_ui_to_api` 확장)
+- [x] Z-Image ControlNet 러너 연동 (`generate_moody_controlnet.py` + expand)
+- [x] 포즈 템플릿 생성기 (`lib/pose_templates.py`) + edge preprocess
+- [x] turnaround preset → `engine: controlnet` 기본
+- [ ] **품질**: Empty-latent CN WF 또는 full-body source로 multi-view 성공 검증
+- [ ] OpenPose/depth 템플릿 강화 (스틱 라인 아티팩트 제거)
 
 #### P5~P6 — LoRA (L3)
 - [ ] 데이터셋 최소 기준 문서 (15~40장, 각도/표정 다양, 클린 BG 권장)

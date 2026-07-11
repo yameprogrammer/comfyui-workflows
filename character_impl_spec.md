@@ -754,6 +754,12 @@ python generate_moody_i2i.py ^
 - [ ] **P2.5e** artbook upscale + grid (후순위, P3 연계)
 - DoD: video_ref 기본·얇은 MVP ✅ / artbook dry-run size·full master ✅
 
+### Ticket P4 — ControlNet turnaround
+- [x] expand `--engine` + turnaround → ControlNet
+- [x] pose templates + controlnet runner meta/seed
+- [x] mina 실생성 4뷰 (품질 실패 문서화)
+- [ ] Empty-latent / full-body-source CN 경로로 측면·후면 성공
+
 ### Ticket P7-A — `shot_with_character.py` (파일럿 후)
 
 
