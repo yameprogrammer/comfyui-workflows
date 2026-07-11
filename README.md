@@ -111,6 +111,9 @@ python shot_with_character.py --id mina_park_v1 --shot "medium shot in a coffee 
 python generate_i2v.py -i path/to/keyframe.png -p "gentle camera push-in, subtle motion" -o F:\generated_videos\clip.mp4 --width 640 --height 640 --frames 33
 ```
 
+**영상 납품 규약:** 생성은 **비율 맞춘 work 해상도**, 최종은 **업스케일로 최소 1080p 16:9**. I2V는 **Wan2.2 기본 + LTX2.3 상황별** 멀티 백엔드로 확장 예정.  
+→ [video_delivery_and_backends.md](video_delivery_and_backends.md) · [video_pipeline_roadmap.md](video_pipeline_roadmap.md)
+
 P1 개선: `generate_moody.py` / `generate_moody_i2i.py` 에 `--seed`, `--prompt-file`, `--meta-out`, I2I `--core-prefix-file` 지원.
 
 ## 📜 개발 및 협업 지침

@@ -94,13 +94,19 @@ T2I·I2I는 영상의 **“정지 컷 공장”**이다. 영상 품질의 상한
 
 ---
 
-### E. Upscale + Frame Interpolation — 마감 품질 층
+### E. Upscale + Frame Interpolation — 마감 품질 층 (**납품 필수 경로**)
 
 | 워크플로우 | 역할 | 우선순위 |
 |-----------|------|----------|
-| **Image/Video Upscale** | 720p → 1080p/2K, 디테일 복원 | P2 |
+| **Image/Video Upscale** | work-res → **1920×1080 (최소 1080p)** | P2 **필수** |
 | **Frame Interpolation (RIFE 등)** | 12/16fps → 24/30fps, 끊김 완화 | P2 |
 | **Face/Detail refine on frames** (선택) | 클로즈업 품질 | P3 |
+
+**해상도 전략 (확정):**
+
+- **생성(I2V)**: 최종과 **같은 종횡비**(기본 16:9) + **작업용 해상도** (예: 960×540). 매 루프마다 네이티브 1080p 생성하지 않음.
+- **납품**: 업스케일 후 **최소 1080p** (16:9 → 1920×1080).
+- 상세 프리셋·백엔드: [video_delivery_and_backends.md](video_delivery_and_backends.md)
 
 모델이 평범해도 이 레이어가 있으면 체감 퀄리티가 크게 올라간다.
 
@@ -158,60 +164,77 @@ T2I·I2I는 영상의 **“정지 컷 공장”**이다. 영상 품질의 상한
 
 ---
 
-## 5. 구현 전 결정이 필요한 스펙
+## 5. 확정 스펙 (해상도 · 백엔드)
 
-도구를 늘리기 전에 아래를 정하면 I2V 해상도·길이·업스케일 체인 설계가 바로 갈린다.
+상세 전문: **[video_delivery_and_backends.md](video_delivery_and_backends.md)**
 
-| 항목 | 결정 예시 |
-|------|----------|
-| **타깃 포맷** | 세로 쇼츠 15~30초 / 가로 유튜브 60초 / 시네마틱 트레일러 |
-| **일관성 수준** | 같은 인물 유지 필수 vs 분위기 B-roll 위주 |
-| **로컬 제약** | VRAM, 한 클립 최대 길이, 허용 생성 시간 |
-| **납품 스펙** | 1080p30, 24fps, 비트레이트 등 |
+| 항목 | 확정 |
+|------|------|
+| **납품 비율** | 기본 **16:9** (쇼츠는 9:16 프로필) |
+| **납품 해상도** | **최소 1080p** (16:9 → 1920×1080) |
+| **생성 해상도** | 동일 비율의 **work 프리셋** (권장 960×540). 1080p는 업스케일 단계 |
+| **I2V 백엔드** | 멀티: 기본 **`wan22`**, 상황별 **`ltx23`** (LTX 연동 예정) |
+| **일관성** | 주연은 캐릭터 팩 + 키프레임 고정 후 I2V |
+
+### I2V 멀티 백엔드 (개요)
+
+```text
+generate_i2v.py --backend wan22|ltx23 --preset work_16x9_540 ...
+        → work clip
+upscale_video.py --preset deliver_16x9_1080 ...
+        → deliver clip
+assemble_video.py ...
+        → final
+```
+
+| 백엔드 | 상태 | 메모 |
+|--------|------|------|
+| **wan22** | ✅ MVP CLI | `I2V-wan22-a14b.json`, GGUF A14B |
+| **ltx23** | ⬜ 설계 | 로컬 LTX2.3 GGUF + ComfyUI-LTXVideo 존재, WF 연동 예정 |
 
 ---
 
-## 6. 권장 구축 순서
+## 6. 권장 구축 순서 (갱신)
 
-| 단계 | 할 일 | 결과물 |
-|------|------|--------|
-| **P0** | I2V 1개 안정화 + CLI 스크립트 | “한 장 → 클립” |
-| **P1** | T2I → I2I → I2V 체인 스크립트 | “한 장면 자동 생성” |
-| **P2** | 캐릭터 레퍼런스 고정 | 멀티샷 일관성 |
-| **P3** | Upscale + Interpolate | 시청 품질 |
-| **P4** | FFmpeg 조립 + 오디오 슬롯 | “완성 영상 파일” |
-| **P5** | T2V / V2V / 립싱크 등 확장 | 장르 확장 |
+| 단계 | 할 일 | 상태 |
+|------|------|------|
+| **P0** | I2V 1개 (Wan) + CLI | ✅ |
+| **P1** | 캐릭터 팩 + shot_with_character | ✅ |
+| **P2** | 16:9 work 프리셋 + 업스케일 1080p | ⬜ |
+| **P3** | LTX2.3 백엔드 연동 (`--backend ltx23`) | ⬜ |
+| **P4** | FFmpeg 조립 + 오디오 | ⬜ |
+| **P5** | T2V/V2V/립싱크 등 | ⬜ |
 
 ---
 
 ## 7. 결론 (요약)
 
-1차 목표(에이전트가 멋진 영상 제작) 기준으로, **지금 없는 핵심은 I2V와 “마감/조립” 층**이다.
-
 | 층 | 구성 | 상태 |
 |----|------|------|
-| **생성의 뼈대** | T2I + I2I + **I2V** | T2I/I2I 완료, I2V 필요 |
-| **연속성의 뼈대** | 캐릭터 고정 + 클립 연장 | 미구축 |
-| **퀄리티의 뼈대** | 업스케일 + 프레임 보간 | 미구축 |
-| **완성의 뼈대** | FFmpeg 조립 + 오디오 | 미구축 |
+| **생성의 뼈대** | T2I + I2I + I2V(Wan) + 캐릭터 | ✅ MVP |
+| **연속성의 뼈대** | 캐릭터 고정 + 클립 연장 | 부분 |
+| **퀄리티의 뼈대** | **업스케일 1080p** + 프레임 보간 | ⬜ 필수 후속 |
+| **완성의 뼈대** | FFmpeg 조립 + 오디오 | ⬜ |
+| **백엔드 확장** | LTX2.3 등 상황별 전환 | ⬜ 설계 반영 |
 
 ---
 
 ## 8. 다음 액션 후보
 
-1. **쇼츠용 최소 세트** vs **시네마틱 장편용 풀 세트** 중 타깃 스펙 확정
-2. 캐릭터 일관성: [character_sheet_system_design.md](character_sheet_system_design.md)의 **L2 Soft Factory (P0~P2)** 와 I2V MVP를 병행
-3. P0: I2V 워크플로우 JSON + `generate_*.py` CLI 구현
-4. 스토리 주연 영상 파일럿 시 `shot_with_character` → I2V → 조립 E2E
+1. `video_backends.json` + `generate_i2v --backend/--preset` (16:9 work 기본)
+2. `upscale_video.py` → deliver 1080p
+3. `I2V-ltx23` 워크플로 + 동일 CLI 엔트리
+4. `assemble_video.py` + 파일럿 쇼츠 E2E
 
 ---
 
 ## 관련 문서
 
+- [video_delivery_and_backends.md](video_delivery_and_backends.md) — **납품 스펙 · 2단 해상도 · Wan/LTX 백엔드 (필독)**
 - [README.md](README.md) — 저장소 개요 및 T2I/I2I 사용법
 - [moody_workflow_guide.md](moody_workflow_guide.md) — Moody T2I/I2I 상세 가이드
 - [character_sheet_system_design.md](character_sheet_system_design.md) — 캐릭터 시트 기획·리서치
-- [character_impl_spec.md](character_impl_spec.md) — 캐릭터 시트 **구현 착수 스펙** (Character ref pack 코딩 SSOT)
+- [character_impl_spec.md](character_impl_spec.md) — 캐릭터 시트 **구현 착수 스펙**
 - [characters/profiles.json](characters/profiles.json) — 용도 프로필 (`video_ref` 기본 / `artbook`)
 - [agent_rules.md](agent_rules.md) — 에이전트 협업 규칙
 - [process.md](process.md) — 작업 이력 로그

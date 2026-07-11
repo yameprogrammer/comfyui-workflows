@@ -26,6 +26,11 @@
 ### Rule 5. 철저한 인수인계 핸드훅 남기기
 * 작업을 마칠 때에는 항상 대화의 마지막 턴이나 생성한 문서에 **[현재 워크플로우의 안정성 상태], [새롭게 밝혀낸 물리적 법칙/임계치], [다음 에이전트가 이어서 착수해야 할 작업 추천]**을 일목요연하게 전달하여 연속성을 100% 보장하십시오.
 
+### Rule 7. 영상 해상도·백엔드 규약
+* 영상 **납품**은 기본 **16:9, 최소 1080p (1920×1080)** 를 목표로 한다. 상세: [video_delivery_and_backends.md](video_delivery_and_backends.md).
+* I2V **생성**은 동일 종횡비의 **work 해상도**로 돌리고, 1080p는 **업스케일 마감 층**에서 올린다. 매 튜닝 루프마다 네이티브 1080p I2V를 기본으로 쓰지 말 것.
+* I2V 백엔드는 상황에 따라 **`wan22`(기본)** / **`ltx23`(대안)** 등을 선택할 수 있는 구조로 확장한다. 구현 시 `video_backends.json` 및 `generate_i2v.py --backend` 를 SSOT로 맞출 것.
+
 ### Rule 6. 캐릭터 패키지 및 구현 스펙 준수
 * 캐릭터 시트/일관성 관련 **코드 구현** 시 상위 설계([character_sheet_system_design.md](character_sheet_system_design.md))보다 **구현 스펙([character_impl_spec.md](character_impl_spec.md))** 을 우선한다.
 * 시트별 denoise·프롬프트·approve 별칭은 **`characters/sheet_presets.json`을 SSOT**로 사용한다. 하드코딩 시 파일과 반드시 동기화할 것.

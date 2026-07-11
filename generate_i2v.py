@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """
-Image-to-Video via Wan2.2 I2V A14B (ComfyUI-WanVideoWrapper).
+Image-to-Video via ComfyUI (multi-backend planned).
 
-Uses local GGUF High/Low noise models + lightx2v 4-step LoRAs when available.
-Workflow template: I2V-wan22-a14b.json
+Current default backend: Wan2.2 I2V A14B (ComfyUI-WanVideoWrapper) GGUF High/Low
++ lightx2v 4-step LoRAs. Workflow: I2V-wan22-a14b.json
+
+Delivery policy (see video_delivery_and_backends.md):
+  - Generate at work resolution with final aspect ratio (prefer 16:9 work presets).
+  - Upscale to at least 1080p in a later pipeline stage — do not treat work-res as final.
+  - Future: --backend wan22|ltx23 and --preset work_16x9_540 / deliver_16x9_1080.
 """
 
 from __future__ import annotations
