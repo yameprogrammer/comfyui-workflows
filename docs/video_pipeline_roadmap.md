@@ -18,11 +18,15 @@
 |------|------|----------------|
 | **T2I-moody** | ✅ 완료 | 히어로 키프레임, 콘티 컷, 포스터성 장면 |
 | **I2I-moody** | ✅ 완료 | 같은 인물로 의상·소품·조명·구도만 바꾼 샷 변형 |
-| **캐릭터 팩 / shot_with_character** | ✅ 완료 | 일관성 첨부 + 스토리 키프레임 |
-| **I2V (Wan2.2 A14B GGUF)** | ✅ MVP | `generate_i2v.py` + `I2V-wan22-a14b.json` |
-| **조립 / 업스케일** | ❌ 미구축 | FFmpeg concat, RIFE 등 |
+| **캐릭터 팩 / shot_with_character** | ✅ MVP | 인물 일관성 + 키프레임 프로토타입 |
+| **로케이션 팩** | 📐 설계 | 장소 일관성 — [location_sheet_system_design.md](location_sheet_system_design.md) |
+| **스토리보드 / 에피소드** | 📐 설계 | 샷리스트·키프레임·배치 I2V — [storyboard_pipeline_design.md](storyboard_pipeline_design.md) |
+| **I2V (Wan2.2 A14B GGUF)** | ✅ MVP | `generate_i2v.py` + format/preset |
+| **업스케일 ≤4K** | ✅ MVP | `upscale_image/video.py` |
+| **조립** | ❌ 미구축 | FFmpeg concat, 오디오 |
 
-T2I·I2I는 영상의 **“정지 컷 공장”**이다. 영상 품질의 상한은 여기서 거의 결정된다.
+T2I·I2I는 영상의 **“정지 컷 공장”**이다. 영상 품질의 상한은 여기서 거의 결정된다.  
+**자산 삼각형** (캐릭터·로케·스토리) 통합 지도: [production_asset_pipeline.md](production_asset_pipeline.md).
 
 ### 핵심 원칙
 “멋진 영상”은 한 방 생성 모델 하나로 끝내지 않는다.  
@@ -154,13 +158,14 @@ T2I·I2I는 영상의 **“정지 컷 공장”**이다. 영상 품질의 상한
 6) FFmpeg assembler       ← 신규 (최종 영상)
 ```
 
-### 에이전트 표준 루프
+### 에이전트 표준 루프 (자산 포함)
 
-1. 콘셉트 → 히어로 이미지 (**T2I**)
-2. 샷 리스트대로 변형 (**I2I**)
-3. 각 샷 애니메이트 (**I2V**)
-4. 해상도·프레임 보정 (**Upscale + Interpolate**)
-5. 순서대로 이어 붙이고 오디오 얹기 (**FFmpeg assembler**)
+1. **format** 고정 (`video_backends.json`)
+2. **Character pack** + **Location pack** approve
+3. **shots.json** (스토리보드/샷리스트) → 키프레임 생성·검수
+4. 각 승인 키프레임 **I2V** (work preset)
+5. **Upscale** deliver (1080/1440/4K 선택)
+6. **Assemble** + 오디오
 
 ---
 
@@ -199,9 +204,13 @@ assemble_video.py ...
 | 단계 | 할 일 | 상태 |
 |------|------|------|
 | **P0** | I2V 1개 (Wan) + CLI | ✅ |
-| **P1** | 캐릭터 팩 + shot_with_character | ✅ |
-| **P2** | 16:9 work 프리셋 + 업스케일 1080p | ⬜ |
-| **P3** | LTX2.3 백엔드 연동 (`--backend ltx23`) | ⬜ |
+| **P1** | 캐릭터 팩 + shot_with_character | ✅ MVP |
+| **P1b** | format / I2V preset / multi-backend SSOT | ✅ |
+| **P1c** | 업스케일 multi-backend ≤4K | ✅ |
+| **P-L** | 로케이션 팩 설계 → CLI → 파일럿 | 📐 설계 ✅ / 코드 ⬜ |
+| **P-S** | 스토리보드·샷리스트·shot_compose | 📐 설계 ✅ / 코드 ⬜ |
+| **P-E1** | 미니 에피소드 E2E (1 char + 1 loc + 6 shots) | ⬜ |
+| **P3** | LTX2.3 백엔드 연동 | ⬜ |
 | **P4** | FFmpeg 조립 + 오디오 | ⬜ |
 | **P5** | T2V/V2V/립싱크 등 | ⬜ |
 
@@ -212,29 +221,31 @@ assemble_video.py ...
 | 층 | 구성 | 상태 |
 |----|------|------|
 | **생성의 뼈대** | T2I + I2I + I2V(Wan) + 캐릭터 | ✅ MVP |
-| **연속성의 뼈대** | 캐릭터 고정 + 클립 연장 | 부분 |
-| **퀄리티의 뼈대** | **업스케일 1080p** + 프레임 보간 | ⬜ 필수 후속 |
+| **장소의 뼈대** | 로케이션 팩 | 📐 설계 |
+| **서사의 뼈대** | 샷리스트 + 키프레임 보드 | 📐 설계 |
+| **연속성의 뼈대** | 캐릭터+로케 고정 + 클립 연장 | 부분 |
+| **퀄리티의 뼈대** | 업스케일 ≤4K | ✅ MVP |
 | **완성의 뼈대** | FFmpeg 조립 + 오디오 | ⬜ |
-| **백엔드 확장** | LTX2.3 등 상황별 전환 | ⬜ 설계 반영 |
+| **백엔드 확장** | LTX2.3 등 | ⬜ |
 
 ---
 
 ## 8. 다음 액션 후보
 
-1. `video_backends.json` + `generate_i2v --backend/--preset` (16:9 work 기본)
-2. `upscale_video.py` → deliver 1080p
-3. `I2V-ltx23` 워크플로 + 동일 CLI 엔트리
-4. `assemble_video.py` + 파일럿 쇼츠 E2E
+1. `locations/` 템플릿 + create/expand/approve CLI (L1–L3)
+2. `stories/` + `shot_compose` (S1–S3)
+3. 미니 에피소드 P-E1
+4. `assemble_video.py` + LTX 백엔드
 
 ---
 
 ## 관련 문서
 
-- [video_delivery_and_backends.md](video_delivery_and_backends.md) — **납품 스펙 · 2단 해상도 · Wan/LTX 백엔드 (필독)**
-- [README.md](README.md) — 저장소 개요 및 T2I/I2I 사용법
-- [moody_workflow_guide.md](moody_workflow_guide.md) — Moody T2I/I2I 상세 가이드
-- [character_sheet_system_design.md](character_sheet_system_design.md) — 캐릭터 시트 기획·리서치
-- [character_impl_spec.md](character_impl_spec.md) — 캐릭터 시트 **구현 착수 스펙**
-- [characters/profiles.json](characters/profiles.json) — 용도 프로필 (`video_ref` 기본 / `artbook`)
-- [agent_rules.md](agent_rules.md) — 에이전트 협업 규칙
+- [production_asset_pipeline.md](production_asset_pipeline.md) — **캐릭터·로케·스토리 통합 지도 (필독)**
+- [location_sheet_system_design.md](location_sheet_system_design.md) — 로케이션 시트 설계
+- [storyboard_pipeline_design.md](storyboard_pipeline_design.md) — 스토리보드·샷 파이프 설계
+- [video_delivery_and_backends.md](video_delivery_and_backends.md) — 납품 스펙 · format · Wan/LTX
+- [upscale_research_and_design.md](upscale_research_and_design.md) — 업스케일 리서치
+- [character_sheet_system_design.md](character_sheet_system_design.md) / [character_impl_spec.md](character_impl_spec.md)
+- [../agent_rules.md](../agent_rules.md) — 에이전트 협업 규칙
 - [process.md](process.md) — 작업 이력 로그

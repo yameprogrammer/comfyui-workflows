@@ -21,6 +21,9 @@ agent_custom/
 * 워크플로우: `workflows/agent/` + `catalog.json` / `lib/workflow_paths.py`
 * 구현 스펙: [docs/character_impl_spec.md](docs/character_impl_spec.md)
 * 영상 납품: [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md)
+* **프로덕션 자산 통합**: [docs/production_asset_pipeline.md](docs/production_asset_pipeline.md)
+* 로케이션 설계: [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md)
+* 스토리보드 설계: [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md)
 
 ---
 
@@ -65,6 +68,14 @@ agent_custom/
 * 본 촬영 입력은 **`approved/` 승격 레퍼**만.
 * 활성 트랙 `CHARACTER_L2_SOFT_FACTORY` 동안 L3 LoRA 학습과 I2V 본구현을 같은 PR에 섞지 말 것 (스파이크 별도). ControlNet·프로필은 캐릭터 트랙 내 허용.
 * 새 캐릭터는 `characters/_template/` 구조. artbook/video 로 character_id 를 쪼개지 말 것.
+
+### Rule 6.1 로케이션·스토리보드 (설계 반영, 구현 진행 준수)
+* 영상 에피소드는 **캐릭터 팩 + 로케이션 팩 + 샷리스트** 삼각형으로 간다. 통합: [docs/production_asset_pipeline.md](docs/production_asset_pipeline.md).
+* 키프레임·I2V에 **draft 로케/캐릭터 금지**. 샷에 `location_id` 없이 배경 즉흥 생성 금지 (구현 후 강제).
+* **Storyboard-first**: 보드/키프레임 검수 전에 전 샷 I2V 돌리지 말 것.
+* 보드·키프레임 패널 비율 = 에피소드 **format** (납품 aspect와 동일).
+* 로케이션 구현 시 캐릭터 CLI 패턴 미러 (`locations/` + create/expand/approve). 설계: [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md).
+* 스토리 구현 시 `shots.json` SSOT + `shot_compose`. 설계: [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md).
 
 ### Rule 7. 영상 해상도·백엔드 규약
 * 납품 **종횡비는 영상 종류(format)에 따라 다름** — 16:9 고정이 아니다. 예: `cinematic_16x9`, `shorts_9x16`, `classic_4x3`, `portrait_3x4`, `square_1x1`. 상세 [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md).

@@ -1,15 +1,27 @@
 # docs/ — 에이전트용 설계·스펙 문서
 
 코드보다 **문서 SSOT**를 둘 때 이 폴더를 연다.  
-실행 규칙·작업 이력은 루트 `agent_rules.md` / `process.md` 를 유지한다 (에이전트 핸드오프 습관).
+실행 규칙·작업 이력은 루트 `agent_rules.md` / `process.md` 를 유지한다.
+
+## 영상 제작 — 자산 파이프 (읽기 순서)
+
+| 순서 | 문서 | 역할 |
+|------|------|------|
+| 1 | [production_asset_pipeline.md](production_asset_pipeline.md) | **통합 지도** — 캐릭터·로케·스토리보드·I2V·납품 |
+| 2 | [character_impl_spec.md](character_impl_spec.md) | 캐릭터 시트 **구현 SSOT** |
+| 3 | [location_sheet_system_design.md](location_sheet_system_design.md) | 로케이션 시트 설계 (구현 대기) |
+| 4 | [storyboard_pipeline_design.md](storyboard_pipeline_design.md) | 샷리스트·보드·키프레임 설계 (구현 대기) |
+| 5 | [video_pipeline_roadmap.md](video_pipeline_roadmap.md) | 전체 영상 로드맵 |
+| 6 | [video_delivery_and_backends.md](video_delivery_and_backends.md) | format / work·deliver / I2V 백엔드 |
+| 7 | [upscale_research_and_design.md](upscale_research_and_design.md) | 업스케일 ≤4K |
+
+## 기타
 
 | 문서 | 역할 |
 |------|------|
-| [character_impl_spec.md](character_impl_spec.md) | 캐릭터 시트 **구현 SSOT** (코딩 시 우선) |
 | [character_sheet_system_design.md](character_sheet_system_design.md) | 캐릭터 장기 설계·리서치 |
-| [video_pipeline_roadmap.md](video_pipeline_roadmap.md) | 영상 파이프라인 로드맵 |
-| [video_delivery_and_backends.md](video_delivery_and_backends.md) | 납품 1080p / work 해상도 / I2V 멀티 백엔드 |
-| [moody_workflow_guide.md](moody_workflow_guide.md) | Moody T2I/I2I 운용 가이드 |
+| [moody_workflow_guide.md](moody_workflow_guide.md) | Moody T2I/I2I 운용 |
 
 워크플로우 JSON: `../workflows/agent/`  
-CLI 스크립트: `../scripts/`
+CLI: `../scripts/`  
+데이터: `../characters/` · (예정) `../locations/` · `../stories/`

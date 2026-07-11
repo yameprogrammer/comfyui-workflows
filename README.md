@@ -91,8 +91,12 @@ python scripts/upscale_image.py --list-backends
 
 | 문서 | 용도 |
 |------|------|
+| [docs/production_asset_pipeline.md](docs/production_asset_pipeline.md) | **캐릭터·로케·스토리 통합** (영상 제작 필독) |
+| [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md) | 로케이션 시트 설계 (구현 대기) |
+| [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md) | 스토리보드·샷 설계 (구현 대기) |
 | [docs/video_pipeline_roadmap.md](docs/video_pipeline_roadmap.md) | 영상 파이프라인 로드맵 |
-| [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md) | 해상도·I2V 백엔드 |
+| [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md) | format · 해상도 · I2V 백엔드 |
+| [docs/upscale_research_and_design.md](docs/upscale_research_and_design.md) | 업스케일 ≤4K |
 | [docs/character_impl_spec.md](docs/character_impl_spec.md) | 캐릭터 **구현 SSOT** |
 | [docs/character_sheet_system_design.md](docs/character_sheet_system_design.md) | 캐릭터 장기 설계 |
 | [docs/moody_workflow_guide.md](docs/moody_workflow_guide.md) | Moody 운용 가이드 |

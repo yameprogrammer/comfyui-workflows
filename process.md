@@ -6,6 +6,16 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] 로케이션·스토리보드·프로덕션 자산 설계 문서화
+* **작업 에이전트**: Grok
+* **작업 목표**: 실제 영상 제작에 필요한 로케이션 시트·스토리보드 결과물 형식을 웹/SNS/커뮤니티 리서치 후 문서 SSOT로 반영.
+* **신규 문서**:
+  1. `docs/production_asset_pipeline.md` — 캐릭터·로케·스토리 통합 지도·체크리스트·티켓
+  2. `docs/location_sheet_system_design.md` — Location Pack (establishing, multi-angle, lighting, empty_stage, bible…)
+  3. `docs/storyboard_pipeline_design.md` — shots.json, 보드, 키프레임, I2V 연결, CLI 계약
+* **갱신**: video_pipeline_roadmap, docs/README, agent_rules Rule 6.1
+* **상태**: 설계만. 코드 `locations/`·`stories/` 미구현. 다음 구현 후보 L1 템플릿 또는 S1 stories 템플릿.
+
 ### [2026-07-11] 이미지·영상 업스케일 리서치 + 멀티 백엔드 CLI
 * **작업 에이전트**: Grok
 * **작업 목표**: 웹/커뮤니티/SNS + 로컬 4090 인벤토리 기반 업스케일 스택 구축 (≤4K 선택).
