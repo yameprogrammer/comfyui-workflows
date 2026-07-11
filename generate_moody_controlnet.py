@@ -107,11 +107,20 @@ def generate_controlnet_image(input_image_path, control_image_path, prompt_text,
     temp_control_name = "temp_control_input.png"
     
     try:
+        # Copy face reference image directly
         shutil.copy2(input_image_path, os.path.join(comfyui_input_dir, temp_input_name))
-        shutil.copy2(control_image_path, os.path.join(comfyui_input_dir, temp_control_name))
-        print("Successfully copied input and control images to ComfyUI input folder.")
+        
+        # Preprocess control image using OpenCV Canny edge detector to extract outlines
+        import cv2
+        img = cv2.imread(control_image_path, cv2.IMREAD_GRAYSCALE)
+        edges = cv2.Canny(img, 100, 200)
+        # Convert single channel to RGB for ComfyUI node compatibility
+        edges_rgb = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
+        cv2.imwrite(os.path.join(comfyui_input_dir, temp_control_name), edges_rgb)
+        
+        print("Successfully processed control image via Canny and copied reference images to ComfyUI input folder.")
     except Exception as e:
-        print(f"Error copying reference images: {e}")
+        print(f"Error copying/processing reference images: {e}")
         return False
         
     # 3. Model Mapping
