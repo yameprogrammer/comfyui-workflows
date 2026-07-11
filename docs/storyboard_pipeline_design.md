@@ -25,17 +25,25 @@
 ## 1. 한 줄 정의
 
 > **Story / Episode Pack** = 샷리스트 + (선택) 보드 패널 + **승인된 키프레임** + 모션·오디오 슬롯을 묶은 제작 단위.  
-> 각 샷은 **character_ids[] + location_id + format** 를 필수로 참조한다.
+> 각 샷은 **character_ids[] + location_id + format + look_id** 를 참조한다.
 
 ```text
 Script / beat sheet
-  → Shot list (기계 SSOT)
-  → Board panels (리뷰용, 선택적으로 러프)
-  → Production keyframes (캐릭터+로케 주입, format 비율)
+  → Shot list (기계 SSOT)  + episode.format + episode.look_id
+  → Board panels (format 비율)
+  → Production keyframes (look+char+loc, format 캔버스)
   → Approve keyframes
   → I2V clips (work res)
-  → Upscale → Assemble (+ audio)
+  → Upscale --preset deliver_1080|2160 + format → Assemble
 ```
+
+### 캔버스 vs 레퍼런스 비율
+
+| 구분 | 비율 |
+|------|------|
+| char/loc **approved ref 파일** | 시트 고유 (1:1·세로 허용) |
+| board / **keyframe / I2V** | **항상 episode format** |
+| ref 사용 시 | format 프레임 안에 배치(크롭·패드·스케일). 키프레임을 ref 비율로 내보내지 말 것. |
 
 ---
 
@@ -68,8 +76,8 @@ Script / beat sheet
 | Meta per shot | `keyframes/<shot_id>.json` | **필수** |
 | First/last pair (연속 샷) | optional | 연장 시 권장 |
 
-키프레임은 **approved character + approved location** 으로 생성.  
-`shot_with_character` 의 진화형: `shot_compose.py` (캐릭터+로케+샷 레코드).
+키프레임은 **look + approved character + approved location** 으로 생성.  
+`shot_with_character` 의 진화형: `shot_compose.py` (look+char+loc+샷 레코드, **출력은 format 해상도**).
 
 ### 2.4 Layer D — 모션·납품
 
@@ -89,10 +97,11 @@ Script / beat sheet
 {
   "episode_id": "mina_cafe_ep01",
   "format": "cinematic_16x9",
+  "look_id": "cinematic_moody_v1",
   "default_fps": 24,
   "default_backend_i2v": "wan22",
   "default_work_preset": "work_16x9_540",
-  "default_deliver_preset": "deliver_1080",
+  "default_deliver_tier": "deliver_1080",
   "shots": [
     {
       "shot_id": "S01",

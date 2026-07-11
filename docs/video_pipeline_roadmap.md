@@ -102,7 +102,7 @@ T2I·I2I는 영상의 **“정지 컷 공장”**이다. 영상 품질의 상한
 
 | 워크플로우 | 역할 | 우선순위 |
 |-----------|------|----------|
-| **Image/Video Upscale** | work-res → **1920×1080 (최소 1080p)** | P2 **필수** |
+| **Image/Video Upscale** | work-res → **deliver_1080 / 1440 / 2160** (+ format aspect) | ✅ MVP |
 | **Frame Interpolation (RIFE 등)** | 12/16fps → 24/30fps, 끊김 완화 | P2 |
 | **Face/Detail refine on frames** (선택) | 클로즈업 품질 | P3 |
 
@@ -186,7 +186,7 @@ T2I·I2I는 영상의 **“정지 컷 공장”**이다. 영상 품질의 상한
 ```text
 generate_i2v.py --backend wan22|ltx23 --preset work_16x9_540 ...
         → work clip
-upscale_video.py --preset deliver_16x9_1080 ...
+upscale_video.py --preset deliver_1080 --format cinematic_16x9 ...
         → deliver clip
 assemble_video.py ...
         → final
@@ -224,6 +224,7 @@ assemble_video.py ...
 | **장소의 뼈대** | 로케이션 팩 | 📐 설계 |
 | **서사의 뼈대** | 샷리스트 + 키프레임 보드 | 📐 설계 |
 | **연속성의 뼈대** | 캐릭터+로케 고정 + 클립 연장 | 부분 |
+| **룩의 뼈대** | `looks/` style core | ✅ 템플릿 |
 | **퀄리티의 뼈대** | 업스케일 ≤4K | ✅ MVP |
 | **완성의 뼈대** | FFmpeg 조립 + 오디오 | ⬜ |
 | **백엔드 확장** | LTX2.3 등 | ⬜ |

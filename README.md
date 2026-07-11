@@ -91,8 +91,9 @@ python scripts/upscale_image.py --list-backends
 
 | 문서 | 용도 |
 |------|------|
-| [docs/production_asset_pipeline.md](docs/production_asset_pipeline.md) | **캐릭터·로케·스토리 통합** (영상 제작 필독) |
+| [docs/production_asset_pipeline.md](docs/production_asset_pipeline.md) | **캐릭터·로케·룩·스토리 통합** (영상 제작 필독) |
 | [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md) | 로케이션 시트 설계 (구현 대기) |
+| [docs/look_style_system.md](docs/look_style_system.md) | Look/style core (`looks/`) |
 | [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md) | 스토리보드·샷 설계 (구현 대기) |
 | [docs/video_pipeline_roadmap.md](docs/video_pipeline_roadmap.md) | 영상 파이프라인 로드맵 |
 | [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md) | format · 해상도 · I2V 백엔드 |

@@ -14,6 +14,9 @@ agent_custom/
   scripts/                                     ← CLI 진입점
   lib/                                         ← 공유 코드
   characters/                                  ← 캐릭터 패키지
+  looks/                                       ← 룩/스타일 코어
+  locations/                                   ← (예정) 로케이션 패키지
+  stories/                                     ← (예정) 에피소드/샷
   docs/                                        ← 설계·스펙·로드맵
 ```
 
@@ -23,6 +26,7 @@ agent_custom/
 * 영상 납품: [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md)
 * **프로덕션 자산 통합**: [docs/production_asset_pipeline.md](docs/production_asset_pipeline.md)
 * 로케이션 설계: [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md)
+* 룩/스타일: [docs/look_style_system.md](docs/look_style_system.md) · `looks/cinematic_moody_v1`
 * 스토리보드 설계: [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md)
 
 ---
@@ -47,7 +51,9 @@ agent_custom/
 * **신규 CLI** → `scripts/`
 * **공유 모듈** → `lib/`
 * **설계·스펙 문서** → `docs/`
-* **캐릭터 데이터** → `characters/` (템플릿 구조 준수)
+* **캐릭터 데이터** → `characters/`
+* **룩** → `looks/`
+* **로케이션 / 스토리** → `locations/`, `stories/` (구현 시)
 * 루트에 실행 스크립트·워크플로우 JSON·장문 스펙을 새로 쌓지 말 것.
 
 ### Rule 3. Flow Matching 모델 연산의 이해 및 보존
@@ -66,23 +72,29 @@ agent_custom/
 * 시트 denoise·alias → `characters/sheet_presets.json` SSOT.
 * 용도 프로필 → `characters/profiles.json` SSOT, 기본 `video_ref`.
 * 본 촬영 입력은 **`approved/` 승격 레퍼**만.
-* 활성 트랙 `CHARACTER_L2_SOFT_FACTORY` 동안 L3 LoRA 학습과 I2V 본구현을 같은 PR에 섞지 말 것 (스파이크 별도). ControlNet·프로필은 캐릭터 트랙 내 허용.
 * 새 캐릭터는 `characters/_template/` 구조. artbook/video 로 character_id 를 쪼개지 말 것.
+* **L3 LoRA 학습** 은 캐릭터 품질 전용 PR로 분리 (로케/스토리/I2V/업스케일과 한 PR에 섞지 말 것).
+* 캐릭터 턴어라운드 품질 고도화는 **병렬 트랙**. establishing/medium 에피소드의 블로커로 두지 말 것.
 
-### Rule 6.1 로케이션·스토리보드 (설계 반영, 구현 진행 준수)
-* 영상 에피소드는 **캐릭터 팩 + 로케이션 팩 + 샷리스트** 삼각형으로 간다. 통합: [docs/production_asset_pipeline.md](docs/production_asset_pipeline.md).
-* 키프레임·I2V에 **draft 로케/캐릭터 금지**. 샷에 `location_id` 없이 배경 즉흥 생성 금지 (구현 후 강제).
-* **Storyboard-first**: 보드/키프레임 검수 전에 전 샷 I2V 돌리지 말 것.
-* 보드·키프레임 패널 비율 = 에피소드 **format** (납품 aspect와 동일).
-* 로케이션 구현 시 캐릭터 CLI 패턴 미러 (`locations/` + create/expand/approve). 설계: [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md).
-* 스토리 구현 시 `shots.json` SSOT + `shot_compose`. 설계: [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md).
+### Rule 6.0 멀티 트랙 (활성 작업 모델)
+* 단일 `CHARACTER_L2_SOFT_FACTORY` 전용이 아니다. 동시 허용:
+  - **C** 캐릭터 L2 · **L** 로케이션 · **S** 스토리/샷 · **M** I2V/모션 · **U** 업스케일/조립 · **K** 룩
+* 통합 지도: [docs/production_asset_pipeline.md](docs/production_asset_pipeline.md).
+
+### Rule 6.1 로케이션·스토리보드·룩
+* 에피소드 = **char + loc + look + shots**. 룩: [docs/look_style_system.md](docs/look_style_system.md), 기본 `looks/cinematic_moody_v1`.
+* 키프레임·I2V: **draft 로케/캐릭터 금지**. `location_id` 없이 배경 즉흥 금지.
+* **Storyboard-first**: 키프레임 검수 전 전 샷 I2V 금지.
+* **비율**: char/loc 시트 ref는 고유 비율 OK. **board/keyframe/I2V 출력만 episode format 캔버스**.
+* 로케이션: [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md). 스토리: [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md).
 
 ### Rule 7. 영상 해상도·백엔드 규약
-* 납품 **종횡비는 영상 종류(format)에 따라 다름** — 16:9 고정이 아니다. 예: `cinematic_16x9`, `shorts_9x16`, `classic_4x3`, `portrait_3x4`, `square_1x1`. 상세 [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md).
-* 한 파이프라인 안에서는 work·deliver **같은 aspect**. 픽셀은 work에서 낮게, deliver에서 ~1080 짧은 변.
-* I2V 생성은 **work 해상도**; 납품 해상도는 업스케일 마감 층 (`scripts/upscale_image.py` / `upscale_video.py`).
-* 업스케일 SSOT: **`upscale_backends.json`** + [docs/upscale_research_and_design.md](docs/upscale_research_and_design.md). 기본 품질 `seedvr2`(7B FP8), 고속 `rtx_vsr`/`esrgan`, 히어로/4K `seedvr2_max`. 프리셋 `deliver_1080`…`deliver_2160`(4K).
-* 백엔드·포맷·프리셋 SSOT: **`video_backends.json`** + `lib/video_backends.py`. CLI: `scripts/generate_i2v.py --format shorts_9x16 --backend wan22`.
+* **format** = 종횡비 (`cinematic_16x9` …). 16:9 고정 아님. SSOT: `video_backends.json`.
+* **work 프리셋** = format별 픽셀 (`work_16x9_540` …). I2V 생성용.
+* **deliver 티어** = 짧은 변만 (`deliver_1080` / `deliver_1440` / `deliver_2160`). SSOT: **`upscale_backends.json`**. aspect는 format이 담당.
+* 구 ID `deliver_16x9_1080` 등은 **deprecated** (`deliver_aliases` → `deliver_1080`).
+* I2V: work 해상도. 납품: `scripts/upscale_* --preset deliver_1080 --format …`.
+* 업스케일 엔진: seedvr2 / rtx_vsr / esrgan. 상세 [docs/upscale_research_and_design.md](docs/upscale_research_and_design.md).
 
 ### Rule 8. Z-Image-Turbo ControlNet (Union 2.1)
 * 모델 파일은 `models/model_patches/` (`controlnet` 폴더 아님).

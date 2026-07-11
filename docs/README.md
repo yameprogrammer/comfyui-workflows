@@ -7,13 +7,14 @@
 
 | 순서 | 문서 | 역할 |
 |------|------|------|
-| 1 | [production_asset_pipeline.md](production_asset_pipeline.md) | **통합 지도** — 캐릭터·로케·스토리보드·I2V·납품 |
+| 1 | [production_asset_pipeline.md](production_asset_pipeline.md) | **통합 지도** — 캐릭터·로케·룩·스토리·I2V·납품 |
 | 2 | [character_impl_spec.md](character_impl_spec.md) | 캐릭터 시트 **구현 SSOT** |
 | 3 | [location_sheet_system_design.md](location_sheet_system_design.md) | 로케이션 시트 설계 (구현 대기) |
-| 4 | [storyboard_pipeline_design.md](storyboard_pipeline_design.md) | 샷리스트·보드·키프레임 설계 (구현 대기) |
-| 5 | [video_pipeline_roadmap.md](video_pipeline_roadmap.md) | 전체 영상 로드맵 |
-| 6 | [video_delivery_and_backends.md](video_delivery_and_backends.md) | format / work·deliver / I2V 백엔드 |
-| 7 | [upscale_research_and_design.md](upscale_research_and_design.md) | 업스케일 ≤4K |
+| 4 | [look_style_system.md](look_style_system.md) | Look/style core (`looks/`) |
+| 5 | [storyboard_pipeline_design.md](storyboard_pipeline_design.md) | 샷리스트·보드·키프레임 설계 (구현 대기) |
+| 6 | [video_pipeline_roadmap.md](video_pipeline_roadmap.md) | 전체 영상 로드맵 |
+| 7 | [video_delivery_and_backends.md](video_delivery_and_backends.md) | format / work·deliver / I2V 백엔드 |
+| 8 | [upscale_research_and_design.md](upscale_research_and_design.md) | 업스케일 ≤4K |
 
 ## 기타
 
@@ -24,4 +25,4 @@
 
 워크플로우 JSON: `../workflows/agent/`  
 CLI: `../scripts/`  
-데이터: `../characters/` · (예정) `../locations/` · `../stories/`
+데이터: `../characters/` · `../looks/` · (예정) `../locations/` · `../stories/`

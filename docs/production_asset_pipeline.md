@@ -26,65 +26,65 @@
 
 ---
 
-## 2. 자산 삼각형 + 에피소드
+## 2. 자산 구조 + 에피소드
 
 ```text
                  ┌─────────────────┐
                  │  Story/Episode  │  shots.json + keyframes + clips
-                 │  (시간축)        │
+                 │  look_id + format│
                  └────────┬────────┘
-            character_ids │ location_id
-           ┌──────────────┴──────────────┐
-           ▼                             ▼
-   ┌───────────────┐             ┌───────────────┐
-   │ Character Pack│             │ Location Pack │
-   │ characters/   │             │ locations/    │
-   └───────────────┘             └───────────────┘
+     character_ids │ location_id │ look_id
+    ┌──────────────┼─────────────┼──────────────┐
+    ▼              ▼             ▼              │
+┌─────────┐  ┌──────────┐  ┌──────────┐         │
+│Character│  │ Location │  │ Look/Style│◄───────┘
+│characters│ │locations │  │ looks/    │  (전역 톤)
+└─────────┘  └──────────┘  └──────────┘
 ```
 
-| 팩 | 고정하는 것 | 최소 approved |
-|----|-------------|---------------|
-| **Character** | 얼굴·체형·의상·표정 언어 | master + 소수 표정/의상 |
+| 팩 | 고정하는 것 | 최소 산출 |
+|----|-------------|-----------|
+| **Character** | 얼굴·체형·의상·표정 | `approved/` masters |
 | **Location** | 건축·재질·조명·랜드마크 | establishing + angles + empty_stage |
-| **Story** | 샷 순서·카메라·모션·오디오 슬롯 | shots.json + approved keyframes |
+| **Look** | 그레이드·매체·필름 느낌 | `positive_core` / `negative_core` |
+| **Story** | 샷 순서·카메라·모션 | `shots.json` + approved keyframes |
 
-세 팩 모두 **`status=approved` 자산만 본촬영(키프레임/I2V)** 에 사용.
+캐릭터·로케는 **`status=approved` 자산만** 본촬영. 룩은 텍스트 코어가 본체(이미지 mood ref는 선택).
 
 ---
 
 ## 3. 엔드투엔드 제작 순서 (권장)
 
 ```text
-0. Project format 결정
-   video_backends format: cinematic_16x9 | shorts_9x16 | classic_4x3 | ...
+0. Project format + look_id 결정
+   format: cinematic_16x9 | shorts_9x16 | …
+   look:   looks/cinematic_moody_v1 (기본)
 
 1. Character Pack (L2+)
    create → expand → approve
-   품질 게이트: 마스터 identity 통과
 
 2. Location Pack (L2+)
    create → expand → approve
-   품질 게이트: multi-angle 동일 장소 인식 + empty_stage
 
 3. Episode / Story Pack
-   story_init → beats → shots.json
+   story_init (format + look_id) → beats → shots.json
    (optional) board panels + contact sheet 검수
 
-4. Production keyframes
-   shot_compose per shot (char + loc + action)
+4. Production keyframes  ★ format 캔버스
+   shot_compose: look + char + loc + action → keyframe @ format work size
    shot_approve
 
 5. Motion
-   episode_i2v @ work preset (format 비율 유지)
+   episode_i2v @ work preset (format 비율)
    optional first–last bridges
 
 6. Finish
-   upscale_video → deliver_1080 / 1440 / 2160
+   upscale_video --preset deliver_1080|1440|2160  (+ format aspect)
    assemble + audio (후속)
 ```
 
-**병렬 가능**: 캐릭터와 로케 팩은 서로 독립 → 동시 제작 권장.  
-**직렬 필수**: 키프레임은 두 팩 approve 이후.
+**병렬 가능**: 캐릭터·로케·룩 준비.  
+**직렬 필수**: 키프레임은 char+loc approve 이후.
 
 ---
 
@@ -122,14 +122,38 @@
 | `clips/deliver` | 납품 해상도 |
 | audio 슬롯 | 조립 |
 
-### 4.4 납품 공통
+### 4.4 Look (글로벌 톤)
 
-| 결과물 | SSOT |
-|--------|------|
-| format / aspect | `video_backends.json` formats |
-| work / deliver 해상도 | video + upscale presets |
-| I2V backend | wan22 / ltx23 |
-| upscale backend | seedvr2 / rtx_vsr / esrgan |
+| 결과물 | 영상에서 쓰임 |
+|--------|----------------|
+| `looks/<id>/prompts/positive_core.txt` | 전 샷 appearance 접두 |
+| `negative_core.txt` | 룩 붕괴 방지 |
+| `bible.json` | look_id 메타 |
+
+상세: [look_style_system.md](look_style_system.md)
+
+### 4.5 납품 공통 (프리셋 이름 규칙)
+
+| 개념 | ID 예 | SSOT |
+|------|-------|------|
+| **format** (비율) | `cinematic_16x9`, `shorts_9x16` | `video_backends.json` → `formats` |
+| **work 픽셀** | `work_16x9_540`, `work_9x16_540` | `video_backends.json` → `presets` (stage=work) |
+| **deliver 티어** (짧은 변) | `deliver_1080`, `deliver_2160` | **`upscale_backends.json` only** |
+| 구 이름 | `deliver_16x9_1080` 등 | **deprecated** → `deliver_aliases` → `deliver_1080` |
+
+```bash
+# 올바른 납품 호출
+python scripts/upscale_video.py -i work.mp4 -o out.mp4 \
+  --preset deliver_1080 --format cinematic_16x9 --backend seedvr2
+```
+
+### 4.6 키프레임 비율 규칙 (compose)
+
+| 자산 | 비율 | 비고 |
+|------|------|------|
+| Character / location **시트 ref** | 스튜디오·시트 고유 (1:1, 세로 등 OK) | identity/set 언어용 |
+| Board panel / **production keyframe** / I2V | **에피소드 format 캔버스만** | 납품 aspect와 동일 |
+| 합성 | ref는 크롭·스케일·패드하여 **format 프레임 안에 배치** | 암묵 비율 변환 금지 — 정책 명시 |
 
 ---
 
@@ -137,17 +161,18 @@
 
 ```text
 shots.json[S01]
+  look_id       → looks/cinematic_moody_v1/prompts/...
   character_ids → characters/mina_park_v1/approved/...
   location_id   → locations/cafe_seoul_v1/approved/...
         ↓
-  appearance_prompt = char.core + loc.core + action + camera
+  appearance = look.core + char.core + loc.core + action + camera
         ↓
-  keyframe S01.png  (format work size)
+  keyframe S01.png  @ format work size (not ref native aspect)
         ↓ approve
   motion_prompt + I2V work preset
         ↓
   clips/work/S01.mp4
-        ↓ upscale
+        ↓ upscale --preset deliver_1080 + format
   clips/deliver/S01.mp4
 ```
 
@@ -157,19 +182,15 @@ shots.json[S01]
 
 ```text
 agent_custom/
-  characters/          # ✅ 존재
-  locations/           # ⬜ 설계만
-  stories/             # ⬜ 설계만 (에피소드)
+  characters/          # ✅
+  locations/           # ⬜ 설계
+  looks/               # ✅ 템플릿 + cinematic_moody_v1
+  stories/             # ⬜ 설계
   workflows/agent/
   scripts/
-  video_backends.json
-  upscale_backends.json
+  video_backends.json  # format + work presets
+  upscale_backends.json# deliver_1080/2160 tiers
   docs/
-    production_asset_pipeline.md   # 본 문서
-    location_sheet_system_design.md
-    storyboard_pipeline_design.md
-    character_* 
-    video_*
 ```
 
 ---
@@ -179,30 +200,34 @@ agent_custom/
 | 단계 | 티켓 | 내용 | 상태 |
 |------|------|------|------|
 | 자산 | C* | 캐릭터 L2 도구 | ✅ MVP / 품질 고도화 중 |
-| 자산 | **L0–L3** | 로케이션 설계→CLI→파일럿 | L0 ✅ / 구현 ⬜ |
-| 서사 | **S0–S5** | 스토리 설계→샷 컴포즈→배치 I2V | S0 ✅ / 구현 ⬜ |
-| 모션 | I2V D* | backend/preset/format | ✅ 상당 부분 |
-| 마감 | U* / D4–D5 | upscale ≤4K, assemble | upscale ✅ / assemble ⬜ |
-| 통합 | **P-E1** | 미니 에피소드 E2E (1 loc + 1 char + 6 shots) | ⬜ |
+| 자산 | **L0–L3** | 로케이션 | L0 ✅ / 코드 ⬜ |
+| 자산 | **K0–K1** | Look 코어 | K0 ✅ / compose 주입 ⬜ |
+| 서사 | **S0–S5** | 스토리·샷 컴포즈 | S0 ✅ / 코드 ⬜ |
+| 모션 | I2V | backend/format/work | ✅ |
+| 마감 | U* | upscale ≤4K | ✅ |
+| 마감 | D5 | assemble | ⬜ |
+| 통합 | **P-E1** | 미니 에피소드 E2E | ⬜ |
 
 **권장 구현 순서**
 
-1. L1–L3 로케이션 팩 (캐릭터와 대칭 CLI)  
-2. S1–S3 stories + shot_compose  
+1. L1–L3 로케이션 팩  
+2. S1–S3 stories + shot_compose (**look_id + format 캔버스 포함**)  
 3. P-E1 미니 에피소드  
-4. S6 continuity + assemble  
+4. assemble  
 
-캐릭터 턴어라운드 품질은 **병렬 트랙** (에피소드 establishing/medium 위주면 블로커 아님).
+캐릭터 턴어라운드 품질은 **병렬 트랙**.
 
 ---
 
-## 8. 에이전트 운영 규칙 (초안 → agent_rules 반영)
+## 8. 에이전트 운영 규칙
 
-1. 에피소드 시작 시 **format 먼저** 고정.  
+1. 에피소드 시작 시 **format + look_id** 고정.  
 2. 키프레임/I2V 입력은 **approved 캐릭터·로케만**.  
 3. 샷에 `location_id` 없이 배경 즉흥 생성 금지.  
-4. 보드 검수 전 전 샷 I2V 돌리지 말 것 (storyboard-first).  
-5. work 생성 → deliver 업스케일; 네이티브 4K I2V 루프 금지.  
+4. Storyboard-first: 키프레임 검수 전 전 샷 I2V 금지.  
+5. work → deliver 티어 업스케일; 네이티브 4K I2V 루프 금지.  
+6. deliver ID는 **`deliver_1080` 형태** (aspect는 format이 담당).  
+7. **멀티 트랙 허용**: 로케/스토리/I2V/업스케일은 캐릭터 L2와 병행 가능. **L3 LoRA 학습만** 캐릭터 트랙과 한 PR에 섞지 말 것.
 
 ---
 

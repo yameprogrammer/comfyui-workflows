@@ -1,0 +1,20 @@
+{
+  "look_id": "cinematic_moody_v1",
+  "name": "Moody Cinematic Photoreal",
+  "status": "approved",
+  "medium": "cinematic_photoreal",
+  "description": "Default look for Moody/Z-Image agent video: soft dramatic light language, film still quality, restrained grade.",
+  "keywords": [
+    "cinematic",
+    "film still",
+    "natural skin",
+    "soft dramatic light",
+    "restrained grade"
+  ],
+  "default_for_formats": [
+    "cinematic_16x9",
+    "shorts_9x16",
+    "classic_4x3",
+    "portrait_3x4"
+  ]
+}

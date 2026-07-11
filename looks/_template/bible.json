@@ -1,0 +1,9 @@
+{
+  "look_id": "_template",
+  "name": "Look Template",
+  "status": "draft",
+  "medium": "cinematic_photoreal",
+  "description": "Copy this folder to looks/<look_id>/ and edit prompts.",
+  "keywords": [],
+  "default_for_formats": []
+}

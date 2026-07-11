@@ -50,16 +50,39 @@ def get_upscale_backend(backend_id: str, cfg: dict[str, Any] | None = None) -> d
     return entry
 
 
+def normalize_deliver_tier(preset_id: str) -> str:
+    """Map legacy aspect-specific deliver IDs to short-edge tiers."""
+    pid = (preset_id or "").strip()
+    try:
+        from lib.video_backends import load_video_backends
+
+        aliases = load_video_backends().get("deliver_aliases") or {}
+        return str(aliases.get(pid, pid))
+    except Exception:
+        # offline fallback
+        legacy = {
+            "deliver_16x9_1080": "deliver_1080",
+            "deliver_9x16_1080": "deliver_1080",
+            "deliver_4x3_1080": "deliver_1080",
+            "deliver_3x4_1080": "deliver_1080",
+            "deliver_1x1_1080": "deliver_1080",
+            "deliver_16x9_2160": "deliver_2160",
+            "deliver_9x16_2160": "deliver_2160",
+        }
+        return legacy.get(pid, pid)
+
+
 def get_upscale_preset(preset_id: str, cfg: dict[str, Any] | None = None) -> dict[str, Any]:
     doc = cfg or load_upscale_backends()
     presets = doc.get("presets") or {}
-    if preset_id not in presets:
+    pid = normalize_deliver_tier(preset_id)
+    if pid not in presets:
         known = ", ".join(sorted(presets.keys())) or "(none)"
-        raise KeyError(f"Unknown upscale preset {preset_id!r}. Known: {known}")
-    entry = dict(presets[preset_id])
-    entry["id"] = preset_id
+        raise KeyError(f"Unknown upscale preset {preset_id!r} (normalized {pid!r}). Known: {known}")
+    entry = dict(presets[pid])
+    entry["id"] = pid
     if "short_edge" not in entry:
-        raise ValueError(f"Preset {preset_id!r} missing short_edge")
+        raise ValueError(f"Preset {pid!r} missing short_edge")
     return entry
 
 
@@ -113,8 +136,9 @@ def resolve_target_size(
       3. preset short_edge + aspect/format
     """
     cfg = load_upscale_backends(config_path)
-    preset_id = (preset or cfg.get("default_preset") or "deliver_1080").strip()
-    pr = get_upscale_preset(preset_id, cfg)
+    raw_preset = (preset or cfg.get("default_preset") or "deliver_1080").strip()
+    pr = get_upscale_preset(raw_preset, cfg)
+    preset_id = str(pr.get("id") or normalize_deliver_tier(raw_preset))
 
     resolved_aspect = aspect
     resolved_format = format_id

@@ -161,10 +161,15 @@ def resolve_i2v_job(
                 fmt = candidate
                 break
 
-    if fmt and fmt.get("default_deliver_preset"):
-        deliver_preset_id = str(fmt["default_deliver_preset"])
+    # Deliver pixel tier (short-edge) — not aspect-specific. Prefer default_deliver_tier.
+    # Legacy names (deliver_16x9_1080, …) map via deliver_aliases → deliver_1080 etc.
+    aliases = cfg.get("deliver_aliases") or {}
+    raw_deliver = None
+    if fmt and (fmt.get("default_deliver_tier") or fmt.get("default_deliver_preset")):
+        raw_deliver = fmt.get("default_deliver_tier") or fmt.get("default_deliver_preset")
     else:
-        deliver_preset_id = str(cfg.get("default_deliver_preset") or "deliver_16x9_1080")
+        raw_deliver = cfg.get("default_deliver_tier") or cfg.get("default_deliver_preset") or "deliver_1080"
+    deliver_preset_id = str(aliases.get(str(raw_deliver), raw_deliver))
 
     w = int(width) if width is not None else int(pr["width"])
     h = int(height) if height is not None else int(pr["height"])

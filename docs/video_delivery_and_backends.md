@@ -64,8 +64,9 @@ SSOT: 루트 [`video_backends.json`](../video_backends.json) 의 `formats` + `pr
 |----|-------------------|------|
 | `format` | `cinematic_16x9` | **바꿀 수 있음** — 16:9 고정 아님 |
 | `aspect_ratio` | format에서 유도 | 16:9 / 9:16 / 4:3 / 3:4 / 1:1 … |
-| `delivery_*` | format의 `default_deliver_preset` | 짧은 변 ~1080 급 |
-| `work_*` | format의 `default_work_preset` | VRAM·속도 트레이드오프 |
+| `deliver 티어` | `deliver_1080` (기본) | **짧은 변만** — `upscale_backends.json`. 4K=`deliver_2160` |
+| `work_*` | format의 `default_work_preset` | `work_16x9_540` 등 aspect-specific |
+| 구 deliver 이름 | `deliver_16x9_1080` 등 | **deprecated** → alias → `deliver_1080` |
 | `delivery_fps` | `24` 또는 `30` | 프로젝트에서 고정 |
 | `clip_seconds` | `3` ~ `6` | 길수록 identity/모션 drift |
 | `codec` | `h264` / `yuv420p` | 호환성 |
@@ -145,14 +146,14 @@ python scripts/generate_i2v.py -i key.png -p "..." -o work.mp4 --format classic_
 python scripts/generate_i2v.py -i key.png -p "..." -o work.mp4 --format portrait_3x4
 
 # 납품 업스케일 (후속) — deliver preset은 format과 같은 aspect
-python scripts/upscale_video.py -i work.mp4 -o deliver.mp4 --preset deliver_9x16_1080
+python scripts/upscale_video.py -i work.mp4 -o deliver.mp4 --preset deliver_1080 --format shorts_9x16
 ```
 
 | 인자 | 의미 |
 |------|------|
-| `--format` | 종횡비 프로필 (`cinematic_16x9`, `shorts_9x16`, `classic_4x3`, `portrait_3x4`, …) |
-| `--backend` | `wan22` \| `ltx23` (확장 가능) |
-| `--preset` | work 해상도 프리셋 오버라이드 (format 기본 대신) |
+| `--format` | 종횡비 프로필 (`cinematic_16x9`, `shorts_9x16`, …) |
+| `--backend` | I2V: `wan22` \| `ltx23` / 업스케일: `seedvr2` 등 |
+| `--preset` | I2V=work 프리셋; 업스케일=**deliver_1080\|1440\|2160** |
 | `-i` / `-p` / `-o` | 이미지, 모션 프롬프트, 출력 |
 | `--frames` / `--fps` / `--seed` | 백엔드가 지원하는 범위 내 공통 |
 

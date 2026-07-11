@@ -6,6 +6,17 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] 설계 정합 패치 — deliver 티어·룩·멀티 트랙
+* **작업 에이전트**: Grok
+* **작업 목표**: 요구사항 리뷰에서 지적한 소수정리 반영.
+* **주요 변경**:
+  1. **deliver 명칭 통일**: 납품 = `deliver_1080|1440|2160` (upscale SSOT) + format aspect; `deliver_16x9_1080` 등은 deprecated alias
+  2. **`looks/`** + [look_style_system.md](docs/look_style_system.md) + `cinematic_moody_v1` 기본 룩
+  3. **키프레임 = format 캔버스**, char/loc ref 비율 분리 규칙 (production + storyboard)
+  4. **agent_rules** 멀티 트랙 (C/L/S/M/U/K), L3만 분리; CHARACTER_L2 단일 활성 트랙 문구 완화
+  5. video_backends v3, resolve/upscale alias 코드
+* **상태**: 설계 정합 완료. 다음 구현: locations 템플릿 또는 stories+shot_compose.
+
 ### [2026-07-11] 로케이션·스토리보드·프로덕션 자산 설계 문서화
 * **작업 에이전트**: Grok
 * **작업 목표**: 실제 영상 제작에 필요한 로케이션 시트·스토리보드 결과물 형식을 웹/SNS/커뮤니티 리서치 후 문서 SSOT로 반영.
