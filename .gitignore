@@ -1,0 +1,17 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS temporary files
+.DS_Store
+Thumbs.db
+
+# ComfyUI outputs and inputs (to keep repo lightweight)
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+/input/
+/output/
