@@ -6,6 +6,15 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] 영상 format 프로필 — 비율은 프로젝트마다
+* **작업 에이전트**: Grok
+* **작업 목표**: 납품 비율이 16:9 고정이 아님을 코드·문서 SSOT에 반영.
+* **주요 변경 사항**:
+  1. `video_backends.json` v2: `formats` (`cinematic_16x9`, `shorts_9x16`, `classic_4x3`, `portrait_3x4`, `square_1x1`) + 4:3/3:4 work·deliver 프리셋
+  2. `lib/video_backends.py` / `generate_i2v.py`: `--format`, `--list-formats`
+  3. 문서·Rule 7: aspect는 format 선택; 16:9는 기본값일 뿐
+* **사용**: `python scripts/generate_i2v.py --format shorts_9x16 ...`
+
 ### [2026-07-11] D1/D2 I2V 백엔드·프리셋 SSOT
 * **작업 에이전트**: Grok
 * **작업 목표**: 납품 문서의 work 16:9 기본 + 멀티 백엔드 CLI 계약 코드화.

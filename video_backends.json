@@ -1,23 +1,66 @@
 {
-  "version": 1,
-  "description": "I2V backend + resolution preset SSOT. See docs/video_delivery_and_backends.md",
+  "version": 2,
+  "description": "I2V backend + aspect-format + resolution preset SSOT. Aspect is per project/format, not fixed 16:9. See docs/video_delivery_and_backends.md",
   "default_backend": "wan22",
+  "default_format": "cinematic_16x9",
   "default_work_preset": "work_16x9_540",
   "default_deliver_preset": "deliver_16x9_1080",
+  "formats": {
+    "cinematic_16x9": {
+      "aspect": "16:9",
+      "orientation": "landscape",
+      "use_cases": ["youtube", "cinema", "web_horizontal"],
+      "default_work_preset": "work_16x9_540",
+      "default_deliver_preset": "deliver_16x9_1080",
+      "notes": "Wide landscape; common default when no format specified"
+    },
+    "shorts_9x16": {
+      "aspect": "9:16",
+      "orientation": "portrait",
+      "use_cases": ["shorts", "reels", "tiktok", "stories"],
+      "default_work_preset": "work_9x16_540",
+      "default_deliver_preset": "deliver_9x16_1080",
+      "notes": "Vertical short-form"
+    },
+    "classic_4x3": {
+      "aspect": "4:3",
+      "orientation": "landscape",
+      "use_cases": ["classic_tv", "presentation", "retro"],
+      "default_work_preset": "work_4x3_540",
+      "default_deliver_preset": "deliver_4x3_1080",
+      "notes": "Traditional 4:3 landscape"
+    },
+    "portrait_3x4": {
+      "aspect": "3:4",
+      "orientation": "portrait",
+      "use_cases": ["portrait_photo_style", "print_like", "app_vertical"],
+      "default_work_preset": "work_3x4_540",
+      "default_deliver_preset": "deliver_3x4_1080",
+      "notes": "Soft vertical (less tall than 9:16)"
+    },
+    "square_1x1": {
+      "aspect": "1:1",
+      "orientation": "square",
+      "use_cases": ["feed_square", "smoke_test"],
+      "default_work_preset": "work_1x1_smoke",
+      "default_deliver_preset": "deliver_1x1_1080",
+      "notes": "Square; also used for legacy smoke tests"
+    }
+  },
   "presets": {
     "work_16x9_360": {
       "width": 640,
       "height": 360,
       "aspect": "16:9",
       "stage": "work",
-      "notes": "smoke / fastest"
+      "notes": "smoke / fastest landscape"
     },
     "work_16x9_540": {
       "width": 960,
       "height": 540,
       "aspect": "16:9",
       "stage": "work",
-      "notes": "default work (recommended)"
+      "notes": "default work for cinematic_16x9"
     },
     "work_16x9_720": {
       "width": 1280,
@@ -33,26 +76,61 @@
       "stage": "work",
       "notes": "vertical shorts work"
     },
+    "work_4x3_540": {
+      "width": 720,
+      "height": 540,
+      "aspect": "4:3",
+      "stage": "work",
+      "notes": "classic 4:3 work (~short edge 540)"
+    },
+    "work_3x4_540": {
+      "width": 540,
+      "height": 720,
+      "aspect": "3:4",
+      "stage": "work",
+      "notes": "portrait 3:4 work"
+    },
     "work_1x1_smoke": {
       "width": 640,
       "height": 640,
       "aspect": "1:1",
       "stage": "work",
-      "notes": "legacy square MVP smoke"
+      "notes": "square smoke / feed"
     },
     "deliver_16x9_1080": {
       "width": 1920,
       "height": 1080,
       "aspect": "16:9",
       "stage": "deliver",
-      "notes": "upscale target; not for native I2V loop"
+      "notes": "landscape 1080p target"
     },
     "deliver_9x16_1080": {
       "width": 1080,
       "height": 1920,
       "aspect": "9:16",
       "stage": "deliver",
-      "notes": "vertical delivery target"
+      "notes": "vertical 1080p short edge"
+    },
+    "deliver_4x3_1080": {
+      "width": 1440,
+      "height": 1080,
+      "aspect": "4:3",
+      "stage": "deliver",
+      "notes": "4:3 with 1080 short edge"
+    },
+    "deliver_3x4_1080": {
+      "width": 1080,
+      "height": 1440,
+      "aspect": "3:4",
+      "stage": "deliver",
+      "notes": "3:4 with 1080 short edge"
+    },
+    "deliver_1x1_1080": {
+      "width": 1080,
+      "height": 1080,
+      "aspect": "1:1",
+      "stage": "deliver",
+      "notes": "square 1080"
     }
   },
   "backends": {

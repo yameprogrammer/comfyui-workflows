@@ -1,4 +1,9 @@
-"""I2V backend + resolution preset SSOT (video_backends.json)."""
+"""I2V backend + aspect-format + resolution preset SSOT (video_backends.json).
+
+Aspect ratio is **not** fixed to 16:9. Choose a format profile
+(cinematic_16x9, shorts_9x16, classic_4x3, portrait_3x4, square_1x1, …)
+or a work/deliver preset that already carries an aspect.
+"""
 
 from __future__ import annotations
 
@@ -44,6 +49,11 @@ def list_preset_ids(cfg: dict[str, Any] | None = None, *, stage: str | None = No
     return sorted(out)
 
 
+def list_format_ids(cfg: dict[str, Any] | None = None) -> list[str]:
+    doc = cfg or load_video_backends()
+    return sorted((doc.get("formats") or {}).keys())
+
+
 def get_backend(backend_id: str, cfg: dict[str, Any] | None = None) -> dict[str, Any]:
     doc = cfg or load_video_backends()
     backends = doc.get("backends") or {}
@@ -68,9 +78,21 @@ def get_preset(preset_id: str, cfg: dict[str, Any] | None = None) -> dict[str, A
     return entry
 
 
+def get_format(format_id: str, cfg: dict[str, Any] | None = None) -> dict[str, Any]:
+    doc = cfg or load_video_backends()
+    formats = doc.get("formats") or {}
+    if format_id not in formats:
+        known = ", ".join(sorted(formats.keys())) or "(none)"
+        raise KeyError(f"Unknown format {format_id!r}. Known: {known}")
+    entry = dict(formats[format_id])
+    entry["id"] = format_id
+    return entry
+
+
 def resolve_i2v_job(
     *,
     backend: str | None = None,
+    format_id: str | None = None,
     preset: str | None = None,
     width: int | None = None,
     height: int | None = None,
@@ -78,23 +100,76 @@ def resolve_i2v_job(
     config_path: str | None = None,
 ) -> dict[str, Any]:
     """
-    Resolve backend, preset, size, and workflow path for an I2V run.
+    Resolve backend, format, work preset, size, and workflow path for an I2V run.
 
-    Returns dict with keys:
-      backend_id, backend, preset_id, preset, width, height,
-      workflow_path, workflow_ref, status
-    Raises KeyError/ValueError/FileNotFoundError on bad config.
-    Raises BackendNotReady for planned backends without an explicit workflow file.
+    Priority for work size:
+      1. explicit width+height
+      2. explicit --preset
+      3. format's default_work_preset
+      4. config default_work_preset / default_format
+
+    Returns keys including:
+      backend_id, format_id, aspect, preset_id, preset, width, height,
+      deliver_preset_id, workflow_path, status
     """
     cfg = load_video_backends(config_path)
     backend_id = (backend or cfg.get("default_backend") or "wan22").strip()
-    preset_id = (preset or cfg.get("default_work_preset") or "work_16x9_540").strip()
+
+    explicit_format = bool(format_id and str(format_id).strip())
+    explicit_preset = bool(preset and str(preset).strip())
+
+    fmt: dict[str, Any] | None = None
+    resolved_format_id: str | None = None
+
+    if explicit_format:
+        resolved_format_id = str(format_id).strip()
+        fmt = get_format(resolved_format_id, cfg)
+    elif not explicit_preset and cfg.get("default_format"):
+        # No format/preset from caller → use default format profile
+        resolved_format_id = str(cfg["default_format"])
+        try:
+            fmt = get_format(resolved_format_id, cfg)
+        except KeyError:
+            fmt = None
+            resolved_format_id = None
+
+    if explicit_preset:
+        preset_id = str(preset).strip()
+    elif fmt and fmt.get("default_work_preset"):
+        preset_id = str(fmt["default_work_preset"])
+    else:
+        preset_id = str(cfg.get("default_work_preset") or "work_16x9_540")
 
     be = get_backend(backend_id, cfg)
     pr = get_preset(preset_id, cfg)
 
+    # Explicit format + explicit preset must agree on aspect
+    if explicit_format and explicit_preset and fmt and pr.get("aspect") and fmt.get("aspect"):
+        if pr["aspect"] != fmt["aspect"]:
+            raise ValueError(
+                f"Preset {preset_id!r} aspect={pr['aspect']!r} does not match "
+                f"format {resolved_format_id!r} aspect={fmt['aspect']!r}"
+            )
+
+    # If only preset was chosen, attach a matching format (if any) for deliver hints
+    if explicit_preset and not explicit_format:
+        aspect_hint = pr.get("aspect")
+        for fid in list_format_ids(cfg):
+            candidate = get_format(fid, cfg)
+            if candidate.get("aspect") == aspect_hint:
+                resolved_format_id = fid
+                fmt = candidate
+                break
+
+    if fmt and fmt.get("default_deliver_preset"):
+        deliver_preset_id = str(fmt["default_deliver_preset"])
+    else:
+        deliver_preset_id = str(cfg.get("default_deliver_preset") or "deliver_16x9_1080")
+
     w = int(width) if width is not None else int(pr["width"])
     h = int(height) if height is not None else int(pr["height"])
+
+    aspect = pr.get("aspect") or (fmt or {}).get("aspect")
 
     status = (be.get("status") or "ready").lower()
     workflow_ref = workflow or be.get("workflow") or ""
@@ -119,14 +194,19 @@ def resolve_i2v_job(
     return {
         "backend_id": backend_id,
         "backend": be,
+        "format_id": resolved_format_id,
+        "format": fmt,
+        "aspect": aspect,
         "preset_id": preset_id,
         "preset": pr,
         "width": w,
         "height": h,
+        "deliver_preset_id": deliver_preset_id,
         "workflow_path": workflow_path,
         "workflow_ref": str(workflow_ref),
         "status": status,
-        "default_deliver_preset": cfg.get("default_deliver_preset"),
+        # backward-compatible alias
+        "default_deliver_preset": deliver_preset_id,
     }
 
 

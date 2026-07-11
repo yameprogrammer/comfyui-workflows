@@ -39,6 +39,7 @@ from lib.prompt_assembly import load_text
 from lib.video_backends import (
     BackendNotReady,
     list_backend_ids,
+    list_format_ids,
     list_preset_ids,
     load_video_backends,
     resolve_i2v_job,
@@ -72,6 +73,7 @@ def generate_i2v(
     cfg: float = 1.0,
     frame_rate: int = 16,
     backend: str | None = None,
+    format_id: str | None = None,
     preset: str | None = None,
     workflow_path: str | None = None,
     meta_out: str | None = None,
@@ -85,6 +87,7 @@ def generate_i2v(
     try:
         job = resolve_i2v_job(
             backend=backend,
+            format_id=format_id,
             preset=preset,
             width=width,
             height=height,
@@ -99,6 +102,8 @@ def generate_i2v(
 
     backend_id = job["backend_id"]
     preset_id = job["preset_id"]
+    format_id = job.get("format_id")
+    aspect = job.get("aspect")
     width = int(job["width"])
     height = int(job["height"])
     wf_path = job["workflow_path"]
@@ -131,7 +136,8 @@ def generate_i2v(
         return fail_result(error="INPUT_COPY_FAILED", message=str(e))
 
     print(
-        f"I2V job backend={backend_id} preset={preset_id} "
+        f"I2V job backend={backend_id} format={format_id or '-'} "
+        f"aspect={aspect or '-'} preset={preset_id} "
         f"{width}x{height} workflow={os.path.basename(wf_path)}"
     )
     print(f"Loading I2V workflow: {wf_path}")
@@ -334,10 +340,11 @@ def generate_i2v(
     meta = {
         "mode": "i2v",
         "backend": backend_id,
+        "format": format_id,
         "preset": preset_id,
-        "aspect": job["preset"].get("aspect"),
+        "aspect": aspect or job["preset"].get("aspect"),
         "stage": job["preset"].get("stage"),
-        "deliver_preset_hint": job.get("default_deliver_preset"),
+        "deliver_preset_hint": job.get("deliver_preset_id") or job.get("default_deliver_preset"),
         "workflow": os.path.basename(wf_path),
         "prompt": prompt_text,
         "negative": negative_text,
@@ -373,16 +380,24 @@ def _build_parser() -> argparse.ArgumentParser:
         cfg = load_video_backends()
         backends = list_backend_ids(cfg)
         presets = list_preset_ids(cfg)
+        formats = list_format_ids(cfg)
         default_backend = cfg.get("default_backend", "wan22")
-        default_preset = cfg.get("default_work_preset", "work_16x9_540")
+        # None → resolve_i2v_job applies default_format from JSON
+        default_format = None
+        default_preset = None
     except Exception:
         backends = ["wan22", "ltx23"]
         presets = ["work_16x9_540"]
+        formats = ["cinematic_16x9", "shorts_9x16", "classic_4x3", "portrait_3x4"]
         default_backend = "wan22"
-        default_preset = "work_16x9_540"
+        default_format = None
+        default_preset = None
 
     parser = argparse.ArgumentParser(
-        description="Image-to-Video multi-backend CLI (default: wan22 + work_16x9_540)"
+        description=(
+            "Image-to-Video multi-backend CLI. "
+            "Aspect comes from --format (16:9 / 9:16 / 4:3 / 3:4 / 1:1), not a fixed global ratio."
+        )
     )
     parser.add_argument("--input", "-i", required=True, help="Keyframe image path")
     parser.add_argument("--prompt", "-p", default=None, help="Motion / scene prompt")
@@ -396,11 +411,21 @@ def _build_parser() -> argparse.ArgumentParser:
         help=f"I2V backend id (default: {default_backend}). Known: {', '.join(backends)}",
     )
     parser.add_argument(
+        "--format",
+        dest="format_id",
+        default=default_format,
+        help=(
+            "Aspect/format profile (optional; default from video_backends.json "
+            f"default_format). Known: {', '.join(formats)}. "
+            "Examples: cinematic_16x9, shorts_9x16, classic_4x3, portrait_3x4."
+        ),
+    )
+    parser.add_argument(
         "--preset",
         default=default_preset,
         help=(
-            f"Resolution preset from video_backends.json "
-            f"(default: {default_preset}). Known: {', '.join(presets)}"
+            "Work resolution preset override (optional). "
+            f"If omitted, format's default work preset is used. Known: {', '.join(presets)}"
         ),
     )
     parser.add_argument(
@@ -437,27 +462,43 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Print backends from video_backends.json and exit",
     )
+    parser.add_argument(
+        "--list-formats",
+        action="store_true",
+        help="Print aspect/format profiles and exit",
+    )
     return parser
 
 
 if __name__ == "__main__":
     parser = _build_parser()
     # allow --list-* without --input
-    if any(a in ("--list-presets", "--list-backends") for a in sys.argv[1:]):
-        # re-parse without required input
+    if any(a in ("--list-presets", "--list-backends", "--list-formats") for a in sys.argv[1:]):
         pre = argparse.ArgumentParser(add_help=False)
         pre.add_argument("--list-presets", action="store_true")
         pre.add_argument("--list-backends", action="store_true")
+        pre.add_argument("--list-formats", action="store_true")
         pre_args, _ = pre.parse_known_args()
         cfg = load_video_backends()
         if pre_args.list_backends:
             for bid in list_backend_ids(cfg):
                 b = cfg["backends"][bid]
                 print(f"{bid}  status={b.get('status')}  {b.get('engine', '')}")
+        if pre_args.list_formats:
+            for fid in list_format_ids(cfg):
+                f = cfg["formats"][fid]
+                print(
+                    f"{fid}  aspect={f.get('aspect')}  "
+                    f"work={f.get('default_work_preset')}  "
+                    f"deliver={f.get('default_deliver_preset')}"
+                )
         if pre_args.list_presets:
             for pid in list_preset_ids(cfg):
                 p = cfg["presets"][pid]
-                print(f"{pid}  {p['width']}x{p['height']}  stage={p.get('stage')}")
+                print(
+                    f"{pid}  {p['width']}x{p['height']}  "
+                    f"aspect={p.get('aspect')}  stage={p.get('stage')}"
+                )
         sys.exit(0)
 
     args = parser.parse_args()
@@ -468,7 +509,7 @@ if __name__ == "__main__":
     negative = load_text(args.negative_file) if args.negative_file else args.negative
 
     if (args.width is None) ^ (args.height is None):
-        parser.error("Provide both --width and --height, or neither (use --preset)")
+        parser.error("Provide both --width and --height, or neither (use --format/--preset)")
 
     wf = None
     if args.workflow:
@@ -487,6 +528,7 @@ if __name__ == "__main__":
         cfg=args.cfg,
         frame_rate=args.fps,
         backend=args.backend,
+        format_id=args.format_id,
         preset=args.preset,
         workflow_path=wf,
         meta_out=args.meta_out,

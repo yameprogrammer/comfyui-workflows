@@ -59,16 +59,20 @@ python scripts/shot_with_character.py --id mina_park_v1 --shot "medium shot in a
 ### I2V
 
 ```bash
-# 기본: wan22 + work_16x9_540 (960×540)
+# 기본 format: cinematic_16x9 (960×540 work) — 비율은 고정이 아님
 python scripts/generate_i2v.py -i path/to/keyframe.png -p "gentle camera push-in" -o F:\generated_videos\clip.mp4 --frames 33
 
-# 정사각 스모크 / 프리셋 목록
-python scripts/generate_i2v.py -i key.png -p "..." -o out.mp4 --preset work_1x1_smoke
+# 세로 쇼츠 / 4:3 / 3:4
+python scripts/generate_i2v.py -i key.png -p "..." -o out.mp4 --format shorts_9x16
+python scripts/generate_i2v.py -i key.png -p "..." -o out.mp4 --format classic_4x3
+python scripts/generate_i2v.py -i key.png -p "..." -o out.mp4 --format portrait_3x4
+
+python scripts/generate_i2v.py --list-formats
 python scripts/generate_i2v.py --list-presets
 python scripts/generate_i2v.py --list-backends
 ```
 
-납품은 **16:9 · 최소 1080p**(work 생성 후 업스케일). SSOT: [video_backends.json](video_backends.json) · [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md)
+납품 비율은 **format 프로필**로 고른다 (16:9 / 9:16 / 4:3 / 3:4 …). work 생성 후 ~1080 업스케일. SSOT: [video_backends.json](video_backends.json) · [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md)
 
 ---
 
