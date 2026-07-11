@@ -69,7 +69,7 @@ agent_custom/
 ### Rule 7. 영상 해상도·백엔드 규약
 * 납품: **16:9, 최소 1080p**. 상세 [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md).
 * I2V 생성은 **work 해상도**; 1080p는 업스케일 마감 층.
-* 백엔드: `wan22` (기본) / `ltx23` (대안). 구현 시 `video_backends.json` 및 `scripts/generate_i2v.py --backend` 를 SSOT로.
+* 백엔드·프리셋 SSOT: 루트 **`video_backends.json`** + `lib/video_backends.py`. CLI: `scripts/generate_i2v.py --backend wan22|ltx23 --preset work_16x9_540`. 기본 work 프리셋은 16:9 (정사각 스모크는 `work_1x1_smoke`).
 
 ### Rule 8. Z-Image-Turbo ControlNet (Union 2.1)
 * 모델 파일은 `models/model_patches/` (`controlnet` 폴더 아님).

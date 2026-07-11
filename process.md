@@ -6,6 +6,16 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] D1/D2 I2V 백엔드·프리셋 SSOT
+* **작업 에이전트**: Grok
+* **작업 목표**: 납품 문서의 work 16:9 기본 + 멀티 백엔드 CLI 계약 코드화.
+* **주요 변경 사항**:
+  1. **`video_backends.json`**: backends (`wan22` ready / `ltx23` planned) + presets (`work_16x9_*`, `work_1x1_smoke`, deliver_*)
+  2. **`lib/video_backends.py`**: `resolve_i2v_job`, `BackendNotReady`
+  3. **`scripts/generate_i2v.py`**: `--backend`, `--preset`, `--list-backends`, `--list-presets`; 기본 `wan22` + `work_16x9_540` (960×540)
+  4. 문서 티켓 D1/D2 ✅
+* **상태**: Wan 경로 프리셋 적용 가능. LTX는 명시적 에러. 다음: D4 업스케일 또는 D3 LTX WF.
+
 ### [2026-07-11] 프로젝트 레이아웃 전면 정리 (에이전트 도구 구조)
 * **작업 에이전트**: Grok
 * **작업 목표**: 루트 혼재 구조를 에이전트용 레이아웃으로 재배치. 휴먼 편의보다 에이전트 탐색·SSOT 우선.

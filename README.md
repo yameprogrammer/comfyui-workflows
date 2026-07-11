@@ -59,10 +59,16 @@ python scripts/shot_with_character.py --id mina_park_v1 --shot "medium shot in a
 ### I2V
 
 ```bash
-python scripts/generate_i2v.py -i path/to/keyframe.png -p "gentle camera push-in" -o F:\generated_videos\clip.mp4 --width 640 --height 640 --frames 33
+# 기본: wan22 + work_16x9_540 (960×540)
+python scripts/generate_i2v.py -i path/to/keyframe.png -p "gentle camera push-in" -o F:\generated_videos\clip.mp4 --frames 33
+
+# 정사각 스모크 / 프리셋 목록
+python scripts/generate_i2v.py -i key.png -p "..." -o out.mp4 --preset work_1x1_smoke
+python scripts/generate_i2v.py --list-presets
+python scripts/generate_i2v.py --list-backends
 ```
 
-납품은 **16:9 · 최소 1080p**(work 생성 후 업스케일). → [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md)
+납품은 **16:9 · 최소 1080p**(work 생성 후 업스케일). SSOT: [video_backends.json](video_backends.json) · [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md)
 
 ---
 

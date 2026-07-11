@@ -21,7 +21,7 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `generate_moody.py` | T2I | `t2i_moody` |
 | `generate_moody_i2i.py` | I2I | `i2i_moody` |
 | `generate_moody_controlnet.py` | I2I + ControlNet | `i2i_controlnet_moody` |
-| `generate_i2v.py` | I2V (Wan2.2) | `i2v_wan22_a14b` |
+| `generate_i2v.py` | I2V multi-backend (`--backend` / `--preset`) | `video_backends.json` → `i2v_wan22_a14b` |
 | `generate_krea.py` | Krea T2I | `t2i_krea` |
 | `character_create.py` | 패키지 + 마스터 후보 | t2i |
 | `character_approve.py` | refs → approved 승격 | — |

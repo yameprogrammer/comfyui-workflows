@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "description": "I2V backend + resolution preset SSOT. See docs/video_delivery_and_backends.md",
+  "default_backend": "wan22",
+  "default_work_preset": "work_16x9_540",
+  "default_deliver_preset": "deliver_16x9_1080",
+  "presets": {
+    "work_16x9_360": {
+      "width": 640,
+      "height": 360,
+      "aspect": "16:9",
+      "stage": "work",
+      "notes": "smoke / fastest"
+    },
+    "work_16x9_540": {
+      "width": 960,
+      "height": 540,
+      "aspect": "16:9",
+      "stage": "work",
+      "notes": "default work (recommended)"
+    },
+    "work_16x9_720": {
+      "width": 1280,
+      "height": 720,
+      "aspect": "16:9",
+      "stage": "work",
+      "notes": "higher quality when VRAM allows"
+    },
+    "work_9x16_540": {
+      "width": 540,
+      "height": 960,
+      "aspect": "9:16",
+      "stage": "work",
+      "notes": "vertical shorts work"
+    },
+    "work_1x1_smoke": {
+      "width": 640,
+      "height": 640,
+      "aspect": "1:1",
+      "stage": "work",
+      "notes": "legacy square MVP smoke"
+    },
+    "deliver_16x9_1080": {
+      "width": 1920,
+      "height": 1080,
+      "aspect": "16:9",
+      "stage": "deliver",
+      "notes": "upscale target; not for native I2V loop"
+    },
+    "deliver_9x16_1080": {
+      "width": 1080,
+      "height": 1920,
+      "aspect": "9:16",
+      "stage": "deliver",
+      "notes": "vertical delivery target"
+    }
+  },
+  "backends": {
+    "wan22": {
+      "status": "ready",
+      "engine": "Wan2.2 I2V A14B GGUF",
+      "workflow": "i2v_wan22_a14b",
+      "strengths": ["character_i2v", "general_cinematic"],
+      "notes": "GGUF dual high/low + lightx2v 4step; default backend"
+    },
+    "ltx23": {
+      "status": "planned",
+      "engine": "LTX 2.3",
+      "workflow": "i2v_ltx23",
+      "strengths": ["fast_iteration", "alt_motion"],
+      "notes": "ComfyUI-LTXVideo + local GGUF; workflow not yet in workflows/agent/"
+    }
+  }
+}
