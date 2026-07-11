@@ -6,6 +6,16 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] 이미지·영상 업스케일 리서치 + 멀티 백엔드 CLI
+* **작업 에이전트**: Grok
+* **작업 목표**: 웹/커뮤니티/SNS + 로컬 4090 인벤토리 기반 업스케일 스택 구축 (≤4K 선택).
+* **리서치 요약**: 품질=SeedVR2, 속도=RTX VSR/ESRGAN, 4K는 1080→4K 2-pass 권장 (Comfy handbook·Reddit·X 합의).
+* **구현**:
+  1. `docs/upscale_research_and_design.md`
+  2. `upscale_backends.json` + `lib/upscale_backends.py` + `lib/upscale_runners.py`
+  3. `scripts/upscale_image.py` / `upscale_video.py` (`esrgan`/`rtx_vsr`/`seedvr2`/`seedvr2_max`, presets 720–2160)
+* **다음**: 실측 벤치(1080/4K), 필요 시 agent UI WF 스냅샷·FlashVSR 로컬 경로.
+
 ### [2026-07-11] 영상 format 프로필 — 비율은 프로젝트마다
 * **작업 에이전트**: Grok
 * **작업 목표**: 납품 비율이 16:9 고정이 아님을 코드·문서 SSOT에 반영.

@@ -22,6 +22,8 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `generate_moody_i2i.py` | I2I | `i2i_moody` |
 | `generate_moody_controlnet.py` | I2I + ControlNet | `i2i_controlnet_moody` |
 | `generate_i2v.py` | I2V multi-backend (`--backend` / `--preset`) | `video_backends.json` → `i2v_wan22_a14b` |
+| `upscale_image.py` | 이미지 업스케일 ≤4K | `upscale_backends.json` (seedvr2/rtx/esrgan) |
+| `upscale_video.py` | 영상 업스케일 ≤4K (4K 시 2-pass) | 동일 |
 | `generate_krea.py` | Krea T2I | `t2i_krea` |
 | `character_create.py` | 패키지 + 마스터 후보 | t2i |
 | `character_approve.py` | refs → approved 승격 | — |

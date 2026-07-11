@@ -72,7 +72,18 @@ python scripts/generate_i2v.py --list-presets
 python scripts/generate_i2v.py --list-backends
 ```
 
-납품 비율은 **format 프로필**로 고른다 (16:9 / 9:16 / 4:3 / 3:4 …). work 생성 후 ~1080 업스케일. SSOT: [video_backends.json](video_backends.json) · [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md)
+### 업스케일 (work → 납품, 최대 4K)
+
+```bash
+python scripts/upscale_image.py -i key.png -o key_1080.png --preset deliver_1080 --backend seedvr2
+python scripts/upscale_video.py -i work.mp4 -o deliver.mp4 --preset deliver_1080 --backend seedvr2
+python scripts/upscale_video.py -i work.mp4 -o deliver_4k.mp4 --preset deliver_2160 --backend seedvr2   # 자동 2-pass
+python scripts/upscale_video.py -i work.mp4 -o preview.mp4 --preset deliver_1080 --backend rtx_vsr
+python scripts/upscale_image.py --list-backends
+```
+
+리서치·설계: [docs/upscale_research_and_design.md](docs/upscale_research_and_design.md)  
+납품 비율은 **format 프로필** (16:9 / 9:16 / 4:3 / 3:4 …). SSOT: [video_backends.json](video_backends.json) · [upscale_backends.json](upscale_backends.json)
 
 ---
 

@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "description": "Image/video upscale SSOT for RTX 4090 agent pipeline. See docs/upscale_research_and_design.md",
+  "hardware_profile": "rtx4090",
+  "default_backend": "seedvr2",
+  "default_preset": "deliver_1080",
+  "comfy_python": "F:\\ComfyUI_windows_portable\\python_embeded\\python.exe",
+  "seedvr2_cli": "F:\\ComfyUI_windows_portable\\ComfyUI\\custom_nodes\\seedvr2_videoupscaler\\inference_cli.py",
+  "seedvr2_model_dir": "F:\\ComfyUI_windows_portable\\ComfyUI\\models\\SEEDVR2",
+  "presets": {
+    "deliver_720": {
+      "short_edge": 720,
+      "stage": "deliver",
+      "notes": "fast preview delivery"
+    },
+    "deliver_1080": {
+      "short_edge": 1080,
+      "stage": "deliver",
+      "notes": "default delivery (min 1080p short edge)"
+    },
+    "deliver_1440": {
+      "short_edge": 1440,
+      "stage": "deliver",
+      "notes": "QHD-class intermediate"
+    },
+    "deliver_2160": {
+      "short_edge": 2160,
+      "stage": "deliver",
+      "notes": "4K master (optional)"
+    }
+  },
+  "backends": {
+    "esrgan": {
+      "status": "ready",
+      "media": ["image", "video"],
+      "kind": "cnn",
+      "speed": "fast",
+      "quality": "good",
+      "runner": "comfy_api",
+      "model_name": "4xRealWebPhoto_v4_dat2.pth",
+      "alt_models": {
+        "photo": "4xRealWebPhoto_v4_dat2.pth",
+        "general": "RealESRGAN_x4plus.pth",
+        "anime": "4x-AnimeSharp.pth",
+        "sharp": "4x_foolhardy_Remacri.pth"
+      },
+      "notes": "Stable classic 4x + ImageScale to target. Best for previews."
+    },
+    "rtx_vsr": {
+      "status": "ready",
+      "media": ["image", "video"],
+      "kind": "hardware",
+      "speed": "very_fast",
+      "quality": "good_on_clean",
+      "runner": "comfy_api",
+      "quality_mode": "ULTRA",
+      "notes": "NVIDIA RTX Video Super Resolution. Prefer clean sources; blurry inputs → seedvr2."
+    },
+    "seedvr2": {
+      "status": "ready",
+      "media": ["image", "video"],
+      "kind": "diffusion_restore",
+      "speed": "slow",
+      "quality": "best_default",
+      "runner": "seedvr2_cli",
+      "dit_model": "seedvr2_ema_7b_fp8_e4m3fn_mixed_block35_fp16.safetensors",
+      "vae_model": "ema_vae_fp16.safetensors",
+      "batch_size_image": 1,
+      "batch_size_video": 5,
+      "color_correction": "lab",
+      "attention_mode": "sdpa",
+      "blocks_to_swap": 0,
+      "vae_tile_short_edge_threshold": 1440,
+      "notes": "4090 default quality lane (7B FP8)."
+    },
+    "seedvr2_max": {
+      "status": "ready",
+      "media": ["image", "video"],
+      "kind": "diffusion_restore",
+      "speed": "very_slow",
+      "quality": "hero",
+      "runner": "seedvr2_cli",
+      "dit_model": "seedvr2_ema_7b_fp16.safetensors",
+      "vae_model": "ema_vae_fp16.safetensors",
+      "batch_size_image": 1,
+      "batch_size_video": 1,
+      "color_correction": "lab",
+      "attention_mode": "sdpa",
+      "blocks_to_swap": 0,
+      "force_vae_tiled": true,
+      "notes": "Hero/4K master. FP16 7B + VAE tiling."
+    }
+  },
+  "heuristics": {
+    "preview": "rtx_vsr",
+    "default_delivery": "seedvr2",
+    "hero_or_4k": "seedvr2_max",
+    "blurry_source": "seedvr2",
+    "clean_source_fast": "rtx_vsr"
+  },
+  "two_pass_4k": {
+    "enabled_default": true,
+    "pass1_preset": "deliver_1080",
+    "pass2_preset": "deliver_2160",
+    "notes": "Community + Comfy handbook: gradual 1080 then 4K more stable than single jump."
+  }
+}

@@ -69,7 +69,8 @@ agent_custom/
 ### Rule 7. 영상 해상도·백엔드 규약
 * 납품 **종횡비는 영상 종류(format)에 따라 다름** — 16:9 고정이 아니다. 예: `cinematic_16x9`, `shorts_9x16`, `classic_4x3`, `portrait_3x4`, `square_1x1`. 상세 [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md).
 * 한 파이프라인 안에서는 work·deliver **같은 aspect**. 픽셀은 work에서 낮게, deliver에서 ~1080 짧은 변.
-* I2V 생성은 **work 해상도**; 납품 해상도는 업스케일 마감 층.
+* I2V 생성은 **work 해상도**; 납품 해상도는 업스케일 마감 층 (`scripts/upscale_image.py` / `upscale_video.py`).
+* 업스케일 SSOT: **`upscale_backends.json`** + [docs/upscale_research_and_design.md](docs/upscale_research_and_design.md). 기본 품질 `seedvr2`(7B FP8), 고속 `rtx_vsr`/`esrgan`, 히어로/4K `seedvr2_max`. 프리셋 `deliver_1080`…`deliver_2160`(4K).
 * 백엔드·포맷·프리셋 SSOT: **`video_backends.json`** + `lib/video_backends.py`. CLI: `scripts/generate_i2v.py --format shorts_9x16 --backend wan22`.
 
 ### Rule 8. Z-Image-Turbo ControlNet (Union 2.1)
