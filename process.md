@@ -6,6 +6,15 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] shot_compose --all / assets_list / pipeline stages
+* **작업 에이전트**: Grok
+* **작업 목표**: 배치 키프레임 컴포즈 + 자산 목록/에피소드 점검 + 파이프에 assets·compose 단계.
+* **주요 변경**:
+  1. `shot_compose.py --all` / `--force`
+  2. `scripts/assets_list.py`
+  3. `episode_pipeline` stages: status→assets→compose→contact→i2v→upscale→assemble→package
+* **검증**: assets list, compose --all --dry-run, pipeline slice dry-run
+
 ### [2026-07-11] commission_start / shot_edit + deliveries gitignore
 * **작업 에이전트**: Grok
 * **작업 목표**: 수주 브리프 한 장으로 에피소드 스캐폴드; 샷 JSON 패치 CLI; 산출물 gitignore.

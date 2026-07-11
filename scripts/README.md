@@ -39,6 +39,8 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `episode_pipeline.py` | status→…→package 오케스트레이션 | `--run` / `--dry-run` |
 | `commission_start.py` | 브리프 JSON → 에피소드 스캐폴드 | 수주 입구 |
 | `shot_edit.py` | shots.json 샷 생성/수정 | 액션·모션·캐릭터 등 |
+| `shot_compose.py --all` | 미생성 키프레임 배치 컴포즈 | format work size |
+| `assets_list.py` | char/loc/look 목록·에피소드 자산 점검 | `--episode` |
 | `generate_krea.py` | Krea T2I | `t2i_krea` |
 | `character_create.py` | 패키지 + 마스터 후보 | t2i |
 | `character_approve.py` | refs → approved 승격 | — |

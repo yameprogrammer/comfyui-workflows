@@ -3,7 +3,7 @@
 Orchestrate episode stages for a commission handoff.
 
 Stages (in order):
-  status → contact_sheet → i2v → upscale → assemble → package
+  status → assets → compose → contact_sheet → i2v → upscale → assemble → package
 
 Default: status only unless --run is given.
 Use --from / --to to slice the pipeline. --dry-run is forwarded where supported.
@@ -24,7 +24,16 @@ EXIT_USAGE = 2
 EXIT_MISSING = 11
 EXIT_STAGE = 31
 
-STAGES = ["status", "contact_sheet", "i2v", "upscale", "assemble", "package"]
+STAGES = [
+    "status",
+    "assets",
+    "compose",
+    "contact_sheet",
+    "i2v",
+    "upscale",
+    "assemble",
+    "package",
+]
 
 
 def _slice_stages(from_s: str, to_s: str) -> list[str]:
@@ -72,6 +81,11 @@ def main(argv=None) -> int:
     parser.add_argument("--assemble-stage", choices=["auto", "work", "deliver"], default="auto")
     parser.add_argument("--no-bgm", action="store_true")
     parser.add_argument("--no-zip", action="store_true")
+    parser.add_argument(
+        "--compose-force",
+        action="store_true",
+        help="With compose stage: recompose existing keyframes",
+    )
     parser.add_argument("--stop-on-error", action="store_true", default=True)
     parser.add_argument("--continue-on-error", action="store_true")
     args = parser.parse_args(argv)
@@ -112,7 +126,20 @@ def main(argv=None) -> int:
         if stage == "status":
             print(format_status_text(episode_status_report(ep)))
             continue
-        if stage == "contact_sheet":
+        if stage == "assets":
+            from assets_list import main as assets_main
+
+            code = assets_main(["--episode", ep])
+        elif stage == "compose":
+            from shot_compose import main as compose_main
+
+            argv2 = ["--episode", ep, "--all"]
+            if args.dry_run:
+                argv2.append("--dry-run")
+            if args.compose_force:
+                argv2.append("--force")
+            code = compose_main(argv2)
+        elif stage == "contact_sheet":
             from episode_contact_sheet import main as contact_main
 
             argv2 = ["--episode", ep]

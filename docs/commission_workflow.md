@@ -27,6 +27,8 @@ python scripts/commission_start.py --brief path/to/brief.json
 ## 3. 자산 확인
 
 ```bash
+python scripts/assets_list.py
+python scripts/assets_list.py --episode <id>
 python scripts/episode_status.py --episode <id>
 # character / location 팩 없으면 생성·승인 후 진행
 ```
@@ -36,12 +38,14 @@ python scripts/episode_status.py --episode <id>
 ## 4. 키프레임 → 모션 → 납품
 
 ```bash
-# 샷별 키프레임 (Comfy)
-python scripts/shot_compose.py --episode <id> --shot S01 ...
+# 키프레임 단건 또는 배치
+python scripts/shot_compose.py --episode <id> --shot S01 --dry-run
+python scripts/shot_compose.py --episode <id> --all --dry-run
 python scripts/shot_approve.py --episode <id> --shot S01
 
-# 상태 확인 후 파이프
+# 파이프: status → assets → compose → contact → i2v → upscale → assemble → package
 python scripts/episode_pipeline.py --episode <id>
+python scripts/episode_pipeline.py --episode <id> --run --from assets --to package --dry-run
 python scripts/episode_pipeline.py --episode <id> --run --from i2v --to package
 
 # 또는 단계별

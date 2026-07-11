@@ -29,6 +29,71 @@ EXIT_USAGE = 2
 EXIT_MISSING = 11
 EXIT_SOURCE = 20
 EXIT_GEN = 30
+EXIT_PARTIAL = 31
+
+
+def _compose_all(args) -> int:
+    """Batch-compose shots missing keyframes (or all with --force)."""
+    try:
+        story = StoryPackage.load(args.episode)
+    except FileNotFoundError:
+        print(f"[ERROR] code=11 episode missing: {args.episode}", file=sys.stderr)
+        return EXIT_MISSING
+
+    shots = sorted(story.shots(), key=lambda s: s.get("order", 0))
+    if not shots:
+        print("[ERROR] code=2 no shots in episode", file=sys.stderr)
+        return EXIT_USAGE
+
+    todo = []
+    for s in shots:
+        sid = s.get("shot_id")
+        rel = s.get("keyframe") or f"keyframes/{sid}.png"
+        path = story.path(*str(rel).replace("\\", "/").split("/"))
+        if args.force or not os.path.isfile(path):
+            todo.append(sid)
+
+    if not todo:
+        print("OK nothing to compose (all keyframes present; use --force to redo)")
+        return EXIT_OK
+
+    print(f"episode_compose_all episode={args.episode} count={len(todo)} dry_run={args.dry_run}")
+    ok = 0
+    fail = 0
+    for sid in todo:
+        argv = [
+            "--episode",
+            args.episode,
+            "--shot",
+            sid,
+            "--mode",
+            args.mode,
+            "--timeout",
+            str(args.timeout),
+        ]
+        if args.dry_run:
+            argv.append("--dry-run")
+        if args.model:
+            argv.extend(["--model", args.model])
+        if args.denoise is not None:
+            argv.extend(["--denoise", str(args.denoise)])
+        if args.cfg is not None:
+            argv.extend(["--cfg", str(args.cfg)])
+        if args.look:
+            argv.extend(["--look", args.look])
+        code = main(argv)
+        if code == EXIT_OK:
+            ok += 1
+        else:
+            fail += 1
+            print(f"[WARN] shot {sid} failed exit={code}")
+
+    print(f"Done compose ok={ok} fail={fail}")
+    if fail and ok == 0:
+        return EXIT_GEN
+    if fail:
+        return EXIT_PARTIAL
+    return EXIT_OK
 
 
 def resolve_character_ref(pkg: CharacterPackage, shot: dict, character_id: str) -> str | None:
@@ -69,7 +134,22 @@ def main(argv=None) -> int:
         description="Compose episode keyframe (look + char + loc @ format work size)"
     )
     parser.add_argument("--episode", "-e", required=True, help="episode_id")
-    parser.add_argument("--shot", "-s", required=True, help="shot_id e.g. S01")
+    parser.add_argument(
+        "--shot",
+        "-s",
+        default=None,
+        help="shot_id e.g. S01 (required unless --all)",
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Compose all shots missing keyframe file (or all with --force)",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="With --all, recompose even if keyframe file exists",
+    )
     parser.add_argument("--action", default=None, help="Override shot action text")
     parser.add_argument(
         "--character",
@@ -101,6 +181,16 @@ def main(argv=None) -> int:
 
     if not validate_episode_id(args.episode):
         print("[ERROR] code=2 invalid episode id", file=sys.stderr)
+        return EXIT_USAGE
+
+    if args.all:
+        if args.shot:
+            print("[ERROR] code=2 use either --shot or --all, not both", file=sys.stderr)
+            return EXIT_USAGE
+        return _compose_all(args)
+
+    if not args.shot:
+        print("[ERROR] code=2 --shot is required (or pass --all)", file=sys.stderr)
         return EXIT_USAGE
 
     try:
@@ -182,15 +272,20 @@ def main(argv=None) -> int:
             return EXIT_USAGE
         try:
             lpkg = LocationPackage.load(str(location_id))
+            loc_core = lpkg.read_positive_core()
+            arch = (lpkg.bible.get("architecture_lock") or "").strip()
+            if arch:
+                loc_core = assemble_prompt(core=loc_core, instruction=arch)
+            loc_neg = lpkg.read_negative_core()
+            loc_source = resolve_location_ref(lpkg, shot)
         except FileNotFoundError:
-            print(f"[ERROR] code=11 location missing {location_id}", file=sys.stderr)
-            return EXIT_MISSING
-        loc_core = lpkg.read_positive_core()
-        arch = (lpkg.bible.get("architecture_lock") or "").strip()
-        if arch:
-            loc_core = assemble_prompt(core=loc_core, instruction=arch)
-        loc_neg = lpkg.read_negative_core()
-        loc_source = resolve_location_ref(lpkg, shot)
+            # Soft: allow compose from action text until location pack exists
+            print(
+                f"[WARN] location pack missing: {location_id} "
+                f"(continuing with action/prompt only; create locations/{location_id} later)",
+                file=sys.stderr,
+            )
+            loc_core = f"location:{location_id}"
 
     prefer = type_meta.get("prefer_source") or "character"
     source = args.source
