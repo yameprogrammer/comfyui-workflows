@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LocationBible",
+  "type": "object",
+  "required": ["location_id", "name", "status", "prompts"],
+  "properties": {
+    "location_id": { "type": "string" },
+    "name": { "type": "string" },
+    "status": { "type": "string" },
+    "active_profile": { "type": "string" },
+    "architecture_lock": { "type": "string" },
+    "prompts": { "type": "object" },
+    "sheet_index": { "type": "object" }
+  }
+}

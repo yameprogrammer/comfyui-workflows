@@ -6,6 +6,21 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] 로케이션 팩 L1–L2 구현 (template + CLI)
+* **작업 에이전트**: Grok
+* **작업 목표**: Location Pack 설계(L0)를 코드로 — 캐릭터 팩과 대칭 create/expand/approve.
+* **주요 변경**:
+  1. `locations/_template`, `location_presets.json`, `profiles.json`, schemas
+  2. `lib/location_package.py`
+  3. `scripts/location_create.py` / `location_expand_sheets.py` / `location_approve.py`
+* **사용**:
+  ```bash
+  python scripts/location_create.py --id cafe_seoul_v1 --name "Seoul Cafe" --architecture "..."
+  python scripts/location_approve.py --id cafe_seoul_v1 --from refs/master/<file>.png --as master_wide --set-primary
+  python scripts/location_expand_sheets.py --id cafe_seoul_v1 --sheets all_mvp
+  ```
+* **상태**: L1–L2 ✅. L3 실 Comfy 파일럿·stories/shot_compose 다음.
+
 ### [2026-07-11] 설계 정합 패치 — deliver 티어·룩·멀티 트랙
 * **작업 에이전트**: Grok
 * **작업 목표**: 요구사항 리뷰에서 지적한 소수정리 반영.

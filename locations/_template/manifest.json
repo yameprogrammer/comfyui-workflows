@@ -1,0 +1,21 @@
+{
+  "location_id": "REPLACE_LOCATION_ID",
+  "package_version": "0.1.0",
+  "status": "draft",
+  "created_at": "REPLACE_ISO_DATE",
+  "updated_at": "REPLACE_ISO_DATE",
+  "base_model": "moody_pro",
+  "level": "L1",
+  "assets": [],
+  "approved": {},
+  "missing_mvp": [
+    "master_wide",
+    "angle_eye",
+    "angle_reverse",
+    "angle_high",
+    "angle_low",
+    "empty_stage",
+    "light_day"
+  ],
+  "mvp_profile": "video_ref"
+}

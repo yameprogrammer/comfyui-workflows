@@ -1,0 +1,44 @@
+{
+  "location_id": "REPLACE_LOCATION_ID",
+  "name": "REPLACE_DISPLAY_NAME",
+  "version": "0.1.0",
+  "status": "draft",
+  "level": "L1",
+  "created_at": "REPLACE_ISO_DATE",
+  "updated_at": "REPLACE_ISO_DATE",
+  "active_profile": "video_ref",
+  "type": "",
+  "atmosphere": [],
+  "architecture_lock": "",
+  "material_signature": [],
+  "palette": [],
+  "landmarks": [],
+  "scale_notes": "",
+  "default_lighting": "",
+  "forbidden": [
+    "changing storefront shape",
+    "relocated landmarks",
+    "random skyline"
+  ],
+  "prompts": {
+    "positive_core": "",
+    "negative_core": "",
+    "positive_core_file": "prompts/positive_core.txt",
+    "negative_core_file": "prompts/negative_core.txt"
+  },
+  "identity": {
+    "primary_ref": null,
+    "fallback_refs": []
+  },
+  "sheet_index": {
+    "master": [],
+    "angles": [],
+    "lighting": [],
+    "landmarks": [],
+    "empty_stage": []
+  },
+  "video_defaults": {
+    "preferred_keyframe_ref": "approved/empty_stage.png",
+    "preferred_establishing_ref": "approved/master_wide.png"
+  }
+}

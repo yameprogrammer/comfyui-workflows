@@ -207,7 +207,7 @@ assemble_video.py ...
 | **P1** | 캐릭터 팩 + shot_with_character | ✅ MVP |
 | **P1b** | format / I2V preset / multi-backend SSOT | ✅ |
 | **P1c** | 업스케일 multi-backend ≤4K | ✅ |
-| **P-L** | 로케이션 팩 설계 → CLI → 파일럿 | 📐 설계 ✅ / 코드 ⬜ |
+| **P-L** | 로케이션 팩 설계 → CLI → 파일럿 | CLI ✅ / 파일럿 ⬜ |
 | **P-S** | 스토리보드·샷리스트·shot_compose | 📐 설계 ✅ / 코드 ⬜ |
 | **P-E1** | 미니 에피소드 E2E (1 char + 1 loc + 6 shots) | ⬜ |
 | **P3** | LTX2.3 백엔드 연동 | ⬜ |

@@ -183,7 +183,7 @@ shots.json[S01]
 ```text
 agent_custom/
   characters/          # ✅
-  locations/           # ⬜ 설계
+  locations/           # ✅ template + CLI (파일럿 생성 ⬜)
   looks/               # ✅ 템플릿 + cinematic_moody_v1
   stories/             # ⬜ 설계
   workflows/agent/
@@ -200,7 +200,7 @@ agent_custom/
 | 단계 | 티켓 | 내용 | 상태 |
 |------|------|------|------|
 | 자산 | C* | 캐릭터 L2 도구 | ✅ MVP / 품질 고도화 중 |
-| 자산 | **L0–L3** | 로케이션 | L0 ✅ / 코드 ⬜ |
+| 자산 | **L0–L3** | 로케이션 | L0–L2 ✅ / L3 파일럿 ⬜ |
 | 자산 | **K0–K1** | Look 코어 | K0 ✅ / compose 주입 ⬜ |
 | 서사 | **S0–S5** | 스토리·샷 컴포즈 | S0 ✅ / 코드 ⬜ |
 | 모션 | I2V | backend/format/work | ✅ |

@@ -215,9 +215,9 @@ python scripts/location_approve.py --id cafe_seoul_v1 --from refs/master/... --a
 | ID | 내용 | 의존 | 상태 |
 |----|------|------|------|
 | **L0** | 본 설계 문서 | — | ✅ |
-| **L1** | `locations/_template` + schemas + presets | L0 | ⬜ |
-| **L2** | create / expand / approve CLI | L1 | ⬜ |
-| **L3** | video_ref 파일럿 1곳 (e.g. mina 카페) | L2 + character pilot | ⬜ |
+| **L1** | `locations/_template` + schemas + presets | L0 | ✅ |
+| **L2** | create / expand / approve CLI | L1 | ✅ |
+| **L3** | video_ref 파일럿 1곳 (e.g. mina 카페) | L2 + Comfy 실생성 | ⬜ |
 | **L4** | ControlNet/depth 각도 강화 | L2 | ⬜ |
 | **L5** | artbook export + contact sheet | L2 | ⬜ |
 | **L6** | storyboard CLI 연동 (`location_id` 필수) | L2 + S* | ⬜ |

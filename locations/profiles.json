@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "default_profile": "video_ref",
+  "profiles": {
+    "video_ref": {
+      "id": "video_ref",
+      "description": "Minimal location pack for video consistency",
+      "default_model": "pro",
+      "candidates_master_default": 3,
+      "size_default": {"width": 1280, "height": 720},
+      "mvp_aliases_key": "mvp_aliases_video_ref"
+    },
+    "artbook": {
+      "id": "artbook",
+      "description": "Fuller location sheet for art direction",
+      "default_model": "pro",
+      "candidates_master_default": 4,
+      "size_default": {"width": 1536, "height": 1024},
+      "mvp_aliases_key": "mvp_aliases_artbook"
+    }
+  }
+}

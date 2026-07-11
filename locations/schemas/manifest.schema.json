@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LocationManifest",
+  "type": "object",
+  "required": ["location_id", "status", "approved", "missing_mvp"],
+  "properties": {
+    "location_id": { "type": "string" },
+    "status": { "type": "string" },
+    "assets": { "type": "array" },
+    "approved": { "type": "object" },
+    "missing_mvp": { "type": "array", "items": { "type": "string" } }
+  }
+}

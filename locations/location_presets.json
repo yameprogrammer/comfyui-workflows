@@ -1,0 +1,208 @@
+{
+  "version": "1.0.0",
+  "description": "SSOT for L2 location sheet generation. Used by location_expand_sheets.py",
+  "global": {
+    "default_model": "pro",
+    "default_cfg": 3.5,
+    "sampler": "euler",
+    "scheduler": "normal",
+    "quality_tags": "cinematic still photo, highly detailed, sharp focus, natural color grading, consistent architecture",
+    "global_negative": "different building, relocated landmarks, random city, style shift, people crowd, watermark, text, logo, deformed architecture, melting walls"
+  },
+  "denoise_bands": {
+    "angle": 0.82,
+    "lighting": 0.78,
+    "landmark": 0.74,
+    "empty_stage": 0.76
+  },
+  "mvp_sheet_groups": {
+    "master": ["master.wide"],
+    "angles": [
+      "angles.eye",
+      "angles.reverse",
+      "angles.high",
+      "angles.low",
+      "angles.empty_stage"
+    ],
+    "lighting": ["lighting.day", "lighting.golden"],
+    "landmarks": ["landmarks.prop_a", "landmarks.prop_b"],
+    "all_mvp": [
+      "angles.eye",
+      "angles.reverse",
+      "angles.high",
+      "angles.low",
+      "angles.empty_stage",
+      "lighting.day",
+      "lighting.golden",
+      "landmarks.prop_a"
+    ]
+  },
+  "approve_alias_map": {
+    "master.wide": "master_wide",
+    "angles.eye": "angle_eye",
+    "angles.reverse": "angle_reverse",
+    "angles.high": "angle_high",
+    "angles.low": "angle_low",
+    "angles.empty_stage": "empty_stage",
+    "lighting.day": "light_day",
+    "lighting.golden": "light_golden",
+    "lighting.night": "light_night",
+    "landmarks.prop_a": "landmark_a",
+    "landmarks.prop_b": "landmark_b"
+  },
+  "mvp_aliases_video_ref": [
+    "master_wide",
+    "angle_eye",
+    "angle_reverse",
+    "angle_high",
+    "angle_low",
+    "empty_stage",
+    "light_day"
+  ],
+  "mvp_aliases_artbook": [
+    "master_wide",
+    "angle_eye",
+    "angle_reverse",
+    "angle_high",
+    "angle_low",
+    "empty_stage",
+    "light_day",
+    "light_golden",
+    "landmark_a",
+    "landmark_b"
+  ],
+  "presets": {
+    "master.wide": {
+      "sheet": "master",
+      "view": "wide",
+      "variant": "establishing",
+      "mode": "t2i",
+      "denoise": null,
+      "cfg": null,
+      "refs_subdir": "master",
+      "instruction": "wide establishing shot of the location, no people or tiny distant silhouettes only, full readable architecture and landmarks",
+      "style_lock": "same place identity, fixed architecture, fixed palette, no character hero",
+      "negative_extra": "close-up portrait, hero character, fashion model, different city"
+    },
+    "angles.eye": {
+      "sheet": "angles",
+      "view": "eye",
+      "variant": "stand",
+      "mode": "i2i",
+      "denoise": 0.82,
+      "cfg": 3.5,
+      "refs_subdir": "angles",
+      "instruction": "same location, eye-level camera looking into the main space, same architecture and landmarks",
+      "style_lock": "identical materials palette lighting logic scale",
+      "negative_extra": "different building shape, new landmarks"
+    },
+    "angles.reverse": {
+      "sheet": "angles",
+      "view": "reverse",
+      "variant": "stand",
+      "mode": "i2i",
+      "denoise": 0.84,
+      "cfg": 3.5,
+      "refs_subdir": "angles",
+      "instruction": "same location, reverse camera angle looking back toward the opposite side, same place",
+      "style_lock": "identical architecture palette landmarks relative positions",
+      "negative_extra": "new street, different storefront"
+    },
+    "angles.high": {
+      "sheet": "angles",
+      "view": "high",
+      "variant": "stand",
+      "mode": "i2i",
+      "denoise": 0.84,
+      "cfg": 3.5,
+      "refs_subdir": "angles",
+      "instruction": "same location, high-angle near top-down readable layout of the set",
+      "style_lock": "same floor plan landmarks materials",
+      "negative_extra": "aerial of different city"
+    },
+    "angles.low": {
+      "sheet": "angles",
+      "view": "low",
+      "variant": "stand",
+      "mode": "i2i",
+      "denoise": 0.82,
+      "cfg": 3.5,
+      "refs_subdir": "angles",
+      "instruction": "same location, low-angle dramatic camera from ground level, same architecture",
+      "style_lock": "same buildings doorways scale cues",
+      "negative_extra": "different skyline"
+    },
+    "angles.empty_stage": {
+      "sheet": "angles",
+      "view": "empty_stage",
+      "variant": "clear_fg",
+      "mode": "i2i",
+      "denoise": 0.76,
+      "cfg": 3.5,
+      "refs_subdir": "empty_stage",
+      "instruction": "same location as empty stage for character insert, clear foreground midground, no people, space to place a person, readable background set",
+      "style_lock": "same architecture palette lighting, uncluttered foreground",
+      "negative_extra": "crowd, hero character, blocked foreground"
+    },
+    "lighting.day": {
+      "sheet": "lighting",
+      "view": "day",
+      "variant": "window",
+      "mode": "i2i",
+      "denoise": 0.78,
+      "cfg": 3.5,
+      "refs_subdir": "lighting",
+      "instruction": "same location establishing composition, daylight natural lighting, clear soft shadows",
+      "style_lock": "architecture fixed, only lighting changes",
+      "negative_extra": "night, neon only, different layout"
+    },
+    "lighting.golden": {
+      "sheet": "lighting",
+      "view": "golden",
+      "variant": "hour",
+      "mode": "i2i",
+      "denoise": 0.78,
+      "cfg": 3.5,
+      "refs_subdir": "lighting",
+      "instruction": "same location, golden hour warm side light, same architecture",
+      "style_lock": "architecture fixed, warm key light",
+      "negative_extra": "different place, blue hour only"
+    },
+    "lighting.night": {
+      "sheet": "lighting",
+      "view": "night",
+      "variant": "interior",
+      "mode": "i2i",
+      "denoise": 0.8,
+      "cfg": 3.5,
+      "refs_subdir": "lighting",
+      "instruction": "same location at night, practical lamps, coherent night grade, same architecture",
+      "style_lock": "architecture fixed",
+      "negative_extra": "daytime, different building"
+    },
+    "landmarks.prop_a": {
+      "sheet": "landmarks",
+      "view": "close",
+      "variant": "prop_a",
+      "mode": "i2i",
+      "denoise": 0.74,
+      "cfg": 3.5,
+      "refs_subdir": "landmarks",
+      "instruction": "close-up study of the primary signature landmark or prop of this location, material detail, same style",
+      "style_lock": "same material palette as location",
+      "negative_extra": "unrelated object, different set"
+    },
+    "landmarks.prop_b": {
+      "sheet": "landmarks",
+      "view": "close",
+      "variant": "prop_b",
+      "mode": "i2i",
+      "denoise": 0.74,
+      "cfg": 3.5,
+      "refs_subdir": "landmarks",
+      "instruction": "close-up study of a secondary landmark or texture of this location",
+      "style_lock": "same material palette",
+      "negative_extra": "unrelated object"
+    }
+  }
+}
