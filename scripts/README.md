@@ -22,7 +22,7 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `generate_moody_i2i.py` | I2I | `i2i_moody` |
 | `generate_moody_controlnet.py` | I2I + ControlNet | `i2i_controlnet_moody` |
 | `generate_i2v.py` | I2V multi-backend (`--backend` / `--preset`) | `video_backends.json` → `i2v_wan22_a14b` |
-| `upscale_image.py` | 이미지 업스케일 ≤4K | `upscale_backends.json` (seedvr2/rtx/esrgan) |
+| `upscale_image.py` | 이미지 업스케일 ≤4K | 기본 **rtx_vsr**; seedvr2는 히어로 opt-in |
 | `upscale_video.py` | 영상 업스케일 ≤4K (4K 시 2-pass) | 동일 |
 | `location_create.py` | 로케이션 패키지 + master_wide T2I | `locations/` |
 | `location_expand_sheets.py` | 각도/조명/랜드마크 I2I | location_presets.json |
@@ -31,8 +31,11 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `shot_compose.py` | look+char+loc → 키프레임 | format work size |
 | `shot_approve.py` | keyframe_status 승격 | I2V 전 게이트 |
 | `episode_i2v.py` | approved 키프레임 배치 I2V | → `clips/work/` |
-| `episode_upscale.py` | work 클립 배치 업스케일 | → `clips/deliver/` |
-| `assemble_video.py` | FFmpeg concat + optional BGM | → `exports/final/` |
+| `episode_upscale.py` | work 클립 배치 업스케일 | → `clips/deliver/` (default rtx_vsr) |
+| `assemble_video.py` | FFmpeg concat + **mix_policy** stems | → `exports/final/` |
+| `audio_status.py` | production_mode / stems / si2v 준비도 | 설계: docs/audio_motion_production_modes.md |
+| `audio_slice.py` | 마스터 음원 구간 추출 → stems | 뮤비/SI2V 준비 |
+| `generate_s2v.py` | SI2V scaffold (dry-run plan) | InfiniteTalk inject는 P2 |
 | `package_delivery.py` | 사용자 납품 폴더+zip | → `deliveries/<ep>__<stamp>/` |
 | `episode_status.py` | 에피소드 진행 상태/다음 액션 | 텍스트 또는 JSON |
 | `episode_contact_sheet.py` | 키프레임 컨택시트 | `boards/contact_sheet.png` |

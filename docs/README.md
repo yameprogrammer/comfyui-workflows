@@ -17,6 +17,7 @@
 | 8 | [upscale_research_and_design.md](upscale_research_and_design.md) | 업스케일 ≤4K |
 | 9 | [delivery_handoff.md](delivery_handoff.md) | 사용자 납품 패키징 (`deliveries/`) |
 | 10 | [commission_workflow.md](commission_workflow.md) | 수주 브리프 → 납품 순서 |
+| 11 | [audio_motion_production_modes.md](audio_motion_production_modes.md) | **오디오·SI2V·production_mode / mix_policy** |
 
 ## 기타
 

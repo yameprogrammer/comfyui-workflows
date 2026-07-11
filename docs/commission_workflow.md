@@ -11,6 +11,12 @@ JSON 브리프 (스키마: [commission_brief.schema.json](commission_brief.schem
 
 필수: `episode_id`, `format`, `shots[]` (`shot_id`, `action`)
 
+선택 (오디오·모션 — [audio_motion_production_modes.md](audio_motion_production_modes.md)):
+
+- `production_mode`: `music_video` | `story` | `hybrid` | `video_only`
+- `mix_policy`, `default_motion_driver`, `audio.{master,bgm,bgm_volume}`
+- 샷: `motion_driver` (`i2v`|`si2v`|…), `dialogue`/`sfx`/`audio_refs`
+
 ---
 
 ## 2. 에피소드 스캐폴드
@@ -51,11 +57,16 @@ python scripts/episode_pipeline.py --episode <id> --run --from i2v --to package
 # 또는 단계별
 python scripts/episode_i2v.py --episode <id>
 python scripts/episode_upscale.py --episode <id> --preset deliver_1080
+python scripts/audio_status.py --episode <id>
+# mix_policy 에 따라 music/dialogue/sfx stems 배치 후
 python scripts/assemble_video.py --episode <id>
+# 강제 무음: --no-audio | 뮤비 마스터: --mix-policy music_locked --bgm path/to/master.wav
 python scripts/package_delivery.py --episode <id>
 ```
 
 사용자에게: `deliveries/<episode>__<stamp>.zip`
+
+**참고:** SI2V(립싱크) 러너는 P2 예정. 현재 `episode_i2v` 는 `motion_driver=i2v` 샷만 처리.
 
 ---
 

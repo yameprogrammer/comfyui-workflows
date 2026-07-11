@@ -1,17 +1,31 @@
 #!/usr/bin/env python3
-"""Assemble episode clips (and optional BGM) into a final mp4 via FFmpeg."""
+"""Assemble episode clips (and audio stems per mix_policy) into a final mp4 via FFmpeg."""
 
 from __future__ import annotations
 
 import _bootstrap  # noqa: F401
 
 import argparse
-import json
 import os
 import sys
+import tempfile
 
+from lib.audio_package import (
+    audio_readiness,
+    audio_section,
+    collect_simple_stems,
+    collect_timeline_events,
+    ensure_audio_dirs,
+    resolve_mix_policy,
+    normalize_production_mode,
+)
 from lib.comfy_client import utc_now_iso, write_meta
-from lib.ffmpeg_util import concat_videos, find_ffmpeg, mux_bgm
+from lib.ffmpeg_util import (
+    concat_videos,
+    find_ffmpeg,
+    mix_audio_under_video,
+    mix_timeline_under_video,
+)
 from lib.story_package import StoryPackage, validate_episode_id
 
 EXIT_OK = 0
@@ -19,6 +33,7 @@ EXIT_USAGE = 2
 EXIT_MISSING = 11
 EXIT_NONE = 21
 EXIT_FFMPEG = 40
+EXIT_AUDIO = 41
 
 
 def _clip_path(story: StoryPackage, shot: dict, stage: str) -> str | None:
@@ -33,7 +48,6 @@ def _clip_path(story: StoryPackage, shot: dict, stage: str) -> str | None:
         return deliver if os.path.isfile(deliver) else None
     if stage == "work":
         return work if os.path.isfile(work) else None
-    # auto: prefer deliver
     if os.path.isfile(deliver):
         return deliver
     if os.path.isfile(work):
@@ -52,9 +66,82 @@ def _default_bgm(story: StoryPackage) -> str | None:
     return None
 
 
+def _probe_duration(path: str) -> float | None:
+    try:
+        import json
+        import subprocess
+
+        out = subprocess.check_output(
+            [
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "json",
+                path,
+            ],
+            text=True,
+            stderr=subprocess.STDOUT,
+            timeout=30,
+        )
+        return float(json.loads(out)["format"]["duration"])
+    except Exception:
+        return None
+
+
+def _tracks_for_policy(
+    policy: str,
+    stems: dict,
+    *,
+    force_bgm: str | None,
+    bgm_volume: float | None,
+) -> tuple[list[dict], str]:
+    """Return flat tracks (no timeline). Empty → try timeline or video only."""
+    vols = stems.get("volumes") or {}
+    bv = float(bgm_volume if bgm_volume is not None else vols.get("bgm") or 0.35)
+
+    if policy == "video_only":
+        return [], "video_only"
+
+    if policy in ("music_locked", "bgm_under"):
+        path = force_bgm or stems.get("master") or stems.get("bgm")
+        if not path:
+            return [], f"{policy}: no master/bgm found"
+        vol = 1.0 if policy == "music_locked" else bv
+        role = "master" if policy == "music_locked" else "bgm"
+        return [{"path": path, "volume": vol, "role": role}], policy
+
+    if policy == "dialogue_sfx_first_bgm_late":
+        tracks: list[dict] = []
+        for p in stems.get("dialogue") or []:
+            tracks.append(
+                {"path": p, "volume": float(vols.get("dialogue") or 1.0), "role": "dialogue"}
+            )
+        for p in stems.get("vo") or []:
+            tracks.append({"path": p, "volume": float(vols.get("vo") or 1.0), "role": "vo"})
+        for p in stems.get("sfx") or []:
+            tracks.append({"path": p, "volume": float(vols.get("sfx") or 0.85), "role": "sfx"})
+        bgm = force_bgm or stems.get("bgm")
+        if bgm:
+            tracks.append({"path": bgm, "volume": bv, "role": "bgm"})
+        if not tracks:
+            return [], f"{policy}: no flat stems — try timeline/refs"
+        return tracks, policy
+
+    if policy == "layered":
+        return [], "layered_uses_timeline"
+
+    path = force_bgm or stems.get("bgm") or stems.get("master")
+    if path:
+        return [{"path": path, "volume": bv, "role": "bgm"}], "fallback_bgm"
+    return [], "unknown_policy_video_only"
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
-        description="FFmpeg-assemble episode clips into exports/final/"
+        description="FFmpeg-assemble episode clips + audio stems (mix_policy)"
     )
     parser.add_argument("--episode", "-e", required=True)
     parser.add_argument(
@@ -75,16 +162,30 @@ def main(argv=None) -> int:
         help="Output mp4 (default stories/<ep>/exports/final/<ep>_final.mp4)",
     )
     parser.add_argument(
+        "--mix-policy",
+        default=None,
+        help="Override episode mix_policy (video_only|music_locked|bgm_under|dialogue_sfx_first_bgm_late|layered)",
+    )
+    parser.add_argument(
         "--bgm",
         default=None,
-        help="Background music path (default: first file in audio/music/)",
+        help="Force music/BGM path (also used as master for music_locked)",
     )
-    parser.add_argument("--no-bgm", action="store_true", help="Video only, no BGM mux")
+    parser.add_argument(
+        "--no-audio",
+        action="store_true",
+        help="Force video_only (alias of --mix-policy video_only)",
+    )
+    parser.add_argument(
+        "--no-bgm",
+        action="store_true",
+        help="Deprecated alias for --no-audio",
+    )
     parser.add_argument(
         "--bgm-volume",
         type=float,
-        default=0.35,
-        help="BGM volume multiplier (default 0.35)",
+        default=None,
+        help="BGM/master volume override",
     )
     parser.add_argument(
         "--copy",
@@ -95,6 +196,11 @@ def main(argv=None) -> int:
     parser.add_argument("--timeout", type=int, default=3600)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--meta-out", default=None)
+    parser.add_argument(
+        "--require-audio",
+        action="store_true",
+        help="Fail if mix_policy needs audio but stems missing",
+    )
     args = parser.parse_args(argv)
 
     if not validate_episode_id(args.episode):
@@ -104,8 +210,10 @@ def main(argv=None) -> int:
     try:
         story = StoryPackage.load(args.episode)
     except FileNotFoundError:
-        print(f"[ERROR] code=11 episode missing: {args.episode}", file=sys.stderr)
+        print(f"[ERROR] code=11 episode missing", file=sys.stderr)
         return EXIT_MISSING
+
+    ensure_audio_dirs(story.root)
 
     try:
         ff = find_ffmpeg()
@@ -124,7 +232,7 @@ def main(argv=None) -> int:
             print(f"[ERROR] code=2 unknown shots: {sorted(missing)}", file=sys.stderr)
             return EXIT_USAGE
 
-    clips: list[tuple[str, str]] = []  # (shot_id, path)
+    clips: list[tuple[str, str]] = []
     for s in selected:
         path = _clip_path(story, s, args.stage)
         if path:
@@ -136,31 +244,111 @@ def main(argv=None) -> int:
         print("[ERROR] code=21 no clips to assemble", file=sys.stderr)
         return EXIT_NONE
 
-    out = args.output or story.path(
-        "exports", "final", f"{args.episode}_final.mp4"
-    )
+    out = args.output or story.path("exports", "final", f"{args.episode}_final.mp4")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
 
-    bgm = None
-    if not args.no_bgm:
-        bgm = args.bgm or _default_bgm(story)
+    if args.no_audio or args.no_bgm:
+        policy = "video_only"
+    elif args.mix_policy:
+        policy = args.mix_policy.strip()
+    else:
+        policy = resolve_mix_policy(story.doc)
+
+    mode = normalize_production_mode(story.doc.get("production_mode"))
+
+    # Resolve stems without permanently mutating shots.json
+    doc_for_audio = dict(story.doc)
+    if args.bgm:
+        audio_ov = dict(doc_for_audio.get("audio") or {})
+        audio_ov["master"] = args.bgm
+        audio_ov["bgm"] = args.bgm
+        doc_for_audio["audio"] = audio_ov
+    if args.mix_policy:
+        doc_for_audio["mix_policy"] = policy
+
+    stems = collect_simple_stems(story.root, doc_for_audio)
+    readiness = audio_readiness(story.root, doc_for_audio)
+
+    sec = audio_section(doc_for_audio)
+    bgm_vol = args.bgm_volume if args.bgm_volume is not None else float(sec.get("bgm_volume") or 0.35)
+    if policy == "music_locked" and args.bgm_volume is None:
+        bgm_vol = float(sec.get("master_volume") if sec.get("master_volume") is not None else 1.0)
+
+    # actual clip durations for timeline offsets
+    shot_durs: dict[str, float] = {}
+    for sid, p in clips:
+        d = _probe_duration(p)
+        if d:
+            shot_durs[sid] = d
+
+    tracks, track_note = _tracks_for_policy(
+        policy,
+        stems,
+        force_bgm=args.bgm,
+        bgm_volume=bgm_vol,
+    )
+
+    timeline_events: list[dict] = []
+    use_timeline = policy == "layered"
+    if policy == "dialogue_sfx_first_bgm_late" and not tracks:
+        use_timeline = True
+    if use_timeline:
+        timeline_events = collect_timeline_events(
+            story.root,
+            doc_for_audio,
+            shot_durations=shot_durs or None,
+            include_episode_bgm=True,
+        )
+        if args.bgm and not any(e.get("role") in ("master", "bgm") for e in timeline_events):
+            timeline_events.insert(
+                0,
+                {
+                    "path": args.bgm,
+                    "timeline_start_sec": 0.0,
+                    "source_start_sec": 0.0,
+                    "source_end_sec": None,
+                    "volume": bgm_vol,
+                    "role": "bgm",
+                    "shot_id": None,
+                },
+            )
+        track_note = f"layered events={len(timeline_events)}"
+
+    has_audio = bool(tracks) or bool(timeline_events)
+    if args.require_audio and policy != "video_only" and not has_audio:
+        print(
+            f"[ERROR] code=41 audio required for mix_policy={policy}: {track_note}",
+            file=sys.stderr,
+        )
+        return EXIT_AUDIO
 
     print(f"assemble_video episode={args.episode} stage={args.stage}")
+    print(f"  production_mode={mode} mix_policy={policy}")
     print(f"  ffmpeg={ff}")
     print(f"  clips={len(clips)}")
     for sid, p in clips:
-        print(f"    {sid}: {p}")
+        print(f"    {sid}: {p} dur={shot_durs.get(sid, '?')}")
     print(f"  out={out}")
-    print(f"  bgm={bgm or '(none)'}")
+    print(f"  audio_note={track_note}")
+    if timeline_events:
+        for e in timeline_events:
+            print(
+                f"    event t={e.get('timeline_start_sec')} role={e.get('role')} "
+                f"vol={e.get('volume')} {e.get('path')}"
+            )
+    elif tracks:
+        for t in tracks:
+            print(f"    track role={t['role']} vol={t['volume']} {t['path']}")
+    else:
+        print("  audio=(none — video only)")
+    if readiness.get("missing"):
+        print(f"  [WARN] readiness: {readiness['missing']}")
 
     if args.dry_run:
         print("[dry-run] skip ffmpeg")
         return EXIT_OK
 
-    # Intermediate video without BGM if mux needed
-    if bgm:
-        import tempfile
-
+    if has_audio:
         fd, tmp_video = tempfile.mkstemp(suffix=".mp4", prefix="assemble_vid_")
         os.close(fd)
         try:
@@ -174,15 +362,22 @@ def main(argv=None) -> int:
             if not r1.get("ok"):
                 print(f"[ERROR] concat {r1.get('error')}: {r1.get('message')}", file=sys.stderr)
                 return EXIT_FFMPEG
-            r2 = mux_bgm(
-                tmp_video,
-                bgm,
-                out,
-                audio_volume=args.bgm_volume,
-                timeout_sec=args.timeout,
-            )
+            if timeline_events:
+                r2 = mix_timeline_under_video(
+                    tmp_video,
+                    out,
+                    events=timeline_events,
+                    timeout_sec=args.timeout,
+                )
+            else:
+                r2 = mix_audio_under_video(
+                    tmp_video,
+                    out,
+                    tracks=tracks,
+                    timeout_sec=args.timeout,
+                )
             if not r2.get("ok"):
-                print(f"[ERROR] bgm {r2.get('error')}: {r2.get('message')}", file=sys.stderr)
+                print(f"[ERROR] mix {r2.get('error')}: {r2.get('message')}", file=sys.stderr)
                 return EXIT_FFMPEG
         finally:
             try:
@@ -205,9 +400,30 @@ def main(argv=None) -> int:
         "mode": "assemble_video",
         "episode_id": args.episode,
         "stage": args.stage,
+        "production_mode": mode,
+        "mix_policy": policy,
         "clips": [{"shot_id": sid, "path": os.path.abspath(p)} for sid, p in clips],
-        "bgm": os.path.abspath(bgm) if bgm else None,
-        "bgm_volume": args.bgm_volume if bgm else None,
+        "tracks": [
+            {
+                "role": t["role"],
+                "volume": t["volume"],
+                "path": os.path.abspath(t["path"]),
+            }
+            for t in tracks
+        ],
+        "timeline_events": [
+            {
+                "role": e.get("role"),
+                "timeline_start_sec": e.get("timeline_start_sec"),
+                "source_start_sec": e.get("source_start_sec"),
+                "source_end_sec": e.get("source_end_sec"),
+                "volume": e.get("volume"),
+                "path": os.path.abspath(e["path"]) if e.get("path") else None,
+                "shot_id": e.get("shot_id"),
+            }
+            for e in timeline_events
+        ],
+        "audio_note": track_note,
         "output_path": os.path.abspath(out),
         "reencode": not args.copy,
         "created_at": utc_now_iso(),
@@ -215,16 +431,19 @@ def main(argv=None) -> int:
     meta_path = args.meta_out or story.path("meta", f"{args.episode}_assemble.json")
     write_meta(meta_path, meta)
 
-    # stamp episode doc lightly
     story.doc["final_export"] = {
         "path": os.path.relpath(out, story.root).replace("\\", "/"),
         "assembled_at": utc_now_iso(),
         "clip_count": len(clips),
+        "mix_policy": policy,
+        "production_mode": mode,
+        "has_audio": has_audio,
     }
     story.save()
 
     print(f"OK final={out}")
     print(f"  meta={meta_path}")
+    print(f"  has_audio={has_audio}")
     return EXIT_OK
 
 

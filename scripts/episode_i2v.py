@@ -10,6 +10,7 @@ import os
 import sys
 
 from generate_i2v import generate_i2v
+from lib.audio_package import shot_motion_driver
 from lib.comfy_client import utc_now_iso, write_meta
 from lib.story_package import StoryPackage, validate_episode_id
 
@@ -34,6 +35,20 @@ def _select_shots(story: StoryPackage, shots_arg: str, require_approved: bool) -
     if require_approved or shots_arg == "all_approved":
         selected = [s for s in selected if s.get("keyframe_status") == "approved"]
     return selected
+
+
+def _filter_i2v_drivers(story: StoryPackage, selected: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Keep i2v (default) shots; return (run, skipped_non_i2v)."""
+    run, skip = [], []
+    for s in selected:
+        d = shot_motion_driver(s, story.doc)
+        if d in ("i2v",):
+            run.append(s)
+        elif d in ("still", "si2v", "flf2v"):
+            skip.append(s)
+        else:
+            run.append(s)
+    return run, skip
 
 
 def _frames_for_shot(duration_sec: float, fps: float) -> int:
@@ -101,6 +116,21 @@ def main(argv=None) -> int:
         )
         return EXIT_NONE
 
+    selected, skipped = _filter_i2v_drivers(story, selected)
+    for s in skipped:
+        print(
+            f"[SKIP] {s.get('shot_id')} motion_driver={shot_motion_driver(s, story.doc)} "
+            "(not i2v — use episode_s2v / still path when available)"
+        )
+
+    if not selected:
+        print(
+            "[ERROR] code=21 no i2v shots to run "
+            "(all selected use si2v/still/flf2v)",
+            file=sys.stderr,
+        )
+        return EXIT_NONE
+
     format_id = story.format_id()
     work_preset = story.doc.get("default_work_preset")
     backend = args.backend or story.doc.get("default_backend_i2v") or "wan22"
@@ -108,7 +138,7 @@ def main(argv=None) -> int:
 
     print(
         f"episode_i2v episode={args.episode} format={format_id} "
-        f"backend={backend} shots={len(selected)} fps={fps}"
+        f"backend={backend} shots={len(selected)} skipped_other_drivers={len(skipped)} fps={fps}"
     )
 
     ok = 0

@@ -4,9 +4,16 @@
   "logline": "Mina spends a quiet afternoon at her usual cafe.",
   "format": "cinematic_16x9",
   "look_id": "cinematic_moody_v1",
+  "production_mode": "story",
+  "mix_policy": "dialogue_sfx_first_bgm_late",
+  "default_motion_driver": "i2v",
   "default_backend_i2v": "wan22",
   "default_deliver_tier": "deliver_1080",
   "default_model": "pro",
+  "audio": {
+    "bgm": null,
+    "bgm_volume": 0.28
+  },
   "characters": ["mina_park_v1"],
   "locations": ["cafe_seoul_v1"],
   "shots": [

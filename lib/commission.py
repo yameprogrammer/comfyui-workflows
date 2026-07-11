@@ -7,6 +7,11 @@ import os
 from typing import Any
 
 from lib.comfy_client import WORKSPACE_ROOT, utc_now_iso
+from lib.audio_package import (
+    MODE_DEFAULTS,
+    ensure_audio_dirs,
+    normalize_production_mode,
+)
 from lib.story_package import (
     StoryPackage,
     copy_template,
@@ -108,6 +113,8 @@ def build_shot_record(
         "vo": shot.get("vo") or "",
         "sfx": shot.get("sfx") or [],
         "music_cue": shot.get("music_cue") or "",
+        "motion_driver": shot.get("motion_driver") or None,
+        "audio_refs": shot.get("audio_refs") or {},
         "character_ids": char_ids,
         "character_refs": shot.get("character_refs") or {},
         "location_id": shot.get("location_id"),
@@ -188,16 +195,33 @@ def apply_commission(
     shots_doc["default_work_preset"] = work_preset
     shots_doc["default_deliver_tier"] = deliver_tier
     shots_doc["default_backend_i2v"] = brief.get("default_backend_i2v") or "wan22"
+    shots_doc["default_backend_s2v"] = brief.get("default_backend_s2v")
     shots_doc["default_model"] = brief.get("default_model") or "pro"
+    prod_mode = normalize_production_mode(brief.get("production_mode") or "story")
+    shots_doc["production_mode"] = prod_mode
+    if brief.get("mix_policy"):
+        shots_doc["mix_policy"] = brief.get("mix_policy")
+    else:
+        shots_doc["mix_policy"] = MODE_DEFAULTS[prod_mode]["mix_policy"]
+    shots_doc["default_motion_driver"] = (
+        brief.get("default_motion_driver")
+        or MODE_DEFAULTS[prod_mode]["default_motion_driver"]
+    )
+    if brief.get("audio"):
+        base_audio = dict(shots_doc.get("audio") or {})
+        base_audio.update(brief["audio"])
+        shots_doc["audio"] = base_audio
     shots_doc["commission"] = {
         "title": brief.get("title") or episode_id,
         "logline": brief.get("logline") or "",
         "characters": default_chars,
         "locations": list(brief.get("locations") or []),
+        "production_mode": prod_mode,
         "created_at": utc_now_iso(),
     }
     shots_doc["shots"] = shots_out
     save_json(os.path.join(dest, "shots.json"), shots_doc)
+    ensure_audio_dirs(dest)
 
     title = brief.get("title") or episode_id
     logline = brief.get("logline") or ""

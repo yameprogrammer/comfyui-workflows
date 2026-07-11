@@ -7,7 +7,40 @@
     "episode_id": { "type": "string" },
     "format": { "type": "string" },
     "look_id": { "type": "string" },
+    "production_mode": {
+      "type": "string",
+      "enum": ["music_video", "story", "hybrid", "video_only"],
+      "description": "See docs/audio_motion_production_modes.md"
+    },
+    "mix_policy": {
+      "type": "string",
+      "enum": [
+        "video_only",
+        "music_locked",
+        "bgm_under",
+        "dialogue_sfx_first_bgm_late",
+        "layered"
+      ]
+    },
+    "default_motion_driver": {
+      "type": "string",
+      "enum": ["i2v", "si2v", "still", "flf2v"]
+    },
+    "default_backend_i2v": { "type": "string" },
+    "default_backend_s2v": { "type": ["string", "null"] },
     "default_deliver_tier": { "type": "string" },
+    "audio": {
+      "type": "object",
+      "properties": {
+        "master": { "type": ["string", "null"] },
+        "bgm": { "type": ["string", "null"] },
+        "bgm_volume": { "type": "number" },
+        "dialogue_volume": { "type": "number" },
+        "vo_volume": { "type": "number" },
+        "sfx_volume": { "type": "number" },
+        "use_clip_audio": { "type": "boolean" }
+      }
+    },
     "shots": {
       "type": "array",
       "items": {
@@ -17,8 +50,20 @@
           "shot_id": { "type": "string" },
           "order": { "type": "integer" },
           "duration_sec": { "type": "number" },
+          "motion_driver": {
+            "type": "string",
+            "enum": ["i2v", "si2v", "still", "flf2v"]
+          },
           "character_ids": { "type": "array", "items": { "type": "string" } },
           "location_id": { "type": ["string", "null"] },
+          "dialogue": { "type": "string" },
+          "vo": { "type": "string" },
+          "sfx": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "music_cue": { "type": "string" },
+          "audio_refs": { "type": "object" },
           "keyframe_status": {
             "type": "string",
             "enum": ["draft", "in_review", "approved", "missing"]

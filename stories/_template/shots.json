@@ -2,12 +2,25 @@
   "episode_id": "REPLACE_EPISODE_ID",
   "format": "cinematic_16x9",
   "look_id": "cinematic_moody_v1",
+  "production_mode": "story",
+  "mix_policy": null,
+  "default_motion_driver": "i2v",
   "default_fps": 24,
   "default_backend_i2v": "wan22",
+  "default_backend_s2v": null,
   "default_work_preset": null,
   "default_deliver_tier": "deliver_1080",
   "default_model": "pro",
   "default_denoise": 0.78,
   "default_cfg": 3.5,
+  "audio": {
+    "master": null,
+    "bgm": null,
+    "bgm_volume": 0.28,
+    "dialogue_volume": 1.0,
+    "vo_volume": 1.0,
+    "sfx_volume": 0.85,
+    "use_clip_audio": false
+  },
   "shots": []
 }

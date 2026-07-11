@@ -96,7 +96,13 @@ agent_custom/
 * **deliver 티어** = 짧은 변만 (`deliver_1080` / `deliver_1440` / `deliver_2160`). SSOT: **`upscale_backends.json`**. aspect는 format이 담당.
 * 구 ID `deliver_16x9_1080` 등은 **deprecated** (`deliver_aliases` → `deliver_1080`).
 * I2V: work 해상도. 납품: `scripts/upscale_* --preset deliver_1080 --format …`.
-* 업스케일 엔진: seedvr2 / rtx_vsr / esrgan. 상세 [docs/upscale_research_and_design.md](docs/upscale_research_and_design.md).
+* 업스케일 **기본 = rtx_vsr**. seedvr2는 히어로 opt-in (실무 배치 비권장). [docs/upscale_research_and_design.md](docs/upscale_research_and_design.md).
+
+### Rule 7.1 오디오 · 모션 드라이버
+* 작품 종류 = `production_mode` (`music_video` / `story` / `hybrid` / `video_only`). 뮤비 원곡 ≠ 스토리 late BGM.
+* 샷 모션 = `motion_driver` (`i2v` 기본, **`si2v` 립·보컬 컷**, still…). I2V만으로 립싱크 때우지 말 것.
+* 조립 = `mix_policy` + stems (`audio/masters|music|dialogue|vo|sfx`). SSOT: [docs/audio_motion_production_modes.md](docs/audio_motion_production_modes.md).
+* CLI: `audio_status.py`, `assemble_video.py --mix-policy …`.
 
 ### Rule 8. Z-Image-Turbo ControlNet (Union 2.1)
 * 모델 파일은 `models/model_patches/` (`controlnet` 폴더 아님).
