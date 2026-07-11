@@ -34,6 +34,9 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `episode_upscale.py` | work 클립 배치 업스케일 | → `clips/deliver/` |
 | `assemble_video.py` | FFmpeg concat + optional BGM | → `exports/final/` |
 | `package_delivery.py` | 사용자 납품 폴더+zip | → `deliveries/<ep>__<stamp>/` |
+| `episode_status.py` | 에피소드 진행 상태/다음 액션 | 텍스트 또는 JSON |
+| `episode_contact_sheet.py` | 키프레임 컨택시트 | `boards/contact_sheet.png` |
+| `episode_pipeline.py` | status→…→package 오케스트레이션 | `--run` / `--dry-run` |
 | `generate_krea.py` | Krea T2I | `t2i_krea` |
 | `character_create.py` | 패키지 + 마스터 후보 | t2i |
 | `character_approve.py` | refs → approved 승격 | — |

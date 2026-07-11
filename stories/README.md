@@ -9,6 +9,13 @@ python scripts/episode_i2v.py --episode mina_cafe_ep01 --dry-run
 python scripts/episode_upscale.py --episode mina_cafe_ep01 --preset deliver_1080 --dry-run
 python scripts/assemble_video.py --episode mina_cafe_ep01 --stage auto --dry-run
 python scripts/assemble_video.py --episode mina_cafe_ep01 --stage deliver --no-bgm
+
+# 상태 + 한 번에 파이프 (dry-run / 실제)
+python scripts/episode_status.py --episode mina_cafe_ep01
+python scripts/episode_pipeline.py --episode mina_cafe_ep01
+python scripts/episode_pipeline.py --episode mina_cafe_ep01 --run --dry-run
+python scripts/episode_pipeline.py --episode mina_cafe_ep01 --run --from i2v --to package
+python scripts/episode_contact_sheet.py --episode mina_cafe_ep01
 ```
 
 Design: [docs/storyboard_pipeline_design.md](../docs/storyboard_pipeline_design.md)

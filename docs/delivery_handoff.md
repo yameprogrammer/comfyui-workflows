@@ -59,6 +59,9 @@ python scripts/package_delivery.py --episode mina_cafe_ep01 --stage deliver --no
 권장 납품 직전 순서:
 
 ```text
+episode_status
+episode_pipeline --run --from i2v --to package
+# 또는 단계별:
 episode_i2v → episode_upscale → assemble_video → package_delivery
 ```
 

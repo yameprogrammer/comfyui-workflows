@@ -321,7 +321,7 @@ python scripts/episode_upscale.py --episode mina_cafe_ep01 --preset deliver_1080
 | **S4** | `shot_approve` (+ contact sheet later) | S3 | ✅ approve / contact ⬜ |
 | **S5** | `episode_i2v` 배치 | S4, generate_i2v | ✅ |
 | **S6** | first–last continuity 옵션 | S5 | ⬜ |
-| **S7** | board panels / animatic | S2 | ⬜ |
+| **S7** | board panels / animatic | S2 | ✅ contact_sheet / animatic ⬜ |
 | **S8** | episode upscale + assemble 연동 | S5, D4/D5 | ✅ |
 
 ---

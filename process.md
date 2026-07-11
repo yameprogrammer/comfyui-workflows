@@ -6,6 +6,16 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] episode_status / pipeline / contact_sheet
+* **작업 에이전트**: Grok
+* **작업 목표**: 수주 에피소드의 다음 액션 파악 + 단계 오케스트레이션 + 컨택시트.
+* **주요 변경**:
+  1. `lib/episode_status.py` + `scripts/episode_status.py`
+  2. `scripts/episode_pipeline.py` (status→contact→i2v→upscale→assemble→package)
+  3. `lib/contact_sheet.py` + `scripts/episode_contact_sheet.py` (Pillow)
+* **검증**: status 표, pipeline --run --dry-run, contact sheet 3 panels OK
+* **다음**: 실 미니 에피소드 또는 LTX
+
 ### [2026-07-11] deliveries/ 사용자 납품 패키징
 * **작업 에이전트**: Grok
 * **작업 목표**: 에피소드 결과물을 사용자 전달용 폴더+zip으로 스냅샷.
