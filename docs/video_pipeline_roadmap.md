@@ -208,7 +208,7 @@ assemble_video.py ...
 | **P1b** | format / I2V preset / multi-backend SSOT | ✅ |
 | **P1c** | 업스케일 multi-backend ≤4K | ✅ |
 | **P-L** | 로케이션 팩 설계 → CLI → 파일럿 | CLI ✅ / 파일럿 ⬜ |
-| **P-S** | 스토리보드·샷리스트·shot_compose | CLI ✅ / episode_i2v ⬜ |
+| **P-S** | 스토리보드·샷·배치 I2V/업스케일 | CLI ✅ / assemble ⬜ |
 | **P-E1** | 미니 에피소드 E2E (1 char + 1 loc + 6 shots) | ⬜ |
 | **P3** | LTX2.3 백엔드 연동 | ⬜ |
 | **P4** | FFmpeg 조립 + 오디오 | ⬜ |

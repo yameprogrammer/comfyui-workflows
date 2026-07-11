@@ -202,7 +202,7 @@ agent_custom/
 | 자산 | C* | 캐릭터 L2 도구 | ✅ MVP / 품질 고도화 중 |
 | 자산 | **L0–L3** | 로케이션 | L0–L2 ✅ / L3 파일럿 ⬜ |
 | 자산 | **K0–K1** | Look 코어 | K0 ✅ / compose 주입 ⬜ |
-| 서사 | **S0–S5** | 스토리·샷 컴포즈 | S0–S4 ✅ / S5 episode_i2v ⬜ |
+| 서사 | **S0–S8** | 스토리·샷·배치 I2V/업스케일 | S0–S5·S8(upscale) ✅ / assemble ⬜ |
 | 모션 | I2V | backend/format/work | ✅ |
 | 마감 | U* | upscale ≤4K | ✅ |
 | 마감 | D5 | assemble | ⬜ |

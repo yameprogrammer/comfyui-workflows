@@ -6,6 +6,15 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] episode_i2v / episode_upscale 배치 CLI
+* **작업 에이전트**: Grok
+* **작업 목표**: approved 키프레임 → work 클립 → deliver 업스케일 배치.
+* **주요 변경**:
+  1. `scripts/episode_i2v.py` — default `all_approved`, format/backend from episode, frames≈duration×fps
+  2. `scripts/episode_upscale.py` — deliver tier + format, seedvr2 기본
+* **검증**: dry-run only (approved 2샷 선택, draft 제외, upscale job 1920×1080 resolve)
+* **다음**: assemble_video / 실 Comfy 미니 에피소드
+
 ### [2026-07-11] 스토리 팩 S1–S4 — story_init / shot_compose / shot_approve
 * **작업 에이전트**: Grok
 * **작업 목표**: 에피소드 패키지 + look/char/loc 키프레임 조립 CLI (실 Comfy E2E는 파일럿 시).

@@ -319,10 +319,10 @@ python scripts/episode_upscale.py --episode mina_cafe_ep01 --preset deliver_1080
 | **S2** | `story_init` + shots.json | S1 | ✅ |
 | **S3** | `shot_compose` (look+char+loc → keyframe) | S2, L2, character L2 | ✅ |
 | **S4** | `shot_approve` (+ contact sheet later) | S3 | ✅ approve / contact ⬜ |
-| **S5** | `episode_i2v` 배치 | S4, generate_i2v | ⬜ |
+| **S5** | `episode_i2v` 배치 | S4, generate_i2v | ✅ |
 | **S6** | first–last continuity 옵션 | S5 | ⬜ |
 | **S7** | board panels / animatic | S2 | ⬜ |
-| **S8** | episode upscale + assemble 연동 | S5, D4/D5 | ⬜ |
+| **S8** | episode upscale + assemble 연동 | S5, D4/D5 | ✅ upscale 배치 / assemble ⬜ |
 
 ---
 
