@@ -564,17 +564,18 @@ Character Package
 - [x] 명명 규칙·에러 코드·CLI 계약 문서화
 - [x] 파일럿 브리프 `mina_park_v1`
 
-#### P1 — 기존 스크립트 재현성 — 다음 코딩
-- [ ] `generate_moody.py`: `--seed`, `--meta-out`, `--prompt-file` 등 ([impl §5](character_impl_spec.md))
-- [ ] `generate_moody_i2i.py`: 동일 + `--core-prefix-file`
-- [ ] (권장) `lib/comfy_client.py` 추출
-- [ ] process.md / 사용 예 업데이트
+#### P1 — 기존 스크립트 재현성 — ✅ 코드 완료
+- [x] `generate_moody.py`: `--seed`, `--meta-out`, `--prompt-file` 등
+- [x] `generate_moody_i2i.py`: 동일 + `--core-prefix-file`
+- [x] `lib/comfy_client.py` 추출
+- [x] process.md / README 사용 예 업데이트
+- [ ] 실 Comfy 스모크 테스트
 
-#### P2 — Soft Character Factory (LoRA 없이 L2)
-- [ ] `character_create.py` ([impl §6.1](character_impl_spec.md))
-- [ ] `character_expand_sheets.py` + `sheet_presets.json` 로드
-- [ ] `character_approve.py`
-- [ ] 파일럿 `mina_park_v1` E2E
+#### P2 — Soft Character Factory (LoRA 없이 L2) — ✅ 코드 완료
+- [x] `character_create.py`
+- [x] `character_expand_sheets.py` + `sheet_presets.json` 로드
+- [x] `character_approve.py`
+- [ ] 파일럿 `mina_park_v1` E2E (Comfy 가동 후)
 
 #### P3 — 그리드·템플릿
 - [ ] expression/turnaround grid 합성

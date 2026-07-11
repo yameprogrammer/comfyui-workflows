@@ -1,7 +1,7 @@
 # 🛠️ 캐릭터 시트 시스템 — 구현 착수 스펙 (Implementation Spec)
 
 - **작성일**: 2026-07-11
-- **상태**: **구현 착수 가능 (P0 완료 / P1~P2 코딩 대기)**
+- **상태**: **P0~P2 코드 완료** (실 Comfy 파일럿 E2E는 서버 가동 후)
 - **상위 설계**: [character_sheet_system_design.md](character_sheet_system_design.md)
 - **영상 로드맵**: [video_pipeline_roadmap.md](video_pipeline_roadmap.md)
 - **프리셋 데이터**: [characters/sheet_presets.json](characters/sheet_presets.json)
@@ -340,12 +340,12 @@ final_prompt = join_nonempty([
 
 ### 5.4 P1 완료 기준 (DoD)
 
-- [ ] `--seed 12345` 두 번 실행 시 동일 seed가 메타에 기록
-- [ ] `--prompt-file` / `--negative-file` 동작
-- [ ] 출력 이미지 옆에 메타 JSON 생성
-- [ ] I2I `--core-prefix-file`이 최종 프롬프트에 포함 (메타로 확인)
-- [ ] `process.md` 이력 추가
-- [ ] 기존 기본 CLI 호출이 깨지지 않음 (인자 없이 실행 가능)
+- [x] `--seed` / `--prompt-file` / `--negative-file` / `--meta-out` CLI 추가
+- [x] I2I `--core-prefix-file` / `--core-suffix-file` + 최종 프롬프트 메타 기록
+- [x] 성공 시 dict 반환 (`ok`, `output_path`, `seed`, `prompt_id`, `meta_path`)
+- [x] `lib/comfy_client.py` 등 공용 모듈 추출
+- [x] `process.md` 이력 추가
+- [ ] 실서버에서 `--seed` 재현·이미지 생성 스모크 (Comfy 가동 후)
 
 ---
 
@@ -604,39 +604,36 @@ python generate_moody_i2i.py ^
 ## 10. 구현 티켓 순서 (에이전트용)
 
 ### Ticket P1-A — T2I seed/meta/prompt-file
-- 파일: `generate_moody.py`
-- DoD: §5.4 중 T2I 항목
+- [x] `generate_moody.py`
 
 ### Ticket P1-B — I2I seed/meta/core-prefix
-- 파일: `generate_moody_i2i.py`
-- DoD: §5.4 중 I2I 항목
+- [x] `generate_moody_i2i.py`
 
-### Ticket P1-C — (권장) `lib/comfy_client.py` 추출
-- 중복 폴링/다운로드 제거
-- 기존 스크립트 동작 유지
+### Ticket P1-C — `lib/comfy_client.py` 추출
+- [x] 완료
 
 ### Ticket P2-A — `character_package.py`
-- 템플릿 복사, bible/manifest load/save, 경로 헬퍼
+- [x] `lib/character_package.py`
 
 ### Ticket P2-B — `character_create.py`
-- §6.1
+- [x] 완료
 
 ### Ticket P2-C — `character_expand_sheets.py`
-- `sheet_presets.json` 로드
-- §6.2
+- [x] 완료
 
 ### Ticket P2-D — `character_approve.py`
-- §6.3
+- [x] 완료
 
-### Ticket P2-E — 파일럿 E2E
-1. create mina_park_v1
-2. 사람이 master 1장 approve
-3. expand turnaround,expression
-4. 주요 컷 approve
-5. `bible.status=approved`
-6. process.md 기록 + 샘플 경로 인수인계
+### Ticket P2-E — 파일럿 E2E (Comfy 필요)
+1. [ ] create mina_park_v1 (`--from-brief-samples`)
+2. [ ] 사람이 master 1장 approve
+3. [ ] expand all_mvp
+4. [ ] 주요 컷 approve
+5. [ ] `bible.status=approved` / missing_mvp 해소
+6. [ ] process.md 결과 기록
 
-### Ticket P7-A — `shot_with_character.py` (L2 완료 후)
+### Ticket P7-A — `shot_with_character.py` (파일럿 후)
+
 
 ---
 

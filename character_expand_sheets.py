@@ -1,0 +1,263 @@
+#!/usr/bin/env python3
+"""Expand character sheets from master ref via I2I presets."""
+
+from __future__ import annotations
+
+import argparse
+import os
+import random
+import sys
+
+from generate_moody_i2i import generate_i2i_image
+from lib.character_package import (
+    CharacterPackage,
+    asset_filename,
+    load_presets,
+    validate_character_id,
+)
+from lib.comfy_client import utc_now_iso, write_meta
+from lib.prompt_assembly import assemble_prompt
+
+
+EXIT_OK = 0
+EXIT_USAGE = 2
+EXIT_PACKAGE_MISSING = 11
+EXIT_SOURCE_MISSING = 20
+EXIT_PRESET_MISSING = 21
+EXIT_ALL_FAILED = 30
+EXIT_PARTIAL = 31
+EXIT_COMFY = 40
+
+
+def resolve_preset_ids(presets: dict, sheets_arg: str, only: str | None) -> list[str]:
+    if only:
+        return [x.strip() for x in only.split(",") if x.strip()]
+
+    groups = presets.get("mvp_sheet_groups", {})
+    tokens = [t.strip() for t in sheets_arg.split(",") if t.strip()]
+    result: list[str] = []
+    for token in tokens:
+        if token in groups:
+            result.extend(groups[token])
+        elif token in presets.get("presets", {}):
+            result.append(token)
+        else:
+            raise KeyError(token)
+    # unique preserve order
+    seen = set()
+    ordered = []
+    for pid in result:
+        if pid not in seen:
+            seen.add(pid)
+            ordered.append(pid)
+    return ordered
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description="Expand character sheets using I2I presets")
+    parser.add_argument("--id", required=True)
+    parser.add_argument("--sheets", required=True, help="turnaround,expression,costume | all_mvp | preset ids")
+    parser.add_argument("--source", default=None, help="Source image (default: approved master / primary_ref)")
+    parser.add_argument("--model", "-m", choices=["real", "pro", "wild"], default=None)
+    parser.add_argument("--candidates", type=int, default=2)
+    parser.add_argument("--presets-file", default=None)
+    parser.add_argument("--only", default=None, help="Comma preset ids filter")
+    parser.add_argument("--seed-base", type=int, default=None)
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--strict", action="store_true", help="Exit 31 on partial failure")
+    parser.add_argument("--timeout", type=int, default=600)
+    args = parser.parse_args(argv)
+
+    if not validate_character_id(args.id):
+        print(f"[ERROR] code=2 message=invalid id {args.id}", file=sys.stderr)
+        return EXIT_USAGE
+
+    try:
+        pkg = CharacterPackage.load(args.id)
+    except FileNotFoundError:
+        print(f"[ERROR] code=11 message=package missing {args.id}", file=sys.stderr)
+        return EXIT_PACKAGE_MISSING
+
+    presets = load_presets(args.presets_file)
+    try:
+        preset_ids = resolve_preset_ids(presets, args.sheets, args.only)
+    except KeyError as e:
+        print(f"[ERROR] code=21 message=unknown sheet/preset {e}", file=sys.stderr)
+        return EXIT_PRESET_MISSING
+
+    # filter out pure t2i master presets from expand
+    expand_ids = []
+    for pid in preset_ids:
+        p = presets["presets"].get(pid)
+        if not p:
+            print(f"[ERROR] code=21 message=preset missing {pid}", file=sys.stderr)
+            return EXIT_PRESET_MISSING
+        if p.get("mode") == "t2i":
+            print(f"[WARN] skip t2i preset in expand: {pid}")
+            continue
+        expand_ids.append(pid)
+
+    if not expand_ids:
+        print("[ERROR] code=2 message=no expandable presets selected", file=sys.stderr)
+        return EXIT_USAGE
+
+    if args.source:
+        source_path = pkg.resolve(args.source)
+    else:
+        source_path = pkg.default_source_ref()
+
+    if not source_path or not os.path.exists(source_path):
+        print(
+            "[ERROR] code=20 message=source missing — approve master_front first or pass --source",
+            file=sys.stderr,
+        )
+        return EXIT_SOURCE_MISSING
+
+    model = args.model or "pro"
+    positive_core = pkg.read_positive_core()
+    negative_core = pkg.read_negative_core()
+    quality_tags = presets.get("global", {}).get("quality_tags", "")
+    global_negative = presets.get("global", {}).get("global_negative", "")
+
+    print(f"Source: {source_path}")
+    print(f"Presets ({len(expand_ids)}): {', '.join(expand_ids)}")
+
+    if args.dry_run:
+        for pid in expand_ids:
+            p = presets["presets"][pid]
+            prompt = assemble_prompt(
+                core=positive_core,
+                instruction=p.get("instruction", ""),
+                style_lock=p.get("style_lock", ""),
+                quality_tags=quality_tags,
+            )
+            print(f"\n[{pid}] denoise={p.get('denoise')} cfg={p.get('cfg')}")
+            print(f"  prompt: {prompt[:160]}...")
+        return EXIT_OK
+
+    success = 0
+    failures = 0
+    job_index = 0
+
+    for pid in expand_ids:
+        preset = presets["presets"][pid]
+        for c in range(1, args.candidates + 1):
+            job_index += 1
+            if args.seed_base is not None:
+                seed = args.seed_base + job_index - 1
+            else:
+                seed = random.randint(1, 1125899906842624)
+
+            instruction = preset.get("instruction", "")
+            # costume.default can override from bible wardrobe
+            if pid == "costume.default":
+                wardrobe = (pkg.bible.get("appearance") or {}).get("wardrobe_default")
+                if wardrobe:
+                    instruction = (
+                        f"same exact person, full body, wearing default wardrobe: {wardrobe}"
+                    )
+            if pid == "costume.alt1":
+                wardrobe = (pkg.bible.get("appearance") or {}).get("wardrobe_alt1")
+                if wardrobe:
+                    instruction = (
+                        f"same exact person, full body, alternate outfit: {wardrobe}"
+                    )
+
+            prompt = assemble_prompt(
+                core=positive_core,
+                instruction=instruction,
+                style_lock=preset.get("style_lock", ""),
+                quality_tags=quality_tags,
+            )
+            negative = assemble_prompt(
+                core=negative_core,
+                instruction=preset.get("negative_extra", ""),
+                style_lock=global_negative,
+            )
+
+            fname = asset_filename(
+                args.id,
+                sheet=preset["sheet"],
+                view=preset["view"],
+                variant=preset["variant"],
+                seed=seed,
+                candidate=c,
+            )
+            out_path = pkg.path("refs", preset["refs_subdir"], fname)
+            meta_path = pkg.path("meta", os.path.splitext(fname)[0] + ".json")
+            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+
+            denoise = float(preset.get("denoise") if preset.get("denoise") is not None else 0.85)
+            cfg = float(preset.get("cfg") if preset.get("cfg") is not None else 3.5)
+
+            print(f"\n=== {pid} c{c} denoise={denoise} seed={seed} ===")
+            result = generate_i2i_image(
+                input_image_path=source_path,
+                prompt_text=prompt,
+                denoise_val=denoise,
+                cfg_val=cfg,
+                model_type=model,
+                output_filename=out_path,
+                seed=seed,
+                negative_text=negative,
+                meta_out=meta_path,
+                timeout_sec=args.timeout,
+            )
+
+            if not result.get("ok"):
+                failures += 1
+                err = result.get("error", "UNKNOWN")
+                print(f"[WARN] failed {pid} c{c}: {err}")
+                if err == "COMFY_UNREACHABLE":
+                    return EXIT_COMFY
+                continue
+
+            meta = result.get("meta") or {}
+            meta.update(
+                {
+                    "character_id": args.id,
+                    "sheet": preset["sheet"],
+                    "view": preset["view"],
+                    "variant": preset["variant"],
+                    "candidate": c,
+                    "preset_id": pid,
+                    "seed": result.get("seed", seed),
+                }
+            )
+            write_meta(meta_path, meta)
+
+            rel_out = os.path.relpath(out_path, pkg.root).replace("\\", "/")
+            rel_meta = os.path.relpath(meta_path, pkg.root).replace("\\", "/")
+            pkg.manifest.setdefault("assets", []).append(
+                {
+                    "path": rel_out,
+                    "meta_path": rel_meta,
+                    "sheet": preset["sheet"],
+                    "view": preset["view"],
+                    "variant": preset["variant"],
+                    "seed": result.get("seed", seed),
+                    "candidate": c,
+                    "preset_id": pid,
+                    "created_at": utc_now_iso(),
+                }
+            )
+            success += 1
+
+    pkg.save_manifest()
+    pkg.append_changelog(f"expand sheets success={success} failures={failures}")
+
+    print(f"\nOK character_id={args.id} success={success} failures={failures}")
+    print("NEXT: character_approve.py 로 좋은 컷을 approved/ 에 승격")
+
+    if success == 0:
+        print("[ERROR] code=30 message=all generations failed", file=sys.stderr)
+        return EXIT_ALL_FAILED
+    if failures and args.strict:
+        return EXIT_PARTIAL
+    if failures:
+        print(f"[WARN] partial={failures}")
+    return EXIT_OK
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -6,6 +6,26 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] Krea 2 Turbo 모델 T2I 워크플로우 신규 추가
+* **작업 에이전트**: Antigravity
+* **작업 목표**: 초고속 12B DiT 오픈소스 모델인 Krea 2 Turbo T2I 파이프라인 구성 및 이미지 검증.
+* **주요 변경 사항**:
+  1. **T2I 워크플로우 저장**: [T2I-krea.json](file:///F:/ComfyUI_workflows/agent_custom/T2I-krea.json) 구축 완료.
+  2. **실행 스크립트 추가**: [generate_krea.py](file:///F:/ComfyUI_workflows/agent_custom/generate_krea.py) 추가 (8-steps, CFG 1.0, euler_ancestral, simple 스케줄러 기본값 탑재).
+  3. **성능 검증 완료**: 사막 위의 미래형 유리 구 이미지([output_krea.png](file:///F:/generated_images/output_krea.png))를 8단계 만에 극상의 디테일로 생성 검증 성공.
+* **상태**: T2I 연동 성공 및 안정화 완료.
+
+### [2026-07-11] Character L2 Soft Factory 구현 (P1+P2)
+* **작업 에이전트**: Grok
+* **작업 목표**: 캐릭터 시트 구현 스펙에 따라 P1(기존 CLI 재현성) + P2(create/expand/approve) 코드 착수·완료.
+* **주요 변경 사항**:
+  1. **`lib/` 공용 모듈**: `comfy_client.py` (UI→API, queue/wait/download, meta), `prompt_assembly.py`, `character_package.py`
+  2. **P1** `generate_moody.py` / `generate_moody_i2i.py`: `--seed`, `--prompt-file`, `--negative(-file)`, `--meta-out`, width/height/steps/cfg(T2I), `--core-prefix/suffix-file`(I2I), dict 반환, timeout
+  3. **P2 CLI**: `character_create.py`, `character_expand_sheets.py`, `character_approve.py` (`sheet_presets.json` SSOT)
+  4. 오프라인 패키지/approve·dry-run 검증 통과. **실 Comfy 생성 E2E는 서버 가동 후 파일럿 `mina_park_v1` 권장**
+* **상태**: L2 도구 코드 사용 가능. 다음: Comfy 켜고 `character_create.py --from-brief-samples` 파일럿 실행 → approve → expand.
+* **활성 트랙**: `CHARACTER_L2_SOFT_FACTORY`
+
 ### [2026-07-11] Z-Image-Turbo 공식 ControlNet (Union 2.1) 연동 워크플로우 추가
 * **작업 에이전트**: Antigravity
 * **작업 목표**: 포즈와 구조적 통제력을 극대화하여 캐릭터 일관성을 유지할 수 있도록 공식 Union 2.1 컨트롤넷 연동 파이프라인 구성.

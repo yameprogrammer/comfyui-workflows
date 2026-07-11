@@ -37,3 +37,9 @@
 * Z-Image-Turbo 전용 Union 2.1 컨트롤넷 모델 파일(`Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors`)은 일반 `controlnet` 폴더가 아닌 **`models/model_patches/`** 폴더에 배치해야 로더가 정상적으로 스캔합니다.
 * 워크플로우 결합 시 프롬프트 Conditioning을 수정하는 표준 `ControlNetApply` 노드는 400 에러를 유발하므로, 모델 자체를 직접 패치하여 KSampler로 전송하는 **`ZImageFunControlnet`** 및 로더용 **`FL_ZImageControlNetPatch`** 노드를 필수적으로 연동해야 합니다.
 * 컨트롤넷 강도는 `0.65 ~ 0.80` 사이를 권장하며, I2I 결합 시 디노이즈 `0.70` 선에서도 완벽한 자세 변환이 수행됨을 명심하십시오.
+
+### Rule 8. Krea 2 Turbo 모델 운용 규정
+* Krea 2 Turbo 모델 파일(`krea2_turbo_int8_convrot.safetensors`)은 `models/diffusion_models/Krea2Turbo/` 폴더에 배치해야 합니다.
+* 텍스트 인코더는 `models/text_encoders/qwen3vl_4b_fp8_scaled.safetensors`를 사용하며, `CLIPLoader` 타입은 반드시 `"krea2"`로 매핑해야 합니다.
+* VAE는 `models/vae/qwen_image_vae.safetensors`를 활용합니다.
+* 샘플링 실행 시 **디노이즈 단계 8 steps**, **CFG 1.0**, **샘플러 `"euler_ancestral"`**, **스케줄러 `"simple"`** 설정을 준수하여 초고속 생성 효율을 보장해 주십시오.
