@@ -60,6 +60,24 @@ def _find_nodes(api_prompt: dict, class_type: str) -> list[str]:
     return [nid for nid, n in api_prompt.items() if n.get("class_type") == class_type]
 
 
+def _snap_dim(n: int, multiple: int = 16) -> int:
+    """Round dimension to nearest multiple (min = multiple). Wan latent needs %16==0."""
+    if n < multiple:
+        return multiple
+    return max(multiple, int(round(n / multiple) * multiple))
+
+
+def _snap_frames(n: int) -> int:
+    """Wan / many video DiTs prefer 4n+1 frame counts (min 9)."""
+    n = max(9, int(n))
+    # nearest 4k+1
+    base = ((n - 1) // 4) * 4 + 1
+    alt = base + 4
+    if abs(alt - n) < abs(base - n):
+        return alt
+    return base
+
+
 def generate_i2v(
     input_image_path: str,
     prompt_text: str,
@@ -107,6 +125,18 @@ def generate_i2v(
     width = int(job["width"])
     height = int(job["height"])
     wf_path = job["workflow_path"]
+
+    # WanVideoSampler fails when latent spatial dims disagree (classic 960x540:
+    # 540 % 16 != 0). Snap both axes; also normalize frame count to 4n+1.
+    orig_w, orig_h, orig_f = width, height, num_frames
+    width = _snap_dim(width, 16)
+    height = _snap_dim(height, 16)
+    num_frames = _snap_frames(num_frames)
+    if (width, height, num_frames) != (orig_w, orig_h, orig_f):
+        print(
+            f"[WARN] I2V snap for Wan: {orig_w}x{orig_h} f={orig_f} "
+            f"-> {width}x{height} f={num_frames} (dims %16, frames 4n+1)"
+        )
 
     if backend_id != "wan22" and not workflow_path:
         # Only wan22 runner path is implemented in this module for now.

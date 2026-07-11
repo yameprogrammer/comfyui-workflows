@@ -59,17 +59,17 @@
   "presets": {
     "work_16x9_360": {
       "width": 640,
-      "height": 360,
+      "height": 368,
       "aspect": "16:9",
       "stage": "work",
-      "notes": "smoke / fastest landscape"
+      "notes": "smoke / fastest landscape; H/W multiple of 16 for Wan"
     },
     "work_16x9_540": {
       "width": 960,
-      "height": 540,
+      "height": 544,
       "aspect": "16:9",
       "stage": "work",
-      "notes": "default work for cinematic_16x9"
+      "notes": "default work for cinematic_16x9; 960x544 (not 540) so H%16==0 for Wan I2V"
     },
     "work_16x9_720": {
       "width": 1280,
@@ -79,25 +79,25 @@
       "notes": "higher quality when VRAM allows"
     },
     "work_9x16_540": {
-      "width": 540,
+      "width": 544,
       "height": 960,
       "aspect": "9:16",
       "stage": "work",
-      "notes": "vertical shorts work"
+      "notes": "vertical shorts work; W multiple of 16 for Wan"
     },
     "work_4x3_540": {
       "width": 720,
-      "height": 540,
+      "height": 544,
       "aspect": "4:3",
       "stage": "work",
-      "notes": "classic 4:3 work (~short edge 540)"
+      "notes": "classic 4:3 work (~short edge 544, multiple of 16)"
     },
     "work_3x4_540": {
-      "width": 540,
+      "width": 544,
       "height": 720,
       "aspect": "3:4",
       "stage": "work",
-      "notes": "portrait 3:4 work"
+      "notes": "portrait 3:4 work; W multiple of 16 for Wan"
     },
     "work_1x1_smoke": {
       "width": 640,
@@ -166,6 +166,22 @@
       "workflow": "i2v_ltx23",
       "strengths": ["fast_iteration", "alt_motion"],
       "notes": "ComfyUI-LTXVideo + local GGUF; workflow not yet in workflows/agent/"
+    },
+    "infinitetalk": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "Wan Multi/InfiniteTalk (WanVideoWrapper)",
+      "workflow": "scripts/generate_s2v.py",
+      "strengths": ["lip_sync", "talking_head", "music_video_vocal_cut"],
+      "notes": "Smoke OK 2026-07-11: I2V 14B Q4 + InfiniTetalk-Single fp16 + Tencent wav2vec HF. Hardlink patch into diffusion_models/Wan2.1/. Prefer re-encoded audio slices."
+    },
+    "wan_s2v": {
+      "status": "planned",
+      "kind": "s2v",
+      "engine": "WanVideo Add S2V Embeds",
+      "workflow": null,
+      "strengths": ["audio_driven_motion"],
+      "notes": "WanVideoAddS2VEmbeds + s2v example jsons in custom_nodes/.../s2v/"
     }
   }
 }
