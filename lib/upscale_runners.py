@@ -143,6 +143,20 @@ def build_esrgan_image_prompt(
     }
 
 
+def _rtx_resize_inputs(width: int, height: int, quality: str = "ULTRA") -> dict:
+    """RTXVideoSuperResolution uses COMFY_DYNAMICCOMBO_V3 for resize_type.
+
+    Flat width/height or nested dict validate poorly / fail at execute.
+    Working API form (verified): dotted subkeys under resize_type.
+    """
+    return {
+        "resize_type": "target dimensions",
+        "resize_type.width": int(width),
+        "resize_type.height": int(height),
+        "quality": quality,
+    }
+
+
 def build_rtx_image_prompt(
     image_name: str,
     width: int,
@@ -150,7 +164,7 @@ def build_rtx_image_prompt(
     quality: str = "ULTRA",
     prefix: str = "agent_upscale",
 ) -> dict:
-    # Dynamic combo: target dimensions mode
+    rtx = _rtx_resize_inputs(width, height, quality)
     return {
         "1": {
             "class_type": "LoadImage",
@@ -160,10 +174,7 @@ def build_rtx_image_prompt(
             "class_type": "RTXVideoSuperResolution",
             "inputs": {
                 "images": ["1", 0],
-                "resize_type": "target dimensions",
-                "width": int(width),
-                "height": int(height),
-                "quality": quality,
+                **rtx,
             },
         },
         "3": {
@@ -236,6 +247,7 @@ def build_rtx_video_prompt(
     quality: str = "ULTRA",
     prefix: str = "agent_upscale_vid",
 ) -> dict:
+    rtx = _rtx_resize_inputs(width, height, quality)
     return {
         "1": {
             "class_type": "VHS_LoadVideoPath",
@@ -254,10 +266,7 @@ def build_rtx_video_prompt(
             "class_type": "RTXVideoSuperResolution",
             "inputs": {
                 "images": ["1", 0],
-                "resize_type": "target dimensions",
-                "width": int(width),
-                "height": int(height),
-                "quality": quality,
+                **rtx,
             },
         },
         "3": {

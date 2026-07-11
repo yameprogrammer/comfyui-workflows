@@ -34,7 +34,11 @@ def main(argv=None) -> int:
         default=None,
         help="deliver tier (default episode default_deliver_tier / deliver_1080)",
     )
-    parser.add_argument("--backend", default=None, help="upscale backend (default seedvr2)")
+    parser.add_argument(
+        "--backend",
+        default=None,
+        help="upscale backend (default: upscale_backends.json default_backend = rtx_vsr)",
+    )
     parser.add_argument("--fps", type=float, default=16.0)
     parser.add_argument("--two-pass", action="store_true")
     parser.add_argument("--no-two-pass", action="store_true")
@@ -76,7 +80,10 @@ def main(argv=None) -> int:
 
     format_id = story.format_id()
     preset = args.preset or story.doc.get("default_deliver_tier") or "deliver_1080"
-    backend = args.backend or "seedvr2"
+    from lib.upscale_backends import load_upscale_backends
+
+    cfg = load_upscale_backends()
+    backend = args.backend or cfg.get("default_backend") or "rtx_vsr"
     two = True if args.two_pass else (False if args.no_two_pass else None)
 
     try:
@@ -149,7 +156,7 @@ def main(argv=None) -> int:
                 upscale_error=result.get("error"),
                 upscale_at=utc_now_iso(),
             )
-            print(f"  FAIL {result.get('error')}")
+            print(f"  FAIL {result.get('error')} {result.get('message') or ''}")
             if args.stop_on_error:
                 break
 

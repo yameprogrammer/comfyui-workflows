@@ -2,7 +2,7 @@
   "version": 1,
   "description": "Image/video upscale SSOT for RTX 4090. Deliver tiers are short-edge only (deliver_1080/1440/2160); pair with episode format aspect from video_backends.json. Legacy deliver_16x9_1080 → deliver_1080 via video_backends.deliver_aliases.",
   "hardware_profile": "rtx4090",
-  "default_backend": "seedvr2",
+  "default_backend": "rtx_vsr",
   "default_preset": "deliver_1080",
   "comfy_python": "F:\\ComfyUI_windows_portable\\python_embeded\\python.exe",
   "seedvr2_cli": "F:\\ComfyUI_windows_portable\\ComfyUI\\custom_nodes\\seedvr2_videoupscaler\\inference_cli.py",
@@ -71,7 +71,7 @@
       "attention_mode": "sdpa",
       "blocks_to_swap": 0,
       "vae_tile_short_edge_threshold": 1440,
-      "notes": "4090 default quality lane (7B FP8)."
+      "notes": "Quality lane only (7B FP8). NOT default — ~1min+/sec of video; use for hero finals, not batch."
     },
     "seedvr2_max": {
       "status": "ready",
@@ -93,10 +93,13 @@
   },
   "heuristics": {
     "preview": "rtx_vsr",
-    "default_delivery": "seedvr2",
-    "hero_or_4k": "seedvr2_max",
+    "default_delivery": "rtx_vsr",
+    "batch_or_episode": "rtx_vsr",
+    "hero_or_4k": "seedvr2",
+    "hero_max_quality": "seedvr2_max",
     "blurry_source": "seedvr2",
-    "clean_source_fast": "rtx_vsr"
+    "clean_source_fast": "rtx_vsr",
+    "notes": "Pilot measured: SeedVR2 CLI ~10min+ for ~12s work@540→1080 (unusable as default). RTX VSR/ESRGAN via Comfy for normal delivery; SeedVR2 opt-in hero only."
   },
   "two_pass_4k": {
     "enabled_default": true,

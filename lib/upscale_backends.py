@@ -192,7 +192,7 @@ def resolve_upscale_job(
     config_path: str | None = None,
 ) -> dict[str, Any]:
     cfg = load_upscale_backends(config_path)
-    backend_id = (backend or cfg.get("default_backend") or "seedvr2").strip()
+    backend_id = (backend or cfg.get("default_backend") or "rtx_vsr").strip()
     be = get_upscale_backend(backend_id, cfg)
     if (be.get("status") or "ready").lower() != "ready":
         raise RuntimeError(f"Upscale backend {backend_id!r} status={be.get('status')}")
