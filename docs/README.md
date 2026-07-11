@@ -16,6 +16,7 @@
 | 7 | [video_delivery_and_backends.md](video_delivery_and_backends.md) | format / work·deliver / I2V 백엔드 |
 | 8 | [upscale_research_and_design.md](upscale_research_and_design.md) | 업스케일 ≤4K |
 | 9 | [delivery_handoff.md](delivery_handoff.md) | 사용자 납품 패키징 (`deliveries/`) |
+| 10 | [commission_workflow.md](commission_workflow.md) | 수주 브리프 → 납품 순서 |
 
 ## 기타
 

@@ -13,5 +13,32 @@ Thumbs.db
 *.jpeg
 *.webp
 *.gif
+*.mp4
+*.zip
 /input/
 /output/
+
+# Episode runtime artifacts (keep templates / examples / schemas)
+stories/**/clips/
+stories/**/keyframes/
+stories/**/exports/
+stories/**/meta/
+stories/**/boards/contact_sheet.png
+# Ignore ad-hoc episode working trees but keep scaffolding dirs
+stories/*
+!stories/_template/
+!stories/_template/**
+!stories/examples/
+!stories/examples/**
+!stories/schemas/
+!stories/schemas/**
+!stories/shot_type_presets.json
+!stories/README.md
+
+deliveries/*
+!deliveries/README.md
+
+# Python
+scripts/__pycache__/
+lib/__pycache__/
+

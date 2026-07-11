@@ -1,0 +1,44 @@
+{
+  "episode_id": "mina_cafe_ep01",
+  "title": "Mina at the Cafe",
+  "logline": "Mina spends a quiet afternoon at her usual cafe.",
+  "format": "cinematic_16x9",
+  "look_id": "cinematic_moody_v1",
+  "default_backend_i2v": "wan22",
+  "default_deliver_tier": "deliver_1080",
+  "default_model": "pro",
+  "characters": ["mina_park_v1"],
+  "locations": ["cafe_seoul_v1"],
+  "shots": [
+    {
+      "shot_id": "S01",
+      "order": 1,
+      "shot_type": "establishing",
+      "duration_sec": 4,
+      "action": "Wide establishing of the wooden cafe interior, empty tables, soft window light",
+      "location_id": "cafe_seoul_v1",
+      "character_ids": [],
+      "motion_prompt": "very subtle ambient light shift, static camera"
+    },
+    {
+      "shot_id": "S02",
+      "order": 2,
+      "shot_type": "medium",
+      "duration_sec": 5,
+      "action": "Mina sits by the window holding a ceramic coffee cup, soft smile",
+      "location_id": "cafe_seoul_v1",
+      "character_ids": ["mina_park_v1"],
+      "motion_prompt": "gentle camera push-in, natural blink, steam from cup"
+    },
+    {
+      "shot_id": "S03",
+      "order": 3,
+      "shot_type": "closeup",
+      "duration_sec": 3,
+      "action": "Close-up of Mina's eyes looking out the window thoughtfully",
+      "location_id": "cafe_seoul_v1",
+      "character_ids": ["mina_park_v1"],
+      "motion_prompt": "subtle eye movement, soft bokeh"
+    }
+  ]
+}

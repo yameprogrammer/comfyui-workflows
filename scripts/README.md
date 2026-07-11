@@ -37,6 +37,8 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `episode_status.py` | 에피소드 진행 상태/다음 액션 | 텍스트 또는 JSON |
 | `episode_contact_sheet.py` | 키프레임 컨택시트 | `boards/contact_sheet.png` |
 | `episode_pipeline.py` | status→…→package 오케스트레이션 | `--run` / `--dry-run` |
+| `commission_start.py` | 브리프 JSON → 에피소드 스캐폴드 | 수주 입구 |
+| `shot_edit.py` | shots.json 샷 생성/수정 | 액션·모션·캐릭터 등 |
 | `generate_krea.py` | Krea T2I | `t2i_krea` |
 | `character_create.py` | 패키지 + 마스터 후보 | t2i |
 | `character_approve.py` | refs → approved 승격 | — |

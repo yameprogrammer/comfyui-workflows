@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EpisodeCommissionBrief",
+  "type": "object",
+  "required": ["episode_id", "format", "shots"],
+  "properties": {
+    "episode_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "title": { "type": "string" },
+    "logline": { "type": "string" },
+    "format": { "type": "string" },
+    "look_id": { "type": "string" },
+    "default_backend_i2v": { "type": "string" },
+    "default_deliver_tier": { "type": "string" },
+    "default_model": { "type": "string" },
+    "characters": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Default character_ids for shots that omit character_ids"
+    },
+    "locations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Known location_ids used in the episode"
+    },
+    "shots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["shot_id", "action"],
+        "properties": {
+          "shot_id": { "type": "string" },
+          "order": { "type": "integer" },
+          "scene_id": { "type": "string" },
+          "duration_sec": { "type": "number" },
+          "shot_type": { "type": "string" },
+          "action": { "type": "string" },
+          "motion_prompt": { "type": "string" },
+          "character_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "location_id": { "type": ["string", "null"] },
+          "camera": { "type": "object" },
+          "dialogue": { "type": "string" },
+          "vo": { "type": "string" }
+        }
+      }
+    }
+  }
+}

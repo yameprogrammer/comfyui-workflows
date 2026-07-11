@@ -6,6 +6,16 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-11] commission_start / shot_edit + deliveries gitignore
+* **작업 에이전트**: Grok
+* **작업 목표**: 수주 브리프 한 장으로 에피소드 스캐폴드; 샷 JSON 패치 CLI; 산출물 gitignore.
+* **주요 변경**:
+  1. `lib/commission.py` + `scripts/commission_start.py`
+  2. `docs/commission_brief.schema.json`, example brief, `docs/commission_workflow.md`
+  3. `scripts/shot_edit.py`
+  4. `.gitignore`: stories/* working trees, deliveries, mp4/zip (templates/examples 유지)
+* **검증**: brief dry-run + real scaffold, shot_edit create/patch
+
 ### [2026-07-11] episode_status / pipeline / contact_sheet
 * **작업 에이전트**: Grok
 * **작업 목표**: 수주 에피소드의 다음 액션 파악 + 단계 오케스트레이션 + 컨택시트.
