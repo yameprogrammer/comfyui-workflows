@@ -65,6 +65,43 @@ def get_backend(backend_id: str, cfg: dict[str, Any] | None = None) -> dict[str,
     return entry
 
 
+def list_s2v_backend_ids(cfg: dict[str, Any] | None = None) -> list[str]:
+    doc = cfg or load_video_backends()
+    out = []
+    for bid, entry in (doc.get("backends") or {}).items():
+        if (entry or {}).get("kind") == "s2v":
+            out.append(bid)
+    return sorted(out)
+
+
+def resolve_s2v_backend(
+    backend_id: str | None = None,
+    *,
+    episode_doc: dict[str, Any] | None = None,
+    cfg: dict[str, Any] | None = None,
+) -> str:
+    """
+    Resolve SI2V backend id.
+
+    Order: explicit → episode default_backend_s2v → video_backends.default_backend_s2v → ltx23_ia2v.
+    """
+    doc = cfg or load_video_backends()
+    if backend_id and str(backend_id).strip():
+        bid = str(backend_id).strip()
+    elif episode_doc and episode_doc.get("default_backend_s2v"):
+        bid = str(episode_doc["default_backend_s2v"]).strip()
+    else:
+        bid = str(doc.get("default_backend_s2v") or "ltx23_ia2v").strip()
+
+    entry = get_backend(bid, doc)
+    if (entry.get("kind") or "i2v") != "s2v":
+        raise ValueError(f"Backend {bid!r} is not kind=s2v")
+    status = (entry.get("status") or "ready").lower()
+    if status not in ("ready", "ok", "active"):
+        raise RuntimeError(f"SI2V backend {bid!r} status={status}")
+    return bid
+
+
 def get_preset(preset_id: str, cfg: dict[str, Any] | None = None) -> dict[str, Any]:
     doc = cfg or load_video_backends()
     presets = doc.get("presets") or {}

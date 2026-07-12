@@ -126,8 +126,8 @@ episode_pipeline … i2v → s2v → upscale …
 
 | 백엔드 ID | 상태 | 엔진 | 비고 |
 |-----------|------|------|------|
-| **`infinitetalk`** | ✅ ready | Wan I2V + InfiniteTalk | 기본. 긴 대화·헤드 안정 튜닝 여지 |
-| **`ltx23_ia2v`** | ✅ ready | LTX 2.3 distilled GGUF + **custom audio** AV latent | 커뮤니티 Custom-Audio IA2V. 클린 VO 스모크 양호 |
+| **`ltx23_ia2v`** | ✅ **default** | LTX 2.3 distilled GGUF + **custom audio** AV latent | 커뮤니티 Custom-Audio. 속도·립 품질 A/B 우세 (2026-07-12) |
+| **`infinitetalk`** | ✅ ready | Wan I2V + InfiniteTalk | 긴 대화·대안 경로 |
 | `ltx23_lipdub` | ⬜ blocked | LTX IC-LoRA LipDub (V2V) | 공식 립더빙. **gated HF** `…ic-lora-lipdub-0.9` 미보유 |
 | `wan_s2v` | ⬜ planned | WanVideoAddS2VEmbeds | — |
 
@@ -191,18 +191,19 @@ python scripts/generate_s2v.py --backend ltx23_ia2v   -i face.png -a drive.wav -
 }
 ```
 
-준비 파이프 (뮤비):
+준비 파이프 (뮤비) — **권장 원샷**:
 
 ```bash
-# 1) master 에서 보컬 구간 슬라이스
-python scripts/audio_slice.py -i audio/masters/track.wav --start 38 --duration 4 \
-  -e <ep> --stem exports --name chorus_A_raw
-# 2) 립 드라이빙용 보컬 강조 (풀 믹스면 center_voicey; 분리 stem 있으면 copy)
-python scripts/audio_prepare_driving.py -i …/chorus_A_raw.wav -m center_voicey \
-  -e <ep> --name chorus_A_vocal
-# 3) 샷 motion_driver=si2v + audio_refs.driving → episode_s2v
-python scripts/episode_s2v.py -e <ep> --shots S07 --prepare-mode center_voicey
+# master 구간 → prepare → 샷에 si2v + driving 바인딩
+python scripts/audio_bind_driving.py -e <ep> --shot S07 \
+  --start 38 --duration 4 --prepare-mode center_voicey \
+  --motion "singing to camera, natural lip motion, cinematic music video"
+
+python scripts/episode_s2v.py -e <ep> --shots S07
+# 기본 백엔드 ltx23_ia2v; 대안: --backend infinitetalk
 ```
+
+수동 단계(슬라이스/prep 분리)도 가능: `audio_slice` + `audio_prepare_driving` + `shot_edit`.
 
 - `dialogue` / `vo` / `sfx` / `music_cue`: **서술·큐 텍스트** (사람·에이전트 가독)  
 - `audio_refs.driving`: **립을 움직일 실제 음원** (대사 wav **또는** 뮤비 보컬/슬라이스 — 역할 동일)

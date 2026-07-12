@@ -6,6 +6,13 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] SI2V 기본=LTX + 뮤비 driving 바인딩 CLI
+* **작업 에이전트**: Grok
+* **default_backend_s2v** = `ltx23_ia2v` (`video_backends.json`, generate/episode_s2v 기본)
+* **`audio_bind_driving.py`**: master 슬라이스 → prepare → `motion_driver=si2v` + `audio_refs.driving` 원샷
+* **episode_status**: si2v/i2v 구분 next_action (`audio_bind_driving` / `episode_s2v` / `episode_i2v`)
+* **검증**: bind dry-run + episode_status 표
+
 ### [2026-07-12] LTX 2.3 IA2V 백엔드 연동 + IT A/B
 * **작업 에이전트**: Grok
 * **인벤토리**: ComfyUI-LTXVideo, GGUF distilled/dev Q4, LTX23 audio/video VAE, gemma, distilled-lora-384 ✅  

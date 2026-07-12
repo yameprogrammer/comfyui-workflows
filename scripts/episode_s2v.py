@@ -19,7 +19,7 @@ from generate_s2v import generate_s2v
 from lib.audio_package import materialize_driving_audio, shot_motion_driver
 from lib.comfy_client import utc_now_iso
 from lib.story_package import StoryPackage, validate_episode_id
-from lib.video_backends import get_preset, load_video_backends
+from lib.video_backends import get_preset, load_video_backends, resolve_s2v_backend
 
 EXIT_OK = 0
 EXIT_USAGE = 2
@@ -171,7 +171,11 @@ def main(argv=None) -> int:
         )
         return EXIT_NONE
 
-    backend = args.backend or story.doc.get("default_backend_s2v") or "infinitetalk"
+    try:
+        backend = resolve_s2v_backend(args.backend, episode_doc=story.doc)
+    except (KeyError, ValueError, RuntimeError) as e:
+        print(f"[ERROR] code=2 s2v backend: {e}", file=sys.stderr)
+        return EXIT_USAGE
     print(
         f"episode_s2v episode={args.episode} backend={backend} "
         f"shots={len(selected)} skipped={len(skipped)} "

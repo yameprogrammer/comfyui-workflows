@@ -37,7 +37,9 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `audio_status.py` | production_mode / stems / si2v 준비도 | 설계: docs/audio_motion_production_modes.md |
 | `audio_slice.py` | 마스터 음원 구간 추출 → stems | 뮤비/SI2V 준비 |
 | `audio_prepare_driving.py` | SI2V 드라이빙 stem (center/voicey/vocal_band) | MelBand 없을 때 FFmpeg 폴백 |
-| `generate_s2v.py` | SI2V InfiniteTalk live runner | `video_backends.infinitetalk` |
+| `audio_bind_driving.py` | 마스터 슬라이스+prep → 샷 `si2v` + `audio_refs.driving` | 뮤비 보컬 컷 1-shot |
+| `generate_s2v.py` | SI2V multi-backend (`ltx23_ia2v` 기본, `infinitetalk`) | `video_backends.default_backend_s2v` |
+| `episode_s2v.py` | approved `si2v` 샷 배치 | → `clips/work/*_s2v.mp4` |
 | `package_delivery.py` | 사용자 납품 폴더+zip | → `deliveries/<ep>__<stamp>/` |
 | `episode_status.py` | 에피소드 진행 상태/다음 액션 | 텍스트 또는 JSON |
 | `episode_contact_sheet.py` | 키프레임 컨택시트 | `boards/contact_sheet.png` |

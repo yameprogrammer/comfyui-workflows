@@ -82,6 +82,11 @@ def main(argv=None) -> int:
         default="center_voicey",
         help="SI2V driving audio prep mode (default center_voicey)",
     )
+    parser.add_argument(
+        "--s2v-backend",
+        default=None,
+        help="SI2V backend (default episode / video_backends default_backend_s2v = ltx23_ia2v)",
+    )
     parser.add_argument("--upscale-backend", default=None)
     parser.add_argument("--upscale-preset", default=None)
     parser.add_argument("--assemble-stage", choices=["auto", "work", "deliver"], default="auto")
@@ -174,6 +179,8 @@ def main(argv=None) -> int:
                 "--prepare-mode",
                 args.s2v_prepare_mode,
             ]
+            if args.s2v_backend:
+                argv2.extend(["--backend", args.s2v_backend])
             if args.dry_run:
                 argv2.append("--dry-run")
             if stop:

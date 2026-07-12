@@ -7,7 +7,7 @@
   "default_motion_driver": "i2v",
   "default_fps": 24,
   "default_backend_i2v": "wan22",
-  "default_backend_s2v": null,
+  "default_backend_s2v": "ltx23_ia2v",
   "default_work_preset": null,
   "default_deliver_tier": "deliver_1080",
   "default_model": "pro",

@@ -106,7 +106,9 @@ agent_custom/
   - SI2V는 스토리 전용이 아님. I2V만으로 립싱크 때우지 말 것.
 * 뮤비 최종 오디오 = **music master** (`music_locked`). SI2V driving 슬라이스는 모션용; 클립 오디오로 원곡을 대체하지 말 것.
 * 조립 = `mix_policy` + stems (`audio/masters|music|dialogue|vo|sfx`). SSOT: [docs/audio_motion_production_modes.md](docs/audio_motion_production_modes.md).
-* CLI: `audio_status.py`, `audio_prepare_driving.py`, `episode_s2v.py`, `assemble_video.py --mix-policy …`.
+* SI2V 기본 백엔드 = **`ltx23_ia2v`** (`video_backends.default_backend_s2v`). InfiniteTalk는 opt-in.
+* 뮤비 보컬 컷 바인딩: `audio_bind_driving.py -e <ep> --shot S0x --start … --duration …`
+* CLI: `audio_status.py`, `audio_prepare_driving.py`, `audio_bind_driving.py`, `episode_s2v.py`, `assemble_video.py --mix-policy …`.
 
 ### Rule 8. Z-Image-Turbo ControlNet (Union 2.1)
 * 모델 파일은 `models/model_patches/` (`controlnet` 폴더 아님).
