@@ -313,14 +313,28 @@ python scripts/episode_pipeline.py -e EP --run --from s2v --to s2v --profile her
 - [x] 문서화 (본 절)  
 - [x] profile 재정의: preview / deliver=LTX, hero=IT  
 - [x] IT 호출 시 steps/fps/long_edge 기본 완화  
-- [ ] 샷 단위 타이밍 로그 (`meta/*_s2v.json`에 `elapsed_sec`)  
+- [x] 샷 단위 타이밍 로그 (`elapsed_sec` on success)  
+- [x] **lightx2v LoRA + TeaCache API 배선** (`generate_s2v` InfiniteTalk, default on)  
 - [ ] 대사 권장 최대 초 정책 (TTS/QA 경고)  
-- [ ] lightx2v 그래프 배선 스모크 (별도 PR, Comfy 주의)
+- [ ] hero 스모크 실측 (8step+LoRA+TeaCache vs 20step 베이스라인)
 
-### 10.6 로컬 가속 자산 (배선 대기)
+### 10.6 InfiniteTalk 가속 (구현됨)
+
+| 플래그 | 기본 | 효과 |
+|--------|------|------|
+| lightx2v distill LoRA | **ON** | steps → 8 (cfg=1) |
+| `WanVideoTeaCache` | **ON** | step 캐시 가속 |
+| hero: 832 / 16fps / 8step | profile | 픽셀·프레임 수 감소 |
+| `--no-speed` / `--no-teacache` | off | 풀퀄 회귀용 |
 
 ```
-ComfyUI/models/loras/Wan2.1/Wan21_I2V_14B_lightx2v_cfg_step_distill_lora_rank64.safetensors
+loras/Wan2.1/Wan21_I2V_14B_lightx2v_cfg_step_distill_lora_rank64.safetensors
 ```
 
-→ InfiniteTalk `WanVideoModelLoader` 경로에 LoRA 연결 시 4–8 step 실험 가능. **지금은 연결하지 않음.**
+```bash
+# hero 빠름 (기본 가속)
+python scripts/episode_s2v.py -e EP --shots S03 --backend infinitetalk
+
+# 예전 느린 풀퀄
+python scripts/episode_s2v.py -e EP --shots S03 --backend infinitetalk --no-speed --no-teacache --steps 20 --fps 25 --long-edge 960
+```

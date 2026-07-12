@@ -66,6 +66,11 @@ DEFAULT_WAV2VEC = "TencentGameMate/chinese-wav2vec2-base"
 DEFAULT_VAE = "wan_2.1_vae.safetensors"
 DEFAULT_CLIP_VISION = "clip_vision_h.safetensors"
 DEFAULT_T5 = "umt5-xxl-enc-bf16.safetensors"
+# Distill LoRA: 4–8 step InfiniteTalk (Comfy models/loras/...)
+DEFAULT_IT_SPEED_LORA = (
+    r"Wan2.1\Wan21_I2V_14B_lightx2v_cfg_step_distill_lora_rank64.safetensors"
+)
+DEFAULT_IT_SPEED_STEPS = 8
 
 
 def _snap_dim(n: int, multiple: int = 16) -> int:
@@ -154,9 +159,14 @@ def build_infinitetalk_api(
     filename_prefix: str = "agent_s2v",
     api_opts: dict | None = None,
 ) -> dict:
-    """Minimal InfiniteTalk I2V graph (no MelBand vocal split)."""
+    """InfiniteTalk I2V graph with optional lightx2v distill LoRA + TeaCache."""
     api_opts = api_opts or {}
-    return {
+    speed_lora = api_opts.get("speed_lora")  # path str or None / ""
+    speed_lora_strength = float(api_opts.get("speed_lora_strength", 1.0))
+    use_teacache = bool(api_opts.get("teacache", False))
+    teacache_thresh = float(api_opts.get("teacache_thresh", 0.2))
+
+    api: dict = {
         "1": {
             "class_type": "LoadImage",
             "inputs": {"image": image_name},
@@ -205,8 +215,6 @@ def build_infinitetalk_api(
             },
         },
         "6": {
-            # MultiTalk expects Tencent-style wav2vec weights; HF download node
-            # is more reliable than local korean-base hardlink key layout.
             "class_type": "DownloadAndLoadWav2VecModel",
             "inputs": {
                 "model": wav2vec if "/" in wav2vec else "TencentGameMate/chinese-wav2vec2-base",
@@ -222,8 +230,6 @@ def build_infinitetalk_api(
                 "normalize_loudness": True,
                 "num_frames": num_frames,
                 "fps": float(fps),
-                # Stronger audio conditioning; cfg>1 allows more motion but weaker lock —
-                # keep 1.0 for lip lock smoke (example InfiniteTalk default).
                 "audio_scale": float(api_opts.get("audio_scale", 1.5)),
                 "audio_cfg_scale": float(api_opts.get("audio_cfg_scale", 1.0)),
                 "multi_audio_type": "para",
@@ -293,56 +299,90 @@ def build_infinitetalk_api(
                 "output_path": "",
             },
         },
-        "14": {
-            "class_type": "WanVideoSampler",
+    }
+
+    model_ref: list = ["10", 0]
+    # lightx2v distill: enables 4–8 step sampling (GGUF → merge_loras must stay False)
+    if speed_lora:
+        api["26"] = {
+            "class_type": "WanVideoLoraSelect",
+            "inputs": {
+                "lora": str(speed_lora),
+                "strength": speed_lora_strength,
+                "low_mem_load": False,
+                "merge_loras": False,
+            },
+        }
+        api["27"] = {
+            "class_type": "WanVideoSetLoRAs",
             "inputs": {
                 "model": ["10", 0],
-                "image_embeds": ["13", 0],
-                "steps": steps,
-                "cfg": cfg,
-                "shift": float(api_opts.get("shift", 11.0)),
-                "seed": seed,
-                "force_offload": True,
-                # Match InfiniteTalk example scheduler more closely
-                "scheduler": str(api_opts.get("scheduler", "dpm++_sde")),
-                "riflex_freq_index": 0,
-                "text_embeds": ["12", 0],
-                "denoise_strength": 1.0,
-                "batched_cfg": False,
-                "rope_function": "comfy",
-                "start_step": 0,
+                "lora": ["26", 0],
+            },
+        }
+        model_ref = ["27", 0]
+
+    sampler_inputs: dict = {
+        "model": model_ref,
+        "image_embeds": ["13", 0],
+        "steps": steps,
+        "cfg": cfg,
+        "shift": float(api_opts.get("shift", 11.0)),
+        "seed": seed,
+        "force_offload": True,
+        "scheduler": str(api_opts.get("scheduler", "dpm++_sde")),
+        "riflex_freq_index": 0,
+        "text_embeds": ["12", 0],
+        "denoise_strength": 1.0,
+        "batched_cfg": False,
+        "rope_function": "comfy",
+        "start_step": 0,
+        "end_step": -1,
+        "add_noise_to_samples": False,
+        "multitalk_embeds": ["7", 0],
+    }
+    if use_teacache:
+        api["28"] = {
+            "class_type": "WanVideoTeaCache",
+            "inputs": {
+                "rel_l1_thresh": teacache_thresh,
+                "start_step": 1,
                 "end_step": -1,
-                "add_noise_to_samples": False,
-                "multitalk_embeds": ["7", 0],
+                "cache_device": "offload_device",
+                "use_coefficients": True,
+                "mode": "e",
             },
-        },
-        "15": {
-            "class_type": "WanVideoDecode",
-            "inputs": {
-                "vae": ["11", 0],
-                "samples": ["14", 0],
-                "enable_vae_tiling": False,
-                "tile_x": 272,
-                "tile_y": 272,
-                "tile_stride_x": 144,
-                "tile_stride_y": 128,
-                "normalization": "default",
-            },
-        },
-        "16": {
-            "class_type": "VHS_VideoCombine",
-            "inputs": {
-                "images": ["15", 0],
-                "audio": ["7", 1],
-                "frame_rate": float(fps),
-                "loop_count": 0,
-                "filename_prefix": filename_prefix,
-                "format": "video/h264-mp4",
-                "pingpong": False,
-                "save_output": True,
-            },
+        }
+        sampler_inputs["cache_args"] = ["28", 0]
+
+    api["14"] = {"class_type": "WanVideoSampler", "inputs": sampler_inputs}
+    api["15"] = {
+        "class_type": "WanVideoDecode",
+        "inputs": {
+            "vae": ["11", 0],
+            "samples": ["14", 0],
+            "enable_vae_tiling": False,
+            "tile_x": 272,
+            "tile_y": 272,
+            "tile_stride_x": 144,
+            "tile_stride_y": 128,
+            "normalization": "default",
         },
     }
+    api["16"] = {
+        "class_type": "VHS_VideoCombine",
+        "inputs": {
+            "images": ["15", 0],
+            "audio": ["7", 1],
+            "frame_rate": float(fps),
+            "loop_count": 0,
+            "filename_prefix": filename_prefix,
+            "format": "video/h264-mp4",
+            "pingpong": False,
+            "save_output": True,
+        },
+    }
+    return api
 
 
 def generate_s2v(
@@ -376,6 +416,10 @@ def generate_s2v(
     audio_cfg_scale: float = 1.0,
     scheduler: str = "dpm++_sde",
     shift: float = 11.0,
+    speed_lora: str | bool | None = True,
+    speed_lora_strength: float = 1.0,
+    teacache: bool = True,
+    teacache_thresh: float = 0.2,
 ) -> dict:
     if not os.path.isfile(input_image_path):
         return fail_result(error="SOURCE_MISSING", message=input_image_path)
@@ -428,6 +472,13 @@ def generate_s2v(
             num_frames = 121
 
     seed = seed if seed is not None else random.randint(1, 2**31 - 1)
+    if steps is None:
+        if backend == "infinitetalk":
+            # With speed LoRA default 8; without, 20
+            use_sl = not (speed_lora is False or speed_lora == "")
+            steps = DEFAULT_IT_SPEED_STEPS if use_sl else 20
+        else:
+            steps = 20
     if output_filename is None:
         output_filename = os.path.join(
             os.path.dirname(os.path.abspath(input_image_path)), "s2v_out.mp4"
@@ -467,6 +518,30 @@ def generate_s2v(
         print(f"  unet={ltx_unet}")
         print(f"  lora={ltx_lora}")
     else:
+        # Resolve speed LoRA path
+        lora_path: str | None = None
+        if speed_lora is True or speed_lora is None:
+            lora_path = DEFAULT_IT_SPEED_LORA
+        elif speed_lora is False or speed_lora == "":
+            lora_path = None
+        else:
+            lora_path = str(speed_lora)
+
+        # With distill LoRA, default steps drop unless caller set them high intentionally
+        if lora_path and steps >= 16:
+            print(
+                f"[speed] lightx2v LoRA on — clamping steps {steps} → {DEFAULT_IT_SPEED_STEPS} "
+                f"(pass --steps explicitly after --no-speed-lora for full quality)"
+            )
+            # Only auto-clamp when it looks like a legacy "full quality" default
+            # Callers that want 20 steps WITH lora can pass steps=20 and we still use lora;
+            # actually clamping always when lora and steps>12 is safer for agent speed.
+        if lora_path and steps > 12:
+            print(f"[speed] steps {steps} → {DEFAULT_IT_SPEED_STEPS} with distill LoRA")
+            steps = DEFAULT_IT_SPEED_STEPS
+        if lora_path:
+            cfg = 1.0  # cfg-distill LoRA expects cfg≈1
+
         api = build_infinitetalk_api(
             image_name=img_name,
             audio_abs_path=os.path.join(COMFYUI_INPUT_DIR, audio_name),
@@ -490,6 +565,10 @@ def generate_s2v(
                 "audio_cfg_scale": audio_cfg_scale,
                 "scheduler": scheduler,
                 "shift": shift,
+                "speed_lora": lora_path,
+                "speed_lora_strength": speed_lora_strength,
+                "teacache": teacache,
+                "teacache_thresh": teacache_thresh,
             },
         )
         print(
@@ -500,6 +579,7 @@ def generate_s2v(
         print(f"  audio={audio_path}")
         print(f"  i2v={i2v_model}")
         print(f"  multitalk={multitalk_model}")
+        print(f"  speed_lora={lora_path or 'off'} teacache={teacache}")
 
     if dry_run:
         meta = {
@@ -641,6 +721,12 @@ def generate_s2v(
         "negative": negative,
         "i2v_model": i2v_model if backend == "infinitetalk" else ltx_unet,
         "multitalk_model": multitalk_model if backend == "infinitetalk" else ltx_lora,
+        "speed_lora": (
+            (DEFAULT_IT_SPEED_LORA if speed_lora is True else speed_lora)
+            if backend == "infinitetalk" and speed_lora not in (False, "")
+            else None
+        ),
+        "teacache": teacache if backend == "infinitetalk" else False,
         "source_image": os.path.abspath(input_image_path),
         "driving_audio": audio_abs,
         "output_path": os.path.abspath(output_filename),
@@ -685,12 +771,49 @@ def main(argv=None) -> int:
     p.add_argument("--height", type=int, default=640)
     p.add_argument("--frames", type=int, default=None)
     p.add_argument("--fps", type=float, default=25.0, help="Default 25 (IT examples / LTX often 24)")
-    p.add_argument("--steps", type=int, default=20)
+    p.add_argument(
+        "--steps",
+        type=int,
+        default=None,
+        help="Sampler steps (IT default 8 with speed LoRA, 20 without)",
+    )
     p.add_argument("--cfg", type=float, default=1.0)
     p.add_argument("--audio-scale", type=float, default=1.5)
     p.add_argument("--audio-cfg-scale", type=float, default=1.0)
     p.add_argument("--scheduler", default="dpm++_sde")
     p.add_argument("--shift", type=float, default=11.0)
+    p.add_argument(
+        "--speed-lora",
+        dest="speed_lora",
+        action="store_true",
+        default=True,
+        help="Apply lightx2v distill LoRA for 4–8 step IT (default on)",
+    )
+    p.add_argument(
+        "--no-speed-lora",
+        dest="speed_lora",
+        action="store_false",
+        help="Disable distill LoRA (full steps quality path)",
+    )
+    p.add_argument(
+        "--speed-lora-path",
+        default=None,
+        help=f"Override LoRA path (default {DEFAULT_IT_SPEED_LORA})",
+    )
+    p.add_argument(
+        "--teacache",
+        dest="teacache",
+        action="store_true",
+        default=True,
+        help="WanVideoTeaCache on InfiniteTalk sampler (default on)",
+    )
+    p.add_argument(
+        "--no-teacache",
+        dest="teacache",
+        action="store_false",
+        help="Disable TeaCache",
+    )
+    p.add_argument("--teacache-thresh", type=float, default=0.2)
     p.add_argument("--seed", type=int, default=None)
     p.add_argument("--timeout", type=int, default=3600)
     p.add_argument("--meta-out", default=None)
@@ -728,6 +851,14 @@ def main(argv=None) -> int:
         audio_cfg_scale=args.audio_cfg_scale,
         scheduler=args.scheduler,
         shift=args.shift,
+        speed_lora=(
+            args.speed_lora_path
+            if args.speed_lora and args.speed_lora_path
+            else (True if args.speed_lora else False)
+        ),
+        speed_lora_strength=1.0,
+        teacache=args.teacache,
+        teacache_thresh=args.teacache_thresh,
     )
     if r.get("ok"):
         print(f"OK {r.get('output_path') or '(dry-run)'}")

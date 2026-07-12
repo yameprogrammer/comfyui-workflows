@@ -69,13 +69,15 @@ PROFILES = {
         "s2v_prepare_mode": "center_voicey",
         "s2v_square": False,
         "s2v_audio_scale": 2.0,
-        # Speed knobs without Comfy graph edits (lightx2v wire still deferred)
+        # lightx2v distill + TeaCache + mild canvas (see generate_s2v speed path)
         "s2v_fps": 16.0,
-        "s2v_steps": 12,
+        "s2v_steps": 8,
         "s2v_long_edge": 832,
+        "s2v_speed": True,
+        "s2v_teacache": True,
         "assemble_stage": "work",
         "qa_strict": True,
-        "notes": "InfiniteTalk lips for 1–2 hero CU; 832/16fps/12step. Still minutes/cut — do not batch all shots.",
+        "notes": "InfiniteTalk + lightx2v 8step + TeaCache; 832/16fps. Hero CU only.",
     },
 }
 
@@ -268,6 +270,10 @@ def main(argv=None) -> int:
                 argv2.append("--square")
             else:
                 argv2.append("--no-square")
+            if not profile.get("s2v_speed", True) and profile.get("s2v_backend") == "infinitetalk":
+                argv2.append("--no-speed")
+            if not profile.get("s2v_teacache", True) and profile.get("s2v_backend") == "infinitetalk":
+                argv2.append("--no-teacache")
             if args.dry_run:
                 argv2.append("--dry-run")
             if stop:

@@ -161,6 +161,16 @@ def main(argv=None) -> int:
         default=None,
         help="InfiniteTalk audio_scale (default 1.5 LTX path / 2.0 IT)",
     )
+    parser.add_argument(
+        "--no-speed",
+        action="store_true",
+        help="InfiniteTalk: disable lightx2v distill LoRA (full quality, slow)",
+    )
+    parser.add_argument(
+        "--no-teacache",
+        action="store_true",
+        help="InfiniteTalk: disable WanVideoTeaCache",
+    )
     parser.add_argument("--timeout", type=int, default=3600)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument(
@@ -230,17 +240,21 @@ def main(argv=None) -> int:
         print(f"[ERROR] code=2 s2v backend: {e}", file=sys.stderr)
         return EXIT_USAGE
 
-    # Backend-aware speed defaults (no Comfy graph edits).
+    # Backend-aware speed defaults (IT uses lightx2v+TeaCache by default in generate_s2v).
     if backend == "infinitetalk":
         fps = float(args.fps if args.fps is not None else 16.0)
-        steps = int(args.steps if args.steps is not None else 12)
+        steps = int(args.steps if args.steps is not None else 8)
         audio_scale = float(args.audio_scale if args.audio_scale is not None else 2.0)
         long_edge = int(args.long_edge if args.long_edge is not None else 832)
+        it_speed = not getattr(args, "no_speed", False)
+        it_teacache = not getattr(args, "no_teacache", False)
     else:
         fps = float(args.fps if args.fps is not None else 25.0)
         steps = int(args.steps if args.steps is not None else 20)
         audio_scale = float(args.audio_scale if args.audio_scale is not None else 1.5)
         long_edge = int(args.long_edge if args.long_edge is not None else 960)
+        it_speed = False
+        it_teacache = False
 
     print(
         f"episode_s2v episode={args.episode} backend={backend} "
@@ -342,6 +356,8 @@ def main(argv=None) -> int:
             timeout_sec=args.timeout,
             meta_out=meta_path,
             dry_run=False,
+            speed_lora=it_speed,
+            teacache=it_teacache if backend == "infinitetalk" else False,
         )
         elapsed = _time.time() - t0
 
