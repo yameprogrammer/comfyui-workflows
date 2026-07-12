@@ -479,6 +479,81 @@ def _driving_af_chain(mode: str) -> str | None:
     )
 
 
+def normalize_clip_audio(
+    input_path: str,
+    output_path: str | None = None,
+    *,
+    sample_rate: int = 48000,
+    stereo: bool = True,
+    loudnorm: bool = False,
+    audio_bitrate: str = "192k",
+    timeout_sec: float = 600,
+) -> dict[str, Any]:
+    """
+    Re-encode clip audio for player compatibility.
+
+    InfiniteTalk/VHS often emits 16 kHz mono AAC, which some Windows players
+    treat as silent. Default remux keeps video stream, AAC 48 kHz stereo.
+    """
+    if not os.path.isfile(input_path):
+        return {"ok": False, "error": "CLIP_MISSING", "message": input_path}
+    out = output_path or input_path
+    parent = os.path.dirname(os.path.abspath(out))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+
+    # Write via temp if in-place
+    tmp_out = out
+    in_place = os.path.abspath(out) == os.path.abspath(input_path)
+    if in_place:
+        fd, tmp_out = tempfile.mkstemp(suffix=".mp4", prefix="norm_audio_")
+        os.close(fd)
+
+    af_parts: list[str] = []
+    if loudnorm:
+        af_parts.append("loudnorm=I=-16:TP=-1.5:LRA=11")
+    args: list[str] = ["-i", input_path, "-c:v", "copy"]
+    if af_parts:
+        args.extend(["-af", ",".join(af_parts)])
+    args.extend(
+        [
+            "-c:a",
+            "aac",
+            "-ar",
+            str(int(sample_rate)),
+            "-ac",
+            "2" if stereo else "1",
+            "-b:a",
+            audio_bitrate,
+            "-movflags",
+            "+faststart",
+            tmp_out,
+        ]
+    )
+    result = run_ffmpeg(args, timeout_sec=timeout_sec)
+    if not result.get("ok"):
+        if in_place and os.path.isfile(tmp_out):
+            try:
+                os.remove(tmp_out)
+            except OSError:
+                pass
+        return result
+    if in_place:
+        try:
+            os.replace(tmp_out, out)
+        except OSError:
+            shutil.copy2(tmp_out, out)
+            try:
+                os.remove(tmp_out)
+            except OSError:
+                pass
+    result["output_path"] = os.path.abspath(out)
+    result["sample_rate"] = int(sample_rate)
+    result["channels"] = 2 if stereo else 1
+    result["loudnorm"] = bool(loudnorm)
+    return result
+
+
 def prepare_driving_audio(
     input_path: str,
     output_path: str,

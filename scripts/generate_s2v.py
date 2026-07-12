@@ -40,6 +40,7 @@ from lib.comfy_client import (
     utc_now_iso,
     write_meta,
 )
+from lib.ffmpeg_util import normalize_clip_audio
 from lib.ltx_s2v import (
     DEFAULT_DISTILL_LORA,
     DEFAULT_UNET_GGUF,
@@ -604,6 +605,23 @@ def generate_s2v(
         candidates.sort(reverse=True)
         shutil.copy2(candidates[0][1], output_filename)
         print(f"Copied newest: {candidates[0][1]}")
+
+    # Comfy often writes 16 kHz mono AAC (InfiniteTalk/VHS) — many Windows players
+    # appear silent. Re-encode to 48 kHz stereo AAC for preview compatibility.
+    try:
+        nr = normalize_clip_audio(
+            output_filename,
+            loudnorm=(backend == "ltx23_ia2v"),
+        )
+        if nr.get("ok"):
+            print(
+                f"Audio normalized: {nr.get('sample_rate')}Hz "
+                f"ch={nr.get('channels')} loudnorm={nr.get('loudnorm')}"
+            )
+        else:
+            print(f"[WARN] audio normalize skipped: {nr.get('error')} {nr.get('message')}")
+    except Exception as e:
+        print(f"[WARN] audio normalize failed: {e}")
 
     meta = {
         "mode": "s2v",
