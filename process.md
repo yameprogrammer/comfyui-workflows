@@ -77,6 +77,14 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] ACE-Step BGM 도구화
+* **작업 에이전트**: Grok
+* **엔진**: 사용자 WF `audio_ace_step1_5_xl_turbo.json` → API 그래프
+* **CLI**: `generate_bgm.py`, `episode_bgm.py` (기본 instrumental)
+* **문서**: `docs/ace_step_bgm_pipeline.md`
+* **폴백**: SoniloTextToMusic
+* **주의**: ACE 가중치 `ACESTEP1.5/` 미설치 시 다운로드 필요 (노드·WF는 존재)
+
 ### [2026-07-12] Qwen3-TTS 도구화 + LTX/SI2V 연동 설계
 * **작업 에이전트**: Grok
 * **리서치**: Qwen3 CustomVoice/VoiceDesign/Clone; Comfy FB nodes; 커뮤니티 Qwen3-TTS+LTX talking avatar; LTX audio-cond I2V

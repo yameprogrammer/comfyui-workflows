@@ -70,8 +70,11 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `storyboard_export.py` | 보드 contact + inventory | 사람 게이트용 패키지 |
 | `shot_approve.py` | keyframe_status 승격 | draft→approved |
 | `episode_i2v.py` | approved 키프레임→영상 | motion-only 프롬프트 |
-| `generate_qwen3_tts.py` | 대사/VO TTS | Qwen3 custom/design/clone |
-| `episode_tts.py` | 샷 dialogue TTS + SI2V bind | → episode_s2v driving |
+| `generate_qwen3_tts.py` | 대사/VO TTS | custom/design/clone + temp/top-p 튜닝 |
+| `voice_register.py` | 클론 보이스 등록 | `voices/<id>/` (본인·타인 샘플) |
+| `episode_tts.py` | 샷 dialogue TTS + SI2V bind | `--voice-id` / custom → episode_s2v |
+| `generate_bgm.py` | BGM 생성 | ACE-Step 1.5 turbo (or Sonilo) |
+| `episode_bgm.py` | 에피소드 music stem | `audio/music/` + shots.json audio.bgm |
 | `generate_moody_i2i_ipadapter.py` | I2I + IP-Adapter face | C identity |
 | `generate_moody_i2i_lock.py` | I2I identity-strong (폴백) | C identity |
 | `look_create.py` | Style Core 룩 패키지 생성 | looks/ |

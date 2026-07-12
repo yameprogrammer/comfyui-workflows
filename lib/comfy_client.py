@@ -157,6 +157,15 @@ def queue_prompt(server_address: str, api_prompt: dict) -> str:
         with urllib.request.urlopen(req, timeout=30) as response:
             res_data = json.loads(response.read().decode("utf-8"))
             return res_data["prompt_id"]
+    except urllib.error.HTTPError as e:
+        body = ""
+        try:
+            body = e.read().decode("utf-8", errors="replace")[:2000]
+        except Exception:
+            pass
+        raise ConnectionError(
+            f"ComfyUI HTTP {e.code} at {server_address}: {e.reason}. {body}"
+        ) from e
     except urllib.error.URLError as e:
         raise ConnectionError(f"ComfyUI unreachable at {server_address}: {e}") from e
 
