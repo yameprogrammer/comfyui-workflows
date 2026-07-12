@@ -13,8 +13,12 @@
 | `i2v_wan22_a14b` | `I2V-wan22-a14b.json` | `scripts/generate_i2v.py` (default) |
 | `t2i_krea` | `T2I-krea.json` | `scripts/generate_krea.py` |
 | `t2i_z_image_turbo` | `T2I-z-image-turbo.json` | (베이스/참고) |
+| *(SI2V InfiniteTalk)* | **JSON 없음 — API inject** | `scripts/generate_s2v.py` / `episode_s2v.py` |
 
 별칭·파일 매핑은 [catalog.json](catalog.json) 이 코드와 공유하는 SSOT입니다.
+
+SI2V는 WanVideoWrapper 노드 그래프를 `generate_s2v.build_infinitetalk_api` 가 런타임에 조립한다.  
+human UI 예제(`ComfyUI-WanVideoWrapper/example_workflows/*InfiniteTalk*`)를 수정할 때 러너 노드 타입과 동기화할 것.
 
 ## Agent-friendly 설계 원칙
 

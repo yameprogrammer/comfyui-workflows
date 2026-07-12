@@ -3,7 +3,7 @@
 Orchestrate episode stages for a commission handoff.
 
 Stages (in order):
-  status → assets → compose → contact_sheet → i2v → upscale → assemble → package
+  status → assets → compose → contact_sheet → i2v → s2v → upscale → assemble → package
 
 Default: status only unless --run is given.
 Use --from / --to to slice the pipeline. --dry-run is forwarded where supported.
@@ -30,6 +30,7 @@ STAGES = [
     "compose",
     "contact_sheet",
     "i2v",
+    "s2v",
     "upscale",
     "assemble",
     "package",
@@ -76,6 +77,11 @@ def main(argv=None) -> int:
         help="Forward dry-run to child stages (no Comfy/FFmpeg work)",
     )
     parser.add_argument("--i2v-backend", default=None)
+    parser.add_argument(
+        "--s2v-prepare-mode",
+        default="center_voicey",
+        help="SI2V driving audio prep mode (default center_voicey)",
+    )
     parser.add_argument("--upscale-backend", default=None)
     parser.add_argument("--upscale-preset", default=None)
     parser.add_argument("--assemble-stage", choices=["auto", "work", "deliver"], default="auto")
@@ -157,6 +163,26 @@ def main(argv=None) -> int:
             if stop:
                 argv2.append("--stop-on-error")
             code = i2v_main(argv2)
+        elif stage == "s2v":
+            from episode_s2v import main as s2v_main
+
+            argv2 = [
+                "--episode",
+                ep,
+                "--shots",
+                "all_approved",
+                "--prepare-mode",
+                args.s2v_prepare_mode,
+            ]
+            if args.dry_run:
+                argv2.append("--dry-run")
+            if stop:
+                argv2.append("--stop-on-error")
+            code = s2v_main(argv2)
+            # Soft-ok when no si2v shots exist (exit 21)
+            if code == 21:
+                print("[INFO] s2v stage: no si2v shots — continue")
+                code = 0
         elif stage == "upscale":
             from episode_upscale import main as up_main
 

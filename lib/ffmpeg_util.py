@@ -425,3 +425,105 @@ def slice_audio(
     result["start_sec"] = ss
     result["duration_sec"] = dur
     return result
+
+
+# SI2V driving-audio prep modes (no MelBand/demucs required).
+# Full-mix music often starves lip motion; emphasize speech band / stereo center.
+DRIVING_PREP_MODES = (
+    "copy",
+    "voicey",
+    "center",
+    "vocal_band",
+    "center_voicey",
+)
+
+
+def _driving_af_chain(mode: str) -> str | None:
+    """Return ffmpeg -af filter graph for mode, or None for re-encode only."""
+    m = (mode or "copy").strip().lower()
+    if m in ("copy", "raw", "none", ""):
+        return None
+    if m == "voicey":
+        # Mild speech-band EQ + light dynamics (same idea as ad-hoc *voicey* slices).
+        return (
+            "highpass=f=90,"
+            "lowpass=f=9000,"
+            "equalizer=f=2500:t=q:w=1.2:g=4,"
+            "equalizer=f=400:t=q:w=1.0:g=-2,"
+            "acompressor=threshold=-18dB:ratio=3:attack=10:release=120,"
+            "loudnorm=I=-16:TP=-1.5:LRA=11"
+        )
+    if m == "center":
+        # Mid channel from stereo (vocals often hard-panned center in masters).
+        return "pan=mono|c0=0.5*c0+0.5*c1"
+    if m == "vocal_band":
+        # Narrower band for mouth cues; kills bass beds and cymbals somewhat.
+        return (
+            "highpass=f=180,"
+            "lowpass=f=4500,"
+            "equalizer=f=2000:t=q:w=1.0:g=5,"
+            "acompressor=threshold=-20dB:ratio=4:attack=8:release=100,"
+            "loudnorm=I=-16:TP=-1.5:LRA=11"
+        )
+    if m == "center_voicey":
+        return (
+            "pan=mono|c0=0.5*c0+0.5*c1,"
+            "highpass=f=100,"
+            "lowpass=f=8000,"
+            "equalizer=f=2500:t=q:w=1.2:g=5,"
+            "acompressor=threshold=-18dB:ratio=3.5:attack=8:release=100,"
+            "loudnorm=I=-16:TP=-1.5:LRA=11"
+        )
+    raise ValueError(
+        f"unknown driving prep mode {mode!r}; choose from {DRIVING_PREP_MODES}"
+    )
+
+
+def prepare_driving_audio(
+    input_path: str,
+    output_path: str,
+    *,
+    mode: str = "center_voicey",
+    sample_rate: int = 48000,
+    mono: bool = True,
+    timeout_sec: float = 600,
+) -> dict[str, Any]:
+    """
+    Prepare a SI2V driving stem from a mix or dialogue wav.
+
+    Modes use FFmpeg filters only (no demucs/MelBand). Prefer true vocal
+    separation when available; this is the offline fallback for lip-sync smokes.
+    """
+    if not os.path.isfile(input_path):
+        return {"ok": False, "error": "AUDIO_MISSING", "message": input_path}
+    parent = os.path.dirname(os.path.abspath(output_path))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+
+    try:
+        af = _driving_af_chain(mode)
+    except ValueError as e:
+        return {"ok": False, "error": "BAD_MODE", "message": str(e)}
+
+    args: list[str] = ["-i", input_path]
+    if af:
+        args.extend(["-af", af])
+    # Force layout after filters that may already emit mono.
+    ac = 1 if mono else 2
+    args.extend(
+        [
+            "-c:a",
+            "pcm_s16le",
+            "-ar",
+            str(int(sample_rate)),
+            "-ac",
+            str(ac),
+            output_path,
+        ]
+    )
+    result = run_ffmpeg(args, timeout_sec=timeout_sec)
+    result["output_path"] = os.path.abspath(output_path)
+    result["mode"] = (mode or "copy").strip().lower()
+    result["sample_rate"] = int(sample_rate)
+    result["channels"] = ac
+    return result

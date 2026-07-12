@@ -66,7 +66,7 @@ python scripts/package_delivery.py --episode <id>
 
 사용자에게: `deliveries/<episode>__<stamp>.zip`
 
-**참고:** SI2V(립싱크) 러너는 P2 예정. 현재 `episode_i2v` 는 `motion_driver=i2v` 샷만 처리.
+**참고:** `episode_i2v` 는 `motion_driver=i2v` 만, `episode_s2v` 는 `si2v` + `audio_refs.driving` 만 처리. 파이프라인 단계 `s2v` 포함.
 
 ---
 

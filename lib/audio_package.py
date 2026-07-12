@@ -233,6 +233,117 @@ def resolve_driving_audio(episode_root: str, shot: dict[str, Any]) -> dict[str, 
     return parsed
 
 
+def materialize_driving_audio(
+    episode_root: str,
+    shot: dict[str, Any],
+    *,
+    prepare_mode: str = "center_voicey",
+    cache_dir: str | None = None,
+    force: bool = False,
+) -> dict[str, Any]:
+    """
+    Resolve shot driving audio, optional time slice, then prep filters → wav path.
+
+    Returns {ok, path, source, prepare_mode, sliced, error?, message?}.
+    """
+    from lib.ffmpeg_util import prepare_driving_audio, slice_audio
+
+    sid = str(shot.get("shot_id") or "shot")
+    ref = resolve_driving_audio(episode_root, shot)
+    if not ref:
+        return {
+            "ok": False,
+            "error": "DRIVING_MISSING",
+            "message": f"{sid}: audio_refs.driving|dialogue required",
+        }
+
+    src = ref["path"]
+    start = float(ref.get("start_sec") or 0.0)
+    end = ref.get("end_sec")
+    needs_slice = start > 0.001 or end is not None
+
+    out_dir = cache_dir or os.path.join(episode_root, "audio", "exports", "s2v_drive")
+    os.makedirs(out_dir, exist_ok=True)
+    mode = (prepare_mode or "copy").strip().lower()
+    safe_mode = "".join(c if c.isalnum() or c in "-_" else "_" for c in mode)
+    base = f"{sid}_drive_{safe_mode}"
+    final_path = os.path.join(out_dir, f"{base}.wav")
+
+    if os.path.isfile(final_path) and not force:
+        return {
+            "ok": True,
+            "path": final_path,
+            "source": src,
+            "prepare_mode": mode,
+            "sliced": needs_slice,
+            "cached": True,
+        }
+
+    work_src = src
+    if needs_slice:
+        slice_path = os.path.join(out_dir, f"{sid}_slice_raw.wav")
+        if end is not None:
+            sr = slice_audio(src, slice_path, start_sec=start, end_sec=float(end))
+        else:
+            # start only: slice from start through remaining duration via long t
+            # Prefer full-file re-encode from start if no end (use remaining).
+            # Probe duration loosely: if unknown, skip slice when start==0 already handled.
+            import subprocess
+            import json as _json
+
+            dur = None
+            try:
+                out = subprocess.check_output(
+                    [
+                        "ffprobe",
+                        "-v",
+                        "error",
+                        "-show_entries",
+                        "format=duration",
+                        "-of",
+                        "json",
+                        src,
+                    ],
+                    text=True,
+                    timeout=30,
+                )
+                dur = float(_json.loads(out)["format"]["duration"])
+            except Exception:
+                dur = None
+            if dur is None or dur <= start:
+                return {
+                    "ok": False,
+                    "error": "SLICE_RANGE",
+                    "message": f"cannot slice {src} start={start} dur={dur}",
+                }
+            sr = slice_audio(
+                src, slice_path, start_sec=start, duration_sec=max(0.05, dur - start)
+            )
+        if not sr.get("ok"):
+            return {
+                "ok": False,
+                "error": sr.get("error") or "SLICE_FAILED",
+                "message": sr.get("message"),
+            }
+        work_src = slice_path
+
+    pr = prepare_driving_audio(work_src, final_path, mode=mode)
+    if not pr.get("ok"):
+        return {
+            "ok": False,
+            "error": pr.get("error") or "PREP_FAILED",
+            "message": pr.get("message"),
+        }
+    return {
+        "ok": True,
+        "path": final_path,
+        "source": src,
+        "prepare_mode": mode,
+        "sliced": needs_slice,
+        "cached": False,
+    }
+
+
 def collect_timeline_events(
     episode_root: str,
     doc: dict[str, Any],

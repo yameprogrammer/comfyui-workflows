@@ -83,7 +83,7 @@ synopsis / shots.json
 | `motion_driver` | 필수 입력 | 출력 | 비고 |
 |-----------------|-----------|------|------|
 | **`i2v`** | keyframe, motion_prompt | 무음(또는 무시) work clip | **현재 구현됨** (`episode_i2v` / wan22) |
-| **`si2v`** (S2V) | keyframe, **audio segment**, (opt) text | 립/제스처↔소리 클립 | **미구현 — P2** |
+| **`si2v`** (S2V) | keyframe, **audio segment**, (opt) text | 립/제스처↔소리 클립 | **✅ `generate_s2v` / `episode_s2v`** |
 | **`still`** | keyframe | duration hold | Ken Burns 선택 |
 | **`flf2v`** | first + last keyframe | 브리지 | 나중 |
 
@@ -272,11 +272,14 @@ commission (mode + mix_policy)
 | ID | 작업 | 상태 |
 |----|------|------|
 | A2.0 | 로컬 인벤토리: InfiniteTalk patches, wav2vec2-korean, WanVideoAddS2VEmbeds | ✅ 확인 |
-| A2.1 | 로컬 S2V 워크플로 → `workflows/agent/` | ⬜ |
+| A2.1 | 로컬 S2V 워크플로 → `workflows/agent/` | ⬜ API inject 러너로 대체 (JSON 스냅샷 선택) |
 | A2.2 | `video_backends` s2v 항목 (`infinitetalk`, `wan_s2v` planned) | ✅ |
 | A2.3 | `generate_s2v.py` scaffold + dry-run plan meta | ✅ |
 | A2.4 | episode_i2v: skip si2v shots | ✅ |
-| A2.5 | Comfy API inject InfiniteTalk + 실측 스모크 | ✅ ~5s audio / 81f / 640² ~3min |
+| A2.5 | Comfy API inject InfiniteTalk + 실측 스모크 | ✅ ~5s audio / 640² / 20step |
+| A2.6 | `audio_prepare_driving` (center/voicey/vocal_band) | ✅ FFmpeg 폴백 (MelBand 아님) |
+| A2.7 | `episode_s2v` 배치 + pipeline `s2v` stage | ✅ |
+| A2.8 | 클린 VO / center_voicey 품질 QA | ✅ 실측 (process.md) |
 
 ### P3 — 생성형 오디오 (선택)
 
@@ -318,8 +321,14 @@ commission (mode + mix_policy)
 |------|------|------|
 | v1 | `S02_s2v_smoke.mp4` | 파이프 OK. **립싱크 불량** (손 등장·표정 붕괴) |
 | v2 | `S02_s2v_smoke_v2.mp4` | identity 안정↑, 입 개폐 약함. **정밀 립싱크는 여전히 미달** |
+| v3 | `S02_s2v_smoke_v3_clean_vo.mp4` | **클린 TTS VO 5s** + master_front + voicey. 입 개폐 대비 기준 |
+| v4 | `S02_s2v_smoke_v4_center_voicey.mp4` | 소나기 slice **center_voicey** stem (FFmpeg mid+speech EQ) |
 
-주의: **exit 0 ≠ 립싱크 합격**. 풀 믹스 음원·보컬 미분리 시 약함. MelBand 등 보컬 stem + 클린 페이스 플레이트 권장.
+**드라이빙 준비 CLI:** `python scripts/audio_prepare_driving.py -i mix.wav -m center_voicey -o drive.wav`  
+모드: `copy` / `voicey` / `center` / `vocal_band` / `center_voicey`.
+
+주의: **exit 0 ≠ 립싱크 합격**. 풀 믹스 음원·보컬 미분리 시 약함.  
+권장 순서: (1) 클린 dialogue/VO → (2) FFmpeg center_voicey → (3) MelBand/demucs 보컬 stem (미설치 시 후순위).
 
 ---
 
@@ -329,3 +338,4 @@ commission (mode + mix_policy)
 |------|------|
 | 2026-07-11 | 초안: production_mode / motion_driver / mix_policy / stems / P0–P3 계획 |
 | 2026-07-11 | P1 layered + audio_slice; 소나기 music_locked 스모크; generate_s2v scaffold |
+| 2026-07-12 | prepare_driving + episode_s2v + pipeline s2v; clean VO / center_voicey QA |

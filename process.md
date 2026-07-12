@@ -6,12 +6,29 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] SI2V 재개 — prepare_driving + episode_s2v + 품질 v3/v4
+* **작업 에이전트**: Grok
+* **커밋 정리**: uncommitted 오디오/SI2V/업스케일/로케 묶음을 논리 커밋 6개로 분리 (rtx_vsr 기본, Wan dim snap, audio P0–P1, generate_s2v, cafe_seoul, process log)
+* **구현**:
+  1. `lib/ffmpeg_util.prepare_driving_audio` + `scripts/audio_prepare_driving.py` (`copy|voicey|center|vocal_band|center_voicey`)
+  2. `lib/audio_package.materialize_driving_audio` (slice + prep cache under `audio/exports/s2v_drive/`)
+  3. `scripts/episode_s2v.py` — `motion_driver=si2v` 배치 → `clips/work/*_s2v.mp4`
+  4. `episode_pipeline` stage `s2v` (si2v 샷 없으면 exit 21 soft-ok)
+* **실측 QA** (master_front 640² 25fps 20step, ~12min/clip):
+  | ver | 오디오 | 판정 |
+  |-----|--------|------|
+  | v3 | 클린 TTS VO 5s + voicey | identity 안정, **입 개폐 명확** (f01 open → f05 closed → f07 teeth). talking-head 기준선 ✅ |
+  | v4 | 소나기 5s **center_voicey** | identity 안정, 입 움직임 있음. v2 풀믹스 대비↑. 음절 단위 정밀 싱크는 여전 soft |
+* **교훈**: 클린 dialogue/VO > FFmpeg center_voicey > 풀 믹스. demucs/MelBand는 미설치 — 뮤비 보컬 stem 다음 후보.
+* **파일럿**: mina S02 `motion_driver=si2v` + driving=sonagi_v1_slice5 (에피소드 로컬, gitignore)
+* **다음**: (선택) demucs/MelBand 보컬 분리; music_video 샷 타임라인 연동; agent WF JSON 스냅샷
+
 ### [2026-07-12] SI2V 품질 QA — 파이프 OK ≠ 립싱크 합격
 * **작업 에이전트**: Grok
 * **v1 육안**: 입 움직임은 있으나 립싱크 실패급 + 손/표정 붕괴
 * **v2**: master_front + 25fps + 20step + voicey EQ → identity 안정, 입 개폐 약함, **정밀 립싱크 미달**
 * **교훈**: 생성 exit 0만 보고 합격 판정 금지; 풀 믹스 뮤비 구간은 보컬 분리 필요
-* **다음**: MelBand/보컬 stem 경로 또는 클린 VO 테스트
+* **다음**: MelBand/보컬 stem 경로 또는 클린 VO 테스트 → **후속 항목에서 완료**
 
 ### [2026-07-11] InfiniteTalk SI2V 실생성 스모크 OK
 * **작업 에이전트**: Grok

@@ -30,12 +30,14 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `story_init.py` | 에피소드 패키지 생성 | `stories/` + format + look |
 | `shot_compose.py` | look+char+loc → 키프레임 | format work size |
 | `shot_approve.py` | keyframe_status 승격 | I2V 전 게이트 |
-| `episode_i2v.py` | approved 키프레임 배치 I2V | → `clips/work/` |
+| `episode_i2v.py` | approved 키프레임 배치 I2V (`motion_driver=i2v`) | → `clips/work/` |
+| `episode_s2v.py` | approved 키프레임 배치 SI2V (`motion_driver=si2v`) | → `clips/work/*_s2v.mp4` |
 | `episode_upscale.py` | work 클립 배치 업스케일 | → `clips/deliver/` (default rtx_vsr) |
 | `assemble_video.py` | FFmpeg concat + **mix_policy** stems | → `exports/final/` |
 | `audio_status.py` | production_mode / stems / si2v 준비도 | 설계: docs/audio_motion_production_modes.md |
 | `audio_slice.py` | 마스터 음원 구간 추출 → stems | 뮤비/SI2V 준비 |
-| `generate_s2v.py` | SI2V scaffold (dry-run plan) | InfiniteTalk inject는 P2 |
+| `audio_prepare_driving.py` | SI2V 드라이빙 stem (center/voicey/vocal_band) | MelBand 없을 때 FFmpeg 폴백 |
+| `generate_s2v.py` | SI2V InfiniteTalk live runner | `video_backends.infinitetalk` |
 | `package_delivery.py` | 사용자 납품 폴더+zip | → `deliveries/<ep>__<stamp>/` |
 | `episode_status.py` | 에피소드 진행 상태/다음 액션 | 텍스트 또는 JSON |
 | `episode_contact_sheet.py` | 키프레임 컨택시트 | `boards/contact_sheet.png` |
