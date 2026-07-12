@@ -175,7 +175,13 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
   - 로컬 Comfy ACE-Step XL turbo (사용자 WF `audio_ace_step1_5_xl_turbo.json`).  
   - CLI: `generate_bgm.py`, `episode_bgm.py` → `stories/<ep>/audio/music/`.  
   - 기본 **instrumental only**; 뮤비 원곡 `masters/` 는 AI로 대체하지 않음.  
-  - 립싱크 driving에 BGM 섞지 말 것 (보이스 stem만).  
+  - 립싱크 driving에 BGM 섞지 말 것 (보이스 stem만).
+
+### Rule 10. 외부 워크스페이스로의 작업물 내보내기(Export) 의무
+* `agent_custom` 저장소는 ComfyUI 미디어 팩토리(도구 저장소)일 뿐, 사용자의 실제 영상 프로젝트 폴더가 아니다.
+* 생성된 최종 에피소드 결과물(및 중간 산출물)은 반드시 사용자의 활성 워크스페이스 디렉터리(예: `D:\쇼츠 작업\...`)로 복사/내보내기 해야 한다. 결과물을 이 저장소(`agent_custom/`)에만 남겨두는 것은 **미완성(incomplete)** 작업으로 규정한다.
+* 내보내기 실행 시 `scripts/export_episode_to_workspace.py` 도구를 사용하거나 환경 변수 `AGENT_WORKSPACE`를 활용한다.
+  
   - 모델: `models/.../ACESTEP1.5/*` ([HF Comfy-Org pack](https://huggingface.co/Comfy-Org/ace_step_1.5_ComfyUI_files)).  
   - SSOT: [docs/ace_step_bgm_pipeline.md](docs/ace_step_bgm_pipeline.md).
 
