@@ -410,12 +410,25 @@ commission (mode + mix_policy)
 | v4 IT | `S02_s2v_smoke_v4_center_voicey.mp4` (+ `_playable`) | 소나기 **center_voicey**. **사용자 육안: 립이 제법 맞기 시작 → IT 유지 후보** |
 | LTX v1 | `S02_s2v_ltx_v1_clean_vo.mp4` | 클린 VO + LTX. 입·표정 다양, ~1–2min/5s |
 | LTX v2 | `S02_s2v_ltx_v2_center_voicey.mp4` | center_voicey + LTX |
+| LTX v3 | `S02_s2v_ltx_v3_demucs.mp4` | **demucs vocals** stem + LTX (2026-07-12 설치·스모크) |
 
-**드라이빙 준비 CLI:** `python scripts/audio_prepare_driving.py -i mix.wav -m center_voicey -o drive.wav`  
-모드: `copy` / `voicey` / `center` / `vocal_band` / `center_voicey` / (옵션) `demucs` if installed.
+**드라이빙 준비 CLI**
 
-주의: **exit 0 ≠ 립싱크 합격**. 풀 믹스 음원·보컬 미분리 시 약함.  
-권장 순서: (1) 클린 dialogue/VO → (2) FFmpeg center_voicey → (3) demucs/MelBand 보컬 stem.
+```bash
+# FFmpeg 근사 (항상 가능)
+python scripts/audio_prepare_driving.py -i mix.wav -m center_voicey -o drive.wav
+
+# demucs 진짜 보컬 (Comfy portable python 에 demucs 4.x 설치됨 2026-07-12)
+python scripts/audio_prepare_driving.py -i mix.wav -m demucs -o vocals.wav
+# 또는 샷 바인딩
+python scripts/audio_bind_driving.py -e <ep> --shot S07 --start 38 --duration 4 -m demucs
+```
+
+모드: `copy` / `voicey` / `center` / `vocal_band` / `center_voicey` / **`demucs`**.
+
+주의: **exit 0 ≠ 립싱크 합격**.  
+권장: (1) 클린 VO → (2) **demucs vocals** (뮤비) → (3) center_voicey 폴백.  
+demucs는 **Comfy 노드가 아님** — 로컬 `python -m demucs` (portable: `F:\ComfyUI_windows_portable\python_embeded\python.exe`).
 
 ---
 
@@ -429,3 +442,4 @@ commission (mode + mix_policy)
 | 2026-07-12 | SI2V = story 대사 **및** music_video 보컬 퍼포 1급 유스케이스 명시 (§0.1, §2.4) |
 | 2026-07-12 | IT v4 center_voicey 사용자 QA: 립 실용 수준 진입 → infinitetalk 1급 대안 유지 기록 |
 | 2026-07-12 | prepare mode `demucs` 옵션 훅 (패키지 있으면 보컬 stem; 없으면 center_voicey 폴백 안내) |
+| 2026-07-12 | Comfy portable에 demucs 4.1 설치; sonagi 5s → vocals OK; LTX v3 demucs 스모크 |

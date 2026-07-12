@@ -6,6 +6,14 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] demucs 보컬 분리 설치 + 스모크
+* **작업 에이전트**: Grok
+* **설치**: Comfy portable `python_embeded` → `demucs` 4.1.0 (torch 공유)
+* **실측**: `sonagi_v1_slice5.wav` → `…/s2v_drive/sonagi_v1_slice5_demucs_vocals.wav` (5s mono 48k, mean≈−19dB)
+* **SI2V**: LTX + demucs vocals → `S02_s2v_ltx_v3_demucs.mp4`
+* **사용**: `audio_prepare_driving -m demucs` / `audio_bind_driving -m demucs`
+* **참고**: demucs ≠ Comfy 노드. 최종 뮤비 사운드는 여전히 music master
+
 ### [2026-07-12] InfiniteTalk v4 QA — 1급 대안 유지
 * **작업 에이전트**: Grok (+ 사용자 육안)
 * **클립**: `S02_s2v_smoke_v4_center_voicey(_playable).mp4` — Wan2.1+InfiniteTalk + center_voicey
