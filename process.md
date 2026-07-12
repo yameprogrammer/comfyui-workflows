@@ -6,6 +6,13 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] 캐릭터 공정 A/B/C + 커뮤니티 리서치 반영
+* **작업 에이전트**: Grok
+* **리서치 요약**: sheet-first / multi-model cast / human gate / CN turnaround / IPAdapter는 확정 후 (후속)
+* **공정**: A cast_pool → B promote → C expand (기존) → D video
+* **구현**: `docs/character_casting_pipeline.md`, `lib/cast_pool.py`, `character_cast_pool.py`, `character_promote.py`
+* **엔진**: moody_real|pro|wild + krea (탐색). 시트 일관은 Moody I2I 유지
+
 ### [2026-07-12] 생성 본선 재확인 + SI2V 품질 기본값
 * **작업 에이전트**: Grok
 * **방향**: OpenMontage = 편집/조립 참고만. **본선 = Comfy 이미지·클립 생성 품질**

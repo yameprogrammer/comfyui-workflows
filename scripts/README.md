@@ -49,9 +49,11 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `shot_compose.py --all` | 미생성 키프레임 배치 컴포즈 | format work size |
 | `assets_list.py` | char/loc/look 목록·에피소드 자산 점검 | `--episode` |
 | `generate_krea.py` | Krea T2I | `t2i_krea` |
-| `character_create.py` | 패키지 + 마스터 후보 | t2i |
+| `character_cast_pool.py` | **A** 다엔진 캐스팅 풀 (Moody/Krea) | 탐색 T2I |
+| `character_promote.py` | **B** 후보 → 패키지 + master_front | cast→lock |
+| `character_create.py` | 패키지 + 마스터 후보 (Moody 단일 경로) | t2i |
 | `character_approve.py` | refs → approved 승격 | — |
-| `character_expand_sheets.py` | 시트 배치 | i2i / controlnet |
+| `character_expand_sheets.py` | **C** 일관 시트 배치 | i2i / controlnet |
 | `shot_with_character.py` | 스토리 키프레임 | i2i |
 
 워크플로우 JSON은 **`workflows/agent/`** 만 수정·프로모트한다.

@@ -9,6 +9,7 @@
 |------|------|------|
 | 1 | [production_asset_pipeline.md](production_asset_pipeline.md) | **통합 지도** — 캐릭터·로케·룩·스토리·I2V·납품 |
 | 2 | [character_impl_spec.md](character_impl_spec.md) | 캐릭터 시트 **구현 SSOT** |
+| 2b | [character_casting_pipeline.md](character_casting_pipeline.md) | **탐색 풀 → 승격 → 일관 시트** 공정 |
 | 3 | [location_sheet_system_design.md](location_sheet_system_design.md) | 로케이션 시트 설계 (구현 대기) |
 | 4 | [look_style_system.md](look_style_system.md) | Look/style core (`looks/`) |
 | 5 | [storyboard_pipeline_design.md](storyboard_pipeline_design.md) | 샷리스트·보드·키프레임 설계 (구현 대기) |

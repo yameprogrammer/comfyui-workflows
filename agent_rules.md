@@ -78,6 +78,12 @@ agent_custom/
 * **L3 LoRA 학습** 은 캐릭터 품질 전용 PR로 분리 (로케/스토리/I2V/업스케일과 한 PR에 섞지 말 것).
 * 캐릭터 턴어라운드 품질 고도화는 **병렬 트랙**. establishing/medium 에피소드의 블로커로 두지 말 것.
 
+### Rule 6.2 캐릭터 캐스팅 공정 (A→B→C)
+* **A 탐색**: `character_cast_pool.py` — 다엔진(Moody/Krea) 후보. identity 미고정. `characters/casts/`.
+* **B 승격**: `character_promote.py` — 고른 이미지 → 패키지 + `approved/master_front` + core 고정.
+* **C 일관**: `character_expand_sheets` / `character_approve` — ref I2I (기본 Moody). 탐색 엔진과 달라도 됨.
+* 확정 전 InstantID/IPAdapter/LoRA 학습은 기본 경로 아님. SSOT: [docs/character_casting_pipeline.md](docs/character_casting_pipeline.md).
+
 ### Rule 6.0 멀티 트랙 (활성 작업 모델)
 * 단일 `CHARACTER_L2_SOFT_FACTORY` 전용이 아니다. 동시 허용:
   - **C** 캐릭터 L2 · **L** 로케이션 · **S** 스토리/샷 · **M** I2V/모션 · **U** 업스케일/조립 · **K** 룩
