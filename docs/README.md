@@ -25,6 +25,7 @@
 |------|------|
 | [character_sheet_system_design.md](character_sheet_system_design.md) | 캐릭터 장기 설계·리서치 |
 | [moody_workflow_guide.md](moody_workflow_guide.md) | Moody T2I/I2I 운용 |
+| [openmontage_eval_notes.md](openmontage_eval_notes.md) | OpenMontage 로컬 클론 평가 (참고 monorepo) |
 
 워크플로우 JSON: `../workflows/agent/`  
 CLI: `../scripts/`  
