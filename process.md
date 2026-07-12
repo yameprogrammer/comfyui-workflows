@@ -2,9 +2,35 @@
 
 이 문서는 에이전트들이 `agent_custom` 디렉토리 내에서 진행한 작업 내역을 누적하여 기록하는 개발 로그입니다. 새로운 작업을 시작하거나 마칠 때 반드시 이 문서를 업데이트해 주십시오.
 
+[2026-07-13] - Grok — **EOD / 어디까지 됐나**
+- **상태 SSOT**: `docs/session_status_2026-07-13_ltx_aio_switch.md`
+- **Done**
+  1. LTX 전 모드 → 실 AIO UI + `[[P:]]` 스위치 (`ltx_aio_workflow_runner`); 미니 그래프 비기본
+  2. cafe_gomin_ep01 LTX 쇼츠 1편 (S01 i2v + S02–05 SI2V 체인 + BGM hardcut) → `exports/final/cafe_gomin_ep01_ltx23_switch_playable.mp4` + 채널 exports 복사
+  3. SageAttention: Comfy 설치 확인; IT `attention_mode=sageattn` 기본 (`AGENT_IT_ATTENTION` 폴백)
+- **QA 미해결**: LTX 장클립 얼굴 붕괴; last-frame 체인=재생성 seed일 뿐 원테이크 아님; Wan/IT는 속도·톤 튜닝 필요(2.2 전면 채택 보류)
+- **Next**: 짧은 LTX+고정 키프레임 재생성 → IT turbo/mild 벤치 → 하이브리드 공정
+
+[2026-07-13] - Grok
+- **작업 목표**: LTX2.3 AIO 스위치 경로로 **cafe_gomin_ep01 쇼츠 1편** 재생성.
+- **생성**: S01 `ltx23_aio_i2v`; S02–S05 `chain_si2v_last_frame` + `ltx23_aio` (runner=`ltx_aio_workflow_runner`)
+- **조립**: hardcut + BGM 0.18 → `exports/final/cafe_gomin_ep01_ltx23_switch.mp4` (~44.5s, 576×960@24)
+- **채널 복사**: `D:\쇼츠 작업\채널 주인장이 뭐해야 할지모르겠답니다\exports\cafe_gomin_ep01\`
+- **QA**: 얼굴 붕괴·하드컷 연속성 불만 → 세션 상태 문서 §2–3
+
+[2026-07-13] - Grok
+- **작업 목표**: LTX2.3 관련 기능을 **실 AIO 워크플로 스위치/셀렉트**로 전부 통일 (미니 그래프 기본 경로 폐기).
+- **구현**:
+  - `generate_s2v` 기본 = `lib.ltx_aio_workflow_runner.build_aio_switched_api`
+  - `ltx_aio_mode_select` [[P:]] mute + `ltx_aio_ui_expand` (widget 순서/AE CLIP/NEVER 스킵)
+  - 미니 그래프 = `AGENT_LTX_FORCE_MINI_GRAPH=1` only
+  - 매니페스트/video_backends/`ltx23_aio_ia2v_agent_usage.md` 갱신
+- **스모크**: `stories/cafe_gomin_ep01/exports/S02_aio_switch_smoke.mp4` (~100s, runner=ltx_aio_workflow_runner)
+- **dry-run**: i2v mode_changes=4, flf mode_changes=9
+
 [2026-07-12] - Grok
 - **작업 목표**: AIO 모드 일괄 이식 — I2V / FLF / FML / V2V (±Audio).
-- **구현**: `build_ltx_aio_mode_api` + 백엔드 alias `ltx23_aio_*` + `--ltx-mode` / `--last` / `--mid`
+- **구현**: `build_ltx_aio_mode_api` + 백엔드 alias `ltx23_aio_*` + `--ltx-mode` / `--last` / `--mid` *(이후 07-13에 실 WF 스위치로 대체)*
 - **스모크**: `ltx23_aio` I2V+Audio OK; `ltx23_aio_flf` OK (~81s/49f)
 - **V2V**: agent 매핑 = 이전 클립 last-frame 이어 생성 (풀 ExtendSampler 후속)
 - **문서/매니페스트** 갱신

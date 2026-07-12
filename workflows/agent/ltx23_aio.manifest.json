@@ -1,58 +1,122 @@
 {
   "id": "ltx23_aio",
-  "status": "ready",
+  "status": "ready_switch_select",
   "role": "s2v_multi_mode",
-  "description": "LTX 2.3 AIO modes ported from user All-in-One v44 table (agent API graphs, not full UI orchestrator).",
+  "description": "LTX 2.3 All-in-One real UI workflow driven by [[P:]] mode switches (Orchestrator mute table). NOT mini-graphs.",
   "source_ui_workflow": "workflows/human/ltx23AllInOneWorkflowForRTX_v44.json",
+  "source_ui_workflow_ia2v": "workflows/human/ltx23AllInOneWorkflowForRTX_v44_IA2V.json",
+  "live_api_template": "workflows/agent/ltx23_ia2v_from_manual_success_05473dc9.json",
+  "copies_also_in_agent": [
+    "workflows/agent/ltx23AllInOneWorkflowForRTX_v44.json",
+    "workflows/agent/ltx23AllInOneWorkflowForRTX_v44_IA2V.json"
+  ],
+  "routing_analysis": "docs/ltx23_aio_workflow_routing_analysis.md",
+  "routing_map_json": "docs/_ltx23_aio_v44_routing_map.json",
+  "analyze_script": "scripts/_analyze_ltx23_aio_routing.py",
   "cli": "python scripts/generate_s2v.py --backend ltx23_aio* | --ltx-mode ...",
+  "runner_primary": "lib.ltx_aio_workflow_runner.build_aio_switched_api",
+  "runner_modules": {
+    "mode_select": "lib.ltx_aio_mode_select.apply_aio_mode_to_ui_workflow",
+    "ui_expand": "lib.ltx_aio_ui_expand.expand_ui_workflow_to_api",
+    "workflow_runner": "lib.ltx_aio_workflow_runner.build_aio_switched_api",
+    "live_template_fallback": "lib.ltx_aio_live_template.build_ia2v_live_api",
+    "legacy_mini_only_if_forced": "lib.ltx_s2v.build_ltx_* + AGENT_LTX_FORCE_MINI_GRAPH=1"
+  },
+  "parity": {
+    "orchestrator_muter": true,
+    "P_tag_mute_routing": true,
+    "subgraph_expand_execute": true,
+    "audio_input_branch": true,
+    "empty_latent_audio_mask_path": true,
+    "comfy_switch_nodes_in_graph": true,
+    "legacy_mini_graph_default": false
+  },
   "modes": {
     "i2v": {
       "backend": "ltx23_aio_i2v",
       "aio_table": "02 Image to Video",
       "inputs": ["-i first.png"],
-      "notes": "No audio; motion from first frame only"
+      "status": "switch_select",
+      "notes": "[[P:02 Image to Video]] ON; Audio/Last/Mid OFF"
     },
     "i2v_audio": {
       "backend": "ltx23_aio",
       "aio_table": "02 Image to Video + Audio input",
-      "inputs": ["-i first.png", "-a drive.wav"]
+      "inputs": ["-i first.png", "-a drive.wav"],
+      "status": "switch_select",
+      "notes": "Default SI2V. Trim/clip/longer_edge/aspect injected per job"
     },
     "flf": {
       "backend": "ltx23_aio_flf",
       "aio_table": "02 Image to Video + Last Frame input",
-      "inputs": ["-i first.png", "--last last.png"]
+      "inputs": ["-i first.png", "--last last.png"],
+      "status": "switch_select"
     },
     "flf_audio": {
       "backend": "ltx23_aio_flf_audio",
       "aio_table": "02 Image to Video + Last Frame input + Audio input",
-      "inputs": ["-i first.png", "--last last.png", "-a drive.wav"]
+      "inputs": ["-i first.png", "--last last.png", "-a drive.wav"],
+      "status": "switch_select"
     },
     "fml": {
       "backend": "ltx23_aio_fml",
       "aio_table": "02 Image to Video + Last + Mid Frame input",
-      "inputs": ["-i first.png", "--mid mid.png", "--last last.png"]
+      "inputs": ["-i first.png", "--mid mid.png", "--last last.png"],
+      "status": "switch_select"
     },
     "fml_audio": {
       "backend": "ltx23_aio_fml_audio",
       "aio_table": "02 Image to Video + Last + Mid Frame input + Audio input",
-      "inputs": ["-i first.png", "--mid mid.png", "--last last.png", "-a drive.wav"]
+      "inputs": ["-i first.png", "--mid mid.png", "--last last.png", "-a drive.wav"],
+      "status": "switch_select"
     },
     "v2v": {
       "backend": "ltx23_aio_v2v",
-      "aio_table": "03 Video to Video (agent mapping)",
-      "inputs": ["-i last_frame_of_prior.png", "[-a drive.wav]"],
-      "notes": "Agent V2V = continue from last frame of previous clip (not full latent ExtendSampler). Matches last-frame chain practice."
+      "aio_table": "03 Video to Video",
+      "inputs": ["-i first_or_ref.png", "optional video via AIO LoadVideo when wired"],
+      "status": "switch_select",
+      "notes": "Mode mutes activate V2V ports. Agent chain often uses last-frame as first + i2v_audio instead."
+    },
+    "v2v_audio": {
+      "backend": "ltx23_aio_v2v_audio",
+      "aio_table": "03 Video to Video + Audio input",
+      "inputs": ["-i", "-a"],
+      "status": "switch_select"
+    },
+    "t2v": {
+      "backend": "ltx23_aio_t2v",
+      "aio_table": "01 Text to Video",
+      "inputs": ["prompt only (image optional/off)"],
+      "status": "switch_select"
+    },
+    "t2v_audio": {
+      "backend": "ltx23_aio_t2v_audio",
+      "aio_table": "01 Text to Video + Audio input",
+      "inputs": ["-a", "prompt"],
+      "status": "switch_select"
     }
   },
   "implementation": {
-    "builder": "lib.ltx_s2v.build_ltx_aio_mode_api",
-    "guides": "LTXVAddGuide for mid/last frame_idx",
-    "stack": "distilled GGUF + AIO dynamic distill lora @0.9, 24fps default, yuv420p post"
+    "builder": "lib.ltx_aio_workflow_runner.build_aio_switched_api",
+    "per_job_params": [
+      "TrimAudioDuration start/duration",
+      "Clip Length (mxSlider 196)",
+      "Longer Edge (1688)",
+      "Aspect (1774)",
+      "fps (869)",
+      "seed (115)",
+      "prompt (1797) / negative (593)"
+    ],
+    "stack": "Real AIO: GGUFLoaderKJ + DualClipLoaderGGUF + multi Power Lora + half-res→upscale 2-stage + VHS combine",
+    "env_overrides": {
+      "AGENT_LTX_FORCE_MINI_GRAPH": "1 = legacy mini (discouraged)",
+      "AGENT_LTX_FORCE_LIVE_TEMPLATE": "1 = frozen IA2V history graph only",
+      "AGENT_LTX_AIO_UI_WORKFLOW": "override path to UI json",
+      "AGENT_LTX_FORCE_TTS_REMUX": "1 = remux driving audio over native AIO track"
+    }
   },
   "not_ported": [
-    "Text to Video / Text+Audio pure T2V",
-    "OrchestratorNodeMuter UI switching",
-    "Full latent LTXVExtendSampler V2V from encoded video",
-    "Spatial upscale + multi-lora IC stack"
+    "Full latent LTXVExtendSampler V2V (agent may still chain last-frame as I2V)",
+    "LLM prompt rewriter ON (agent forces switch False)"
   ]
 }

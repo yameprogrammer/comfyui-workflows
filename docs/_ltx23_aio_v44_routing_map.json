@@ -1,0 +1,3471 @@
+{
+  "source": "F:\\ComfyUI_workflows\\agent_custom\\workflows\\human\\ltx23AllInOneWorkflowForRTX_v44.json",
+  "comfy_mode_legend": {
+    "0": "ALWAYS",
+    "1": "ON_EVENT",
+    "2": "NEVER",
+    "3": "ON_TRIGGER",
+    "4": "BYPASS"
+  },
+  "root": {
+    "name": "root",
+    "node_count": 93,
+    "link_count": 62,
+    "type_counts": {
+      "GetNode": 24,
+      "SetNode": 21,
+      "Note": 9,
+      "LoadImage": 3,
+      "JWInteger": 2,
+      "CLIPTextEncode": 2,
+      "GGUFLoaderKJ": 2,
+      "ComfySwitchNode": 2,
+      "VAELoaderKJ": 2,
+      "mxSlider": 2,
+      "JWIntegerToFloat": 1,
+      "LTXVChunkFeedForward": 1,
+      "Sampler Selector (Image Saver)": 1,
+      "VHS_LoadVideo": 1,
+      "MarkdownNote": 1,
+      "RandomNoise": 1,
+      "LoadAudio": 1,
+      "Combo Clone": 1,
+      "UnetLoaderGGUF": 1,
+      "DualClipLoaderGGUF": 1,
+      "DualCLIPLoader": 1,
+      "Anything Everywhere": 1,
+      "VAELoader": 1,
+      "LatentUpscaleModelLoader": 1,
+      "PreviewImage": 1,
+      "SaveImage": 1,
+      "VHS_VideoCombine": 1,
+      "46b9ef70-cf80-4405-ade5-6b7319574fa0": 1,
+      "a786c8d3-829c-4204-8073-c3bf8db269ad": 1,
+      "Power Lora Loader (rgthree)": 1,
+      "TextGenerateLTX2Prompt": 1,
+      "TrimAudioDuration": 1,
+      "Text Multiline": 1,
+      "OrchestratorNodeMuter": 1
+    },
+    "mode_counts": {
+      "ALWAYS": 87,
+      "NEVER": 4,
+      "BYPASS": 2
+    },
+    "routing": {
+      "ComfySwitchNode": [
+        {
+          "id": 1801,
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            false
+          ]
+        },
+        {
+          "id": 1798,
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            false
+          ]
+        }
+      ],
+      "OrchestratorNodeMuter": [
+        {
+          "id": 1353,
+          "title": "Select options (see Table above)",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            false,
+            null,
+            false,
+            null,
+            false,
+            true,
+            false,
+            false,
+            false,
+            false
+          ]
+        }
+      ],
+      "SetNode": [
+        {
+          "id": 1631,
+          "title": "Set_m model",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m model"
+          ]
+        },
+        {
+          "id": 1643,
+          "title": "Set_m noise",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m noise"
+          ]
+        },
+        {
+          "id": 1673,
+          "title": "Set_m sampler",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m sampler"
+          ]
+        },
+        {
+          "id": 1647,
+          "title": "Set_m audio v2v",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m audio v2v"
+          ]
+        },
+        {
+          "id": 1669,
+          "title": "Set_m video info",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m video info"
+          ]
+        },
+        {
+          "id": 1700,
+          "title": "Set_m hight",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m hight"
+          ]
+        },
+        {
+          "id": 1667,
+          "title": "Set_m video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m video"
+          ]
+        },
+        {
+          "id": 1641,
+          "title": "Set_m clip length",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m clip length"
+          ]
+        },
+        {
+          "id": 1653,
+          "title": "Set_m frame  first",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m frame  first"
+          ]
+        },
+        {
+          "id": 1706,
+          "title": "Set_m frame mid",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m frame mid"
+          ]
+        },
+        {
+          "id": 1654,
+          "title": "Set_m frame last",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m frame last"
+          ]
+        },
+        {
+          "id": 1699,
+          "title": "Set_m width",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m width"
+          ]
+        },
+        {
+          "id": 1645,
+          "title": "Set_m audio in",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m audio in"
+          ]
+        },
+        {
+          "id": 1675,
+          "title": "Set_m fps",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m fps"
+          ]
+        },
+        {
+          "id": 1650,
+          "title": "Set_m neg",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m neg"
+          ]
+        },
+        {
+          "id": 1649,
+          "title": "Set_m pos",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m pos"
+          ]
+        },
+        {
+          "id": 1636,
+          "title": "Set_m vae audio",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m vae audio"
+          ]
+        },
+        {
+          "id": 1635,
+          "title": "Set_m vae video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m vae video"
+          ]
+        },
+        {
+          "id": 1639,
+          "title": "Set_m vae preview",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m vae preview"
+          ]
+        },
+        {
+          "id": 1679,
+          "title": "Set_m model upscale",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m model upscale"
+          ]
+        },
+        {
+          "id": 1665,
+          "title": "Set_m img com",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m img com"
+          ]
+        }
+      ],
+      "GetNode": [
+        {
+          "id": 1676,
+          "title": "Get_m fps",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m fps"
+          ]
+        },
+        {
+          "id": 1637,
+          "title": "Get_m vae video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m vae video"
+          ]
+        },
+        {
+          "id": 1638,
+          "title": "Get_m vae audio",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m vae audio"
+          ]
+        },
+        {
+          "id": 1640,
+          "title": "Get_m vae preview",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m vae preview"
+          ]
+        },
+        {
+          "id": 1642,
+          "title": "Get_m clip length",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m clip length"
+          ]
+        },
+        {
+          "id": 1644,
+          "title": "Get_m noise",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m noise"
+          ]
+        },
+        {
+          "id": 1648,
+          "title": "Get_m audio v2v",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m audio v2v"
+          ]
+        },
+        {
+          "id": 1652,
+          "title": "Get_m neg",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m neg"
+          ]
+        },
+        {
+          "id": 1646,
+          "title": "Get_m audio in",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m audio in"
+          ]
+        },
+        {
+          "id": 1670,
+          "title": "Get_m video info",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m video info"
+          ]
+        },
+        {
+          "id": 1632,
+          "title": "Get_m model",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m model"
+          ]
+        },
+        {
+          "id": 1634,
+          "title": "Get_m model upscale",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m model upscale"
+          ]
+        },
+        {
+          "id": 1662,
+          "title": "Get_m fps",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m fps"
+          ]
+        },
+        {
+          "id": 1701,
+          "title": "Get_m width",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m width"
+          ]
+        },
+        {
+          "id": 1702,
+          "title": "Get_m hight",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m hight"
+          ]
+        },
+        {
+          "id": 1656,
+          "title": "Get_m frame last",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m frame last"
+          ]
+        },
+        {
+          "id": 1703,
+          "title": "Get_m frame  first",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m frame  first"
+          ]
+        },
+        {
+          "id": 1666,
+          "title": "Get_m img com",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m img com"
+          ]
+        },
+        {
+          "id": 1707,
+          "title": "Get_m frame mid",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m frame mid"
+          ]
+        },
+        {
+          "id": 1668,
+          "title": "Get_m video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m video"
+          ]
+        },
+        {
+          "id": 1674,
+          "title": "Get_m sampler",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m sampler"
+          ]
+        },
+        {
+          "id": 1709,
+          "title": "Get_m video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m video"
+          ]
+        },
+        {
+          "id": 1655,
+          "title": "Get_m frame  first",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m frame  first"
+          ]
+        },
+        {
+          "id": 1651,
+          "title": "Get_m pos",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "m pos"
+          ]
+        }
+      ],
+      "Anything Everywhere": [
+        {
+          "id": 1678,
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": []
+        }
+      ],
+      "Combo Clone": [
+        {
+          "id": 1774,
+          "title": "Aspect Ratio",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "16:9"
+          ]
+        }
+      ],
+      "Power Lora Loader (rgthree)": [
+        {
+          "id": 211,
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            {},
+            {
+              "type": "PowerLoraLoaderHeaderWidget"
+            },
+            {
+              "on": true,
+              "lora": "LTX2.3\\ltx-2.3-22b-distilled-1.1_lora-dynamic_fro09_avg_rank_111_bf16.safetensors",
+              "strength": 0.9,
+              "strengthTwo": null
+            },
+            {
+              "on": true,
+              "lora": "LTX2.3\\ltx2.3_upscale_ic-lora_06250.safetensors",
+              "strength": 0.6,
+              "strengthTwo": null
+            },
+            {
+              "on": true,
+              "lora": "LTX2.3\\LTX-2.3-OmniNFT-RL-Lora_bf16.safetensors",
+              "strength": 0.5,
+              "strengthTwo": null
+            },
+            {
+              "on": false,
+              "lora": "LTX2.3\\LTX2.3-22B_IC-LoRA-Cameraman_v1_10500.safetensors",
+              "strength": 0.6,
+              "strengthTwo": null
+            },
+            {
+              "on": false,
+              "lora": "LTX2.3\\ltx-2-19b-ic-lora-detailer.safetensors",
+              "strength": 0.6,
+              "strengthTwo": null
+            },
+            {},
+            ""
+          ]
+        }
+      ]
+    },
+    "ports_P": [
+      {
+        "id": 786,
+        "type": "LoadImage",
+        "title": "Last Frame [[P:Last Frame input]]",
+        "port_label": "Last Frame input",
+        "mode": 2,
+        "mode_name": "NEVER",
+        "widgets": [
+          "2025-12-11-213317_Zimage fascium v10_0.jpeg",
+          "image"
+        ]
+      },
+      {
+        "id": 1705,
+        "type": "LoadImage",
+        "title": "Mid Frame [[P:Mid Frame input]]",
+        "port_label": "Mid Frame input",
+        "mode": 2,
+        "mode_name": "NEVER",
+        "widgets": [
+          "2025-12-11-213317_Zimage fascium v10_0.jpeg",
+          "image"
+        ]
+      },
+      {
+        "id": 787,
+        "type": "VHS_LoadVideo",
+        "title": "Load Video [[P:03 Video to Video]] ",
+        "port_label": "03 Video to Video",
+        "mode": 2,
+        "mode_name": "NEVER",
+        "widgets": {
+          "video": "wan22_00244.mp4",
+          "force_rate": 24,
+          "custom_width": 0,
+          "custom_height": 0,
+          "frame_load_cap": 0,
+          "skip_first_frames": 0,
+          "select_every_nth": 1,
+          "format": "None",
+          "videopreview": {
+            "hidden": false,
+            "paused": false,
+            "params": {
+              "filename": "wan22_00244.mp4",
+              "type": "input",
+              "format": "video/mp4",
+              "force_rate": 24,
+              "custom_width": 0,
+              "custom_height": 0,
+              "frame_load_cap": 0,
+              "skip_first_frames": 0,
+              "select_every_nth": 1
+            }
+          }
+        }
+      },
+      {
+        "id": 412,
+        "type": "LoadAudio",
+        "title": "Load Audio [[P:Audio input]]",
+        "port_label": "Audio input",
+        "mode": 2,
+        "mode_name": "NEVER",
+        "widgets": [
+          "A small word_mastered.wav",
+          null,
+          null
+        ]
+      },
+      {
+        "id": 852,
+        "type": "PreviewImage",
+        "title": "Preview First Frame Resized [[P:02 Image to Video]] ",
+        "port_label": "02 Image to Video",
+        "mode": 0,
+        "mode_name": "ALWAYS",
+        "widgets": []
+      },
+      {
+        "id": 149,
+        "type": "LoadImage",
+        "title": "First Frame [[P:02 Image to Video]] ",
+        "port_label": "02 Image to Video",
+        "mode": 0,
+        "mode_name": "ALWAYS",
+        "widgets": [
+          "16-C.jpeg",
+          "image"
+        ]
+      }
+    ],
+    "ltx_related": [
+      {
+        "id": 1637,
+        "type": "GetNode",
+        "title": "Get_m vae video",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1638,
+        "type": "GetNode",
+        "title": "Get_m vae audio",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1640,
+        "type": "GetNode",
+        "title": "Get_m vae preview",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1648,
+        "type": "GetNode",
+        "title": "Get_m audio v2v",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1646,
+        "type": "GetNode",
+        "title": "Get_m audio in",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 700,
+        "type": "LTXVChunkFeedForward",
+        "title": "",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1110,
+        "type": "Sampler Selector (Image Saver)",
+        "title": "",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1673,
+        "type": "SetNode",
+        "title": "Set_m sampler",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1647,
+        "type": "SetNode",
+        "title": "Set_m audio v2v",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1674,
+        "type": "GetNode",
+        "title": "Get_m sampler",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 412,
+        "type": "LoadAudio",
+        "title": "Load Audio [[P:Audio input]]",
+        "mode": 2,
+        "mode_name": "NEVER"
+      },
+      {
+        "id": 1645,
+        "type": "SetNode",
+        "title": "Set_m audio in",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1799,
+        "type": "GGUFLoaderKJ",
+        "title": "",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1800,
+        "type": "GGUFLoaderKJ",
+        "title": "",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 366,
+        "type": "UnetLoaderGGUF",
+        "title": "",
+        "mode": 4,
+        "mode_name": "BYPASS"
+      },
+      {
+        "id": 1802,
+        "type": "DualClipLoaderGGUF",
+        "title": "",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 146,
+        "type": "DualCLIPLoader",
+        "title": "",
+        "mode": 4,
+        "mode_name": "BYPASS"
+      },
+      {
+        "id": 175,
+        "type": "VAELoaderKJ",
+        "title": "VAELoader Audio",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1636,
+        "type": "SetNode",
+        "title": "Set_m vae audio",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 174,
+        "type": "VAELoaderKJ",
+        "title": "VAELoader Video",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1635,
+        "type": "SetNode",
+        "title": "Set_m vae video",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 591,
+        "type": "VAELoader",
+        "title": "",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1639,
+        "type": "SetNode",
+        "title": "Set_m vae preview",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      },
+      {
+        "id": 1792,
+        "type": "TrimAudioDuration",
+        "title": "",
+        "mode": 0,
+        "mode_name": "ALWAYS"
+      }
+    ]
+  },
+  "routing_detail": {
+    "ComfySwitchNode": [
+      {
+        "id": 1801,
+        "title": "",
+        "mode": 0,
+        "mode_name": "ALWAYS",
+        "widgets": [
+          false
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.22.0",
+          "Node name for S&R": "ComfySwitchNode",
+          "ue_properties": {
+            "widget_ue_connectable": {},
+            "input_ue_unconnectable": {},
+            "version": "7.8"
+          }
+        },
+        "inputs": [
+          {
+            "name": "on_false",
+            "type": "MODEL",
+            "from": {
+              "from_id": 1799,
+              "from_slot": 0,
+              "to_id": 1801,
+              "to_slot": 0,
+              "type": "MODEL",
+              "from_title": "GGUFLoaderKJ"
+            }
+          },
+          {
+            "name": "on_true",
+            "type": "MODEL",
+            "from": {
+              "from_id": 1800,
+              "from_slot": 0,
+              "to_id": 1801,
+              "to_slot": 1,
+              "type": "MODEL",
+              "from_title": "GGUFLoaderKJ"
+            }
+          },
+          {
+            "name": "switch",
+            "type": "BOOLEAN",
+            "from": null
+          }
+        ],
+        "outputs": [
+          {
+            "slot": 0,
+            "name": "output",
+            "type": "MODEL",
+            "links": [
+              3561
+            ]
+          }
+        ]
+      },
+      {
+        "id": 1798,
+        "title": "",
+        "mode": 0,
+        "mode_name": "ALWAYS",
+        "widgets": [
+          false
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.22.0",
+          "Node name for S&R": "ComfySwitchNode",
+          "ue_properties": {
+            "widget_ue_connectable": {},
+            "input_ue_unconnectable": {},
+            "version": "7.8"
+          }
+        },
+        "inputs": [
+          {
+            "name": "on_false",
+            "type": "STRING",
+            "from": {
+              "from_id": 1797,
+              "from_slot": 0,
+              "to_id": 1798,
+              "to_slot": 0,
+              "type": "STRING",
+              "from_title": "프롬프트"
+            }
+          },
+          {
+            "name": "on_true",
+            "type": "STRING",
+            "from": {
+              "from_id": 1794,
+              "from_slot": 0,
+              "to_id": 1798,
+              "to_slot": 1,
+              "type": "STRING",
+              "from_title": "TextGenerateLTX2Prompt"
+            }
+          },
+          {
+            "name": "switch",
+            "type": "BOOLEAN",
+            "from": null
+          }
+        ],
+        "outputs": [
+          {
+            "slot": 0,
+            "name": "output",
+            "type": "STRING",
+            "links": [
+              3558
+            ]
+          }
+        ]
+      }
+    ],
+    "OrchestratorNodeMuter": [
+      {
+        "id": 1353,
+        "title": "Select options (see Table above)",
+        "mode": 0,
+        "widgets": [
+          false,
+          null,
+          false,
+          null,
+          false,
+          true,
+          false,
+          false,
+          false,
+          false
+        ],
+        "properties": {
+          "cnr_id": "comfyui_custom_switch",
+          "ver": "2.0.0",
+          "Node name for S&R": "OrchestratorNodeMuter",
+          "workflow_id": "default_workflow",
+          "show_settings": false,
+          "group_id": "P",
+          "node_mode": false,
+          "ue_properties": {
+            "widget_ue_connectable": {},
+            "input_ue_unconnectable": {},
+            "version": "7.7"
+          }
+        },
+        "inputs": []
+      }
+    ],
+    "set_get_bus_vars": [
+      "m audio in",
+      "m audio v2v",
+      "m clip length",
+      "m fps",
+      "m frame  first",
+      "m frame last",
+      "m frame mid",
+      "m hight",
+      "m img com",
+      "m model",
+      "m model upscale",
+      "m neg",
+      "m noise",
+      "m pos",
+      "m sampler",
+      "m vae audio",
+      "m vae preview",
+      "m vae video",
+      "m video",
+      "m video info",
+      "m width"
+    ],
+    "SetNode": [
+      {
+        "id": 1631,
+        "var": "m model",
+        "title": "Set_m model"
+      },
+      {
+        "id": 1643,
+        "var": "m noise",
+        "title": "Set_m noise"
+      },
+      {
+        "id": 1673,
+        "var": "m sampler",
+        "title": "Set_m sampler"
+      },
+      {
+        "id": 1647,
+        "var": "m audio v2v",
+        "title": "Set_m audio v2v"
+      },
+      {
+        "id": 1669,
+        "var": "m video info",
+        "title": "Set_m video info"
+      },
+      {
+        "id": 1700,
+        "var": "m hight",
+        "title": "Set_m hight"
+      },
+      {
+        "id": 1667,
+        "var": "m video",
+        "title": "Set_m video"
+      },
+      {
+        "id": 1641,
+        "var": "m clip length",
+        "title": "Set_m clip length"
+      },
+      {
+        "id": 1653,
+        "var": "m frame  first",
+        "title": "Set_m frame  first"
+      },
+      {
+        "id": 1706,
+        "var": "m frame mid",
+        "title": "Set_m frame mid"
+      },
+      {
+        "id": 1654,
+        "var": "m frame last",
+        "title": "Set_m frame last"
+      },
+      {
+        "id": 1699,
+        "var": "m width",
+        "title": "Set_m width"
+      },
+      {
+        "id": 1645,
+        "var": "m audio in",
+        "title": "Set_m audio in"
+      },
+      {
+        "id": 1675,
+        "var": "m fps",
+        "title": "Set_m fps"
+      },
+      {
+        "id": 1650,
+        "var": "m neg",
+        "title": "Set_m neg"
+      },
+      {
+        "id": 1649,
+        "var": "m pos",
+        "title": "Set_m pos"
+      },
+      {
+        "id": 1636,
+        "var": "m vae audio",
+        "title": "Set_m vae audio"
+      },
+      {
+        "id": 1635,
+        "var": "m vae video",
+        "title": "Set_m vae video"
+      },
+      {
+        "id": 1639,
+        "var": "m vae preview",
+        "title": "Set_m vae preview"
+      },
+      {
+        "id": 1679,
+        "var": "m model upscale",
+        "title": "Set_m model upscale"
+      },
+      {
+        "id": 1665,
+        "var": "m img com",
+        "title": "Set_m img com"
+      }
+    ],
+    "GetNode": [
+      {
+        "id": 1676,
+        "var": "m fps",
+        "title": "Get_m fps"
+      },
+      {
+        "id": 1637,
+        "var": "m vae video",
+        "title": "Get_m vae video"
+      },
+      {
+        "id": 1638,
+        "var": "m vae audio",
+        "title": "Get_m vae audio"
+      },
+      {
+        "id": 1640,
+        "var": "m vae preview",
+        "title": "Get_m vae preview"
+      },
+      {
+        "id": 1642,
+        "var": "m clip length",
+        "title": "Get_m clip length"
+      },
+      {
+        "id": 1644,
+        "var": "m noise",
+        "title": "Get_m noise"
+      },
+      {
+        "id": 1648,
+        "var": "m audio v2v",
+        "title": "Get_m audio v2v"
+      },
+      {
+        "id": 1652,
+        "var": "m neg",
+        "title": "Get_m neg"
+      },
+      {
+        "id": 1646,
+        "var": "m audio in",
+        "title": "Get_m audio in"
+      },
+      {
+        "id": 1670,
+        "var": "m video info",
+        "title": "Get_m video info"
+      },
+      {
+        "id": 1632,
+        "var": "m model",
+        "title": "Get_m model"
+      },
+      {
+        "id": 1634,
+        "var": "m model upscale",
+        "title": "Get_m model upscale"
+      },
+      {
+        "id": 1662,
+        "var": "m fps",
+        "title": "Get_m fps"
+      },
+      {
+        "id": 1701,
+        "var": "m width",
+        "title": "Get_m width"
+      },
+      {
+        "id": 1702,
+        "var": "m hight",
+        "title": "Get_m hight"
+      },
+      {
+        "id": 1656,
+        "var": "m frame last",
+        "title": "Get_m frame last"
+      },
+      {
+        "id": 1703,
+        "var": "m frame  first",
+        "title": "Get_m frame  first"
+      },
+      {
+        "id": 1666,
+        "var": "m img com",
+        "title": "Get_m img com"
+      },
+      {
+        "id": 1707,
+        "var": "m frame mid",
+        "title": "Get_m frame mid"
+      },
+      {
+        "id": 1668,
+        "var": "m video",
+        "title": "Get_m video"
+      },
+      {
+        "id": 1674,
+        "var": "m sampler",
+        "title": "Get_m sampler"
+      },
+      {
+        "id": 1709,
+        "var": "m video",
+        "title": "Get_m video"
+      },
+      {
+        "id": 1655,
+        "var": "m frame  first",
+        "title": "Get_m frame  first"
+      },
+      {
+        "id": 1651,
+        "var": "m pos",
+        "title": "Get_m pos"
+      }
+    ]
+  },
+  "subgraphs": [
+    {
+      "name": "subgraph:New Subgraph",
+      "node_count": 206,
+      "link_count": 226,
+      "type_counts": {
+        "GetNode": 71,
+        "SetNode": 39,
+        "LayerUtility: AnyRerouter": 19,
+        "Note": 10,
+        "ComfyMathExpression": 7,
+        "Any Switch (rgthree)": 7,
+        "MathExpression|pysssss": 4,
+        "LTXVPreprocess": 4,
+        "ResizeImageMaskNode": 4,
+        "LTXVImgToVideoInplace": 3,
+        "ManualSigmas": 2,
+        "LTXVConcatAVLatent": 2,
+        "LTXVAudioVAEEncode": 2,
+        "SimpleCalculatorKJ": 2,
+        "JWIntegerToFloat": 2,
+        "EmptyLTXVLatentVideo": 2,
+        "CFGGuider": 2,
+        "SamplerCustomAdvanced": 2,
+        "LTXVAddGuideMulti": 2,
+        "GetImageRangeFromBatch": 2,
+        "LTXVSeparateAVLatent": 2,
+        "PrimitiveInt": 1,
+        "LTXVEmptyLatentAudio": 1,
+        "LTXVAudioVideoMask": 1,
+        "JWFloatToInteger": 1,
+        "SolidMask": 1,
+        "SetLatentNoiseMask": 1,
+        "LTXVConditioning": 1,
+        "easy ifElse": 1,
+        "FinalFrameSelector": 1,
+        "LTXVCropGuides": 1,
+        "VHS_VideoInfo": 1,
+        "VAEDecodeTiled": 1,
+        "LTXVLatentUpsampler": 1,
+        "LTXVAudioVAEDecode": 1,
+        "KSamplerSelect": 1,
+        "LTX2SamplingPreviewOverride": 1
+      },
+      "mode_counts": {
+        "ALWAYS": 173,
+        "NEVER": 33
+      },
+      "routing": {
+        "SetNode": [
+          {
+            "id": 1096,
+            "title": "Set_model",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "model"
+            ]
+          },
+          {
+            "id": 1104,
+            "title": "Set_fps",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "fps"
+            ]
+          },
+          {
+            "id": 1107,
+            "title": "Set_model upscale",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "model upscale"
+            ]
+          },
+          {
+            "id": 1085,
+            "title": "Set_vae video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae video"
+            ]
+          },
+          {
+            "id": 1088,
+            "title": "Set_vae audio",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae audio"
+            ]
+          },
+          {
+            "id": 1098,
+            "title": "Set_vae preview",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae preview"
+            ]
+          },
+          {
+            "id": 1261,
+            "title": "Set_audio v2v",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "audio v2v"
+            ]
+          },
+          {
+            "id": 1090,
+            "title": "Set_clip length",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "clip length"
+            ]
+          },
+          {
+            "id": 1268,
+            "title": "Set_clip seconds",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "clip seconds"
+            ]
+          },
+          {
+            "id": 1263,
+            "title": "Set_loaded fps",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "loaded fps"
+            ]
+          },
+          {
+            "id": 1557,
+            "title": "Set_latent video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "latent video"
+            ]
+          },
+          {
+            "id": 1547,
+            "title": "Set_neg FLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "neg FLF"
+            ]
+          },
+          {
+            "id": 1546,
+            "title": "Set_pos FLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "pos FLF"
+            ]
+          },
+          {
+            "id": 1505,
+            "title": "Set_audio in",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "audio in"
+            ]
+          },
+          {
+            "id": 1466,
+            "title": "Set_ltvxpre v2v",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre v2v"
+            ]
+          },
+          {
+            "id": 1265,
+            "title": "Set_loaded duration",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "loaded duration"
+            ]
+          },
+          {
+            "id": 1559,
+            "title": "Set_latent video FLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "latent video FLF"
+            ]
+          },
+          {
+            "id": 1622,
+            "title": "Set_frame count",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame count"
+            ]
+          },
+          {
+            "id": 1076,
+            "title": "Set_width",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "width"
+            ]
+          },
+          {
+            "id": 1077,
+            "title": "Set_hight",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "hight"
+            ]
+          },
+          {
+            "id": 1168,
+            "title": "Set_frame first",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame first"
+            ]
+          },
+          {
+            "id": 1290,
+            "title": "Set_frame mid",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame mid"
+            ]
+          },
+          {
+            "id": 1568,
+            "title": "Set_ltvxpre FL",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre FL"
+            ]
+          },
+          {
+            "id": 1721,
+            "title": "Set_ltvxpre FM",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre FM"
+            ]
+          },
+          {
+            "id": 1724,
+            "title": "Set_neg FMLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "neg FMLF"
+            ]
+          },
+          {
+            "id": 1732,
+            "title": "Set_latent video FMLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "latent video FMLF"
+            ]
+          },
+          {
+            "id": 1730,
+            "title": "Set_pos FMLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "pos FMLF"
+            ]
+          },
+          {
+            "id": 1258,
+            "title": "Set_video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "video"
+            ]
+          },
+          {
+            "id": 1596,
+            "title": "Set_frame first resized",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame first resized"
+            ]
+          },
+          {
+            "id": 1744,
+            "title": "Set_frame video resized",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame video resized"
+            ]
+          },
+          {
+            "id": 1165,
+            "title": "Set_ltvxpre i2v",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre i2v"
+            ]
+          },
+          {
+            "id": 1255,
+            "title": "Set_video info",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "video info"
+            ]
+          },
+          {
+            "id": 1781,
+            "title": "Set_audio out",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "audio out"
+            ]
+          },
+          {
+            "id": 1100,
+            "title": "Set_pos",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "pos"
+            ]
+          },
+          {
+            "id": 1101,
+            "title": "Set_neg",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "neg"
+            ]
+          },
+          {
+            "id": 1093,
+            "title": "Set_sampler",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "sampler"
+            ]
+          },
+          {
+            "id": 1508,
+            "title": "Set_frame last",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame last"
+            ]
+          },
+          {
+            "id": 1082,
+            "title": "Set_noise",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "noise"
+            ]
+          },
+          {
+            "id": 1170,
+            "title": "Set_img compression",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "img compression"
+            ]
+          }
+        ],
+        "GetNode": [
+          {
+            "id": 1086,
+            "title": "Get_vae video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae video"
+            ]
+          },
+          {
+            "id": 1106,
+            "title": "Get_fps",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "fps"
+            ]
+          },
+          {
+            "id": 1087,
+            "title": "Get_vae video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae video"
+            ]
+          },
+          {
+            "id": 1097,
+            "title": "Get_model",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "model"
+            ]
+          },
+          {
+            "id": 1111,
+            "title": "Get_vae audio",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae audio"
+            ]
+          },
+          {
+            "id": 1260,
+            "title": "Get_vae audio",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae audio"
+            ]
+          },
+          {
+            "id": 1262,
+            "title": "Get_audio v2v",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "audio v2v"
+            ]
+          },
+          {
+            "id": 1267,
+            "title": "Get_clip length",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "clip length"
+            ]
+          },
+          {
+            "id": 1264,
+            "title": "Get_loaded fps",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "loaded fps"
+            ]
+          },
+          {
+            "id": 1266,
+            "title": "Get_loaded duration",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "loaded duration"
+            ]
+          },
+          {
+            "id": 1269,
+            "title": "Get_clip seconds",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "clip seconds"
+            ]
+          },
+          {
+            "id": 1256,
+            "title": "Get_video info",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "video info"
+            ]
+          },
+          {
+            "id": 1166,
+            "title": "Get_ltvxpre i2v",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre i2v"
+            ]
+          },
+          {
+            "id": 1161,
+            "title": "Get_vae video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae video"
+            ]
+          },
+          {
+            "id": 1108,
+            "title": "Get_model upscale",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "model upscale"
+            ]
+          },
+          {
+            "id": 1156,
+            "title": "Get_vae video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae video"
+            ]
+          },
+          {
+            "id": 1167,
+            "title": "Get_ltvxpre i2v",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre i2v"
+            ]
+          },
+          {
+            "id": 1376,
+            "title": "Get_ltvxpre v2v",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre v2v"
+            ]
+          },
+          {
+            "id": 1472,
+            "title": "Get_ltvxpre v2v",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre v2v"
+            ]
+          },
+          {
+            "id": 1473,
+            "title": "Get_vae video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae video"
+            ]
+          },
+          {
+            "id": 1504,
+            "title": "Get_vae audio",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae audio"
+            ]
+          },
+          {
+            "id": 1506,
+            "title": "Get_audio in",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "audio in"
+            ]
+          },
+          {
+            "id": 1099,
+            "title": "Get_vae preview",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae preview"
+            ]
+          },
+          {
+            "id": 1555,
+            "title": "Get_neg",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "neg"
+            ]
+          },
+          {
+            "id": 1558,
+            "title": "Get_latent video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "latent video"
+            ]
+          },
+          {
+            "id": 1574,
+            "title": "Get_ltvxpre i2v",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre i2v"
+            ]
+          },
+          {
+            "id": 1575,
+            "title": "Get_ltvxpre FL",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre FL"
+            ]
+          },
+          {
+            "id": 1556,
+            "title": "Get_vae video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae video"
+            ]
+          },
+          {
+            "id": 1554,
+            "title": "Get_pos",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "pos"
+            ]
+          },
+          {
+            "id": 1259,
+            "title": "Get_video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "video"
+            ]
+          },
+          {
+            "id": 1105,
+            "title": "Get_fps",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "fps"
+            ]
+          },
+          {
+            "id": 1091,
+            "title": "Get_clip length",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "clip length"
+            ]
+          },
+          {
+            "id": 1719,
+            "title": "Get_img compression",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "img compression"
+            ]
+          },
+          {
+            "id": 1723,
+            "title": "Get_neg",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "neg"
+            ]
+          },
+          {
+            "id": 1725,
+            "title": "Get_latent video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "latent video"
+            ]
+          },
+          {
+            "id": 1728,
+            "title": "Get_vae video",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae video"
+            ]
+          },
+          {
+            "id": 1729,
+            "title": "Get_pos",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "pos"
+            ]
+          },
+          {
+            "id": 1726,
+            "title": "Get_ltvxpre i2v",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre i2v"
+            ]
+          },
+          {
+            "id": 1733,
+            "title": "Get_ltvxpre FM",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre FM"
+            ]
+          },
+          {
+            "id": 1734,
+            "title": "Get_frame count",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame count"
+            ]
+          },
+          {
+            "id": 1736,
+            "title": "Get_pos FMLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "pos FMLF"
+            ]
+          },
+          {
+            "id": 1548,
+            "title": "Get_pos FLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "pos FLF"
+            ]
+          },
+          {
+            "id": 1553,
+            "title": "Get_neg FLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "neg FLF"
+            ]
+          },
+          {
+            "id": 1103,
+            "title": "Get_neg",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "neg"
+            ]
+          },
+          {
+            "id": 1737,
+            "title": "Get_neg FMLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "neg FMLF"
+            ]
+          },
+          {
+            "id": 1738,
+            "title": "Get_latent video FMLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "latent video FMLF"
+            ]
+          },
+          {
+            "id": 1560,
+            "title": "Get_latent video FLF",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "latent video FLF"
+            ]
+          },
+          {
+            "id": 1727,
+            "title": "Get_ltvxpre FL",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "ltvxpre FL"
+            ]
+          },
+          {
+            "id": 1171,
+            "title": "Get_img compression",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "img compression"
+            ]
+          },
+          {
+            "id": 1708,
+            "title": "Get_frame first",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame first"
+            ]
+          },
+          {
+            "id": 1468,
+            "title": "Get_img compression",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "img compression"
+            ]
+          },
+          {
+            "id": 1570,
+            "title": "Get_img compression",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "img compression"
+            ]
+          },
+          {
+            "id": 1612,
+            "title": "Get_frame last",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame last"
+            ]
+          },
+          {
+            "id": 1711,
+            "title": "Get_frame mid",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame mid"
+            ]
+          },
+          {
+            "id": 1740,
+            "title": "Get_hight",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "hight"
+            ]
+          },
+          {
+            "id": 1741,
+            "title": "Get_width",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "width"
+            ]
+          },
+          {
+            "id": 1078,
+            "title": "Get_width",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "width"
+            ]
+          },
+          {
+            "id": 1079,
+            "title": "Get_hight",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "hight"
+            ]
+          },
+          {
+            "id": 1295,
+            "title": "Get_frame first resized",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame first resized"
+            ]
+          },
+          {
+            "id": 1745,
+            "title": "Get_frame video resized",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "frame video resized"
+            ]
+          },
+          {
+            "id": 1752,
+            "title": "Get_hight",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "hight"
+            ]
+          },
+          {
+            "id": 1751,
+            "title": "Get_width",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "width"
+            ]
+          },
+          {
+            "id": 1754,
+            "title": "Get_hight",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "hight"
+            ]
+          },
+          {
+            "id": 1753,
+            "title": "Get_width",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "width"
+            ]
+          },
+          {
+            "id": 1780,
+            "title": "Get_audio out",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "audio out"
+            ]
+          },
+          {
+            "id": 1089,
+            "title": "Get_vae audio",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "vae audio"
+            ]
+          },
+          {
+            "id": 1102,
+            "title": "Get_pos",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "pos"
+            ]
+          },
+          {
+            "id": 1084,
+            "title": "Get_noise",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "noise"
+            ]
+          },
+          {
+            "id": 1095,
+            "title": "Get_sampler",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "sampler"
+            ]
+          },
+          {
+            "id": 1094,
+            "title": "Get_sampler",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "sampler"
+            ]
+          },
+          {
+            "id": 1083,
+            "title": "Get_noise",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              "noise"
+            ]
+          }
+        ]
+      },
+      "ports_P": [
+        {
+          "id": 1327,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:01 Text to Video]]",
+          "port_label": "01 Text to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1371,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:02 Image to Video]]",
+          "port_label": "02 Image to Video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": []
+        },
+        {
+          "id": 1372,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1375,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1409,
+          "type": "MathExpression|pysssss",
+          "title": "a/8 [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            "a/8"
+          ]
+        },
+        {
+          "id": 1410,
+          "type": "JWFloatToInteger",
+          "title": "Float to Integer [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            0,
+            "floor"
+          ]
+        },
+        {
+          "id": 1413,
+          "type": "MathExpression|pysssss",
+          "title": "a-8 [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            "a - 8"
+          ]
+        },
+        {
+          "id": 1496,
+          "type": "SolidMask",
+          "title": "SolidMask [[P:Audio input]]",
+          "port_label": "Audio input",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            0,
+            512,
+            512
+          ]
+        },
+        {
+          "id": 1380,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:02 Image to Video]]",
+          "port_label": "02 Image to Video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": []
+        },
+        {
+          "id": 1383,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1499,
+          "type": "SetLatentNoiseMask",
+          "title": "Set Latent Noise Mask [[P:Audio input]]",
+          "port_label": "Audio input",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1414,
+          "type": "easy ifElse",
+          "title": "true=a, false=a-8 [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            false
+          ]
+        },
+        {
+          "id": 1567,
+          "type": "LTXVPreprocess",
+          "title": "LTXVPreprocess [[P:Last Frame input]]",
+          "port_label": "Last Frame input",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            33
+          ]
+        },
+        {
+          "id": 1495,
+          "type": "LTXVAudioVAEEncode",
+          "title": "LTXV Audio VAE Encode [[P:Audio input]]",
+          "port_label": "Audio input",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1412,
+          "type": "SimpleCalculatorKJ",
+          "title": "if a >= b then true [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            "a >= b"
+          ]
+        },
+        {
+          "id": 1381,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:01 Text to Video]]",
+          "port_label": "01 Text to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1533,
+          "type": "LTXVAddGuideMulti",
+          "title": "LTXVAddGuideMulti [[P:Last Frame input]]",
+          "port_label": "Last Frame input",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            "2",
+            0,
+            1,
+            -1,
+            0.8
+          ]
+        },
+        {
+          "id": 1735,
+          "type": "ComfyMathExpression",
+          "title": "(a-1)/2 [[P:Mid Frame input]]",
+          "port_label": "Mid Frame input",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            "(a-1)/2"
+          ]
+        },
+        {
+          "id": 1543,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:01 Text to Video]]",
+          "port_label": "01 Text to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1542,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:02 Image to Video]]",
+          "port_label": "02 Image to Video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": []
+        },
+        {
+          "id": 1544,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1552,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:01 Text to Video]]",
+          "port_label": "01 Text to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1550,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:02 Image to Video]]",
+          "port_label": "02 Image to Video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": []
+        },
+        {
+          "id": 1551,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1359,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:01 Text to Video]]",
+          "port_label": "01 Text to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1361,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:02 Image to Video]]",
+          "port_label": "02 Image to Video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": []
+        },
+        {
+          "id": 1384,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1731,
+          "type": "LTXVAddGuideMulti",
+          "title": "LTXVAddGuideMulti [[P:Mid Frame input]]",
+          "port_label": "Mid Frame input",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            "3",
+            0,
+            1,
+            0,
+            0.8,
+            -1,
+            0.8
+          ]
+        },
+        {
+          "id": 1589,
+          "type": "ResizeImageMaskNode",
+          "title": "Resize [[P:02 Image to Video]]",
+          "port_label": "02 Image to Video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            "scale dimensions",
+            1920,
+            1088,
+            "center",
+            "lanczos"
+          ]
+        },
+        {
+          "id": 1610,
+          "type": "ResizeImageMaskNode",
+          "title": "Resize [[P:Last Frame input]]",
+          "port_label": "Last Frame input",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            "scale dimensions",
+            1920,
+            1088,
+            "center",
+            "lanczos"
+          ]
+        },
+        {
+          "id": 1710,
+          "type": "ResizeImageMaskNode",
+          "title": "Resize [[P:Mid Frame input]]",
+          "port_label": "Mid Frame input",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            "scale dimensions",
+            1920,
+            1088,
+            "center",
+            "lanczos"
+          ]
+        },
+        {
+          "id": 1401,
+          "type": "LTXVPreprocess",
+          "title": "LTXVPreprocess [[P:02 Image to Video]]",
+          "port_label": "02 Image to Video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": [
+            33
+          ]
+        },
+        {
+          "id": 1374,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:02 Image to Video]]",
+          "port_label": "02 Image to Video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": []
+        },
+        {
+          "id": 1747,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": []
+        },
+        {
+          "id": 1746,
+          "type": "LayerUtility: AnyRerouter",
+          "title": "[[P:02 Image to Video]]",
+          "port_label": "02 Image to Video",
+          "mode": 0,
+          "mode_name": "ALWAYS",
+          "widgets": []
+        },
+        {
+          "id": 1411,
+          "type": "MathExpression|pysssss",
+          "title": "a*8+1 [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            "a*8+1"
+          ]
+        },
+        {
+          "id": 1743,
+          "type": "GetImageRangeFromBatch",
+          "title": "Get Range [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": 1720,
+          "type": "LTXVPreprocess",
+          "title": "LTXVPreprocess [[P:Last Frame input]]",
+          "port_label": "Last Frame input",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            33
+          ]
+        },
+        {
+          "id": 1465,
+          "type": "LTXVPreprocess",
+          "title": "LTXVPreprocess [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            33
+          ]
+        },
+        {
+          "id": 1257,
+          "type": "GetImageRangeFromBatch",
+          "title": "Range [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            0,
+            20
+          ]
+        },
+        {
+          "id": 1607,
+          "type": "ResizeImageMaskNode",
+          "title": "Resize [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            "scale dimensions",
+            1920,
+            1088,
+            "center",
+            "lanczos"
+          ]
+        },
+        {
+          "id": 1223,
+          "type": "VHS_VideoInfo",
+          "title": "Video Info [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": {}
+        }
+      ],
+      "ltx_related": [
+        {
+          "id": 1086,
+          "type": "GetNode",
+          "title": "Get_vae video",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1087,
+          "type": "GetNode",
+          "title": "Get_vae video",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1055,
+          "type": "LTXVConcatAVLatent",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1111,
+          "type": "GetNode",
+          "title": "Get_vae audio",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1085,
+          "type": "SetNode",
+          "title": "Set_vae video",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1088,
+          "type": "SetNode",
+          "title": "Set_vae audio",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1098,
+          "type": "SetNode",
+          "title": "Set_vae preview",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1261,
+          "type": "SetNode",
+          "title": "Set_audio v2v",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1260,
+          "type": "GetNode",
+          "title": "Get_vae audio",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1262,
+          "type": "GetNode",
+          "title": "Get_audio v2v",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1201,
+          "type": "LTXVAudioVAEEncode",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1270,
+          "type": "Note",
+          "title": "t2v i2v empty audio",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1163,
+          "type": "LTXVImgToVideoInplace",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1161,
+          "type": "GetNode",
+          "title": "Get_vae video",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1156,
+          "type": "GetNode",
+          "title": "Get_vae video",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1155,
+          "type": "LTXVImgToVideoInplace",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1061,
+          "type": "LTXVEmptyLatentAudio",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1196,
+          "type": "EmptyLTXVLatentVideo",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1202,
+          "type": "LTXVAudioVideoMask",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1052,
+          "type": "CFGGuider",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1193,
+          "type": "LTXVImgToVideoInplace",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1473,
+          "type": "GetNode",
+          "title": "Get_vae video",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1496,
+          "type": "SolidMask",
+          "title": "SolidMask [[P:Audio input]]",
+          "mode": 2,
+          "mode_name": "NEVER"
+        },
+        {
+          "id": 1504,
+          "type": "GetNode",
+          "title": "Get_vae audio",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1506,
+          "type": "GetNode",
+          "title": "Get_audio in",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1499,
+          "type": "SetLatentNoiseMask",
+          "title": "Set Latent Noise Mask [[P:Audio input]]",
+          "mode": 2,
+          "mode_name": "NEVER"
+        },
+        {
+          "id": 1271,
+          "type": "Note",
+          "title": "v2v latent video/audio",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1099,
+          "type": "GetNode",
+          "title": "Get_vae preview",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1060,
+          "type": "EmptyLTXVLatentVideo",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1067,
+          "type": "LTXVConditioning",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1556,
+          "type": "GetNode",
+          "title": "Get_vae video",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1507,
+          "type": "Note",
+          "title": "audio in",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1505,
+          "type": "SetNode",
+          "title": "Set_audio in",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1054,
+          "type": "SamplerCustomAdvanced",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1567,
+          "type": "LTXVPreprocess",
+          "title": "LTXVPreprocess [[P:Last Frame input]]",
+          "mode": 2,
+          "mode_name": "NEVER"
+        },
+        {
+          "id": 1495,
+          "type": "LTXVAudioVAEEncode",
+          "title": "LTXV Audio VAE Encode [[P:Audio input]]",
+          "mode": 2,
+          "mode_name": "NEVER"
+        },
+        {
+          "id": 1728,
+          "type": "GetNode",
+          "title": "Get_vae video",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1533,
+          "type": "LTXVAddGuideMulti",
+          "title": "LTXVAddGuideMulti [[P:Last Frame input]]",
+          "mode": 2,
+          "mode_name": "NEVER"
+        },
+        {
+          "id": 1074,
+          "type": "LTXVCropGuides",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1062,
+          "type": "CFGGuider",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1576,
+          "type": "Note",
+          "title": "Add Guide FLF",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1731,
+          "type": "LTXVAddGuideMulti",
+          "title": "LTXVAddGuideMulti [[P:Mid Frame input]]",
+          "mode": 2,
+          "mode_name": "NEVER"
+        },
+        {
+          "id": 1589,
+          "type": "ResizeImageMaskNode",
+          "title": "Resize [[P:02 Image to Video]]",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1610,
+          "type": "ResizeImageMaskNode",
+          "title": "Resize [[P:Last Frame input]]",
+          "mode": 2,
+          "mode_name": "NEVER"
+        },
+        {
+          "id": 1710,
+          "type": "ResizeImageMaskNode",
+          "title": "Resize [[P:Mid Frame input]]",
+          "mode": 2,
+          "mode_name": "NEVER"
+        },
+        {
+          "id": 1401,
+          "type": "LTXVPreprocess",
+          "title": "LTXVPreprocess [[P:02 Image to Video]]",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1720,
+          "type": "LTXVPreprocess",
+          "title": "LTXVPreprocess [[P:Last Frame input]]",
+          "mode": 2,
+          "mode_name": "NEVER"
+        },
+        {
+          "id": 1465,
+          "type": "LTXVPreprocess",
+          "title": "LTXVPreprocess [[P:03 Video to Video]]",
+          "mode": 2,
+          "mode_name": "NEVER"
+        },
+        {
+          "id": 1607,
+          "type": "ResizeImageMaskNode",
+          "title": "Resize [[P:03 Video to Video]]",
+          "mode": 2,
+          "mode_name": "NEVER"
+        },
+        {
+          "id": 1278,
+          "type": "Note",
+          "title": "i2v LF MF v2v LTXV Preprocess",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1739,
+          "type": "Note",
+          "title": "Add Guide FMLF",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1071,
+          "type": "VAEDecodeTiled",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1780,
+          "type": "GetNode",
+          "title": "Get_audio out",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1782,
+          "type": "LTXVConcatAVLatent",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1070,
+          "type": "LTXVLatentUpsampler",
+          "title": "spatial",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1781,
+          "type": "SetNode",
+          "title": "Set_audio out",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1783,
+          "type": "LTXVSeparateAVLatent",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1064,
+          "type": "LTXVAudioVAEDecode",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1089,
+          "type": "GetNode",
+          "title": "Get_vae audio",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1068,
+          "type": "LTXVSeparateAVLatent",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1095,
+          "type": "GetNode",
+          "title": "Get_sampler",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1094,
+          "type": "GetNode",
+          "title": "Get_sampler",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1056,
+          "type": "KSamplerSelect",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1093,
+          "type": "SetNode",
+          "title": "Set_sampler",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        },
+        {
+          "id": 1066,
+          "type": "SamplerCustomAdvanced",
+          "title": "",
+          "mode": 0,
+          "mode_name": "ALWAYS"
+        }
+      ],
+      "audio_path_detail": {
+        "audio_ltx_chain_nodes": [
+          {
+            "id": 1055,
+            "type": "LTXVConcatAVLatent",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [],
+            "feeds": []
+          },
+          {
+            "id": 1201,
+            "type": "LTXVAudioVAEEncode",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [],
+            "feeds": []
+          },
+          {
+            "id": 1163,
+            "type": "LTXVImgToVideoInplace",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              0.8,
+              false
+            ],
+            "feeds": []
+          },
+          {
+            "id": 1155,
+            "type": "LTXVImgToVideoInplace",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              0.8,
+              false
+            ],
+            "feeds": []
+          },
+          {
+            "id": 1061,
+            "type": "LTXVEmptyLatentAudio",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              97,
+              24,
+              1
+            ],
+            "feeds": []
+          },
+          {
+            "id": 1196,
+            "type": "EmptyLTXVLatentVideo",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              768,
+              512,
+              97,
+              1
+            ],
+            "feeds": []
+          },
+          {
+            "id": 1202,
+            "type": "LTXVAudioVideoMask",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              24,
+              5,
+              0,
+              5,
+              0,
+              "pad",
+              "add"
+            ],
+            "feeds": []
+          },
+          {
+            "id": 1193,
+            "type": "LTXVImgToVideoInplace",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              0.8,
+              false
+            ],
+            "feeds": []
+          },
+          {
+            "id": 1496,
+            "type": "SolidMask",
+            "title": "SolidMask [[P:Audio input]]",
+            "mode": 2,
+            "mode_name": "NEVER",
+            "widgets": [
+              0,
+              512,
+              512
+            ],
+            "feeds": []
+          },
+          {
+            "id": 1499,
+            "type": "SetLatentNoiseMask",
+            "title": "Set Latent Noise Mask [[P:Audio input]]",
+            "mode": 2,
+            "mode_name": "NEVER",
+            "widgets": [],
+            "feeds": []
+          },
+          {
+            "id": 1060,
+            "type": "EmptyLTXVLatentVideo",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [
+              768,
+              512,
+              97,
+              1
+            ],
+            "feeds": []
+          },
+          {
+            "id": 1495,
+            "type": "LTXVAudioVAEEncode",
+            "title": "LTXV Audio VAE Encode [[P:Audio input]]",
+            "mode": 2,
+            "mode_name": "NEVER",
+            "widgets": [],
+            "feeds": []
+          },
+          {
+            "id": 1533,
+            "type": "LTXVAddGuideMulti",
+            "title": "LTXVAddGuideMulti [[P:Last Frame input]]",
+            "mode": 2,
+            "mode_name": "NEVER",
+            "widgets": [
+              "2",
+              0,
+              1,
+              -1,
+              0.8
+            ],
+            "feeds": []
+          },
+          {
+            "id": 1731,
+            "type": "LTXVAddGuideMulti",
+            "title": "LTXVAddGuideMulti [[P:Mid Frame input]]",
+            "mode": 2,
+            "mode_name": "NEVER",
+            "widgets": [
+              "3",
+              0,
+              1,
+              0,
+              0.8,
+              -1,
+              0.8
+            ],
+            "feeds": []
+          },
+          {
+            "id": 1782,
+            "type": "LTXVConcatAVLatent",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [],
+            "feeds": []
+          },
+          {
+            "id": 1783,
+            "type": "LTXVSeparateAVLatent",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [],
+            "feeds": []
+          },
+          {
+            "id": 1064,
+            "type": "LTXVAudioVAEDecode",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [],
+            "feeds": []
+          },
+          {
+            "id": 1068,
+            "type": "LTXVSeparateAVLatent",
+            "title": "",
+            "mode": 0,
+            "mode_name": "ALWAYS",
+            "widgets": [],
+            "feeds": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "subgraph:New Subgraph",
+      "node_count": 4,
+      "link_count": 9,
+      "type_counts": {
+        "EmptyImage": 1,
+        "GetImageRangeFromBatch": 1,
+        "Any Switch (rgthree)": 1,
+        "LayerUtility: ImageScaleByAspectRatio V2": 1
+      },
+      "mode_counts": {
+        "NEVER": 2,
+        "ALWAYS": 2
+      },
+      "routing": {},
+      "ports_P": [
+        {
+          "id": 1769,
+          "type": "EmptyImage",
+          "title": "EmptyImage [[P:01 Text to Video]]",
+          "port_label": "01 Text to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            512,
+            512,
+            1,
+            0
+          ]
+        },
+        {
+          "id": 1770,
+          "type": "GetImageRangeFromBatch",
+          "title": "Get Range [[P:03 Video to Video]]",
+          "port_label": "03 Video to Video",
+          "mode": 2,
+          "mode_name": "NEVER",
+          "widgets": [
+            0,
+            1
+          ]
+        }
+      ],
+      "ltx_related": []
+    }
+  ],
+  "analysis_notes": [
+    "Root graph is primarily an ORCHESTRATION shell (Set/Get bus, switches, muter, loaders).",
+    "Heavy LTX compute lives in subgraph(s), not only root nodes.",
+    "Comfy node mode: 0=ALWAYS active, 2=NEVER muted, 4=BYPASS — Orchestrator/switches flip these.",
+    "[[P:...]] titles are the public ports the user (and any API driver) must feed per mode.",
+    "Agent mini-graphs that only do LoadAudio->Encode->Concat are NOT equivalent to AIO Audio input routing.",
+    "Root [[P:]] ports found: 6",
+    "ComfySwitchNode count: 2",
+    "OrchestratorNodeMuter count: 1",
+    "Set/Get bus vars: ['m audio in', 'm audio v2v', 'm clip length', 'm fps', 'm frame  first', 'm frame last', 'm frame mid', 'm hight', 'm img com', 'm model', 'm model upscale', 'm neg', 'm noise', 'm pos', 'm sampler', 'm vae audio', 'm vae preview', 'm vae video', 'm video', 'm video info', 'm width']"
+  ]
+}

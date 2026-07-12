@@ -20,14 +20,19 @@
 | 10 | [commission_workflow.md](commission_workflow.md) | 수주 브리프 → 납품 순서 |
 | 11 | [audio_motion_production_modes.md](audio_motion_production_modes.md) | **오디오·SI2V·production_mode / mix_policy** |
 | 12 | [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) | **📋 FLF2V/F2F** 싱글테이크 이음 — 예정 기능 (S6) |
-| 13 | [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md) | **📋 LTX All-in-One WF → 파이프 편입** (영상 작업 후 검토) |
+| 13 | [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md) | LTX AIO 백엔드 매핑 (구 approx → **스위치 러너 기본**) |
+| 13b | [ltx23_aio_workflow_routing_analysis.md](ltx23_aio_workflow_routing_analysis.md) | **AIO 스위치·mute·`[[P:]]` 라우팅 분석** |
+| 13c | [ltx23_aio_ia2v_agent_usage.md](ltx23_aio_ia2v_agent_usage.md) | **IA2V 사용법** — Trim/Clip/해상도 입력별 조정 + 스위치 러너 |
+| 13d | [ltx23_manual_vs_agent_failure_analysis.md](ltx23_manual_vs_agent_failure_analysis.md) | **수동 성공 vs 에이전트 실패** 원인 대조 |
+| 13e | [session_status_2026-07-13_ltx_aio_switch.md](session_status_2026-07-13_ltx_aio_switch.md) | **2026-07-13 EOD** — Done/QA/Next (쇼츠·스위치·Sage) |
+| 14 | [comfy_memory_and_model_switching.md](comfy_memory_and_model_switching.md) | **Comfy 메모리·이종 모델 전환** (I2I↔LTX hang 분석) |
 
 ## 기타
 
 | 문서 | 역할 |
 |------|------|
 | [character_sheet_system_design.md](character_sheet_system_design.md) | 캐릭터 장기 설계·리서치 |
-| [moody_workflow_guide.md](moody_workflow_guide.md) | Moody T2I/I2I 운용 |
+| [moody_workflow_guide.md](moody_workflow_guide.md) | Moody T2I/I2I 운용 (국소 편집은 inpaint 후속) |
 | [openmontage_capability_catalog.md](openmontage_capability_catalog.md) | **OpenMontage 기능 목록·유용도** (참고 monorepo, 공식 연동 미정의) |
 | [openmontage_pipeline_recipes.md](openmontage_pipeline_recipes.md) | **OpenMontage 제작 레시피(파이프라인) 목록·설명** |
 | [openmontage_eval_notes.md](openmontage_eval_notes.md) | OpenMontage 클론 평가 요약 → 카탈로그로 상세 링크 |

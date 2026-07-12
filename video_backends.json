@@ -179,60 +179,80 @@
     "ltx23_ia2v": {
       "status": "ready",
       "kind": "s2v",
-      "engine": "LTX 2.3 distilled GGUF + custom audio AV latent",
+      "engine": "LTX 2.3 AIO real workflow (alias → i2v_audio mode switches)",
       "workflow": "scripts/generate_s2v.py --backend ltx23_ia2v",
       "strengths": ["fast_iteration", "custom_audio_i2v", "agent_default", "preview", "deliver"],
-      "notes": "DEFAULT agent SI2V (2026-07-12 speed policy). ~1–2min/5s. Require speaking motion prompts (anti still/blink-only). Format work aspect. InfiniteTalk = hero profile for CU lips."
+      "notes": "Alias of AIO i2v_audio. Uses [[P:]] switch on human AIO UI WF via ltx_aio_workflow_runner (not mini-graph)."
     },
     "ltx23_aio": {
       "status": "ready",
       "kind": "s2v",
-      "engine": "LTX 2.3 AIO modes (I2V / FLF / FML / V2V + optional audio)",
+      "engine": "LTX 2.3 AIO modes via Orchestrator [[P:]] mute + UI expand",
       "workflow": "scripts/generate_s2v.py --backend ltx23_aio*",
       "manifest": "workflows/agent/ltx23_aio.manifest.json",
       "source_ui": "workflows/human/ltx23AllInOneWorkflowForRTX_v44.json",
+      "source_ui_ia2v": "workflows/human/ltx23AllInOneWorkflowForRTX_v44_IA2V.json",
+      "runner": "lib/ltx_aio_workflow_runner.py",
       "strengths": ["fast_iteration", "lip_sync", "custom_audio_i2v", "flf", "user_validated_aio"],
-      "notes": "Modes via backend alias or --ltx-mode: i2v, i2v_audio, flf, flf_audio, fml, fml_audio, v2v. See docs/ltx23_aio_pipeline_integration.md."
+      "notes": "Modes: i2v, i2v_audio, flf, flf_audio, fml, fml_audio, v2v, v2v_audio, t2v, t2v_audio. Real WF switch/select — not mini graphs."
     },
     "ltx23_aio_i2v": {
       "status": "ready",
       "kind": "s2v",
-      "engine": "LTX AIO Image to Video (no audio)",
+      "engine": "LTX AIO Image to Video (no audio) — switch select",
       "workflow": "scripts/generate_s2v.py --backend ltx23_aio_i2v",
       "strengths": ["establishing", "motion_only"]
     },
     "ltx23_aio_flf": {
       "status": "ready",
       "kind": "s2v",
-      "engine": "LTX AIO First/Last Frame",
+      "engine": "LTX AIO First/Last Frame — switch select",
       "workflow": "scripts/generate_s2v.py --backend ltx23_aio_flf --last last.png",
       "strengths": ["one_take_bridge", "flf2v"]
     },
     "ltx23_aio_flf_audio": {
       "status": "ready",
       "kind": "s2v",
-      "engine": "LTX AIO First/Last + Audio",
+      "engine": "LTX AIO First/Last + Audio — switch select",
       "workflow": "scripts/generate_s2v.py --backend ltx23_aio_flf_audio --last last.png -a drive.wav",
       "strengths": ["one_take_bridge", "lip_sync", "flf2v"]
     },
     "ltx23_aio_fml": {
       "status": "ready",
       "kind": "s2v",
-      "engine": "LTX AIO First/Mid/Last",
+      "engine": "LTX AIO First/Mid/Last — switch select",
       "workflow": "scripts/generate_s2v.py --backend ltx23_aio_fml --mid mid.png --last last.png"
     },
     "ltx23_aio_fml_audio": {
       "status": "ready",
       "kind": "s2v",
-      "engine": "LTX AIO First/Mid/Last + Audio",
+      "engine": "LTX AIO First/Mid/Last + Audio — switch select",
       "workflow": "scripts/generate_s2v.py --backend ltx23_aio_fml_audio --mid mid.png --last last.png -a drive.wav"
     },
     "ltx23_aio_v2v": {
       "status": "ready",
       "kind": "s2v",
-      "engine": "LTX AIO Video continue (agent: last-frame of prior clip as first)",
+      "engine": "LTX AIO Video to Video — switch select",
       "workflow": "scripts/generate_s2v.py --backend ltx23_aio_v2v -i last_of_prev.png [-a drive.wav]",
-      "notes": "Agent V2V = continue from last frame image (not full latent ExtendSampler yet)."
+      "notes": "Activates [[P:03 Video to Video]]. Chain scripts often use i2v_audio + last frame as first instead."
+    },
+    "ltx23_aio_v2v_audio": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX AIO V2V + Audio — switch select",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_v2v_audio -i ref.png -a drive.wav"
+    },
+    "ltx23_aio_t2v": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX AIO Text to Video — switch select",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_t2v -i dummy.png --prompt '...'"
+    },
+    "ltx23_aio_t2v_audio": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX AIO Text + Audio — switch select",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_t2v_audio -i dummy.png -a drive.wav"
     },
     "wan_s2v": {
       "status": "planned",

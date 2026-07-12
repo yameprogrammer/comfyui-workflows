@@ -64,6 +64,7 @@
 4. 조립이 SI2V 오디오/ TTS 재배치 → “대사 없음/이상” 체감  
 5. 960×544 I2V + 640² SI2V → **화면 비율 점프**  
 6. music 폴더 쓰레기 mp3가 BGM으로 선택  
+7. Moody I2I 연타 직후 LTX 체인 → **메모리 thrash / hang** (exit 없이 멈춤). free 훅 부재 + `--disable-smart-memory` — 상세 [comfy_memory_and_model_switching.md](comfy_memory_and_model_switching.md)
 
 → 전부 **똑똑함보다 가드레일** 문제.
 

@@ -3,16 +3,16 @@
 Speech/Sound-to-Video (SI2V) multi-backend.
 
 Backends:
-  - infinitetalk (default): Wan Multi/InfiniteTalk (WanVideoWrapper)
-  - ltx23_ia2v: LTX 2.3 image + custom audio (community IA2V / AV latent)
+  - ltx23_aio* / ltx23_ia2v: real LTX 2.3 All-in-One UI workflow + [[P:]] mode switches
+  - infinitetalk: Wan Multi/InfiniteTalk (WanVideoWrapper)
 
-Wan inventory:
-  - diffusion_models/Wan2.1/wan2.1-i2v-14b-720p-Q4_K_M.gguf
-  - InfiniTetalk-Single + wav2vec / umt5 / clip_vision / wan_2.1_vae
+LTX path (default):
+  workflows/human/ltx23AllInOneWorkflowForRTX_v44(_IA2V).json
+  → apply_aio_mode_to_ui_workflow (Orchestrator mute table)
+  → expand_ui_workflow_to_api → inject Trim/clip/edge/aspect/seed
 
-LTX inventory (portable):
-  - diffusion_models/LTX2.3/*-Q4_K_M.gguf + distilled-lora-384
-  - vae/LTX23_{video,audio}_vae_bf16 + gemma + text_projection
+Emergency only:
+  AGENT_LTX_FORCE_MINI_GRAPH=1 → legacy homemade mini graphs (not preferred)
 """
 
 from __future__ import annotations
@@ -41,13 +41,20 @@ from lib.comfy_client import (
     utc_now_iso,
     write_meta,
 )
-from lib.ffmpeg_util import normalize_clip_audio
+from lib.comfy_engine_session import ensure_engine, family_for_s2v_backend
+from lib.ffmpeg_util import normalize_clip_audio, replace_clip_audio
+from lib.ltx_aio_live_template import (
+    build_ia2v_live_api,
+    is_live_template_available,
+)
+from lib.ltx_aio_workflow_runner import build_aio_switched_api
 from lib.ltx_s2v import (
     AIO_DISTILL_LORA,
     AIO_DISTILL_LORA_STRENGTH,
     AIO_MODES,
     BACKEND_TO_AIO_MODE,
     DEFAULT_DISTILL_LORA,
+    DEFAULT_GEMMA,
     DEFAULT_UNET_GGUF,
     aio_profile_defaults,
     build_ltx_aio_mode_api,
@@ -57,6 +64,22 @@ from lib.ltx_s2v import (
     snap_ltx_dim,
     snap_ltx_frames,
 )
+
+
+def _api_for_comfy(api: dict) -> dict:
+    """Strip non-Comfy keys (_meta, mode) before /prompt."""
+    clean: dict = {}
+    for nid, node in api.items():
+        if not isinstance(node, dict):
+            continue
+        ct = node.get("class_type")
+        if not ct:
+            continue
+        clean[str(nid)] = {
+            "class_type": ct,
+            "inputs": dict(node.get("inputs") or {}),
+        }
+    return clean
 
 S2V_BACKENDS = (
     "infinitetalk",
@@ -68,6 +91,9 @@ S2V_BACKENDS = (
     "ltx23_aio_fml",
     "ltx23_aio_fml_audio",
     "ltx23_aio_v2v",
+    "ltx23_aio_v2v_audio",
+    "ltx23_aio_t2v",
+    "ltx23_aio_t2v_audio",
 )
 
 COMFY_OUTPUT_DIR = r"F:\ComfyUI_windows_portable\ComfyUI\output"
@@ -197,7 +223,7 @@ def _probe_audio_duration(path: str) -> float | None:
 
 
 def _queue(server: str, api_prompt: dict) -> dict:
-    payload = json.dumps({"prompt": api_prompt}).encode("utf-8")
+    payload = json.dumps({"prompt": _api_for_comfy(api_prompt)}).encode("utf-8")
     req = urllib.request.Request(
         f"http://{server}/prompt",
         data=payload,
@@ -251,6 +277,8 @@ def build_infinitetalk_api(
     speed_lora_strength = float(api_opts.get("speed_lora_strength", 1.0))
     use_teacache = bool(api_opts.get("teacache", False))
     teacache_thresh = float(api_opts.get("teacache_thresh", 0.2))
+    # Default sageattn (package installed in Comfy portable). Fallback: AGENT_IT_ATTENTION=sdpa
+    attention_mode = str(api_opts.get("attention_mode") or "sageattn").strip() or "sageattn"
 
     api: dict = {
         "1": {
@@ -346,7 +374,7 @@ def build_infinitetalk_api(
                 "base_precision": "fp16",
                 "quantization": "disabled",
                 "load_device": "offload_device",
-                "attention_mode": "sdpa",
+                "attention_mode": attention_mode,
                 "block_swap_args": ["9", 0],
                 "multitalk_model": ["8", 0],
                 "rms_norm_function": "default",
@@ -521,6 +549,23 @@ def generate_s2v(
             message=f"{backend!r}; choose from {S2V_BACKENDS}",
         )
 
+    eng = ensure_engine(
+        family_for_s2v_backend(backend),
+        server_address,
+        caller=f"generate_s2v:{backend}",
+    )
+    if not eng.get("ok"):
+        return fail_result(
+            error=eng.get("error") or "ENGINE_SESSION",
+            message=eng.get("message") or "comfy engine free/gate failed",
+            engine_session=eng,
+        )
+
+    use_aio_switched = False
+    use_live_aio_template = False
+    live_meta: dict | None = None
+    ltx_runner = "none"
+
     # Resolve AIO mode early to know if audio is required
     _early_mode = None
     if is_ltx_backend(backend):
@@ -531,11 +576,11 @@ def generate_s2v(
         if backend == "ltx23_ia2v" and not ltx_mode:
             _early_mode = "i2v_audio"
     audio_required = backend == "infinitetalk" or (
-        _early_mode in ("i2v_audio", "flf_audio", "fml_audio")
+        _early_mode in ("i2v_audio", "flf_audio", "fml_audio", "v2v_audio", "t2v_audio")
         or (_early_mode == "v2v" and audio_path)
     )
-    # pure i2v / flf / fml without audio: allow missing audio
-    if _early_mode in ("i2v", "flf", "fml") and not audio_path:
+    # pure i2v / flf / fml / t2v without audio: allow missing audio
+    if _early_mode in ("i2v", "flf", "fml", "t2v", "v2v") and not audio_path:
         audio_required = False
     if audio_required and (not audio_path or not os.path.isfile(audio_path)):
         return fail_result(error="AUDIO_MISSING", message=audio_path or "(none)")
@@ -545,8 +590,9 @@ def generate_s2v(
         height = snap_ltx_dim(height, 32)
         if fps is None or fps <= 0:
             fps = 24.0
-        if backend == "ltx23_aio" and (fps is None or abs(float(fps) - 16.0) < 0.01):
-            # episode_s2v often passes IT default 16; AIO table uses 24
+        # AIO distilled stack is 24fps; IT default 16 must not leak in.
+        # Also avoid 25fps accidental defaults (frame/audio length mismatch).
+        if backend.startswith("ltx23_aio") or abs(float(fps) - 16.0) < 0.01:
             fps = 24.0
     else:
         width = _snap_dim(width, 16)
@@ -616,7 +662,11 @@ def generate_s2v(
     shutil.copy2(input_image_path, os.path.join(COMFYUI_INPUT_DIR, img_name))
     audio_abs = os.path.abspath(audio_path) if audio_path else ""
     if audio_path and os.path.isfile(audio_path):
-        # LTX LoadAudio needs file under input/; InfiniteTalk uses abs path but copy is fine
+        # preserve extension (AIO LoadAudio handles mp3/wav)
+        ext = os.path.splitext(audio_path)[1].lower() or ".wav"
+        if ext not in (".wav", ".mp3", ".flac", ".ogg", ".m4a"):
+            ext = ".wav"
+        audio_name = f"temp_s2v_drive{ext}"
         shutil.copy2(audio_abs, os.path.join(COMFYUI_INPUT_DIR, audio_name))
     else:
         audio_name = None
@@ -626,18 +676,15 @@ def generate_s2v(
             mode = resolve_aio_mode(backend, ltx_mode)
         except ValueError as e:
             return fail_result(error="BAD_MODE", message=str(e))
-        # AIO stack defaults for all ltx23_aio* ; ia2v keeps lighter lora
-        use_aio_stack = backend.startswith("ltx23_aio") or mode != "i2v_audio"
         if backend == "ltx23_ia2v" and not ltx_mode:
             mode = "i2v_audio"
-            use_aio_stack = False
-        lora_use = ltx_lora
-        lora_str = 0.6
-        if use_aio_stack or backend.startswith("ltx23_aio"):
-            aio_d = aio_profile_defaults()
-            if ltx_lora in (DEFAULT_DISTILL_LORA, None, ""):
-                lora_use = aio_d["distill_lora"]
-            lora_str = float(aio_d["lora_strength"])
+
+        aio_d = aio_profile_defaults()
+        lora_use = aio_d["distill_lora"]
+        lora_str = float(aio_d["lora_strength"])
+        if ltx_lora and ltx_lora not in (DEFAULT_DISTILL_LORA, AIO_DISTILL_LORA, ""):
+            lora_use = ltx_lora
+
         # stage guide images into Comfy input
         last_name = None
         mid_name = None
@@ -651,68 +698,187 @@ def generate_s2v(
                 return fail_result(error="MID_MISSING", message=mid_image_path)
             mid_name = "temp_s2v_mid.png"
             shutil.copy2(mid_image_path, os.path.join(COMFYUI_INPUT_DIR, mid_name))
-        # silent-audio modes still load image; audio optional for pure i2v
-        audio_for_graph = audio_name if mode in (
-            "i2v_audio",
-            "flf_audio",
-            "fml_audio",
-        ) or (mode == "v2v" and audio_path) else None
-        if mode in ("i2v_audio", "flf_audio", "fml_audio") and not audio_path:
+
+        audio_for_graph = (
+            audio_name
+            if mode
+            in (
+                "i2v_audio",
+                "flf_audio",
+                "fml_audio",
+                "v2v_audio",
+                "t2v_audio",
+            )
+            or (mode == "v2v" and audio_path)
+            else None
+        )
+        if mode in ("i2v_audio", "flf_audio", "fml_audio", "v2v_audio", "t2v_audio") and not audio_path:
             return fail_result(error="AUDIO_REQUIRED", message=f"mode {mode} needs -a")
         if mode in ("flf", "flf_audio") and not last_name:
             return fail_result(error="LAST_REQUIRED", message=f"mode {mode} needs --last")
         if mode in ("fml", "fml_audio") and (not last_name or not mid_name):
-            return fail_result(error="MID_LAST_REQUIRED", message=f"mode {mode} needs --mid and --last")
+            return fail_result(
+                error="MID_LAST_REQUIRED", message=f"mode {mode} needs --mid and --last"
+            )
 
-        if backend == "ltx23_ia2v" and mode == "i2v_audio" and not ltx_mode:
-            api = build_ltx_custom_audio_api(
+        force_mini = os.environ.get("AGENT_LTX_FORCE_MINI_GRAPH", "").strip().lower() in (
+            "1",
+            "true",
+            "yes",
+        )
+        force_live_template = os.environ.get(
+            "AGENT_LTX_FORCE_LIVE_TEMPLATE", ""
+        ).strip().lower() in ("1", "true", "yes")
+        # Prefer real AIO UI workflow + [[P:]] switch/select for ALL modes.
+        # Optional: frozen IA2V history template; emergency mini graphs only if forced.
+        use_aio_switched = not force_mini and not force_live_template
+        use_live_aio_template = False
+        ltx_runner = "none"
+
+        adur = _probe_audio_duration(audio_path) if audio_path else None
+        edge = max(int(width), int(height))
+        if edge < 512:
+            edge = 1024
+        aspect = "9:16" if int(height) >= int(width) else "16:9"
+        clip_sec = None
+        if adur:
+            clip_sec = max(float(adur) + 1.5, float(adur))
+        elif num_frames and fps:
+            clip_sec = float(num_frames) / float(fps)
+        if seed is None:
+            seed = random.randint(0, 2**63 - 1)
+
+        if use_aio_switched:
+            try:
+                api, live_meta = build_aio_switched_api(
+                    mode=mode,
+                    image_name=img_name if mode not in ("t2v", "t2v_audio") else None,
+                    audio_name=audio_for_graph,
+                    last_image_name=last_name,
+                    mid_image_name=mid_name,
+                    prompt=prompt,
+                    negative=negative or "animation, cartoon, text",
+                    seed=int(seed),
+                    audio_duration_sec=float(adur) if adur else None,
+                    clip_length_sec=clip_sec,
+                    trim_start_sec=0.0,
+                    longer_edge=edge,
+                    aspect=aspect,
+                    fps=int(round(float(fps))),
+                    filename_prefix="agent_ltx_aio",
+                )
+                ltx_runner = "ltx_aio_workflow_runner"
+                lora_use = "PowerLora(from_AIO_workflow)"
+                lora_str = 0.9
+                print(
+                    f"generate_s2v backend={backend} mode={mode} "
+                    f"AIO_SWITCH edge={edge} aspect={aspect} "
+                    f"trim={live_meta.get('trim_duration_sec')}s "
+                    f"clip={live_meta.get('clip_length_sec')}s "
+                    f"fps={live_meta.get('fps')} seed={seed} "
+                    f"api_nodes={live_meta.get('api_nodes')} "
+                    f"mode_changes={live_meta.get('mode_changes')}"
+                )
+            except Exception as e:
+                print(f"[WARN] AIO switch runner failed ({e}); trying fallbacks")
+                use_aio_switched = False
+                api = None  # type: ignore
+                live_meta = None
+
+        if not use_aio_switched and (
+            force_live_template
+            or (
+                mode == "i2v_audio"
+                and not force_mini
+                and is_live_template_available()
+                and bool(audio_name)
+            )
+        ):
+            # Frozen manual-success IA2V API graph (still real AIO, not mini)
+            api, live_meta = build_ia2v_live_api(
                 image_name=img_name,
                 audio_name=audio_name,
                 prompt=prompt,
-                negative=negative or DEFAULT_NEG,
-                width=width,
-                height=height,
-                num_frames=num_frames,
-                fps=fps,
-                seed=seed,
-                cfg=cfg,
-                unet_gguf=ltx_unet,
-                distill_lora=lora_use,
-                lora_strength=lora_str,
-                profile="ia2v",
+                negative=negative or "animation, cartoon, text",
+                seed=int(seed),
+                audio_duration_sec=float(adur) if adur else None,
+                clip_length_sec=clip_sec,
+                trim_start_sec=0.0,
+                longer_edge=edge,
+                aspect=aspect,
+                fps=int(round(float(fps))),
+                filename_prefix="agent_ltx_ia2v",
             )
-        else:
-            # pure i2v: still need dummy audio file path only if use_audio — not for i2v
-            api = build_ltx_aio_mode_api(
-                mode=mode,
-                first_image=img_name,
-                last_image=last_name,
-                mid_image=mid_name,
-                audio_name=audio_for_graph,
-                prompt=prompt,
-                negative=negative or DEFAULT_NEG,
-                width=width,
-                height=height,
-                num_frames=num_frames,
-                fps=fps,
-                seed=seed,
-                cfg=cfg,
-                unet_gguf=ltx_unet,
-                distill_lora=lora_use,
-                lora_strength=lora_str,
-                guide_strength=guide_strength,
+            use_live_aio_template = True
+            ltx_runner = "ltx_aio_live_template"
+            lora_use = "PowerLora(from_template)"
+            lora_str = 0.9
+            print(
+                f"generate_s2v backend={backend} mode={mode} "
+                f"LIVE_AIO_TEMPLATE edge={edge} aspect={aspect} "
+                f"trim={live_meta.get('trim_duration_sec')}s "
+                f"clip={live_meta.get('clip_length_sec')}s "
+                f"fps={live_meta.get('fps')} seed={seed}"
             )
-        print(
-            f"generate_s2v backend={backend} mode={mode} "
-            f"{width}x{height} frames={num_frames} fps={fps} seed={seed}"
-        )
+        elif not use_aio_switched:
+            # LEGACY mini-graph only when AGENT_LTX_FORCE_MINI_GRAPH=1 or all real paths fail
+            if not force_mini:
+                print(
+                    "[WARN] falling back to LEGACY mini graph — "
+                    "set AGENT_LTX_FORCE_MINI_GRAPH=1 only intentionally"
+                )
+            ltx_cfg = 1.0 if cfg is None else float(cfg)
+            ltx_runner = "legacy_mini_graph"
+            if mode == "i2v_audio" and audio_name:
+                api = build_ltx_custom_audio_api(
+                    image_name=img_name,
+                    audio_name=audio_name,
+                    prompt=prompt,
+                    negative=negative or DEFAULT_NEG,
+                    width=width,
+                    height=height,
+                    num_frames=num_frames,
+                    fps=fps,
+                    seed=seed,
+                    cfg=ltx_cfg,
+                    unet_gguf=ltx_unet,
+                    distill_lora=lora_use,
+                    lora_strength=lora_str,
+                    profile="aio",
+                )
+            else:
+                api = build_ltx_aio_mode_api(
+                    mode=mode,
+                    first_image=img_name,
+                    last_image=last_name,
+                    mid_image=mid_name,
+                    audio_name=audio_for_graph,
+                    prompt=prompt,
+                    negative=negative or DEFAULT_NEG,
+                    width=width,
+                    height=height,
+                    num_frames=num_frames,
+                    fps=fps,
+                    seed=seed,
+                    cfg=ltx_cfg,
+                    unet_gguf=ltx_unet,
+                    distill_lora=lora_use,
+                    lora_strength=lora_str,
+                    guide_strength=guide_strength,
+                )
+            print(
+                f"generate_s2v backend={backend} mode={mode} "
+                f"LEGACY_MINI {width}x{height} frames={num_frames} fps={fps} seed={seed}"
+            )
+
         print(f"  image={input_image_path}")
         if last_image_path:
             print(f"  last={last_image_path}")
         if mid_image_path:
             print(f"  mid={mid_image_path}")
         print(f"  audio={audio_path}")
-        print(f"  unet={ltx_unet}")
+        print(f"  runner={ltx_runner}")
+        print(f"  unet={'from_AIO_workflow' if use_aio_switched or use_live_aio_template else ltx_unet}")
         print(f"  lora={lora_use} @ {lora_str}")
     else:
         # Resolve speed LoRA path
@@ -738,6 +904,10 @@ def generate_s2v(
             steps = DEFAULT_IT_SPEED_STEPS
         if lora_path:
             cfg = 1.0  # cfg-distill LoRA expects cfg≈1
+
+        it_attention = (
+            os.environ.get("AGENT_IT_ATTENTION", "sageattn").strip() or "sageattn"
+        )
 
         api = build_infinitetalk_api(
             image_name=img_name,
@@ -766,6 +936,7 @@ def generate_s2v(
                 "speed_lora_strength": speed_lora_strength,
                 "teacache": teacache,
                 "teacache_thresh": teacache_thresh,
+                "attention_mode": it_attention,
             },
         )
         print(
@@ -776,7 +947,7 @@ def generate_s2v(
         print(f"  audio={audio_path}")
         print(f"  i2v={i2v_model}")
         print(f"  multitalk={multitalk_model}")
-        print(f"  speed_lora={lora_path or 'off'} teacache={teacache}")
+        print(f"  attention={it_attention} speed_lora={lora_path or 'off'} teacache={teacache}")
 
     if dry_run:
         meta = {
@@ -868,7 +1039,13 @@ def generate_s2v(
             print(f"Downloaded: {filename}")
         _ensure_playable_h264(output_filename)
     else:
-        prefixes = ("agent_ltx_s2v", "agent_ltx_aio", "agent_s2v")
+        prefixes = (
+            "agent_ltx_ia2v",
+            "agent_ltx_s2v",
+            "agent_ltx_aio",
+            "agent_s2v",
+            "ltx2_",
+        )
         candidates = []
         for folder in (COMFY_OUTPUT_DIR, COMFY_TEMP_DIR):
             if not os.path.isdir(folder):
@@ -888,12 +1065,40 @@ def generate_s2v(
         print(f"Copied newest: {candidates[0][1]}")
         _ensure_playable_h264(output_filename)
 
+    # Mini-graph LTX sometimes hallucinates speech — remux TTS.
+    # Real AIO switch / live template already use proper Audio input path; keep native
+    # audio unless AGENT_LTX_FORCE_TTS_REMUX=1.
+    audio_replaced = False
+    force_tts = os.environ.get("AGENT_LTX_FORCE_TTS_REMUX", "").strip().lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+    real_aio_audio = use_aio_switched or use_live_aio_template
+    if (
+        is_ltx_backend(backend)
+        and audio_path
+        and os.path.isfile(audio_path)
+        and (force_tts or not real_aio_audio)
+    ):
+        try:
+            rr = replace_clip_audio(output_filename, audio_path)
+            if rr.get("ok"):
+                audio_replaced = True
+                print(f"Audio replaced with driving/TTS: {audio_path}")
+            else:
+                print(
+                    f"[WARN] LTX audio replace failed: {rr.get('error')} {rr.get('message')}"
+                )
+        except Exception as e:
+            print(f"[WARN] LTX audio replace failed: {e}")
+
     # Comfy often writes 16 kHz mono AAC (InfiniteTalk/VHS) — many Windows players
     # appear silent. Re-encode to 48 kHz stereo AAC for preview compatibility.
     try:
         nr = normalize_clip_audio(
             output_filename,
-            loudnorm=is_ltx_backend(backend),
+            loudnorm=is_ltx_backend(backend) and not audio_replaced,
         )
         if nr.get("ok"):
             print(
@@ -918,6 +1123,15 @@ def generate_s2v(
         "seed": seed,
         "prompt": prompt,
         "negative": negative,
+        "audio_replaced_with_driving": audio_replaced,
+        "ltx_te": DEFAULT_GEMMA if is_ltx_backend(backend) else None,
+        "ltx_runner": ltx_runner if is_ltx_backend(backend) else None,
+        "aio_switched": use_aio_switched if is_ltx_backend(backend) else False,
+        "live_aio_template": use_live_aio_template,
+        "live_aio_meta": live_meta,
+        "ltx_mode": live_meta.get("mode") if isinstance(live_meta, dict) else (
+            _early_mode if is_ltx_backend(backend) else None
+        ),
         "i2v_model": i2v_model if backend == "infinitetalk" else ltx_unet,
         "multitalk_model": multitalk_model if backend == "infinitetalk" else ltx_lora,
         "speed_lora": (
@@ -956,7 +1170,7 @@ def main(argv=None) -> int:
         "--ltx-mode",
         default=None,
         choices=list(AIO_MODES),
-        help="Override AIO mode: i2v|i2v_audio|flf|flf_audio|fml|fml_audio|v2v",
+        help="Override AIO mode (switch/select): i2v|i2v_audio|flf|flf_audio|fml|fml_audio|v2v|v2v_audio|t2v|t2v_audio",
     )
     p.add_argument("--guide-strength", type=float, default=0.9)
     p.add_argument("--output", "-o", default=None)

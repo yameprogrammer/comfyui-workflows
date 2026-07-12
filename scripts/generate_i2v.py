@@ -34,6 +34,7 @@ from lib.comfy_client import (
     utc_now_iso,
     write_meta,
 )
+from lib.comfy_engine_session import ensure_engine, family_for_i2v_backend
 from lib.comfy_ui_convert import convert_ui_to_api, fetch_object_info
 from lib.prompt_assembly import load_text
 from lib.video_backends import (
@@ -125,6 +126,19 @@ def generate_i2v(
     width = int(job["width"])
     height = int(job["height"])
     wf_path = job["workflow_path"]
+
+    eng = ensure_engine(
+        family_for_i2v_backend(backend_id),
+        server_address,
+        caller=f"generate_i2v:{backend_id}",
+    )
+    if not eng.get("ok"):
+        return fail_result(
+            error=eng.get("error") or "ENGINE_SESSION",
+            message=eng.get("message") or "comfy engine free/gate failed",
+            engine_session=eng,
+            backend=backend_id,
+        )
 
     # WanVideoSampler fails when latent spatial dims disagree (classic 960x540:
     # 540 % 16 != 0). Snap both axes; also normalize frame count to 4n+1.

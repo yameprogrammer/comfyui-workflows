@@ -138,8 +138,10 @@ T2I·I2I는 영상의 **“정지 컷 공장”**이다. 영상 품질의 상한
 | **T2V (Text-to-Video)** | 키프레임 없이 분위기/B-roll 빠르게 |
 | **V2V (Video-to-Video)** | 기존 영상 스타일 변환, 톤 통일 |
 | **Camera / Motion Control** | 돌리 인, 팬, 오빗 등 카메라 문법 고정 |
-| **Inpaint on video / Object replace** | 로고·소품만 바꾸기 |
+| **Still Inpaint (마스크 국소 편집)** | 📋 **후속** — 빨대/로고/소품만 수정. I2I 전역 denoise 한계 보완. 후보 모델: 로컬 `flux1-fill-dev` GGUF. CLI `generate_inpaint.py` + agent WF 미구현. 관련: [comfy_memory…](comfy_memory_and_model_switching.md) §4 I1 |
+| **Inpaint on video / Object replace** | 로고·소품만 바꾸기 (영상 타임라인). still inpaint 이후 |
 | **Depth / ControlNet 계열** | 구도·포즈 엄격 제어 |
+| **Comfy 모델 전환 free** | 📋 **후속** — 이종 엔진(Moody↔LTX) 연타 시 unload. [comfy_memory_and_model_switching.md](comfy_memory_and_model_switching.md) |
 | **Lip-sync / Talking head (SI2V)** | ✅ story 대사 **+** music_video 보컬 퍼포 공통 — InfiniteTalk CLI + episode_s2v ([audio_motion…](audio_motion_production_modes.md) §0.1) |
 | **Audio** (dialogue, SFX, BGM, music master) | 모드별 믹스 정책 — 동 문서 P0–P3 |
 

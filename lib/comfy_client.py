@@ -146,6 +146,106 @@ def load_workflow(workflow_path: str) -> dict:
         return json.load(f)
 
 
+def _http_json(
+    server_address: str,
+    path: str,
+    *,
+    method: str = "GET",
+    body: dict | None = None,
+    timeout: float = 30,
+) -> Any:
+    """GET/POST JSON helper for Comfy API. path like '/system_stats'."""
+    url = f"http://{server_address}{path}"
+    data = None
+    headers = {}
+    if body is not None:
+        data = json.dumps(body).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+    req = urllib.request.Request(url, data=data, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as response:
+            raw = response.read()
+            if not raw:
+                return {}
+            return json.loads(raw.decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        err_body = ""
+        try:
+            err_body = e.read().decode("utf-8", errors="replace")[:2000]
+        except Exception:
+            pass
+        raise ConnectionError(
+            f"ComfyUI HTTP {e.code} at {server_address}{path}: {e.reason}. {err_body}"
+        ) from e
+    except urllib.error.URLError as e:
+        raise ConnectionError(f"ComfyUI unreachable at {server_address}: {e}") from e
+
+
+def get_system_stats(server_address: str = DEFAULT_SERVER) -> dict[str, Any]:
+    return _http_json(server_address, "/system_stats", timeout=15)
+
+
+def get_queue(server_address: str = DEFAULT_SERVER) -> dict[str, Any]:
+    return _http_json(server_address, "/queue", timeout=15)
+
+
+def interrupt_comfy(server_address: str = DEFAULT_SERVER) -> dict[str, Any]:
+    """POST /interrupt — stop current execution if any."""
+    try:
+        return _http_json(server_address, "/interrupt", method="POST", body={}, timeout=30)
+    except ConnectionError:
+        # Some builds accept empty POST without JSON body
+        req = urllib.request.Request(
+            f"http://{server_address}/interrupt", data=b"{}", method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=30) as response:
+            raw = response.read()
+            return json.loads(raw.decode("utf-8")) if raw else {}
+
+
+def free_comfy_memory(
+    server_address: str = DEFAULT_SERVER,
+    *,
+    unload_models: bool = True,
+    free_memory: bool = True,
+    timeout: float = 120,
+) -> dict[str, Any]:
+    """POST /free — unload models and/or free cached tensors.
+
+    Only call when the execution queue is idle; mid-run free is often a no-op.
+    """
+    return _http_json(
+        server_address,
+        "/free",
+        method="POST",
+        body={"unload_models": bool(unload_models), "free_memory": bool(free_memory)},
+        timeout=timeout,
+    )
+
+
+def memory_snapshot(server_address: str = DEFAULT_SERVER) -> dict[str, Any]:
+    """Normalize system_stats into GB/MB fields for guards and logs."""
+    stats = get_system_stats(server_address)
+    system = stats.get("system") or {}
+    devices = stats.get("devices") or []
+    dev = devices[0] if devices else {}
+    ram_total = float(system.get("ram_total") or 0)
+    ram_free = float(system.get("ram_free") or 0)
+    vram_total = float(dev.get("vram_total") or 0)
+    vram_free = float(dev.get("vram_free") or 0)
+    torch_free = float(dev.get("torch_vram_free") or 0)
+    return {
+        "ram_total_gb": ram_total / (1024**3) if ram_total else 0.0,
+        "ram_free_gb": ram_free / (1024**3) if ram_free else 0.0,
+        "vram_total_mb": vram_total / (1024**2) if vram_total else 0.0,
+        "vram_free_mb": vram_free / (1024**2) if vram_free else 0.0,
+        "torch_vram_free_mb": torch_free / (1024**2) if torch_free else 0.0,
+        "device_name": dev.get("name"),
+        "argv": system.get("argv"),
+        "raw": stats,
+    }
+
+
 def queue_prompt(server_address: str, api_prompt: dict) -> str:
     payload = json.dumps({"prompt": api_prompt}).encode("utf-8")
     req = urllib.request.Request(

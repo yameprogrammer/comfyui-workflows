@@ -19,12 +19,21 @@ AIO_DISTILL_LORA = (
 )
 AIO_DISTILL_LORA_STRENGTH = 0.9
 AIO_DEFAULT_FPS = 24.0
-# Source human workflow (not executed as full UI graph — parameter / mode reference)
+# Real AIO UI workflow (agent copy). Runtime uses ltx_aio_workflow_runner + [[P:]] mutes.
 AIO_SOURCE_UI_WORKFLOW = (
-    r"F:\ComfyUI_windows_portable\ComfyUI\user\default\workflows"
+    r"F:\ComfyUI_workflows\agent_custom\workflows\human"
     r"\ltx23AllInOneWorkflowForRTX_v44.json"
 )
-DEFAULT_GEMMA = "gemma_3_12B_it_fp8_e4m3fn.safetensors"
+AIO_SOURCE_UI_WORKFLOW_IA2V = (
+    r"F:\ComfyUI_workflows\agent_custom\workflows\human"
+    r"\ltx23AllInOneWorkflowForRTX_v44_IA2V.json"
+)
+# TE default: fp4 mixed safetensors + DualCLIPLoader.
+# GGUF TE (DualClipLoaderGGUF) logs huge "clip missing: vision_model.*" and can thrash
+# under --disable-smart-memory; AIO docs also list gemma_3_12B_it_fp4_mixed.
+DEFAULT_GEMMA = "gemma_3_12B_it_fp4_mixed.safetensors"
+DEFAULT_GEMMA_GGUF = "gemma-3-12b-it-UD-Q4_K_XL.gguf"
+DEFAULT_GEMMA_FP8 = "gemma_3_12B_it_fp8_e4m3fn.safetensors"
 DEFAULT_TEXT_PROJ = "ltx-2.3_text_projection_bf16.safetensors"
 DEFAULT_VIDEO_VAE = "LTX23_video_vae_bf16.safetensors"
 DEFAULT_AUDIO_VAE = "LTX23_audio_vae_bf16.safetensors"
@@ -33,7 +42,7 @@ DEFAULT_AUDIO_VAE = "LTX23_audio_vae_bf16.safetensors"
 DISTILLED_SIGMAS = "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0"
 
 
-# User AIO mode table → agent mode ids
+# User AIO mode table → agent mode ids ([[P:]] ports via ltx_aio_mode_select)
 AIO_MODES = (
     "i2v",  # Image to Video
     "i2v_audio",  # Image + Audio (default SI2V)
@@ -41,7 +50,10 @@ AIO_MODES = (
     "flf_audio",  # First/Last + Audio
     "fml",  # First/Mid/Last
     "fml_audio",  # First/Mid/Last + Audio
-    "v2v",  # Video continue from last frame (+ optional audio)
+    "v2v",  # Video to Video
+    "v2v_audio",  # Video to Video + Audio
+    "t2v",  # Text to Video
+    "t2v_audio",  # Text + Audio
 )
 
 BACKEND_TO_AIO_MODE = {
@@ -53,6 +65,9 @@ BACKEND_TO_AIO_MODE = {
     "ltx23_aio_fml": "fml",
     "ltx23_aio_fml_audio": "fml_audio",
     "ltx23_aio_v2v": "v2v",
+    "ltx23_aio_v2v_audio": "v2v_audio",
+    "ltx23_aio_t2v": "t2v",
+    "ltx23_aio_t2v_audio": "t2v_audio",
 }
 
 
@@ -68,12 +83,17 @@ def resolve_aio_mode(backend: str | None, mode: str | None = None) -> str:
             "image": "i2v",
             "image_audio": "i2v_audio",
             "image+audio": "i2v_audio",
+            "ia2v": "i2v_audio",
             "first_last": "flf",
             "first_last_audio": "flf_audio",
             "first_mid_last": "fml",
             "first_mid_last_audio": "fml_audio",
             "video": "v2v",
             "video_to_video": "v2v",
+            "video_audio": "v2v_audio",
+            "text": "t2v",
+            "text_audio": "t2v_audio",
+            "text_to_video": "t2v",
         }
         m = aliases.get(m, m)
         if m not in AIO_MODES:
@@ -88,6 +108,34 @@ DEFAULT_NEG = (
     "signature, copyright, subtitles, still image, static, frozen, morphing face, "
     "identity shift, desync mouth"
 )
+
+
+def dual_clip_loader_node(
+    gemma: str | None = None,
+    text_proj: str | None = None,
+) -> dict[str, Any]:
+    """DualCLIP loader: GGUF TE → DualClipLoaderGGUF (user AIO); else DualCLIPLoader."""
+    g = gemma or DEFAULT_GEMMA
+    p = text_proj or DEFAULT_TEXT_PROJ
+    if str(g).lower().endswith(".gguf"):
+        return {
+            "class_type": "DualClipLoaderGGUF",
+            "inputs": {
+                "clip_name1": g,
+                "clip_name2": p,
+                "type": "ltxv",
+                "device": "default",
+            },
+        }
+    return {
+        "class_type": "DualCLIPLoader",
+        "inputs": {
+            "clip_name1": g,
+            "clip_name2": p,
+            "type": "ltxv",
+            "device": "default",
+        },
+    }
 
 
 def snap_ltx_dim(n: int, multiple: int = 32) -> int:
@@ -127,12 +175,14 @@ def build_ltx_custom_audio_api(
     filename_prefix: str = "agent_ltx_s2v",
     profile: str = "ia2v",
 ) -> dict[str, Any]:
-    """Minimal single-stage LTX distilled I2V + custom audio latent.
+    """LEGACY mini single-stage LTX I2V+audio graph.
+
+    Prefer ``lib.ltx_aio_workflow_runner.build_aio_switched_api`` (real AIO UI
+    workflow + [[P:]] mode switches). Kept only for AGENT_LTX_FORCE_MINI_GRAPH=1.
 
     profile:
-      - ia2v: agent default (lighter lora-384 @ 0.6)
-      - aio:  settings aligned with user All-in-One v44 I2V+Audio path
-              (dynamic distill lora @ 0.9, same AV latent chain)
+      - ia2v: lighter lora-384 @ 0.6
+      - aio:  dynamic distill lora @ 0.9
     """
     width = snap_ltx_dim(width, 32)
     height = snap_ltx_dim(height, 32)
@@ -161,15 +211,7 @@ def build_ltx_custom_audio_api(
                 "strength_model": float(lora_strength),
             },
         },
-        "3": {
-            "class_type": "DualCLIPLoader",
-            "inputs": {
-                "clip_name1": gemma,
-                "clip_name2": text_proj,
-                "type": "ltxv",
-                "device": "default",
-            },
-        },
+        "3": dual_clip_loader_node(gemma, text_proj),
         "4": {
             "class_type": "VAELoader",
             "inputs": {"vae_name": video_vae},
@@ -263,7 +305,7 @@ def build_ltx_custom_audio_api(
                 "model": ["2", 0],
                 "positive": ["10", 0],
                 "negative": ["10", 1],
-                "cfg": float(cfg),
+                "cfg": float(1.0 if cfg is None else cfg),
             },
         },
         "20": {
@@ -357,17 +399,12 @@ def build_ltx_aio_mode_api(
     guide_strength: float = 0.9,
     filename_prefix: str = "agent_ltx_aio",
 ) -> dict[str, Any]:
-    """Build LTX AIO-style graph for multiple generation modes.
+    """LEGACY mini multi-mode graph (NOT real AIO Orchestrator mute).
 
-    Modes (user AIO table):
-      i2v         — first frame only
-      i2v_audio   — first + driving audio
-      flf         — first + last (LTXVAddGuide at end)
-      flf_audio   — first + last + audio
-      fml         — first + mid + last guides
-      fml_audio   — first + mid + last + audio
-      v2v         — continue: first_image should be last frame of prior video
-                    (agent V2V); optional audio; same as i2v / i2v_audio graph
+    Prefer ``build_aio_switched_api`` which loads the human AIO UI workflow and
+    applies [[P:]] port mutes. Kept for AGENT_LTX_FORCE_MINI_GRAPH=1 only.
+
+    Modes: i2v / i2v_audio / flf / flf_audio / fml / fml_audio / v2v
     """
     mode = resolve_aio_mode(None, mode)
     width = snap_ltx_dim(width, 32)
@@ -401,15 +438,7 @@ def build_ltx_aio_mode_api(
                 "strength_model": float(lora_strength),
             },
         },
-        "3": {
-            "class_type": "DualCLIPLoader",
-            "inputs": {
-                "clip_name1": DEFAULT_GEMMA,
-                "clip_name2": DEFAULT_TEXT_PROJ,
-                "type": "ltxv",
-                "device": "default",
-            },
-        },
+        "3": dual_clip_loader_node(DEFAULT_GEMMA, DEFAULT_TEXT_PROJ),
         "4": {"class_type": "VAELoader", "inputs": {"vae_name": DEFAULT_VIDEO_VAE}},
         "5": {"class_type": "VAELoader", "inputs": {"vae_name": DEFAULT_AUDIO_VAE}},
         "6": {"class_type": "LoadImage", "inputs": {"image": first_image}},
@@ -514,7 +543,7 @@ def build_ltx_aio_mode_api(
         last_idx = max(0, int(num_frames) - 1)
         _add_guide(last_load, last_idx)
 
-    # Noise / sampler shared
+    # Stable distilled sampler (euler + ManualSigmas). Avoid experimental branches.
     api["16"] = {"class_type": "ManualSigmas", "inputs": {"sigmas": DISTILLED_SIGMAS}}
     api["17"] = {"class_type": "KSamplerSelect", "inputs": {"sampler_name": "euler"}}
     api["18"] = {"class_type": "RandomNoise", "inputs": {"noise_seed": int(seed)}}
@@ -524,21 +553,38 @@ def build_ltx_aio_mode_api(
             "model": ["2", 0],
             "positive": pos_ref,
             "negative": neg_ref,
-            "cfg": float(cfg),
+            "cfg": float(1.0 if cfg is None else cfg),
         },
     }
 
+    # Audio branch (stable agent path — not full AIO mute graph):
+    # AIO uses TrimAudioDuration so driving audio length matches clip length.
+    # Mismatch (audio >> video frames) inflates AV latents and can OOM mid-sample.
+    # Encode trimmed audio → ConcatAV → sample; final file uses trimmed track.
     if use_audio:
+        # seconds that match EmptyLTXVLatentVideo length @ fps
+        audio_dur = max(0.04, float(num_frames) / max(1e-6, fps_f))
         api["13"] = {"class_type": "LoadAudio", "inputs": {"audio": audio_name}}
+        # Same role as AIO root TrimAudioDuration (start + duration)
+        api["29"] = {
+            "class_type": "TrimAudioDuration",
+            "inputs": {
+                "audio": ["13", 0],
+                "start_index": 0.0,
+                "duration": float(audio_dur),
+            },
+        }
         api["14"] = {
             "class_type": "LTXVAudioVAEEncode",
-            "inputs": {"audio": ["13", 0], "audio_vae": ["5", 0]},
+            "inputs": {"audio": ["29", 0], "audio_vae": ["5", 0]},
         }
         api["15"] = {
             "class_type": "LTXVConcatAVLatent",
-            "inputs": {"video_latent": latent_ref, "audio_latent": ["14", 0]},
+            "inputs": {
+                "video_latent": latent_ref,
+                "audio_latent": ["14", 0],
+            },
         }
-        sample_latent = ["15", 0]
         api["20"] = {
             "class_type": "SamplerCustomAdvanced",
             "inputs": {
@@ -546,7 +592,7 @@ def build_ltx_aio_mode_api(
                 "guider": ["19", 0],
                 "sampler": ["17", 0],
                 "sigmas": ["16", 0],
-                "latent_image": sample_latent,
+                "latent_image": ["15", 0],
             },
         }
         api["21"] = {
@@ -554,8 +600,10 @@ def build_ltx_aio_mode_api(
             "inputs": {"av_latent": ["20", 0]},
         }
         video_latent_out = ["21", 0]
-        audio_decode = True
+        use_source_audio_track = True
+        source_audio_ref: list[Any] = ["29", 0]  # trimmed
     else:
+        # Video-only: sample video latent only (no empty-audio concat — lower VRAM)
         api["20"] = {
             "class_type": "SamplerCustomAdvanced",
             "inputs": {
@@ -567,7 +615,8 @@ def build_ltx_aio_mode_api(
             },
         }
         video_latent_out = ["20", 0]
-        audio_decode = False
+        use_source_audio_track = False
+        source_audio_ref = None
 
     api["22"] = {
         "class_type": "LTXVTiledVAEDecode",
@@ -581,16 +630,12 @@ def build_ltx_aio_mode_api(
         },
     }
 
-    if audio_decode:
-        api["23"] = {
-            "class_type": "LTXVAudioVAEDecode",
-            "inputs": {"samples": ["21", 1], "audio_vae": ["5", 0]},
-        }
+    if use_source_audio_track and source_audio_ref is not None:
         api["24"] = {
             "class_type": "CreateVideo",
             "inputs": {
                 "images": ["22", 0],
-                "audio": ["23", 0],
+                "audio": source_audio_ref,
                 "fps": fps_f,
             },
         }

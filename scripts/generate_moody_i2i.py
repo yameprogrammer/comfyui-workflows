@@ -21,6 +21,7 @@ from lib.comfy_client import (
     wait_for_history,
     write_meta,
 )
+from lib.comfy_engine_session import FAMILY_MOODY, ensure_engine
 from lib.prompt_assembly import assemble_prompt, load_text
 from lib.workflow_paths import default_workflow, resolve_workflow
 
@@ -41,6 +42,16 @@ def generate_i2i_image(
     timeout_sec=600,
     workflow=None,
 ):
+    eng = ensure_engine(
+        FAMILY_MOODY, server_address, caller="generate_moody_i2i"
+    )
+    if not eng.get("ok"):
+        return fail_result(
+            error=eng.get("error") or "ENGINE_SESSION",
+            message=eng.get("message") or "comfy engine free/gate failed",
+            engine_session=eng,
+        )
+
     workflow_path = resolve_workflow(workflow) if workflow else default_workflow("i2i_moody")
     selected_model = MODEL_MAPPING.get(model_type.lower(), MODEL_MAPPING["real"])
 

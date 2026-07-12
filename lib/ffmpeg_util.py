@@ -921,6 +921,81 @@ def separate_vocals_demucs(
             pass
 
 
+def replace_clip_audio(
+    video_path: str,
+    audio_path: str,
+    output_path: str | None = None,
+    *,
+    sample_rate: int = 48000,
+    stereo: bool = True,
+    audio_bitrate: str = "192k",
+    timeout_sec: float = 600,
+) -> dict[str, Any]:
+    """Replace video's audio track with an external file (e.g. original TTS).
+
+    LTX AV decode often hallucinates speech; use driving/TTS as the real line.
+    Video stream is stream-copied; audio re-encoded to AAC. Duration follows
+    the shorter of video vs audio (-shortest).
+    """
+    if not os.path.isfile(video_path):
+        return {"ok": False, "error": "VIDEO_MISSING", "message": video_path}
+    if not os.path.isfile(audio_path):
+        return {"ok": False, "error": "AUDIO_MISSING", "message": audio_path}
+    out = output_path or video_path
+    parent = os.path.dirname(os.path.abspath(out))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    tmp_out = out
+    in_place = os.path.abspath(out) == os.path.abspath(video_path)
+    if in_place:
+        fd, tmp_out = tempfile.mkstemp(suffix=".mp4", prefix="repl_audio_")
+        os.close(fd)
+    args = [
+        "-i",
+        video_path,
+        "-i",
+        audio_path,
+        "-map",
+        "0:v:0",
+        "-map",
+        "1:a:0",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "aac",
+        "-ar",
+        str(int(sample_rate)),
+        "-ac",
+        "2" if stereo else "1",
+        "-b:a",
+        audio_bitrate,
+        "-shortest",
+        "-movflags",
+        "+faststart",
+        tmp_out,
+    ]
+    result = run_ffmpeg(args, timeout_sec=timeout_sec)
+    if not result.get("ok"):
+        if in_place and os.path.isfile(tmp_out):
+            try:
+                os.remove(tmp_out)
+            except OSError:
+                pass
+        return result
+    if in_place:
+        try:
+            os.replace(tmp_out, out)
+        except OSError:
+            shutil.copy2(tmp_out, out)
+            try:
+                os.remove(tmp_out)
+            except OSError:
+                pass
+    result["output_path"] = os.path.abspath(out)
+    result["replaced_with"] = os.path.abspath(audio_path)
+    return result
+
+
 def normalize_clip_audio(
     input_path: str,
     output_path: str | None = None,

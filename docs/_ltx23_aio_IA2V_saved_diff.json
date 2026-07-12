@@ -1,0 +1,154 @@
+{
+  "source": "F:\\ComfyUI_windows_portable\\ComfyUI\\user\\default\\workflows\\ltx23AllInOneWorkflowForRTX_v44_IA2V.json",
+  "size": 248104,
+  "root_nodes": 93,
+  "subgraphs": [],
+  "orchestrator": [
+    {
+      "id": 1353,
+      "title": "Select options (see Table above)",
+      "mode": 0,
+      "widgets_values": [],
+      "properties": {
+        "cnr_id": "comfyui_custom_switch",
+        "ver": "2.0.0",
+        "Node name for S&R": "OrchestratorNodeMuter",
+        "workflow_id": "default_workflow",
+        "show_settings": false,
+        "group_id": "P",
+        "node_mode": false,
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.7"
+        }
+      }
+    }
+  ],
+  "switches": [
+    {
+      "id": 1801,
+      "title": null,
+      "mode": 0,
+      "widgets": [
+        false
+      ]
+    },
+    {
+      "id": 1798,
+      "title": null,
+      "mode": 0,
+      "widgets": [
+        false
+      ]
+    }
+  ],
+  "ports_P": [
+    {
+      "id": 149,
+      "type": "LoadImage",
+      "port": "02 Image to Video",
+      "title": "First Frame [[P:02 Image to Video]] ",
+      "mode": 0,
+      "mode_name": "ALWAYS",
+      "widgets": [
+        "16-C.jpeg",
+        "image"
+      ]
+    },
+    {
+      "id": 412,
+      "type": "LoadAudio",
+      "port": "Audio input",
+      "title": "Load Audio [[P:Audio input]]",
+      "mode": 0,
+      "mode_name": "ALWAYS",
+      "widgets": [
+        "A small word_mastered.wav",
+        null,
+        null
+      ]
+    },
+    {
+      "id": 786,
+      "type": "LoadImage",
+      "port": "Last Frame input",
+      "title": "Last Frame [[P:Last Frame input]]",
+      "mode": 2,
+      "mode_name": "NEVER",
+      "widgets": [
+        "2025-12-11-213317_Zimage fascium v10_0.jpeg",
+        "image"
+      ]
+    },
+    {
+      "id": 787,
+      "type": "VHS_LoadVideo",
+      "port": "03 Video to Video",
+      "title": "Load Video [[P:03 Video to Video]] ",
+      "mode": 2,
+      "mode_name": "NEVER",
+      "widgets": {
+        "video": "wan22_00244.mp4",
+        "force_rate": 24,
+        "custom_width": 0,
+        "custom_height": 0,
+        "frame_load_cap": 0,
+        "skip_first_frames": 0,
+        "select_every_nth": 1,
+        "format": "None",
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "filename": "wan22_00244.mp4",
+            "type": "input",
+            "format": "video/mp4",
+            "force_rate": 24,
+            "custom_width": 0,
+            "custom_height": 0,
+            "frame_load_cap": 0,
+            "skip_first_frames": 0,
+            "select_every_nth": 1
+          }
+        }
+      }
+    },
+    {
+      "id": 852,
+      "type": "PreviewImage",
+      "port": "02 Image to Video",
+      "title": "Preview First Frame Resized [[P:02 Image to Video]] ",
+      "mode": 0,
+      "mode_name": "ALWAYS",
+      "widgets": []
+    },
+    {
+      "id": 1705,
+      "type": "LoadImage",
+      "port": "Mid Frame input",
+      "title": "Mid Frame [[P:Mid Frame input]]",
+      "mode": 2,
+      "mode_name": "NEVER",
+      "widgets": [
+        "2025-12-11-213317_Zimage fascium v10_0.jpeg",
+        "image"
+      ]
+    }
+  ],
+  "root_mode_changes": [],
+  "orchestrator_widgets_orig": [
+    false,
+    null,
+    false,
+    null,
+    false,
+    true,
+    false,
+    true,
+    false,
+    false
+  ],
+  "orchestrator_widgets_ia2v": [],
+  "subgraph_mode_changes": []
+}
