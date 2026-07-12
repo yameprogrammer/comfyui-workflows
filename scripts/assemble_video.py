@@ -10,21 +10,28 @@ import os
 import sys
 import tempfile
 
+import shutil
+
 from lib.audio_package import (
     audio_readiness,
     audio_section,
     collect_simple_stems,
     collect_timeline_events,
     ensure_audio_dirs,
-    resolve_mix_policy,
     normalize_production_mode,
+    resolve_mix_policy,
+    shot_motion_driver,
 )
 from lib.comfy_client import utc_now_iso, write_meta
 from lib.ffmpeg_util import (
     concat_videos,
     find_ffmpeg,
     mix_audio_under_video,
+    mix_bgm_keep_video_audio,
     mix_timeline_under_video,
+    normalize_clip,
+    probe_duration,
+    probe_has_audio,
 )
 from lib.story_package import StoryPackage, validate_episode_id
 
@@ -348,7 +355,150 @@ def main(argv=None) -> int:
         print("[dry-run] skip ffmpeg")
         return EXIT_OK
 
-    if has_audio:
+    # Prefer per-shot audio bake when SI2V clips exist or layered story mix:
+    # - keep lip-synced audio embedded in *_s2v.mp4
+    # - VO/dialogue stems only for shots without clip audio, clipped to shot length
+    # - never stack full stems from t=0 (that caused VO/dialogue overlap)
+    # - BGM mixed under final while preserving speech
+    use_bake = policy != "video_only" and (
+        policy in ("layered", "dialogue_sfx_first_bgm_late")
+        or any(shot_motion_driver(s, story.doc) == "si2v" for s in selected)
+        or any(probe_has_audio(p) for _, p in clips)
+    )
+
+    if use_bake and not args.copy:
+        tmp_dir = tempfile.mkdtemp(prefix="assemble_bake_")
+        baked: list[str] = []
+        tmp_video = None
+        try:
+            target_fps = float(args.fps or 25)
+            tw, th = 960, 544
+            for s in selected:
+                ws = s.get("work_size") or {}
+                if ws.get("width") and ws.get("height"):
+                    tw, th = int(ws["width"]), int(ws["height"])
+                    break
+
+            for s in selected:
+                sid = s.get("shot_id") or "?"
+                src = _clip_path(story, s, args.stage)
+                if not src:
+                    continue
+                dst = os.path.join(tmp_dir, f"{sid}.mp4")
+                driver = shot_motion_driver(s, story.doc)
+                refs = s.get("audio_refs") if isinstance(s.get("audio_refs"), dict) else {}
+                clip_dur = probe_duration(src) or float(s.get("duration_sec") or 4.0)
+
+                ext_audio = None
+                keep_va = False
+                # Prefer explicit stems so dialogue is always the clear TTS line.
+                # SI2V lips were generated from driving/TTS — mux that same stem under
+                # the SI2V *video* (LTX embedded audio can be weak/wrong/noisy).
+                for key in ("driving", "dialogue", "vo"):
+                    item = refs.get(key)
+                    if isinstance(item, dict) and item.get("path"):
+                        cand = story.path(
+                            *str(item["path"]).replace("\\", "/").split("/")
+                        )
+                        if os.path.isfile(cand):
+                            # For pure VO shots prefer vo; for si2v prefer driving then dialogue
+                            if driver == "si2v" and key == "vo":
+                                continue
+                            if driver != "si2v" and key == "driving":
+                                continue
+                            ext_audio = cand
+                            print(
+                                f"  bake {sid}: stem {key} "
+                                f"(trim≤{clip_dur:.2f}s; "
+                                f"{'lip-matched TTS' if driver == 'si2v' else 'no spill'})"
+                            )
+                            break
+                if ext_audio is None and probe_has_audio(src):
+                    keep_va = True
+                    print(f"  bake {sid}: keep existing clip audio (fallback)")
+                elif ext_audio is None:
+                    print(f"  bake {sid}: silence")
+
+                r_n = normalize_clip(
+                    src,
+                    dst,
+                    width=tw,
+                    height=th,
+                    fps=target_fps,
+                    audio_path=ext_audio,
+                    audio_volume=1.0,
+                    keep_video_audio=keep_va,
+                    max_audio_sec=clip_dur if ext_audio else None,
+                    timeout_sec=args.timeout,
+                )
+                if not r_n.get("ok"):
+                    print(
+                        f"[ERROR] bake {sid} {r_n.get('error')}: {r_n.get('message')}",
+                        file=sys.stderr,
+                    )
+                    return EXIT_FFMPEG
+                baked.append(dst)
+
+            if not baked:
+                print("[ERROR] code=21 no clips to bake", file=sys.stderr)
+                return EXIT_NONE
+
+            bgm_path = args.bgm or stems.get("bgm") or stems.get("master")
+            need_bgm = bool(
+                policy != "video_only"
+                and bgm_path
+                and os.path.isfile(str(bgm_path))
+            )
+            fd, tmp_video = tempfile.mkstemp(suffix=".mp4", prefix="assemble_vid_")
+            os.close(fd)
+
+            # Always re-encode concat of baked clips — stream-copy concat of
+            # per-shot AAC can drop/mute later segments' dialogue on some builds.
+            r1 = concat_videos(
+                baked,
+                tmp_video,
+                reencode=True,
+                fps=int(target_fps),
+                width=tw,
+                height=th,
+                timeout_sec=args.timeout,
+            )
+            if not r1.get("ok"):
+                print(
+                    f"[ERROR] concat {r1.get('error')}: {r1.get('message')}",
+                    file=sys.stderr,
+                )
+                return EXIT_FFMPEG
+
+            if need_bgm:
+                r2 = mix_bgm_keep_video_audio(
+                    tmp_video,
+                    str(bgm_path),
+                    out,
+                    bgm_volume=bgm_vol,
+                    video_audio_volume=1.0,
+                    timeout_sec=args.timeout,
+                )
+                if not r2.get("ok"):
+                    print(
+                        f"[ERROR] bgm mix {r2.get('error')}: {r2.get('message')}",
+                        file=sys.stderr,
+                    )
+                    return EXIT_FFMPEG
+                track_note = f"bake+bgm keep_speech vol={bgm_vol}"
+            else:
+                shutil.copy2(tmp_video, out)
+                track_note = "bake speech only (no bgm)"
+            print(f"  audio_note={track_note}")
+        finally:
+            if tmp_video:
+                try:
+                    os.remove(tmp_video)
+                except OSError:
+                    pass
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    elif has_audio:
         fd, tmp_video = tempfile.mkstemp(suffix=".mp4", prefix="assemble_vid_")
         os.close(fd)
         try:

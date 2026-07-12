@@ -49,17 +49,204 @@ def run_ffmpeg(args: list[str], *, timeout_sec: float = 3600) -> dict[str, Any]:
     return {"ok": True, "cmd": cmd}
 
 
+def probe_duration(path: str) -> float | None:
+    try:
+        import json
+
+        out = subprocess.check_output(
+            [
+                shutil.which("ffprobe") or "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "json",
+                path,
+            ],
+            text=True,
+            stderr=subprocess.STDOUT,
+            timeout=30,
+        )
+        return float(json.loads(out)["format"]["duration"])
+    except Exception:
+        return None
+
+
+def probe_has_audio(path: str) -> bool:
+    try:
+        import json
+
+        out = subprocess.check_output(
+            [
+                shutil.which("ffprobe") or "ffprobe",
+                "-v",
+                "error",
+                "-select_streams",
+                "a",
+                "-show_entries",
+                "stream=codec_type",
+                "-of",
+                "json",
+                path,
+            ],
+            text=True,
+            stderr=subprocess.STDOUT,
+            timeout=30,
+        )
+        streams = json.loads(out).get("streams") or []
+        return any(s.get("codec_type") == "audio" for s in streams)
+    except Exception:
+        return False
+
+
+def normalize_clip(
+    input_path: str,
+    output_path: str,
+    *,
+    width: int = 960,
+    height: int = 544,
+    fps: float = 25.0,
+    audio_path: str | None = None,
+    audio_volume: float = 1.0,
+    keep_video_audio: bool = True,
+    max_audio_sec: float | None = None,
+    timeout_sec: float = 3600,
+) -> dict[str, Any]:
+    """
+    Normalize a clip to fixed canvas + fps for clean concat.
+
+    Audio priority:
+      1) explicit audio_path (e.g. VO stem)
+      2) keep embedded video audio if keep_video_audio and present (SI2V lips)
+      3) silence matching video duration
+    """
+    if not os.path.isfile(input_path):
+        return {"ok": False, "error": "CLIP_MISSING", "message": input_path}
+    parent = os.path.dirname(os.path.abspath(output_path))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+
+    w, h = int(width), int(height)
+    fps_f = max(1.0, float(fps))
+    vfilter = (
+        f"fps={fps_f},scale={w}:{h}:force_original_aspect_ratio=decrease,"
+        f"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,format=yuv420p"
+    )
+    vol = max(0.0, min(2.0, float(audio_volume)))
+    has_a = probe_has_audio(input_path)
+    vdur = probe_duration(input_path) or 0.0
+
+    args: list[str] = ["-i", input_path]
+    # Optional external audio as input 1
+    use_ext = bool(audio_path and os.path.isfile(audio_path))
+    if use_ext:
+        args.extend(["-i", audio_path])
+
+    if use_ext:
+        # Trim/pad external audio to video length so stems never spill into next shot
+        cap = max_audio_sec if max_audio_sec is not None else vdur
+        if cap and cap > 0:
+            achain = (
+                f"[1:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,"
+                f"atrim=0:{cap:.4f},asetpts=PTS-STARTPTS,volume={vol},"
+                f"apad=whole_dur={vdur:.4f},atrim=0:{vdur:.4f},asetpts=PTS-STARTPTS[aout]"
+            )
+        else:
+            achain = (
+                f"[1:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,"
+                f"volume={vol}[aout]"
+            )
+        fc = f"[0:v]{vfilter}[vout];{achain}"
+        args.extend(
+            [
+                "-filter_complex",
+                fc,
+                "-map",
+                "[vout]",
+                "-map",
+                "[aout]",
+            ]
+        )
+    elif keep_video_audio and has_a:
+        fc = (
+            f"[0:v]{vfilter}[vout];"
+            f"[0:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,"
+            f"volume={vol}[aout]"
+        )
+        args.extend(
+            [
+                "-filter_complex",
+                fc,
+                "-map",
+                "[vout]",
+                "-map",
+                "[aout]",
+            ]
+        )
+    else:
+        # silence
+        dur = vdur if vdur > 0 else 1.0
+        args = [
+            "-i",
+            input_path,
+            "-f",
+            "lavfi",
+            "-i",
+            f"anullsrc=channel_layout=stereo:sample_rate=48000",
+            "-filter_complex",
+            f"[0:v]{vfilter}[vout]",
+            "-map",
+            "[vout]",
+            "-map",
+            "1:a",
+            "-shortest",
+        ]
+
+    args.extend(
+        [
+            "-c:v",
+            "libx264",
+            "-preset",
+            "medium",
+            "-crf",
+            "18",
+            "-pix_fmt",
+            "yuv420p",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            "-ar",
+            "48000",
+            "-ac",
+            "2",
+            "-movflags",
+            "+faststart",
+            output_path,
+        ]
+    )
+    result = run_ffmpeg(args, timeout_sec=timeout_sec)
+    result["output_path"] = os.path.abspath(output_path)
+    return result
+
+
 def concat_videos(
     clip_paths: list[str],
     output_path: str,
     *,
     reencode: bool = True,
     fps: int | None = None,
+    width: int | None = None,
+    height: int | None = None,
     timeout_sec: float = 3600,
 ) -> dict[str, Any]:
     """
-    Concatenate videos in order via concat demuxer.
-    reencode=True (default) is safer across mixed sources.
+    Concatenate videos in order.
+
+    When reencode=True (default), each clip is first normalized to the same
+    canvas/fps (filter-based) so mixed 16fps I2V + 25fps SI2V keep duration and
+    lip-sync. Optional width/height/fps override the normalize target.
     """
     if not clip_paths:
         return {"ok": False, "error": "NO_CLIPS", "message": "empty clip list"}
@@ -71,45 +258,18 @@ def concat_videos(
     if parent:
         os.makedirs(parent, exist_ok=True)
 
-    # Windows: concat demuxer wants forward slashes / escaped quotes
-    def _entry(path: str) -> str:
-        ap = os.path.abspath(path).replace("\\", "/")
-        ap = ap.replace("'", r"'\''")
-        return f"file '{ap}'"
+    # Stream-copy path (same codec only)
+    if not reencode:
+        def _entry(path: str) -> str:
+            ap = os.path.abspath(path).replace("\\", "/")
+            ap = ap.replace("'", r"'\''")
+            return f"file '{ap}'"
 
-    list_body = "\n".join(_entry(p) for p in clip_paths) + "\n"
-    fd, list_path = tempfile.mkstemp(suffix=".txt", prefix="ffconcat_")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            f.write(list_body)
-
-        if reencode:
-            args = [
-                "-f",
-                "concat",
-                "-safe",
-                "0",
-                "-i",
-                list_path,
-                "-c:v",
-                "libx264",
-                "-preset",
-                "medium",
-                "-crf",
-                "18",
-                "-pix_fmt",
-                "yuv420p",
-                "-c:a",
-                "aac",
-                "-b:a",
-                "192k",
-                "-movflags",
-                "+faststart",
-            ]
-            if fps:
-                args.extend(["-r", str(int(fps))])
-            args.append(output_path)
-        else:
+        list_body = "\n".join(_entry(p) for p in clip_paths) + "\n"
+        fd, list_path = tempfile.mkstemp(suffix=".txt", prefix="ffconcat_")
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(list_body)
             args = [
                 "-f",
                 "concat",
@@ -121,15 +281,143 @@ def concat_videos(
                 "copy",
                 output_path,
             ]
-        result = run_ffmpeg(args, timeout_sec=timeout_sec)
-        result["list_path"] = list_path
-        result["output_path"] = os.path.abspath(output_path)
-        return result
-    finally:
+            result = run_ffmpeg(args, timeout_sec=timeout_sec)
+            result["output_path"] = os.path.abspath(output_path)
+            return result
+        finally:
+            try:
+                os.remove(list_path)
+            except OSError:
+                pass
+
+    # Normalize each clip then concat demuxer (identical streams)
+    tw = int(width or 960)
+    th = int(height or 544)
+    tfps = float(fps or 25)
+    tmp_dir = tempfile.mkdtemp(prefix="ffnorm_")
+    norms: list[str] = []
+    try:
+        for i, src in enumerate(clip_paths):
+            dst = os.path.join(tmp_dir, f"n_{i:03d}.mp4")
+            r = normalize_clip(
+                src,
+                dst,
+                width=tw,
+                height=th,
+                fps=tfps,
+                keep_video_audio=True,
+                timeout_sec=timeout_sec,
+            )
+            if not r.get("ok"):
+                return r
+            norms.append(dst)
+
+        def _entry(path: str) -> str:
+            ap = os.path.abspath(path).replace("\\", "/")
+            ap = ap.replace("'", r"'\''")
+            return f"file '{ap}'"
+
+        list_body = "\n".join(_entry(p) for p in norms) + "\n"
+        fd, list_path = tempfile.mkstemp(suffix=".txt", prefix="ffconcat_")
         try:
-            os.remove(list_path)
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(list_body)
+            args = [
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                list_path,
+                "-c",
+                "copy",
+                "-movflags",
+                "+faststart",
+                output_path,
+            ]
+            result = run_ffmpeg(args, timeout_sec=timeout_sec)
+            result["output_path"] = os.path.abspath(output_path)
+            result["normalized"] = norms
+            return result
+        finally:
+            try:
+                os.remove(list_path)
+            except OSError:
+                pass
+    finally:
+        for p in norms:
+            try:
+                os.remove(p)
+            except OSError:
+                pass
+        try:
+            os.rmdir(tmp_dir)
         except OSError:
             pass
+
+
+def mix_bgm_keep_video_audio(
+    video_path: str,
+    bgm_path: str,
+    output_path: str,
+    *,
+    bgm_volume: float = 0.22,
+    video_audio_volume: float = 1.0,
+    timeout_sec: float = 3600,
+) -> dict[str, Any]:
+    """Keep dialogue/VO already on video; mix BGM underneath (no stem re-lay)."""
+    if not os.path.isfile(video_path):
+        return {"ok": False, "error": "VIDEO_MISSING", "message": video_path}
+    if not os.path.isfile(bgm_path):
+        return {"ok": False, "error": "AUDIO_MISSING", "message": bgm_path}
+    if not probe_has_audio(video_path):
+        return mux_bgm(
+            video_path,
+            bgm_path,
+            output_path,
+            audio_volume=bgm_volume,
+            timeout_sec=timeout_sec,
+        )
+    parent = os.path.dirname(os.path.abspath(output_path))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    bv = max(0.0, min(2.0, float(bgm_volume)))
+    vv = max(0.0, min(2.0, float(video_audio_volume)))
+    # Speech first; BGM quieter. normalize=0 keeps dialogue level from being crushed.
+    # duration=first follows video (speech) length; BGM is trimmed via -shortest.
+    fc = (
+        f"[0:a]aformat=sample_fmts=fltp:channel_layouts=stereo,"
+        f"aresample=48000,volume={vv}[va];"
+        f"[1:a]aformat=sample_fmts=fltp:channel_layouts=stereo,"
+        f"aresample=48000,volume={bv}[ba];"
+        f"[va][ba]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,"
+        f"alimiter=limit=0.95[aout]"
+    )
+    args = [
+        "-i",
+        video_path,
+        "-i",
+        bgm_path,
+        "-filter_complex",
+        fc,
+        "-map",
+        "0:v:0",
+        "-map",
+        "[aout]",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
+        "-shortest",
+        "-movflags",
+        "+faststart",
+        output_path,
+    ]
+    result = run_ffmpeg(args, timeout_sec=timeout_sec)
+    result["output_path"] = os.path.abspath(output_path)
+    return result
 
 
 def mux_bgm(

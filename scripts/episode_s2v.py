@@ -223,9 +223,26 @@ def main(argv=None) -> int:
         clip_path = story.path(*str(clip_rel).replace("\\", "/").split("/"))
         os.makedirs(os.path.dirname(clip_path), exist_ok=True)
 
-        motion = (shot.get("motion_prompt") or "").strip() or (
-            "a person speaking naturally, subtle head motion, natural lip motion, cinematic"
+        motion = (shot.get("motion_prompt") or "").strip()
+        # I2V-style still prompts suppress mouths; force speaking language for SI2V.
+        low = motion.lower()
+        anti_talk = any(
+            k in low
+            for k in (
+                "micro facial",
+                "natural blink",
+                "do not change",
+                "static",
+                "still",
+                "no new",
+            )
         )
+        if (not motion) or anti_talk or ("speak" not in low and "lip" not in low and "talk" not in low and "mouth" not in low):
+            motion = (
+                "person speaking clearly with natural lip sync, mouth opens and closes "
+                "with the dialogue, jaw movement, subtle head motion, keep identity fixed, cinematic"
+            )
+            print(f"  [si2v] using speaking motion prompt (overrode non-talk I2V prompt)")
         width, height = _work_size(
             story, shot, args.long_edge, square=bool(args.square)
         )
