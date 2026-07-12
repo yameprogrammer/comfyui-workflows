@@ -3,10 +3,11 @@
 Orchestrate episode stages for a commission handoff.
 
 Stages (in order):
-  status → assets → compose → contact_sheet → i2v → s2v → upscale → assemble → package
+  status → assets → compose → contact_sheet → i2v → s2v → upscale → assemble → qa → package
 
 Default: status only unless --run is given.
 Use --from / --to to slice the pipeline. --dry-run is forwarded where supported.
+QA is auto-appended after motion/assemble when missing. Emits AGENT_RESULT JSON.
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ from __future__ import annotations
 import _bootstrap  # noqa: F401
 
 import argparse
+import os
 import sys
 
 from lib.episode_status import episode_status_report, format_status_text
@@ -206,6 +208,15 @@ def main(argv=None) -> int:
     stop = not args.continue_on_error
     ep = args.episode
     failed = []
+    stage_results: list[dict] = []
+
+    # Always append qa after assemble if running a ship path without explicit qa
+    if args.run and "assemble" in stages and "qa" not in stages and "package" in stages:
+        # insert qa before package
+        pi = stages.index("package")
+        stages = stages[:pi] + ["qa"] + stages[pi:]
+    elif args.run and stages[-1] in ("assemble", "upscale", "s2v", "i2v") and "qa" not in stages:
+        stages = list(stages) + ["qa"]
 
     for stage in stages:
         print(f"\n>>> STAGE {stage}")
@@ -320,6 +331,9 @@ def main(argv=None) -> int:
                 argv2.append("--strict")
             else:
                 argv2.append("--no-strict")
+            # hero profile: lip visual gate is hard for ship
+            if args.profile == "hero":
+                argv2.append("--require-lip")
             if args.dry_run:
                 print("[dry-run] skip episode_qa")
                 code = 0
@@ -339,6 +353,9 @@ def main(argv=None) -> int:
             code = EXIT_STAGE
 
         print(f"<<< STAGE {stage} exit={code}")
+        stage_results.append(
+            {"name": stage, "exit_code": code, "ok": code == 0}
+        )
         if code != 0:
             # dry-run may hit "no clips" on assemble when i2v was also dry-run
             soft = args.dry_run and code in (21,)
@@ -348,15 +365,98 @@ def main(argv=None) -> int:
             failed.append((stage, code))
             if stop:
                 print(f"[STOP] stage {stage} failed")
+                _emit_pipeline_result(
+                    ep,
+                    ok=False,
+                    profile=args.profile,
+                    stages=stage_results,
+                    failed=failed,
+                    exit_code=EXIT_STAGE,
+                )
                 return EXIT_STAGE
 
-    if failed:
-        print(f"\nCompleted with failures: {failed}")
-        return EXIT_STAGE
-    print("\nPipeline finished OK")
-    # final status
+    ok = not failed
+    print("\nPipeline finished OK" if ok else f"\nCompleted with failures: {failed}")
     print(format_status_text(episode_status_report(ep)))
-    return EXIT_OK
+    _emit_pipeline_result(
+        ep,
+        ok=ok,
+        profile=args.profile,
+        stages=stage_results,
+        failed=failed,
+        exit_code=EXIT_OK if ok else EXIT_STAGE,
+    )
+    return EXIT_OK if ok else EXIT_STAGE
+
+
+def _emit_pipeline_result(
+    episode_id: str,
+    *,
+    ok: bool,
+    profile: str,
+    stages: list,
+    failed: list,
+    exit_code: int,
+) -> None:
+    """Write unified AGENT_RESULT for agents."""
+    try:
+        from lib.agent_result import agent_result, print_agent_summary, write_agent_result
+        from lib.story_package import StoryPackage
+        from episode_qa import run_episode_qa
+
+        story = StoryPackage.load(episode_id)
+        qa = None
+        try:
+            qa = run_episode_qa(
+                episode_id,
+                strict=False,
+                check_final=True,
+                require_lip=(profile == "hero"),
+            )
+        except Exception as e:
+            qa = {"ok": False, "error": str(e)}
+
+        arts = []
+        for name in (
+            f"{episode_id}_av_final.mp4",
+            f"{episode_id}_work_final.mp4",
+            f"{episode_id}_final.mp4",
+        ):
+            p = story.path("exports", "final", name)
+            if os.path.isfile(p):
+                arts.append({"role": "final", "path": p})
+                break
+        meta_path = story.path("meta", "agent_pipeline_result.json")
+        result = agent_result(
+            ok=ok and bool((qa or {}).get("ok", True) or not failed),
+            tool="episode_pipeline",
+            episode_id=episode_id,
+            error=None if ok else "PIPELINE_STAGE_FAILED",
+            message=f"profile={profile} failed={failed}",
+            exit_code=exit_code,
+            artifacts=arts,
+            qa=qa,
+            stages=stages,
+            extra={
+                "profile": profile,
+                "agent_notes": [
+                    "SI2V/hero lip_status must be human-approved: "
+                    "shot_approve -e EP -s SHOT --lip approved",
+                    "Daily path: --profile deliver (LTX). Hero lips: --profile hero or --backend infinitetalk",
+                    "See docs/agent_av_smoke_checklist.md",
+                ],
+            },
+        )
+        # ok: pipeline stages ok; if QA has only lip warnings, deliver still ok
+        if ok and qa and not qa.get("ok") and qa.get("issues"):
+            result["ok"] = False
+            result["error"] = "QA_HARD_ISSUES"
+            result["exit_code"] = EXIT_STAGE
+        write_agent_result(meta_path, result)
+        print_agent_summary(result)
+        print(f"result_json={meta_path}")
+    except Exception as e:
+        print(f"[WARN] AGENT_RESULT emit failed: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -376,8 +376,14 @@ def main(argv=None) -> int:
                 s2v_size=f"{width}x{height}",
                 s2v_fps=fps,
                 s2v_steps=steps,
+                # Human/vision gate — tools never auto-approve lips
+                lip_status="pending",
             )
             print(f"  OK {clip_path} elapsed={elapsed:.1f}s")
+            print(
+                f"  lip_status=pending → review clip then: "
+                f"python scripts/shot_approve.py -e {args.episode} -s {sid} --lip approved"
+            )
             # Patch meta with timing if present
             try:
                 if meta_path and os.path.isfile(meta_path):

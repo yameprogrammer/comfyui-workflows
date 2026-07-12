@@ -72,6 +72,7 @@ def run_episode_qa(
     *,
     strict: bool = True,
     check_final: bool = True,
+    require_lip: bool = False,
 ) -> dict:
     story = StoryPackage.load(episode_id)
     exp_w, exp_h = _expected_work_size(story)
@@ -177,6 +178,22 @@ def run_episode_qa(
                         "message": "motion_driver=si2v but no audio_refs.driving|dialogue",
                     }
                 )
+            lip = str(shot.get("lip_status") or "pending").lower()
+            entry["lip_status"] = lip
+            if lip not in ("approved", "ok"):
+                issues.append(
+                    {
+                        "code": "LIP_VISUAL_PENDING",
+                        "shot_id": sid,
+                        "message": (
+                            f"lip_status={lip!r} — human/vision gate required: "
+                            f"shot_approve -e {episode_id} -s {sid} --lip approved"
+                        ),
+                        # Soft by default; --require-lip promotes to hard below
+                        "severity": "warning",
+                    }
+                )
+
             # prefer speech present on work clip or will be baked at assemble
             refs = shot.get("audio_refs") if isinstance(shot.get("audio_refs"), dict) else {}
             for key in ("driving", "dialogue", "vo"):
@@ -231,15 +248,17 @@ def run_episode_qa(
                 }
             )
 
+    if require_lip:
+        for i in issues:
+            if i.get("code") == "LIP_VISUAL_PENDING":
+                i["severity"] = "error"
+
     hard = [i for i in issues if i.get("severity") != "warning"]
     warnings = [i for i in issues if i.get("severity") == "warning"]
-    ok = len(hard) == 0 if strict else True
-    if not strict and hard:
-        # still ok=false for hard issues when reporting; caller uses exit code
-        ok = False
+    ok = len(hard) == 0
 
     report = {
-        "ok": ok and len(hard) == 0,
+        "ok": ok,
         "episode_id": episode_id,
         "default_backend_s2v": s2v_default,
         "expected_work_size": {"width": exp_w, "height": exp_h},
@@ -248,6 +267,7 @@ def run_episode_qa(
         "final": final_info,
         "issues": hard,
         "warnings": warnings,
+        "require_lip": require_lip,
         "created_at": utc_now_iso(),
     }
     return report
@@ -269,6 +289,11 @@ def main(argv=None) -> int:
         help="Report only (always exit 0 unless missing episode)",
     )
     p.add_argument("--no-final", action="store_true", help="Skip final export checks")
+    p.add_argument(
+        "--require-lip",
+        action="store_true",
+        help="Treat unapproved SI2V lip_status as hard failure (hero ship gate)",
+    )
     p.add_argument("--json", action="store_true", help="Print full JSON report")
     args = p.parse_args(argv)
 
@@ -280,6 +305,7 @@ def main(argv=None) -> int:
             args.episode,
             strict=args.strict,
             check_final=not args.no_final,
+            require_lip=args.require_lip,
         )
     except FileNotFoundError:
         print(f"[ERROR] code=11 episode missing: {args.episode}", file=sys.stderr)

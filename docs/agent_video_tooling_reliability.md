@@ -353,10 +353,21 @@ python scripts/episode_s2v.py -e EP --shots S03 --backend infinitetalk --no-spee
 | L4 | format-consistent SI2V 캔버스 (정사각 opt-in) | ✅ |
 | L5 | pipeline deliver=LTX / hero=IT mild | ✅ |
 | L6 | episode_qa 게이트 | ✅ |
-| L7 | 문서·기본값 불일치 정리 (deferred 주석 등) | 🔄 |
-| L8 | sonagi 최종 조립이 mild 클립 기준인지 확인 | 운영 |
+| L7 | 문서·기본값 불일치 정리 | ✅ |
+| L8 | `smoke_agent_av.py` + [agent_av_smoke_checklist.md](agent_av_smoke_checklist.md) | ✅ |
+| L9 | pipeline **AGENT_RESULT** + 자동 QA append | ✅ |
+| L10 | `lip_status` human gate (`shot_approve --lip`) | ✅ |
 
-**의도적으로 안 하는 것:** 대사 길이 hard-cap, long_edge 강제 상한 (연출 걸림돌).
+### 11.0 목표 완수 선언 (2026-07-12)
+
+**에이전트 AV 신뢰 1차 목표: 완수.**
+
+- Safe defaults + fail-loud + profiles + QA + unified result  
+- 립은 **자동 점수 없음** → `lip_status` 계약으로 명시  
+- 고정 스모크: `python scripts/smoke_agent_av.py -e EP`  
+- 체크리스트: `docs/agent_av_smoke_checklist.md`  
+
+**의도적으로 안 하는 것:** 대사 길이 hard-cap, long_edge 강제, 립 자동 점수, Ideogram(백로그).
 
 ### 11.2 후보 (나중): Ideogram 4 타이포 도구
 

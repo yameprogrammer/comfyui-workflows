@@ -56,6 +56,11 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
     if driver == "si2v":
         driving_ok = resolve_driving_audio(story.root, shot) is not None
 
+    lip_status = str(shot.get("lip_status") or "").strip().lower() or None
+    if driver == "si2v" and work_ok and not lip_status:
+        lip_status = "pending"
+    lip_ok = lip_status in ("approved", "ok") if driver == "si2v" else True
+
     blockers: list[str] = []
     if not kf_ok:
         blockers.append("keyframe_file")
@@ -65,6 +70,8 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         blockers.append("si2v_driving_audio")
     if not work_ok:
         blockers.append("work_clip")
+    if driver == "si2v" and work_ok and not lip_ok:
+        blockers.append(f"lip_status={lip_status or 'pending'}")
 
     next_action = "done"
     if not kf_ok:
@@ -75,8 +82,11 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         next_action = "audio_bind_driving"
     elif not work_ok:
         next_action = "episode_s2v" if driver == "si2v" else "episode_i2v"
-    elif not deliver_ok:
-        next_action = "episode_upscale"
+    elif driver == "si2v" and work_ok and not lip_ok:
+        next_action = "shot_approve_lip"
+    elif work_ok:
+        # work-res ship is valid; upscale is optional deliver tier
+        next_action = "assemble_or_package" if not deliver_ok else "done"
     else:
         next_action = "assemble_or_package"
 
@@ -90,6 +100,8 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         "work_rel": work_rel,
         "deliver_clip": deliver_ok,
         "driving_audio": driving_ok,
+        "lip_status": lip_status,
+        "lip_visual_ok": lip_ok,
         "character_ids": shot.get("character_ids") or [],
         "location_id": shot.get("location_id"),
         "motion_prompt": bool((shot.get("motion_prompt") or "").strip()),
@@ -140,8 +152,25 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
         for s in per
         if s["motion_driver"] == "si2v" and not s["driving_audio"]
     )
+    n_need_lip = sum(
+        1
+        for s in per
+        if s["motion_driver"] == "si2v"
+        and s.get("work_clip")
+        and not s.get("lip_visual_ok")
+    )
 
     final_path = story.path("exports", "final", f"{episode_id}_final.mp4")
+    # also accept smoke naming
+    for name in (
+        f"{episode_id}_av_final.mp4",
+        f"{episode_id}_work_final.mp4",
+        f"{episode_id}_final.mp4",
+    ):
+        cand = story.path("exports", "final", name)
+        if os.path.isfile(cand):
+            final_path = cand
+            break
     fe = story.doc.get("final_export") or {}
     if fe.get("path"):
         alt = story.path(*str(fe["path"]).replace("\\", "/").split("/"))
@@ -165,8 +194,11 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
         overall = "episode_i2v"
     elif n_need_motion > 0:
         overall = "episode_i2v"
-    elif n_deliver < n_work:
-        overall = "episode_upscale"
+    elif n_need_lip > 0:
+        overall = "shot_approve_lip"
+    elif n_deliver < n_work and n_work > 0:
+        # upscale optional for agent work-path ship; prefer assemble if no deliver
+        overall = "assemble_video"
     elif not final_ok:
         overall = "assemble_video"
     elif not last_delivery:
@@ -206,6 +238,7 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
             "need_s2v": n_need_s2v,
             "need_i2v": n_need_i2v,
             "need_driving": n_need_driving,
+            "need_lip_approve": n_need_lip,
         },
         "final_export": final_ok,
         "final_path": final_path if final_ok else None,
@@ -240,16 +273,17 @@ def format_status_text(report: dict[str, Any]) -> str:
         f"last_delivery={report.get('last_delivery') or 'none'}",
         f"overall_next={report['overall_next']}",
         "",
-        f"{'SHOT':<6} {'DRV':<6} {'KF':<8} {'FILE':<5} {'WORK':<5} {'DELIV':<5} NEXT",
+        f"{'SHOT':<6} {'DRV':<6} {'KF':<8} {'FILE':<5} {'WORK':<5} {'LIP':<8} NEXT",
     ]
     for s in report["shots"]:
+        lip = s.get("lip_status") or ("-" if s.get("motion_driver") != "si2v" else "?")
         lines.append(
             f"{str(s['shot_id']):<6} "
             f"{str(s.get('motion_driver') or '?'):<6} "
             f"{str(s['keyframe_status']):<8} "
             f"{'Y' if s['keyframe_file'] else 'N':<5} "
             f"{'Y' if s['work_clip'] else 'N':<5} "
-            f"{'Y' if s['deliver_clip'] else 'N':<5} "
+            f"{str(lip):<8} "
             f"{s['next_action']}"
         )
     return "\n".join(lines)

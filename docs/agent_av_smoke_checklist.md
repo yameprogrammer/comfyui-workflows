@@ -1,0 +1,105 @@
+# Agent AV smoke checklist (goal gate)
+
+- **목적**: 영상 도구를 **에이전트 신뢰 수준**으로 닫기 위한 고정 검증  
+- **에피소드 예**: `sonagi_cafe_smoke_v1` (로컬; stories/ 는 gitignore일 수 있음)  
+- **관련**: [agent_video_tooling_reliability.md](agent_video_tooling_reliability.md)
+
+---
+
+## 0. 계약 요약 (에이전트가 외울 것)
+
+| 프로필 | SI2V | 용도 |
+|--------|------|------|
+| `deliver` (default) | LTX | 일상 생성·조립 |
+| `preview` | LTX | 빠른 탐색 |
+| `hero` | InfiniteTalk mild | 얼굴 CU 립 **1–2컷** |
+
+| 게이트 | 의미 |
+|--------|------|
+| `keyframe_status=approved` | 키프레임 육안 OK → I2V/SI2V 허용 |
+| `lip_status=approved` | **SI2V 립 육안 OK** (사람/에이전트 비전). 없으면 납품 경고 |
+| `episode_qa --strict` | 기계 게이트 (파일·spill·무음 등) |
+
+**립 품질은 자동 점수가 없다.** hero/SI2V 컷은 반드시 클립을 보고 `lip_status`를 올려라.
+
+```bash
+python scripts/shot_approve.py -e EP -s S03 --lip approved
+```
+
+---
+
+## 1. 빠른 게이트 (GPU 최소 / CI 가능)
+
+```bash
+# 설정·프로필·QA 구조만 (Comfy 큐 없음)
+python scripts/smoke_agent_av.py -e sonagi_cafe_smoke_v1
+# expect: exit 0, ok=true (또는 에피소드 없으면 code=11)
+```
+
+기대:
+
+- `default_backend_s2v` resolve → `ltx23_ia2v`
+- profiles `deliver|preview|hero` 존재
+- `episode_qa` 실행 가능
+- hero 기본: scale 1.35 / steps 10
+
+---
+
+## 2. 납품 경로 스모크 (Comfy 필요, 시간 중간)
+
+전제: 키프레임 approved, Comfy `:8188` up.
+
+```bash
+python scripts/episode_pipeline.py -e EP --run --from i2v --to qa --profile deliver
+```
+
+기대:
+
+- stage 순서에 `qa` 포함, **마지막에 AGENT_RESULT 블록**
+- `meta/agent_pipeline_result.json` 기록
+- exit 0 이면 `ok=true` + QA hard issue 0
+- SI2V 샷이 있으면 `lip_status` 미승인 시 **경고** (deliver는 soft), hero 프로필은 권장 fail
+
+---
+
+## 3. 히어로 립 스모크 (Comfy, ~3분/컷)
+
+```bash
+python scripts/episode_tts.py -e EP -s S03 --text "..." --bind-si2v --strict
+python scripts/episode_s2v.py -e EP --shots S03 --backend infinitetalk
+# 사람: clips/work/S03_s2v.mp4 확인
+python scripts/shot_approve.py -e EP -s S03 --lip approved
+python scripts/assemble_video.py -e EP --stage work --mix-policy layered
+python scripts/episode_qa.py -e EP --strict
+```
+
+기대:
+
+- IT mild: ~3분/컷, 입 과장 심하지 않음
+- assemble 후 대사 겹침·무음 없음
+- QA ok
+
+---
+
+## 4. 실패 케이스 (exit ≠ 0 이어야 함)
+
+| 케이스 | 커맨드 힌트 | 기대 |
+|--------|-------------|------|
+| 긴 VO + strict | `episode_tts ... --strict` | code 41 AUDIO_SPILL |
+| QA hard issue | 의도적 클립 삭제 후 `episode_qa --strict` | code 42 |
+| pipeline stop | stage fail + default stop | EXIT_STAGE + AGENT_RESULT ok=false |
+
+---
+
+## 5. 완수 판정
+
+아래가 모두 참이면 **에이전트 AV 신뢰 목표 1차 완수**:
+
+- [x] Safe defaults (LTX deliver / IT mild hero)
+- [x] Fail loud (spill strict, QA)
+- [x] One entrypoint + profile
+- [x] Post-run QA + **AGENT_RESULT** envelope
+- [x] Smoke checklist (본 문서) + `smoke_agent_av.py`
+- [x] Lip visual gate 계약 (`lip_status`)
+
+**비목표 (의도적):** 립 자동 점수, 대사 초 hard-cap, Ideogram (백로그).
