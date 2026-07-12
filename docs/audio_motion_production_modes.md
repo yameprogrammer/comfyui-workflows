@@ -111,24 +111,27 @@ synopsis / shots.json
 | **`i2v`** | keyframe, motion_prompt | 무음(또는 무시) work clip | **현재 구현됨** (`episode_i2v` / wan22) |
 | **`si2v`** (S2V) | keyframe, **audio segment**, (opt) text | 립/제스처↔소리 클립 | **✅ `generate_s2v` / `episode_s2v`** — **story 대사 + music_video 보컬 공통** |
 | **`still`** | keyframe | duration hold | Ken Burns 선택 |
-| **`flf2v`** | first + last keyframe | 브리지 | 나중 |
+| **`flf2v`** | first + last keyframe (`keyframe` + `keyframe_end`) | 브리지 / 싱글테이크 이음 | 📋 **PLANNED** — [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md). enum·export 필드만 예약, **generate/episode_flf2v 없음** |
 
 배치 CLI:
 
 ```text
 episode_i2v.py   → motion_driver=i2v
 episode_s2v.py   → motion_driver=si2v   (스토리 대사 컷 · 뮤비 보컬 컷 동일 경로)
-episode_pipeline … i2v → s2v → upscale …
+episode_flf2v.py → motion_driver=flf2v  (📋 예정 — first/last still 브리지)
+episode_pipeline … i2v → s2v → (flf2v) → upscale …
 ```
 
-`episode_i2v` 는 non-i2v 스킵, `episode_s2v` 는 non-si2v 스킵.
+`episode_i2v` 는 non-i2v 스킵, `episode_s2v` 는 non-si2v 스킵.  
+**FLF ≠ 립싱크**: 화면 연속용. 대사는 계속 `si2v`.
 
 ### 2.2 SI2V 백엔드
 
 | 백엔드 ID | 상태 | 엔진 | 비고 |
 |-----------|------|------|------|
-| **`ltx23_ia2v`** | ✅ **default** | LTX 2.3 distilled GGUF + **custom audio** AV latent | 속도 우위. Custom-Audio IA2V |
-| **`infinitetalk`** | ✅ **ready (1급 대안)** | **Wan 2.1 I2V** + InfiniteTalk | `center_voicey` 시 립 동기 **실용 수준** 진입 (v4 사용자 육안). **폐기 금지** |
+| **`ltx23_ia2v`** | ✅ **default** | LTX 2.3 distilled GGUF + **custom audio** AV latent | 속도 우위. Custom-Audio IA2V (미니멀 그래프) |
+| **`infinitetalk`** | ✅ **ready (1급 대안)** | **Wan 2.1 I2V** + InfiniteTalk | 립 품질 대안, **느림**. **폐기 금지** |
+| **`ltx23_aio`** (+ `_i2v` `_flf` `_flf_audio` `_fml` `_fml_audio` `_v2v`) | ✅ **ready** | AIO 모드 이식 | Image / FLF / FML / V2V(continue) ± Audio. [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md) |
 | `ltx23_lipdub` | ⬜ blocked | LTX IC-LoRA LipDub (V2V) | 공식 립더빙. **gated HF** |
 | `wan_s2v` | ⬜ planned | WanVideoAddS2VEmbeds | — |
 

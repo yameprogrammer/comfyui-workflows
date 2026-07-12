@@ -212,7 +212,7 @@ python scripts/episode_pipeline.py -e EP --run --from i2v --to assemble --profil
 ## 7. 비목표 (이번에 안 함)
 
 - LTX 일반 I2V 러너 (`ltx23` planned)  
-- FLF2V / 장편 연속성  
+- FLF2V / F2F 장편·싱글테이크 연속성 — 📋 로드맵: [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) (S6, CLI 미구현)  
 - 립 품질 자동 점수(비전 모델) — 1차 이후  
 - 캐릭터 자산 git 대량 커밋  
 

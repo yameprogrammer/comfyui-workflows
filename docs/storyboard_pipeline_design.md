@@ -338,7 +338,7 @@ python scripts/episode_upscale.py --episode mina_cafe_ep01 --preset deliver_1080
 | **S3** | `shot_compose` (look+char+loc → keyframe) | S2, L2, character L2 | ✅ |
 | **S4** | `shot_approve` (+ contact sheet later) | S3 | ✅ approve |
 | **S5** | `episode_i2v` 배치 | S4, generate_i2v | ✅ |
-| **S6** | first–last continuity 옵션 | S5 | ⬜ (필드·meta 준비, 배치 후속) |
+| **S6** | first–last / **FLF2V·F2F** continuity | S5 | 📋 **PLANNED** — 상세 [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) (CLI/WF 미구현; 키프레임 I2I 체인 임시 SOP만) |
 | **S7** | board contact / inventory export | S2 | ✅ `storyboard_export.py` |
 | **S8** | episode upscale + assemble 연동 | S5, D4/D5 | ✅ |
 | **S9** | shot_type별 approved ref 바인딩 + 커뮤니티 SOP | S3 | ✅ (2026-07-12 research) |

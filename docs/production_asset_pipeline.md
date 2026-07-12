@@ -76,7 +76,8 @@
 
 5. Motion
    episode_i2v @ work preset (format 비율)
-   optional first–last bridges
+   episode_s2v for dialogue (lip)
+   optional first–last / FLF2V bridges  ← 📋 PLANNED: docs/flf2v_f2f_roadmap.md (S6)
 
 6. Finish
    episode_upscale --preset deliver_1080|1440|2160

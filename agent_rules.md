@@ -152,13 +152,17 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
 
 ### Rule 7.1 오디오 · 모션 드라이버
 * 작품 종류 = `production_mode` (`music_video` / `story` / `hybrid` / `video_only`). 뮤비 원곡 ≠ 스토리 late BGM.
-* 샷 모션 = `motion_driver` (`i2v` 기본, **`si2v` = 온스크린 입·보컬**, still…).  
+* 샷 모션 = `motion_driver` (`i2v` 기본, **`si2v` = 온스크린 입·보컬**, still…, **`flf2v` = first–last 브리지 📋 PLANNED** — 상세 `docs/flf2v_f2f_roadmap.md`).  
+  - 싱글테이크 연속감: FLF 구현 전에는 `shot_compose --source prev_keyframe` 체인으로 키프레임만 이을 것. FLF≠립.  
+
   - **story**: 대사 컷 → `si2v` + dialogue wav.  
   - **music_video**: 카메라 앞 **노래/보컬 퍼포** 컷 → `si2v` + master 구간 슬라이스(보컬 prep 권장). B-roll·춤-only는 `i2v`.  
   - SI2V는 스토리 전용이 아님. I2V만으로 립싱크 때우지 말 것.
 * 뮤비 최종 오디오 = **music master** (`music_locked`). SI2V driving 슬라이스는 모션용; 클립 오디오로 원곡을 대체하지 말 것.
 * 조립 = `mix_policy` + stems (`audio/masters|music|dialogue|vo|sfx`). SSOT: [docs/audio_motion_production_modes.md](docs/audio_motion_production_modes.md).
-* **본선 = Comfy 생성 품질** (키프레임·I2V·SI2V). 외부 편집 monorepo(OpenMontage 등)는 참고만.
+* **본선 = Comfy 생성 품질** (키프레임·I2V·SI2V). 외부 편집 monorepo(OpenMontage 등)는 참고만.  
+  - 기능 목록·유용도: `docs/openmontage_capability_catalog.md` (공식 연동 SOP 없음 — “이런 게 있다” 수준).  
+  - 전체 파이프 대체 금지. 이식 시 얇은 wrapper + 작업대 export 유지.
 * SI2V 기본 백엔드 = **`ltx23_ia2v`**. **`infinitetalk`** = 1급 대안 (v4 center_voicey 실용 립). 폐기 금지.
 * SI2V 기본 캔버스 = **square** (얼굴/입); 에피소드 aspect는 deliver/upscale 단계에서.
 * Driving prep 기본 = **`auto`** (demucs → center_voicey).

@@ -148,7 +148,7 @@ python scripts/episode_i2v.py -e demo_ep01 --shots all_approved
 | Contact board export | ⬜ | `storyboard_export.py` |
 | first–last 필드 | 부분 | shots + meta `keyframe_end` |
 | I2V motion-only 규칙 | 문서 | SOP + meta 경고 |
-| FLF2V 배치 | ⬜ | 후속 S6 |
+| FLF2V / F2F 배치 | ⬜ PLANNED | **S6** — [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) (2026-07-12 로드맵 고정) |
 
 ---
 

@@ -18,6 +18,8 @@ Thumbs.db
 /input/
 /output/
 
+chapters/
+
 # Episode runtime artifacts (keep templates / examples / schemas)
 stories/**/clips/
 stories/**/keyframes/

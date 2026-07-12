@@ -1,0 +1,58 @@
+{
+  "id": "ltx23_aio",
+  "status": "ready",
+  "role": "s2v_multi_mode",
+  "description": "LTX 2.3 AIO modes ported from user All-in-One v44 table (agent API graphs, not full UI orchestrator).",
+  "source_ui_workflow": "workflows/human/ltx23AllInOneWorkflowForRTX_v44.json",
+  "cli": "python scripts/generate_s2v.py --backend ltx23_aio* | --ltx-mode ...",
+  "modes": {
+    "i2v": {
+      "backend": "ltx23_aio_i2v",
+      "aio_table": "02 Image to Video",
+      "inputs": ["-i first.png"],
+      "notes": "No audio; motion from first frame only"
+    },
+    "i2v_audio": {
+      "backend": "ltx23_aio",
+      "aio_table": "02 Image to Video + Audio input",
+      "inputs": ["-i first.png", "-a drive.wav"]
+    },
+    "flf": {
+      "backend": "ltx23_aio_flf",
+      "aio_table": "02 Image to Video + Last Frame input",
+      "inputs": ["-i first.png", "--last last.png"]
+    },
+    "flf_audio": {
+      "backend": "ltx23_aio_flf_audio",
+      "aio_table": "02 Image to Video + Last Frame input + Audio input",
+      "inputs": ["-i first.png", "--last last.png", "-a drive.wav"]
+    },
+    "fml": {
+      "backend": "ltx23_aio_fml",
+      "aio_table": "02 Image to Video + Last + Mid Frame input",
+      "inputs": ["-i first.png", "--mid mid.png", "--last last.png"]
+    },
+    "fml_audio": {
+      "backend": "ltx23_aio_fml_audio",
+      "aio_table": "02 Image to Video + Last + Mid Frame input + Audio input",
+      "inputs": ["-i first.png", "--mid mid.png", "--last last.png", "-a drive.wav"]
+    },
+    "v2v": {
+      "backend": "ltx23_aio_v2v",
+      "aio_table": "03 Video to Video (agent mapping)",
+      "inputs": ["-i last_frame_of_prior.png", "[-a drive.wav]"],
+      "notes": "Agent V2V = continue from last frame of previous clip (not full latent ExtendSampler). Matches last-frame chain practice."
+    }
+  },
+  "implementation": {
+    "builder": "lib.ltx_s2v.build_ltx_aio_mode_api",
+    "guides": "LTXVAddGuide for mid/last frame_idx",
+    "stack": "distilled GGUF + AIO dynamic distill lora @0.9, 24fps default, yuv420p post"
+  },
+  "not_ported": [
+    "Text to Video / Text+Audio pure T2V",
+    "OrchestratorNodeMuter UI switching",
+    "Full latent LTXVExtendSampler V2V from encoded video",
+    "Spatial upscale + multi-lora IC stack"
+  ]
+}

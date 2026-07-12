@@ -32,6 +32,76 @@ EXIT_GEN = 30
 EXIT_PARTIAL = 31
 
 
+def _fit_image_to_canvas(
+    src_path: str,
+    dest_path: str,
+    width: int,
+    height: int,
+    *,
+    mode: str = "cover",
+) -> str:
+    """Resize source to exact format canvas so I2I latents match episode aspect.
+
+    Moody I2I inherits latent size from the input image — without this step,
+    keyframes stay at source aspect (e.g. 1:1 face ref or 16:9 location)
+    even when meta claims work_9x16_540.
+
+    mode=cover: scale to fill, center-crop (default, good for portrait stills)
+    mode=contain: letterbox on neutral gray (keeps full source)
+    """
+    from PIL import Image
+
+    im = Image.open(src_path).convert("RGB")
+    tw, th = int(width), int(height)
+    if im.size == (tw, th):
+        if os.path.abspath(src_path) != os.path.abspath(dest_path):
+            im.save(dest_path)
+        return dest_path
+
+    sw, sh = im.size
+    if mode == "contain":
+        scale = min(tw / sw, th / sh)
+        nw, nh = max(1, int(round(sw * scale))), max(1, int(round(sh * scale)))
+        resized = im.resize((nw, nh), Image.Resampling.LANCZOS)
+        canvas = Image.new("RGB", (tw, th), (32, 32, 36))
+        canvas.paste(resized, ((tw - nw) // 2, (th - nh) // 2))
+        canvas.save(dest_path)
+    else:
+        scale = max(tw / sw, th / sh)
+        nw, nh = max(1, int(round(sw * scale))), max(1, int(round(sh * scale)))
+        resized = im.resize((nw, nh), Image.Resampling.LANCZOS)
+        left = max(0, (nw - tw) // 2)
+        top = max(0, (nh - th) // 2)
+        cropped = resized.crop((left, top, left + tw, top + th))
+        if cropped.size != (tw, th):
+            cropped = cropped.resize((tw, th), Image.Resampling.LANCZOS)
+        cropped.save(dest_path)
+    return dest_path
+
+
+def _ensure_output_size(path: str, width: int, height: int) -> bool:
+    """Force final keyframe to format size; return True if resize was applied."""
+    from PIL import Image
+
+    im = Image.open(path)
+    if im.size == (int(width), int(height)):
+        return False
+    fitted = Image.new("RGB", (int(width), int(height)), (32, 32, 36))
+    # cover-fit whatever came back
+    sw, sh = im.size
+    tw, th = int(width), int(height)
+    scale = max(tw / sw, th / sh)
+    nw, nh = max(1, int(round(sw * scale))), max(1, int(round(sh * scale)))
+    resized = im.convert("RGB").resize((nw, nh), Image.Resampling.LANCZOS)
+    left = max(0, (nw - tw) // 2)
+    top = max(0, (nh - th) // 2)
+    cropped = resized.crop((left, top, left + tw, top + th))
+    if cropped.size != (tw, th):
+        cropped = cropped.resize((tw, th), Image.Resampling.LANCZOS)
+    cropped.save(path)
+    return True
+
+
 def _compose_all(args) -> int:
     """Batch-compose shots missing keyframes (or all with --force)."""
     try:
@@ -420,19 +490,31 @@ def main(argv=None) -> int:
         print(f"[dry-run] appearance[:200]={appearance[:200]}")
         return EXIT_OK
 
+    canvas_source = source
     if mode == "i2i":
         if not source or not os.path.isfile(source):
             print("[ERROR] code=20 I2I needs source ref", file=sys.stderr)
             return EXIT_SOURCE
+        # Fit ref to episode format BEFORE I2I so latent aspect == keyframe aspect
+        canvas_dir = story.path("meta", "_canvas_sources")
+        os.makedirs(canvas_dir, exist_ok=True)
+        canvas_source = os.path.join(canvas_dir, f"{args.shot}_{width}x{height}.png")
+        _fit_image_to_canvas(source, canvas_source, width, height, mode="cover")
+        print(f"  canvas_source={canvas_source} ({width}x{height} from {os.path.basename(source)})")
         # I2I body: action + framing + wardrobe; cores via prefix (identity anchors)
+        # Avoid baking dialogue text into walls — action should be visual only.
         i2i_body = assemble_prompt(
             core=action,
             instruction=framing,
             style_lock=wardrobe_clause,
-            suffix=cam_text,
+            suffix=assemble_prompt(
+                core=cam_text,
+                instruction="vertical 9:16 composition" if format_id == "shorts_9x16" else "",
+                suffix="no text overlays, no readable signage letters, no logos",
+            ),
         )
         result = generate_i2i_image(
-            input_image_path=source,
+            input_image_path=canvas_source,
             prompt_text=i2i_body,
             denoise_val=denoise,
             cfg_val=cfg,
@@ -462,6 +544,10 @@ def main(argv=None) -> int:
     if not result.get("ok"):
         print(f"[ERROR] code=30 {result.get('error')} {result.get('message')}", file=sys.stderr)
         return EXIT_GEN
+
+    # Hard guarantee: final PNG matches format work size
+    if os.path.isfile(out_path) and _ensure_output_size(out_path, width, height):
+        print(f"[WARN] output resized to format canvas {width}x{height}: {out_path}")
 
     story.update_shot(
         args.shot,
@@ -509,6 +595,7 @@ def main(argv=None) -> int:
             "location_id": location_id,
             "compose_mode": mode,
             "source": os.path.abspath(source) if source else None,
+            "canvas_source": os.path.abspath(canvas_source) if canvas_source else None,
             "char_source": os.path.abspath(char_source) if char_source else None,
             "loc_source": os.path.abspath(loc_source) if loc_source else None,
             "wardrobe_lock": wardrobe_lock or None,

@@ -19,6 +19,8 @@
 | 9 | [delivery_handoff.md](delivery_handoff.md) | 사용자 납품 패키징 (`deliveries/`) |
 | 10 | [commission_workflow.md](commission_workflow.md) | 수주 브리프 → 납품 순서 |
 | 11 | [audio_motion_production_modes.md](audio_motion_production_modes.md) | **오디오·SI2V·production_mode / mix_policy** |
+| 12 | [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) | **📋 FLF2V/F2F** 싱글테이크 이음 — 예정 기능 (S6) |
+| 13 | [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md) | **📋 LTX All-in-One WF → 파이프 편입** (영상 작업 후 검토) |
 
 ## 기타
 
@@ -26,7 +28,9 @@
 |------|------|
 | [character_sheet_system_design.md](character_sheet_system_design.md) | 캐릭터 장기 설계·리서치 |
 | [moody_workflow_guide.md](moody_workflow_guide.md) | Moody T2I/I2I 운용 |
-| [openmontage_eval_notes.md](openmontage_eval_notes.md) | OpenMontage 로컬 클론 평가 (참고 monorepo) |
+| [openmontage_capability_catalog.md](openmontage_capability_catalog.md) | **OpenMontage 기능 목록·유용도** (참고 monorepo, 공식 연동 미정의) |
+| [openmontage_pipeline_recipes.md](openmontage_pipeline_recipes.md) | **OpenMontage 제작 레시피(파이프라인) 목록·설명** |
+| [openmontage_eval_notes.md](openmontage_eval_notes.md) | OpenMontage 클론 평가 요약 → 카탈로그로 상세 링크 |
 
 워크플로우 JSON: `../workflows/agent/`  
 CLI: `../scripts/`  

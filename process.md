@@ -2,6 +2,43 @@
 
 이 문서는 에이전트들이 `agent_custom` 디렉토리 내에서 진행한 작업 내역을 누적하여 기록하는 개발 로그입니다. 새로운 작업을 시작하거나 마칠 때 반드시 이 문서를 업데이트해 주십시오.
 
+[2026-07-12] - Grok
+- **작업 목표**: AIO 모드 일괄 이식 — I2V / FLF / FML / V2V (±Audio).
+- **구현**: `build_ltx_aio_mode_api` + 백엔드 alias `ltx23_aio_*` + `--ltx-mode` / `--last` / `--mid`
+- **스모크**: `ltx23_aio` I2V+Audio OK; `ltx23_aio_flf` OK (~81s/49f)
+- **V2V**: agent 매핑 = 이전 클립 last-frame 이어 생성 (풀 ExtendSampler 후속)
+- **문서/매니페스트** 갱신
+
+[2026-07-12] - Grok
+- **작업 목표**: 사용자 LTX2.3 All-in-One WF → agent **`ltx23_aio` MVP 편입**.
+- **구현**:
+  - `lib/ltx_s2v.py` profile=aio (dynamic distill lora @0.9, defaults)
+  - `generate_s2v --backend ltx23_aio` + yuv420p playable re-encode
+  - `workflows/human/ltx23AllInOneWorkflowForRTX_v44.json` 보관
+  - `workflows/agent/ltx23_aio.manifest.json`
+  - `video_backends.json` / chain 기본 백엔드 aio
+- **스모크**: S02 + fulltail → `_smoke_ltx23_aio.mp4` (~3.6min, 544x960, 89f@24)
+- **문서**: `docs/ltx23_aio_pipeline_integration.md`
+
+[2026-07-12] - Grok
+- **작업 목표**: OpenMontage **제작 레시피(파이프라인) 13종** 목록·설명 문서화.
+- **산출**: `docs/openmontage_pipeline_recipes.md` (YAML description 기반, 스테이지·우리 쇼츠 관계).
+- **링크**: capability_catalog §2, docs/README.
+
+[2026-07-12] - Grok
+- **작업 목표**: OpenMontage 풀 클론 **기능 목록화** + agent_custom 유용도 라벨 문서화.
+- **산출**: `docs/openmontage_capability_catalog.md` (tools/skills/pipelines, A~E 라벨, 쇼츠 치트시트, 공식 연동 미정의 명시).
+- **갱신**: `openmontage_eval_notes.md` 요약화, `docs/README.md` 링크.
+- **정책 유지**: 본선=Comfy/agent_custom · OM=참고·선택 이식 · 전체 대체 금지.
+
+[2026-07-12] - Grok
+- **작업 목표**: FLF2V/F2F(프레임↔프레임·first–last 이음)를 **추가 예정 기능**으로 툴 문서에 고정.
+- **배경**: 쇼츠 소비자 피드백 — 컷 분할 시에도 싱글테이크 연속감 필요; 립(SI2V)과 화면 연결(FLF) 역할 분리.
+- **산출**:
+  - 신규 SSOT: `docs/flf2v_f2f_roadmap.md` (S6 하위 티켓 S6.0–S6.9, DoD, 임시 SOP)
+  - 교차 링크: `docs/README.md`, `storyboard_pipeline_design.md` S6, `audio_motion_production_modes.md`, `storyboard_keyframe_community_research.md`, `production_asset_pipeline.md`
+- **구현 상태**: CLI/WF **미구현**. 당분간 연속 키프레임 = `shot_compose --source prev.png` + 낮은 denoise.
+
 [2026-07-12] - Antigravity
 - **작업 목표**: AGENTS.md에 추가된 도구 사용 규칙을 공식 에이전트 작업 규칙(Rule 10)으로 통합 및 갱신.
 - **주요 변경**: `agent_rules.md` 파일 하단에 외부 워크스페이스 내보내기 의무(`export_episode_to_workspace.py` 사용 등) 관련 Rule 10을 추가하고, `process.md`에 이력을 기록함.

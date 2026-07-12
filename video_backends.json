@@ -184,6 +184,56 @@
       "strengths": ["fast_iteration", "custom_audio_i2v", "agent_default", "preview", "deliver"],
       "notes": "DEFAULT agent SI2V (2026-07-12 speed policy). ~1–2min/5s. Require speaking motion prompts (anti still/blink-only). Format work aspect. InfiniteTalk = hero profile for CU lips."
     },
+    "ltx23_aio": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX 2.3 AIO modes (I2V / FLF / FML / V2V + optional audio)",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio*",
+      "manifest": "workflows/agent/ltx23_aio.manifest.json",
+      "source_ui": "workflows/human/ltx23AllInOneWorkflowForRTX_v44.json",
+      "strengths": ["fast_iteration", "lip_sync", "custom_audio_i2v", "flf", "user_validated_aio"],
+      "notes": "Modes via backend alias or --ltx-mode: i2v, i2v_audio, flf, flf_audio, fml, fml_audio, v2v. See docs/ltx23_aio_pipeline_integration.md."
+    },
+    "ltx23_aio_i2v": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX AIO Image to Video (no audio)",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_i2v",
+      "strengths": ["establishing", "motion_only"]
+    },
+    "ltx23_aio_flf": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX AIO First/Last Frame",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_flf --last last.png",
+      "strengths": ["one_take_bridge", "flf2v"]
+    },
+    "ltx23_aio_flf_audio": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX AIO First/Last + Audio",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_flf_audio --last last.png -a drive.wav",
+      "strengths": ["one_take_bridge", "lip_sync", "flf2v"]
+    },
+    "ltx23_aio_fml": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX AIO First/Mid/Last",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_fml --mid mid.png --last last.png"
+    },
+    "ltx23_aio_fml_audio": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX AIO First/Mid/Last + Audio",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_fml_audio --mid mid.png --last last.png -a drive.wav"
+    },
+    "ltx23_aio_v2v": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX AIO Video continue (agent: last-frame of prior clip as first)",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_v2v -i last_of_prev.png [-a drive.wav]",
+      "notes": "Agent V2V = continue from last frame image (not full latent ExtendSampler yet)."
+    },
     "wan_s2v": {
       "status": "planned",
       "kind": "s2v",

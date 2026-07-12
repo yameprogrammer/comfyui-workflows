@@ -24,6 +24,7 @@ import json
 import os
 import random
 import shutil
+import subprocess
 import sys
 import time
 import urllib.error
@@ -42,14 +43,32 @@ from lib.comfy_client import (
 )
 from lib.ffmpeg_util import normalize_clip_audio
 from lib.ltx_s2v import (
+    AIO_DISTILL_LORA,
+    AIO_DISTILL_LORA_STRENGTH,
+    AIO_MODES,
+    BACKEND_TO_AIO_MODE,
     DEFAULT_DISTILL_LORA,
     DEFAULT_UNET_GGUF,
+    aio_profile_defaults,
+    build_ltx_aio_mode_api,
     build_ltx_custom_audio_api,
+    is_ltx_backend,
+    resolve_aio_mode,
     snap_ltx_dim,
     snap_ltx_frames,
 )
 
-S2V_BACKENDS = ("infinitetalk", "ltx23_ia2v")
+S2V_BACKENDS = (
+    "infinitetalk",
+    "ltx23_ia2v",
+    "ltx23_aio",
+    "ltx23_aio_i2v",
+    "ltx23_aio_flf",
+    "ltx23_aio_flf_audio",
+    "ltx23_aio_fml",
+    "ltx23_aio_fml_audio",
+    "ltx23_aio_v2v",
+)
 
 COMFY_OUTPUT_DIR = r"F:\ComfyUI_windows_portable\ComfyUI\output"
 COMFY_TEMP_DIR = r"F:\ComfyUI_windows_portable\ComfyUI\temp"
@@ -78,6 +97,72 @@ def _snap_dim(n: int, multiple: int = 16) -> int:
     if n < multiple:
         return multiple
     return max(multiple, int(round(n / multiple) * multiple))
+
+
+def _ensure_playable_h264(path: str) -> None:
+    """Re-encode to yuv420p High if needed (Windows player compatibility)."""
+    if not path or not os.path.isfile(path):
+        return
+    try:
+        import json
+        from lib.ffmpeg_util import find_ffmpeg, run_ffmpeg
+
+        out = subprocess.check_output(
+            [
+                shutil.which("ffprobe") or "ffprobe",
+                "-v",
+                "error",
+                "-select_streams",
+                "v:0",
+                "-show_entries",
+                "stream=pix_fmt,profile",
+                "-of",
+                "json",
+                path,
+            ],
+            text=True,
+            timeout=30,
+        )
+        st = (json.loads(out).get("streams") or [{}])[0]
+        pix = (st.get("pix_fmt") or "").lower()
+        prof = (st.get("profile") or "").lower()
+        if pix in ("yuv420p", "yuvj420p") and "4:4:4" not in prof:
+            return
+        tmp = path + ".playable.mp4"
+        r = run_ffmpeg(
+            [
+                "-i",
+                path,
+                "-c:v",
+                "libx264",
+                "-profile:v",
+                "high",
+                "-pix_fmt",
+                "yuv420p",
+                "-preset",
+                "fast",
+                "-crf",
+                "18",
+                "-c:a",
+                "aac",
+                "-b:a",
+                "192k",
+                "-movflags",
+                "+faststart",
+                tmp,
+            ],
+            timeout_sec=600,
+        )
+        if r.get("ok") and os.path.isfile(tmp):
+            os.replace(tmp, path)
+            print(f"  re-encoded playable yuv420p: {path}")
+        elif os.path.isfile(tmp):
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
+    except Exception as e:
+        print(f"[WARN] playable re-encode skipped: {e}")
 
 
 def _snap_frames(n: int) -> int:
@@ -388,10 +473,10 @@ def build_infinitetalk_api(
 
 def generate_s2v(
     input_image_path: str,
-    audio_path: str,
+    audio_path: str | None = None,
     output_filename: str | None = None,
     *,
-    backend: str = "ltx23_ia2v",
+    backend: str = "ltx23_aio",
     prompt: str = (
         "person speaking clearly with natural lip sync, mouth opens and closes "
         "with the dialogue, jaw movement, subtle head motion, keep identity fixed, cinematic"
@@ -421,11 +506,13 @@ def generate_s2v(
     speed_lora_strength: float = 1.0,
     teacache: bool = True,
     teacache_thresh: float = 0.2,
+    ltx_mode: str | None = None,
+    last_image_path: str | None = None,
+    mid_image_path: str | None = None,
+    guide_strength: float = 0.9,
 ) -> dict:
     if not os.path.isfile(input_image_path):
         return fail_result(error="SOURCE_MISSING", message=input_image_path)
-    if not os.path.isfile(audio_path):
-        return fail_result(error="AUDIO_MISSING", message=audio_path)
 
     backend = (backend or "ltx23_ia2v").strip().lower()
     if backend not in S2V_BACKENDS:
@@ -434,43 +521,79 @@ def generate_s2v(
             message=f"{backend!r}; choose from {S2V_BACKENDS}",
         )
 
-    if backend == "ltx23_ia2v":
+    # Resolve AIO mode early to know if audio is required
+    _early_mode = None
+    if is_ltx_backend(backend):
+        try:
+            _early_mode = resolve_aio_mode(backend, ltx_mode)
+        except ValueError as e:
+            return fail_result(error="BAD_MODE", message=str(e))
+        if backend == "ltx23_ia2v" and not ltx_mode:
+            _early_mode = "i2v_audio"
+    audio_required = backend == "infinitetalk" or (
+        _early_mode in ("i2v_audio", "flf_audio", "fml_audio")
+        or (_early_mode == "v2v" and audio_path)
+    )
+    # pure i2v / flf / fml without audio: allow missing audio
+    if _early_mode in ("i2v", "flf", "fml") and not audio_path:
+        audio_required = False
+    if audio_required and (not audio_path or not os.path.isfile(audio_path)):
+        return fail_result(error="AUDIO_MISSING", message=audio_path or "(none)")
+
+    if is_ltx_backend(backend):
         width = snap_ltx_dim(width, 32)
         height = snap_ltx_dim(height, 32)
         if fps is None or fps <= 0:
+            fps = 24.0
+        if backend == "ltx23_aio" and (fps is None or abs(float(fps) - 16.0) < 0.01):
+            # episode_s2v often passes IT default 16; AIO table uses 24
             fps = 24.0
     else:
         width = _snap_dim(width, 16)
         height = _snap_dim(height, 16)
 
     if num_frames is None:
-        dur = _probe_audio_duration(audio_path)
+        import math
+
+        dur = _probe_audio_duration(audio_path) if audio_path else None
         if not dur or dur > 30:
-            # bad container metadata (seen with wav copy-slice) — fallback short smoke
-            print(f"[WARN] audio duration probe={dur}; using 5.0s for frame count")
+            if audio_path:
+                print(f"[WARN] audio duration probe={dur}; using 5.0s for frame count")
             dur = 5.0
-        raw_frames = int(round(float(dur) * float(fps)))
-        if backend == "ltx23_ia2v":
+        # ceil so video never ends before audio (round() was chopping last syllables)
+        raw_frames = int(math.ceil(float(dur) * float(fps) - 1e-9))
+        # optional extra tail frames (silence already in wav is preferred; this is safety)
+        try:
+            tail = float(os.environ.get("AGENT_S2V_TAIL_SEC", "0") or 0)
+        except ValueError:
+            tail = 0.0
+        if tail > 0:
+            raw_frames += int(math.ceil(tail * float(fps)))
+        if is_ltx_backend(backend):
             num_frames = snap_ltx_frames(raw_frames)
         else:
             num_frames = _snap_frames(raw_frames)
     else:
-        if backend == "ltx23_ia2v":
+        if is_ltx_backend(backend):
             num_frames = snap_ltx_frames(num_frames)
         else:
             num_frames = _snap_frames(num_frames)
 
     # MultiTalk window often prefers values like 81; clamp smoke length
+    # LTX: default was 121 (~4.8s@25fps) for smoke VRAM; production dialogue
+    # often needs longer — override with AGENT_LTX_MAX_FRAMES / AGENT_IT_MAX_FRAMES.
     if backend == "infinitetalk":
         if num_frames < 17:
             num_frames = 17
-        if num_frames > 129:
-            print(f"[WARN] clamping frames {num_frames} -> 81 for smoke stability")
-            num_frames = 81
-    else:
-        if num_frames > 121:
-            print(f"[WARN] clamping LTX frames {num_frames} -> 121 for smoke VRAM")
-            num_frames = 121
+        it_max = int(os.environ.get("AGENT_IT_MAX_FRAMES", "129"))
+        if num_frames > it_max:
+            print(f"[WARN] clamping frames {num_frames} -> {it_max} (AGENT_IT_MAX_FRAMES)")
+            num_frames = it_max
+    elif is_ltx_backend(backend):
+        ltx_max = int(os.environ.get("AGENT_LTX_MAX_FRAMES", "361"))
+        if num_frames > ltx_max:
+            print(f"[WARN] clamping LTX frames {num_frames} -> {ltx_max} (AGENT_LTX_MAX_FRAMES)")
+            num_frames = ltx_max
 
     seed = seed if seed is not None else random.randint(1, 2**31 - 1)
     if steps is None:
@@ -486,38 +609,111 @@ def generate_s2v(
         )
     ensure_parent_dir(output_filename)
 
-    # copy image + audio into Comfy input
+    # copy image + optional audio into Comfy input
     img_name = "temp_s2v_input.png"
     audio_name = "temp_s2v_drive.wav"
     os.makedirs(COMFYUI_INPUT_DIR, exist_ok=True)
     shutil.copy2(input_image_path, os.path.join(COMFYUI_INPUT_DIR, img_name))
-    audio_abs = os.path.abspath(audio_path)
-    # LTX LoadAudio needs file under input/; InfiniteTalk uses abs path but copy is fine
-    shutil.copy2(audio_abs, os.path.join(COMFYUI_INPUT_DIR, audio_name))
+    audio_abs = os.path.abspath(audio_path) if audio_path else ""
+    if audio_path and os.path.isfile(audio_path):
+        # LTX LoadAudio needs file under input/; InfiniteTalk uses abs path but copy is fine
+        shutil.copy2(audio_abs, os.path.join(COMFYUI_INPUT_DIR, audio_name))
+    else:
+        audio_name = None
 
-    if backend == "ltx23_ia2v":
-        api = build_ltx_custom_audio_api(
-            image_name=img_name,
-            audio_name=audio_name,
-            prompt=prompt,
-            negative=negative or DEFAULT_NEG,
-            width=width,
-            height=height,
-            num_frames=num_frames,
-            fps=fps,
-            seed=seed,
-            cfg=cfg,
-            unet_gguf=ltx_unet,
-            distill_lora=ltx_lora,
-        )
+    if is_ltx_backend(backend):
+        try:
+            mode = resolve_aio_mode(backend, ltx_mode)
+        except ValueError as e:
+            return fail_result(error="BAD_MODE", message=str(e))
+        # AIO stack defaults for all ltx23_aio* ; ia2v keeps lighter lora
+        use_aio_stack = backend.startswith("ltx23_aio") or mode != "i2v_audio"
+        if backend == "ltx23_ia2v" and not ltx_mode:
+            mode = "i2v_audio"
+            use_aio_stack = False
+        lora_use = ltx_lora
+        lora_str = 0.6
+        if use_aio_stack or backend.startswith("ltx23_aio"):
+            aio_d = aio_profile_defaults()
+            if ltx_lora in (DEFAULT_DISTILL_LORA, None, ""):
+                lora_use = aio_d["distill_lora"]
+            lora_str = float(aio_d["lora_strength"])
+        # stage guide images into Comfy input
+        last_name = None
+        mid_name = None
+        if last_image_path:
+            if not os.path.isfile(last_image_path):
+                return fail_result(error="LAST_MISSING", message=last_image_path)
+            last_name = "temp_s2v_last.png"
+            shutil.copy2(last_image_path, os.path.join(COMFYUI_INPUT_DIR, last_name))
+        if mid_image_path:
+            if not os.path.isfile(mid_image_path):
+                return fail_result(error="MID_MISSING", message=mid_image_path)
+            mid_name = "temp_s2v_mid.png"
+            shutil.copy2(mid_image_path, os.path.join(COMFYUI_INPUT_DIR, mid_name))
+        # silent-audio modes still load image; audio optional for pure i2v
+        audio_for_graph = audio_name if mode in (
+            "i2v_audio",
+            "flf_audio",
+            "fml_audio",
+        ) or (mode == "v2v" and audio_path) else None
+        if mode in ("i2v_audio", "flf_audio", "fml_audio") and not audio_path:
+            return fail_result(error="AUDIO_REQUIRED", message=f"mode {mode} needs -a")
+        if mode in ("flf", "flf_audio") and not last_name:
+            return fail_result(error="LAST_REQUIRED", message=f"mode {mode} needs --last")
+        if mode in ("fml", "fml_audio") and (not last_name or not mid_name):
+            return fail_result(error="MID_LAST_REQUIRED", message=f"mode {mode} needs --mid and --last")
+
+        if backend == "ltx23_ia2v" and mode == "i2v_audio" and not ltx_mode:
+            api = build_ltx_custom_audio_api(
+                image_name=img_name,
+                audio_name=audio_name,
+                prompt=prompt,
+                negative=negative or DEFAULT_NEG,
+                width=width,
+                height=height,
+                num_frames=num_frames,
+                fps=fps,
+                seed=seed,
+                cfg=cfg,
+                unet_gguf=ltx_unet,
+                distill_lora=lora_use,
+                lora_strength=lora_str,
+                profile="ia2v",
+            )
+        else:
+            # pure i2v: still need dummy audio file path only if use_audio — not for i2v
+            api = build_ltx_aio_mode_api(
+                mode=mode,
+                first_image=img_name,
+                last_image=last_name,
+                mid_image=mid_name,
+                audio_name=audio_for_graph,
+                prompt=prompt,
+                negative=negative or DEFAULT_NEG,
+                width=width,
+                height=height,
+                num_frames=num_frames,
+                fps=fps,
+                seed=seed,
+                cfg=cfg,
+                unet_gguf=ltx_unet,
+                distill_lora=lora_use,
+                lora_strength=lora_str,
+                guide_strength=guide_strength,
+            )
         print(
-            f"generate_s2v backend=ltx23_ia2v {width}x{height} frames={num_frames} "
-            f"fps={fps} seed={seed} (distilled sigma schedule)"
+            f"generate_s2v backend={backend} mode={mode} "
+            f"{width}x{height} frames={num_frames} fps={fps} seed={seed}"
         )
         print(f"  image={input_image_path}")
+        if last_image_path:
+            print(f"  last={last_image_path}")
+        if mid_image_path:
+            print(f"  mid={mid_image_path}")
         print(f"  audio={audio_path}")
         print(f"  unet={ltx_unet}")
-        print(f"  lora={ltx_lora}")
+        print(f"  lora={lora_use} @ {lora_str}")
     else:
         # Resolve speed LoRA path
         lora_path: str | None = None
@@ -670,8 +866,9 @@ def generate_s2v(
             )
             urllib.request.urlretrieve(view, output_filename)
             print(f"Downloaded: {filename}")
+        _ensure_playable_h264(output_filename)
     else:
-        prefixes = ("agent_ltx_s2v", "agent_s2v")
+        prefixes = ("agent_ltx_s2v", "agent_ltx_aio", "agent_s2v")
         candidates = []
         for folder in (COMFY_OUTPUT_DIR, COMFY_TEMP_DIR):
             if not os.path.isdir(folder):
@@ -689,13 +886,14 @@ def generate_s2v(
         candidates.sort(reverse=True)
         shutil.copy2(candidates[0][1], output_filename)
         print(f"Copied newest: {candidates[0][1]}")
+        _ensure_playable_h264(output_filename)
 
     # Comfy often writes 16 kHz mono AAC (InfiniteTalk/VHS) — many Windows players
     # appear silent. Re-encode to 48 kHz stereo AAC for preview compatibility.
     try:
         nr = normalize_clip_audio(
             output_filename,
-            loudnorm=(backend == "ltx23_ia2v"),
+            loudnorm=is_ltx_backend(backend),
         )
         if nr.get("ok"):
             print(
@@ -749,15 +947,24 @@ def generate_s2v(
 
 
 def main(argv=None) -> int:
-    p = argparse.ArgumentParser(description="SI2V multi-backend (InfiniteTalk / LTX custom-audio)")
-    p.add_argument("--input", "-i", required=True, help="Keyframe image")
-    p.add_argument("--audio", "-a", required=True, help="Driving audio")
+    p = argparse.ArgumentParser(description="SI2V multi-backend (InfiniteTalk / LTX AIO modes)")
+    p.add_argument("--input", "-i", required=True, help="First/keyframe image (v2v: last frame of prior clip)")
+    p.add_argument("--audio", "-a", default=None, help="Driving audio (required for *_audio / IT)")
+    p.add_argument("--last", default=None, dest="last_image", help="Last frame (flf/fml)")
+    p.add_argument("--mid", default=None, dest="mid_image", help="Mid frame (fml)")
+    p.add_argument(
+        "--ltx-mode",
+        default=None,
+        choices=list(AIO_MODES),
+        help="Override AIO mode: i2v|i2v_audio|flf|flf_audio|fml|fml_audio|v2v",
+    )
+    p.add_argument("--guide-strength", type=float, default=0.9)
     p.add_argument("--output", "-o", default=None)
     p.add_argument(
         "--backend",
-        default="ltx23_ia2v",
+        default="ltx23_aio",
         choices=list(S2V_BACKENDS),
-        help="ltx23_ia2v (default, fast agent path) | infinitetalk (hero lips, slow)",
+        help="ltx23_aio* mode backends | ltx23_ia2v | infinitetalk",
     )
     p.add_argument(
         "--prompt",
@@ -865,6 +1072,10 @@ def main(argv=None) -> int:
         speed_lora_strength=1.0,
         teacache=args.teacache,
         teacache_thresh=args.teacache_thresh,
+        ltx_mode=args.ltx_mode,
+        last_image_path=args.last_image,
+        mid_image_path=args.mid_image,
+        guide_strength=args.guide_strength,
     )
     if r.get("ok"):
         print(f"OK {r.get('output_path') or '(dry-run)'}")

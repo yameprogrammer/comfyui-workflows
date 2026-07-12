@@ -187,7 +187,7 @@ def main(argv=None) -> int:
     parser.add_argument(
         "--backend",
         default=None,
-        help="SI2V backend: infinitetalk (default) | ltx23_ia2v (preview)",
+        help="SI2V backend: infinitetalk | ltx23_ia2v | ltx23_aio (AIO-aligned LTX)",
     )
     args = parser.parse_args(argv)
 
