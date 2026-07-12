@@ -1,97 +1,114 @@
-# 🎨 Look / Style Core — 얇은 글로벌 룩 팩
+# Look / Style Core — Production v1
 
-- **작성일**: 2026-07-11  
-- **상태**: 설계 + 최소 템플릿  
-- **목적**: 캐릭터·로케와 별도로 **영상 전체 톤/그레이딩/매체 느낌**을 한 곳에서 고정  
-- **관련**: [production_asset_pipeline.md](production_asset_pipeline.md), [storyboard_pipeline_design.md](storyboard_pipeline_design.md)
-
----
-
-## 1. 왜 필요한가
-
-커뮤니티·플랫폼의 asset card 3종:
-
-| 카드 | 우리 대응 |
-|------|-----------|
-| Character | `characters/` |
-| Environment | `locations/` |
-| **Style / Look** | **`looks/`** (본 문서) |
-
-룩이 없으면 샷마다 “시네마틱” 해석이 달라져 연속성이 깨진다.
-
-**의도적으로 얇게** 둔다. 풀 아트 디렉션 시스템이 아니라 **프롬프트 코어 + 메타** 수준.
+- **작성일**: 2026-07-11 · **갱신**: 2026-07-12  
+- **상태**: **Production v1 READY**  
+- **목적**: 캐릭터·로케와 별도로 **영상 전체 톤**을 고정  
+- **관련**: production_asset_pipeline, shot_compose, character_casting
 
 ---
 
-## 2. 결과물
+## 0. 한 줄
 
-| 파일 | 역할 |
-|------|------|
-| `prompts/positive_core.txt` | 전 샷 appearance에 붙는 룩 블록 (필름 톤, 렌즈, 색, 그레인) |
-| `prompts/negative_core.txt` | 룩 붕괴 방지 (과채도, 다른 매체 스타일 등) |
-| `bible.json` | look_id, 매체, 참고 키워드 |
-| (선택) `refs/mood/` | 1~4장 무드 보드 이미지 |
+```text
+looks/<look_id>/prompts/positive_core.txt  →  모든 키프레임 appearance 접두
+```
+
+룩이 없으면 샷마다 “시네마틱” 해석이 갈라진다.
 
 ---
 
-## 3. 디렉터리
+## 1. 공정 (실무)
+
+```text
+1) look_create   — 새 룩 패키지 (또는 cinematic_moody_v1 사용)
+2) look_status   — cores 검증 · --approve
+3) episode       — shots.json look_id 지정 (story_init / commission)
+4) shot_compose  — look 코어 자동 주입 (이미 연동)
+```
+
+### CLI
+
+```bash
+# 목록 / 검증
+python scripts/look_status.py --list
+python scripts/look_status.py --id cinematic_moody_v1
+
+# 새 룩 (기본 룩 시드)
+python scripts/look_create.py --id noir_rain_v1 --name "Noir Rain" \
+  --from-default \
+  --positive "wet asphalt reflections, cool teal-orange grade, anamorphic bokeh, night rain, film still" \
+  --keywords "noir,rain,teal-orange" \
+  --status draft
+python scripts/look_status.py --id noir_rain_v1 --approve
+
+# 에피소드에서 사용
+# shots.json: "look_id": "noir_rain_v1"
+python scripts/shot_compose.py -e <ep> --shot S01 --look noir_rain_v1
+```
+
+---
+
+## 2. 디렉터리
 
 ```text
 looks/
   _template/
-  cinematic_moody_v1/          # 기본 룩 예
+  cinematic_moody_v1/     # 기본 승인 룩
     bible.json
     prompts/
-      positive_core.txt
+      positive_core.txt   # 전역 톤 (필수, 충분히 구체적)
       negative_core.txt
-    refs/mood/
+    refs/mood/            # 선택 무드보드 1~4장
 ```
 
-에피소드 `shots.json` / episode meta:
-
-```json
-{
-  "look_id": "cinematic_moody_v1",
-  "format": "cinematic_16x9"
-}
-```
+**하지 말 것:** 룩에 구체 인물명·구체 장소명 넣기 (char/loc 책임).
 
 ---
 
-## 4. 프롬프트 조립 순서 (고정)
+## 3. 프롬프트 조립 (고정)
 
 ```text
 appearance =
   look.positive_core
-  + character.positive_core(s)
+  + character.positive_core
   + location.positive_core
-  + shot action/camera
+  + shot action / camera / framing
   + quality_suffix
 ```
 
-negative = look.neg ∪ character.neg ∪ location.neg ∪ shot.neg
-
-**룩은 항상 맨 앞(또는 공통 접두)** 에 두어 전역 톤을 먹인다.
+`shot_compose` 가 이 순서로 조립한다 (K1 ✅).
 
 ---
 
-## 5. 기본 룩 `cinematic_moody_v1`
+## 4. Definition of Done (v1)
 
-Moody / Z-Image 실사 영상용 시작점. 에피소드가 다르면 `looks/<new_id>/` 복사 후 수정.
-
----
-
-## 6. 구현 티켓
-
-| ID | 내용 | 상태 |
-|----|------|------|
-| K0 | 본 문서 + template + default look | ✅ |
-| K1 | shot_compose에 look_id 주입 | ⬜ (S3와 함께) |
-| K2 | episode 기본 look 검증 | ⬜ |
+| 항목 | 상태 |
+|------|------|
+| template + default look | ✅ |
+| look_create / look_status | ✅ |
+| shot_compose look 주입 | ✅ |
+| episode_status look 검증 | ✅ |
+| 얇은 bible + cores | ✅ |
+| mood ref 필수 | ❌ 선택 (의도적) |
+| ControlNet 스타일 전용 엔진 | ⬜ 후속 |
 
 ---
 
-## 7. 하지 말 것
+## 5. 캐릭터 공정과의 관계
 
-- 룩마다 캐릭터/로케 패키지를 복제하지 말 것  
-- 룩에 구체 인물·구체 장소를 넣지 말 것 (그건 char/loc 책임)  
+| 공정 | 역할 |
+|------|------|
+| Character A/B/C | **누구** (identity) |
+| Look | **어떤 필름/그레이드** (global tone) |
+| Location | **어디** |
+
+룩은 캐릭터 시트를 대체하지 않는다. expand IPAdapter와도 독립.
+
+---
+
+## 6. 변경 이력
+
+| 날짜 | 내용 |
+|------|------|
+| 2026-07-11 | 초안 템플릿 |
+| 2026-07-12 | Production v1: create/status + episode look check |

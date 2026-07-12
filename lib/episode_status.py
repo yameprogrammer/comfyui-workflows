@@ -174,10 +174,25 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
     else:
         overall = "complete"
 
+    look_id = story.look_id()
+    look_ok = True
+    look_missing: list[str] = []
+    try:
+        from lib.look_package import look_readiness
+
+        lr = look_readiness(look_id)
+        look_ok = bool(lr.get("ok"))
+        look_missing = list(lr.get("missing") or [])
+    except Exception as e:
+        look_ok = False
+        look_missing = [str(e)]
+
     return {
         "episode_id": episode_id,
         "format": story.format_id(),
-        "look_id": story.look_id(),
+        "look_id": look_id,
+        "look_ok": look_ok,
+        "look_missing": look_missing,
         "production_mode": story.doc.get("production_mode"),
         "default_backend_s2v": story.doc.get("default_backend_s2v"),
         "shot_count": n,
@@ -208,8 +223,10 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
 
 
 def format_status_text(report: dict[str, Any]) -> str:
+    look_flag = "ok" if report.get("look_ok", True) else f"BAD:{report.get('look_missing')}"
     lines = [
-        f"episode={report['episode_id']} format={report['format']} look={report['look_id']}",
+        f"episode={report['episode_id']} format={report['format']} "
+        f"look={report['look_id']} ({look_flag})",
         f"production_mode={report.get('production_mode') or '?'}  "
         f"default_backend_s2v={report.get('default_backend_s2v') or '?'}",
         f"shots={report['shot_count']}  "

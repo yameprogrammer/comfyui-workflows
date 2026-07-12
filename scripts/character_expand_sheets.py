@@ -11,6 +11,8 @@ import sys
 
 from generate_moody_controlnet import generate_controlnet_image
 from generate_moody_i2i import generate_i2i_image
+from generate_moody_i2i_ipadapter import generate_i2i_ipadapter
+from generate_moody_i2i_lock import generate_i2i_lock
 from lib.character_package import (
     CharacterPackage,
     asset_filename,
@@ -79,8 +81,8 @@ def main(argv=None) -> int:
     parser.add_argument("--id", required=True)
     parser.add_argument(
         "--sheets",
-        required=True,
-        help="turnaround,expression,costume | all_mvp (profile-aware) | preset ids",
+        default=None,
+        help="turnaround,expression,costume | all_mvp (profile-aware) | preset ids (or use --only)",
     )
     parser.add_argument("--source", default=None, help="Source image (default: approved master)")
     parser.add_argument("--model", "-m", choices=["real", "pro", "wild"], default=None)
@@ -101,12 +103,38 @@ def main(argv=None) -> int:
     parser.add_argument("--seed-base", type=int, default=None)
     parser.add_argument(
         "--engine",
-        choices=["auto", "i2i", "controlnet", "controlnet_empty"],
+        choices=[
+            "auto",
+            "i2i",
+            "i2i_lock",
+            "ipadapter",
+            "controlnet",
+            "controlnet_empty",
+        ],
         default="auto",
         help=(
-            "auto: preset.engine; controlnet: I2I+CN from character image; "
-            "controlnet_empty: Empty latent+CN (pose+prompt only)"
+            "auto|i2i: plain I2I; "
+            "i2i_lock: strong same-person prompt + denoise cap (always works); "
+            "ipadapter: IP-Adapter face lock (needs models; falls back to i2i_lock on fail); "
+            "controlnet / controlnet_empty: pose CN"
         ),
+    )
+    parser.add_argument(
+        "--ipa-weight",
+        type=float,
+        default=0.72,
+        help="IPAdapter weight when engine=ipadapter (default 0.72)",
+    )
+    parser.add_argument(
+        "--ipa-fallback",
+        action="store_true",
+        default=True,
+        help="On IPAdapter failure, fall back to i2i_lock (default on)",
+    )
+    parser.add_argument(
+        "--no-ipa-fallback",
+        action="store_true",
+        help="Do not fall back if IPAdapter fails",
     )
     parser.add_argument(
         "--ensure-fullbody",
@@ -153,9 +181,15 @@ def main(argv=None) -> int:
     )
     model = args.model or profile.get("default_model") or "pro"
 
+    if not args.sheets and not args.only:
+        print("[ERROR] code=2 pass --sheets and/or --only", file=sys.stderr)
+        return EXIT_USAGE
+
     presets = load_presets(args.presets_file)
     try:
-        preset_ids = resolve_preset_ids(presets, args.sheets, args.only, profile)
+        preset_ids = resolve_preset_ids(
+            presets, args.sheets or "all_mvp", args.only, profile
+        )
     except KeyError as e:
         print(f"[ERROR] code=21 message=unknown sheet/preset {e}", file=sys.stderr)
         return EXIT_PRESET_MISSING
@@ -227,7 +261,13 @@ def main(argv=None) -> int:
             return "controlnet"
         if eng in ("controlnet_empty", "cn_empty", "t2i_controlnet"):
             return "controlnet_empty"
+        if eng in ("ipadapter", "ipa", "faceid"):
+            return "ipadapter"
+        if eng in ("i2i_lock", "identity", "lock"):
+            return "i2i_lock"
         return "i2i"
+
+    ipa_fallback = args.ipa_fallback and not args.no_ipa_fallback
 
     if args.dry_run:
         for pid in expand_ids:
@@ -289,11 +329,14 @@ def main(argv=None) -> int:
                 style_lock=global_negative,
             )
 
+            eng_suffix = ""
+            if engine in ("controlnet", "controlnet_empty", "ipadapter", "i2i_lock"):
+                eng_suffix = f"_{engine}"
             fname = asset_filename(
                 args.id,
                 sheet=preset["sheet"],
                 view=preset["view"],
-                variant=preset["variant"] + (f"_{engine}" if engine == "controlnet" else ""),
+                variant=preset["variant"] + eng_suffix,
                 seed=seed,
                 candidate=c,
             )
@@ -338,6 +381,63 @@ def main(argv=None) -> int:
                     latent_width=w,
                     latent_height=h,
                 )
+            elif engine == "ipadapter":
+                print(f"IPAdapter face lock weight={args.ipa_weight}")
+                result = generate_i2i_ipadapter(
+                    input_image_path=source_path,
+                    prompt_text=prompt_instruction,
+                    denoise_val=denoise,
+                    cfg_val=cfg,
+                    model_type=model,
+                    output_filename=out_path,
+                    seed=seed,
+                    negative_text=negative,
+                    core_prefix=positive_core,
+                    meta_out=meta_path,
+                    timeout_sec=args.timeout,
+                    ipa_weight=args.ipa_weight,
+                )
+                if (
+                    not result.get("ok")
+                    and ipa_fallback
+                    and result.get("error") in (
+                        "IPADAPTER_FAILED",
+                        "QUEUE_FAILED",
+                        "COMFY_NO_OUTPUT",
+                    )
+                ):
+                    print(
+                        f"[WARN] IPAdapter failed ({result.get('error')}: "
+                        f"{str(result.get('message') or '')[:120]}); fallback → i2i_lock"
+                    )
+                    result = generate_i2i_lock(
+                        input_image_path=source_path,
+                        prompt_text=prompt_instruction,
+                        denoise_val=denoise,
+                        cfg_val=cfg,
+                        model_type=model,
+                        output_filename=out_path,
+                        seed=seed,
+                        negative_text=negative,
+                        core_prefix=positive_core,
+                        meta_out=meta_path,
+                        timeout_sec=args.timeout,
+                    )
+                    engine = "i2i_lock_fallback"
+            elif engine == "i2i_lock":
+                result = generate_i2i_lock(
+                    input_image_path=source_path,
+                    prompt_text=prompt_instruction,
+                    denoise_val=denoise,
+                    cfg_val=cfg,
+                    model_type=model,
+                    output_filename=out_path,
+                    seed=seed,
+                    negative_text=negative,
+                    core_prefix=positive_core,
+                    meta_out=meta_path,
+                    timeout_sec=args.timeout,
+                )
             else:
                 result = generate_i2i_image(
                     input_image_path=source_path,
@@ -356,7 +456,7 @@ def main(argv=None) -> int:
             if not result.get("ok"):
                 failures += 1
                 err = result.get("error", "UNKNOWN")
-                print(f"[WARN] failed {pid} c{c}: {err}")
+                print(f"[WARN] failed {pid} c{c}: {err} {result.get('message') or ''}")
                 if err == "COMFY_UNREACHABLE":
                     return EXIT_COMFY
                 continue

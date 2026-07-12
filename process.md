@@ -6,6 +6,11 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] C공정 IPAdapter + Style Core Production v1
+* **작업 에이전트**: Grok
+* **C identity**: `--engine i2i_lock|ipadapter` (IP-Adapter plus-face SD15 가중치 설치, ZIT I2I 그래프 주입, 실패 시 lock 폴백). 실측 e2e joy OK.
+* **Look**: `look_create` / `look_status`, episode_status look 검증, look_style_system Production v1 (shot_compose 주입 기존)
+
 ### [2026-07-12] 캐릭터 공정 Production v1 마감
 * **작업 에이전트**: Grok
 * **DoD**: A cast → B promote → C expand/approve 를 **실무 치트시트 + CLI 세트**로 완결

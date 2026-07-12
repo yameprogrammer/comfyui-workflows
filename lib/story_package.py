@@ -61,12 +61,18 @@ def load_shot_types() -> dict:
 
 
 def load_look_cores(look_id: str) -> tuple[str, str]:
-    root = os.path.join(LOOKS_DIR, look_id)
-    if not os.path.isdir(root):
-        raise FileNotFoundError(f"look not found: {look_id}")
-    pos = load_text(os.path.join(root, "prompts", "positive_core.txt"))
-    neg = load_text(os.path.join(root, "prompts", "negative_core.txt"))
-    return pos, neg
+    """Load look cores; prefer lib.look_package (validates non-empty positive)."""
+    try:
+        from lib.look_package import load_look_cores as _ll
+
+        return _ll(look_id)
+    except Exception:
+        root = os.path.join(LOOKS_DIR, look_id)
+        if not os.path.isdir(root):
+            raise FileNotFoundError(f"look not found: {look_id}")
+        pos = load_text(os.path.join(root, "prompts", "positive_core.txt"))
+        neg = load_text(os.path.join(root, "prompts", "negative_core.txt"))
+        return pos, neg
 
 
 def resolve_work_size(format_id: str, work_preset: str | None = None) -> tuple[int, int, str, str]:

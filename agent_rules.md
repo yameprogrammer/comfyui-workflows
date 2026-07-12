@@ -81,8 +81,15 @@ agent_custom/
 ### Rule 6.2 캐릭터 캐스팅 공정 (A→B→C)
 * **A 탐색**: `character_cast_pool.py` — 다엔진(Moody/Krea) 후보. identity 미고정. `characters/casts/`.
 * **B 승격**: `character_promote.py` — 고른 이미지 → 패키지 + `approved/master_front` + core 고정.
-* **C 일관**: `character_expand_sheets` / `character_approve` — ref I2I (기본 Moody). 탐색 엔진과 달라도 됨.
-* 확정 전 InstantID/IPAdapter/LoRA 학습은 기본 경로 아님. SSOT: [docs/character_casting_pipeline.md](docs/character_casting_pipeline.md).
+* **C 일관**: `character_expand_sheets` / `character_approve`.
+  - 기본 `i2i` · 흔들림 시 **`i2i_lock`** 또는 **`ipadapter`** (IP-Adapter face; 실패 시 i2i_lock 폴백).
+  - 턴: `controlnet` / `controlnet_empty`.
+* 확정 전 LoRA 학습은 기본 경로 아님. SSOT: [docs/character_casting_pipeline.md](docs/character_casting_pipeline.md).
+
+### Rule 6.3 Look / Style Core
+* 전역 톤 = `looks/<look_id>/` cores. 에피소드 `look_id` 필수에 가깝게 취급.
+* 생성: `look_create` · 검증: `look_status` · 샷: `shot_compose` 가 자동 주입.
+* SSOT: [docs/look_style_system.md](docs/look_style_system.md).
 
 ### Rule 6.0 멀티 트랙 (활성 작업 모델)
 * 단일 `CHARACTER_L2_SOFT_FACTORY` 전용이 아니다. 동시 허용:

@@ -8,12 +8,12 @@
 
 ## 0. 이게 “완성”인 범위
 
-| 포함 (v1) | 미포함 (나중에) |
+| 포함 (v1+) | 미포함 (나중에) |
 |-----------|-----------------|
-| 다엔진 후보 풀 (Moody + Krea) | InstantID / IPAdapter |
+| 다엔진 후보 풀 (Moody + Krea) | InstantID (별도 모델·노드) |
 | 컨택시트 · shortlist · status | 자동 얼굴 QA 점수 |
 | 1장 promote → master_front 잠금 | 탐색 단계 LoRA 학습 |
-| expand I2I 로 expression MVP | artbook 전용 고해상 파이프 고도화 |
+| expand: **i2i / i2i_lock / ipadapter** / controlnet | artbook 전용 고해상 파이프 고도화 |
 | 오케스트레이터 `character_pipeline` | shot_compose 다엔진 |
 
 **사람 게이트는 의도적으로 남김:** 후보 고르기, expression approve.
@@ -26,10 +26,22 @@
 A cast     multi-engine T2I → characters/casts/<cast_id>/
 B promote  pick → characters/<id>/ + approved/master_front.png
 C expand   I2I sheets from master → refs/ + approve aliases
+           engines: i2i | i2i_lock | ipadapter | controlnet*
 D video    shot_compose → I2V/SI2V  (기존, 본 문서 범위 밖)
 ```
 
-커뮤니티 정합: **오디션(다모델) → 인간 선택 → 시트 공장(ref 고정)**.
+커뮤니티 정합: **오디션(다모델) → 인간 선택 → 시트 공장(ref 고정 + 선택적 IP-Adapter)**.
+
+### C identity 엔진
+
+```bash
+# 기본
+python scripts/character_expand_sheets.py --id X --sheets all_mvp --engine i2i
+# 일관 강화 (항상 동작)
+python scripts/character_expand_sheets.py --id X --sheets all_mvp --engine i2i_lock
+# IP-Adapter face (모델 필요; 실패 시 i2i_lock 폴백)
+python scripts/character_expand_sheets.py --id X --sheets expression --engine ipadapter --ipa-weight 0.72
+```
 
 ---
 
@@ -67,8 +79,9 @@ python scripts/character_status.py --id mina_cast_v1
 python scripts/character_expand_sheets.py \
   --id mina_cast_v1 \
   --sheets all_mvp \
-  --engine i2i \
+  --engine ipadapter \
   --profile video_ref
+# 또는 --engine i2i_lock (IPAdapter 없이 강한 identity)
 
 # 생성 refs 중 고른 것을 approve (표정 등)
 python scripts/character_approve.py --id mina_cast_v1 \
@@ -146,7 +159,8 @@ python scripts/character_expand_sheets.py --id hero_v1 --sheets all_mvp --engine
 | Sheet-first before video | expand before shot_compose |
 | Ref lock after pick | master_front primary_ref |
 | Contact sheet review | cast contact_sheet.png |
-| IPAdapter/InstantID | 후속 C 엔진 |
+| IPAdapter face | C `--engine ipadapter` (모델: Comfy `models/ipadapter/`) |
+| i2i_lock | C `--engine i2i_lock` (가중치 없이 항상 동작) |
 
 ---
 

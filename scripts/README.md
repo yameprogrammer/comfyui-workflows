@@ -56,7 +56,11 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `character_pipeline.py` | A→B→C 오케스트레이션 | production v1 |
 | `character_create.py` | 패키지 + 마스터 후보 (Moody 단일 경로) | t2i |
 | `character_approve.py` | refs → approved 승격 | — |
-| `character_expand_sheets.py` | **C** 일관 시트 배치 | i2i / controlnet |
+| `character_expand_sheets.py` | **C** 일관 시트 | i2i / **i2i_lock** / **ipadapter** / controlnet |
+| `generate_moody_i2i_ipadapter.py` | I2I + IP-Adapter face | C identity |
+| `generate_moody_i2i_lock.py` | I2I identity-strong (폴백) | C identity |
+| `look_create.py` | Style Core 룩 패키지 생성 | looks/ |
+| `look_status.py` | 룩 목록·검증·approve | looks/ |
 | `shot_with_character.py` | 스토리 키프레임 | i2i |
 
 워크플로우 JSON은 **`workflows/agent/`** 만 수정·프로모트한다.
