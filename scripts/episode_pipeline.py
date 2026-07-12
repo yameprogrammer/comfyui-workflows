@@ -444,7 +444,15 @@ def _emit_pipeline_result(
                     "shot_approve -e EP -s SHOT --lip approved",
                     "Daily path: --profile deliver (LTX). Hero lips: --profile hero or --backend infinitetalk",
                     "See docs/agent_av_smoke_checklist.md",
+                    "Copy episode to YOUR workspace: "
+                    f"python scripts/export_episode_to_workspace.py -e {episode_id} "
+                    "--dest <YOUR_PROJECT>/episodes/<ep>  (or set AGENT_WORKSPACE)",
                 ],
+                "factory_episode_root": story.root,
+                "workspace_export_hint": (
+                    f"python scripts/export_episode_to_workspace.py -e {episode_id} "
+                    f"--dest <AGENT_WORKSPACE>/episodes/{episode_id}"
+                ),
             },
         )
         # ok: pipeline stages ok; if QA has only lip warnings, deliver still ok

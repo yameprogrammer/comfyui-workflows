@@ -8,6 +8,21 @@
 
 ## 0. 계약 요약 (에이전트가 외울 것)
 
+### 0.0 공장 vs 작업대 (필수)
+
+| 곳 | 역할 |
+|----|------|
+| `agent_custom` 레포 | **공장** — CLI 실행, 기본 출력 `stories/<ep>/` |
+| 에이전트 프로젝트 디렉터리 | **작업대** — 편집·납품·후처리 |
+
+생성 후 **반드시** 작업대로 가져간다:
+
+```bash
+python scripts/export_episode_to_workspace.py -e EP --dest "PATH/TO/YOUR/PROJECT/episodes/EP"
+```
+
+상세: [agent_consumer_workspace_contract.md](agent_consumer_workspace_contract.md) · 루트 [AGENTS.md](../AGENTS.md)
+
 | 프로필 | SI2V | 용도 |
 |--------|------|------|
 | `deliver` (default) | LTX | 일상 생성·조립 |

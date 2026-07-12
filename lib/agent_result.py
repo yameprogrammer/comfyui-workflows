@@ -78,7 +78,16 @@ def print_agent_summary(result: dict[str, Any]) -> None:
         for a in arts[:12]:
             print(f"    - {a.get('role')}: {a.get('path')}")
     # Contract notes for agents
-    notes = result.get("agent_notes") or []
+    notes = list(result.get("agent_notes") or [])
+    # Always remind consumer agents about workspace handoff
+    handoff = (
+        "FACTORY outputs are under this tool repo (e.g. stories/<ep>/). "
+        "Copy into YOUR project with: python scripts/export_episode_to_workspace.py "
+        "-e <ep> --dest <YOUR_WORKSPACE>  (or set AGENT_WORKSPACE). "
+        "Leaving files only in the tool repo is incomplete."
+    )
+    if handoff not in notes:
+        notes.append(handoff)
     for n in notes:
         print(f"  NOTE: {n}")
     print("=== END_AGENT_RESULT ===")

@@ -29,6 +29,10 @@ agent_custom/
 | 캐릭터 데이터 | `characters/` |
 | 스펙/로드맵 | `docs/` |
 | 규칙/이력 | 루트 `agent_rules.md`, `process.md` |
+| **소비자 에이전트** | 루트 [AGENTS.md](AGENTS.md) · [docs/agent_consumer_workspace_contract.md](docs/agent_consumer_workspace_contract.md) |
+
+**공장 vs 작업대:** CLI 산출물은 기본적으로 `stories/<episode>/` 에 쌓인다.  
+호출 에이전트는 `export_episode_to_workspace.py --dest <내_프로젝트>` 로 **자기 작업 디렉터리에 복사**한 뒤 후처리를 한다. 공장에만 두고 끝내지 말 것.
 
 상세 규약: [workflows/README.md](workflows/README.md) · [scripts/README.md](scripts/README.md) · [docs/README.md](docs/README.md)
 

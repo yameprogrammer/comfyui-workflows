@@ -29,6 +29,24 @@ agent_custom/
 * 로케이션 설계: [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md)
 * 룩/스타일: [docs/look_style_system.md](docs/look_style_system.md) · `looks/cinematic_moody_v1`
 * 스토리보드 설계: [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md)
+* **소비자 에이전트 경로 계약**: [docs/agent_consumer_workspace_contract.md](docs/agent_consumer_workspace_contract.md) · 루트 [AGENTS.md](AGENTS.md)
+
+---
+
+## 📌 소비자 에이전트 (도구만 호출할 때)
+
+이 레포를 **공장**으로 쓰고, **작업대는 호출 측 프로젝트 디렉터리**다.
+
+1. cwd = `agent_custom` 루트에서 `python scripts/...` 실행  
+2. 산출물 기본 위치 = `stories/<episode_id>/` (키프레임·clips·audio·exports)  
+3. **의무**: `export_episode_to_workspace.py --dest <내_작업대>` 또는 `-o`로 작업대 직접 지정  
+4. `AGENT_RESULT` / 메타의 **절대 경로를 읽고 복사**하지 않으면 미완료  
+5. 공장(`stories/`)에만 두고 “끝” 보고 금지  
+
+```bash
+python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episodes/EP"
+# 또는 set AGENT_WORKSPACE=D:/my_project
+```
 
 ---
 
