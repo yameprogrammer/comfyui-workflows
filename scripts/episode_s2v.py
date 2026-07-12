@@ -55,8 +55,26 @@ def _filter_si2v(story: StoryPackage, selected: list[dict]) -> tuple[list[dict],
     return run, skip
 
 
-def _work_size(story: StoryPackage, shot: dict, long_edge: int) -> tuple[int, int]:
-    """Prefer episode work preset; cap long edge for InfiniteTalk VRAM; snap later in runner."""
+def _work_size(
+    story: StoryPackage,
+    shot: dict,
+    long_edge: int,
+    *,
+    square: bool = True,
+) -> tuple[int, int]:
+    """
+    SI2V generation size.
+
+    Default square (640) — face/lip models (LTX custom-audio, InfiniteTalk) were
+    QA'd at 640²; landscape work presets (960×544) waste face pixels after long-edge cap.
+    """
+    long_edge = max(256, int(long_edge))
+    if square:
+        # Prefer even multiple of 32 for LTX; 16 for Wan.
+        side = long_edge if long_edge % 32 == 0 else (long_edge // 32) * 32
+        side = max(256, side)
+        return side, side
+
     ws = shot.get("work_size") or {}
     w = int(ws.get("width") or 0)
     h = int(ws.get("height") or 0)
@@ -68,8 +86,6 @@ def _work_size(story: StoryPackage, shot: dict, long_edge: int) -> tuple[int, in
             w, h = int(pr["width"]), int(pr["height"])
         except Exception:
             w, h = 640, 640
-    # Talking-head smokes used 640²; keep aspect but cap long edge.
-    long_edge = max(256, int(long_edge))
     m = max(w, h)
     if m > long_edge:
         scale = long_edge / float(m)
@@ -95,9 +111,23 @@ def main(argv=None) -> int:
     )
     parser.add_argument(
         "--prepare-mode",
-        default="center_voicey",
-        help="Driving audio prep: copy|voicey|center|vocal_band|center_voicey",
+        default="auto",
+        help="Driving prep: auto(demucs→center_voicey)|copy|voicey|center|vocal_band|center_voicey|demucs",
     )
+    parser.add_argument(
+        "--square",
+        dest="square",
+        action="store_true",
+        default=None,
+        help="Force square face canvas (default: on)",
+    )
+    parser.add_argument(
+        "--no-square",
+        dest="square",
+        action="store_false",
+        help="Use episode work aspect instead of square",
+    )
+    parser.set_defaults(square=True)
     parser.add_argument(
         "--force-audio",
         action="store_true",
@@ -196,7 +226,9 @@ def main(argv=None) -> int:
         motion = (shot.get("motion_prompt") or "").strip() or (
             "a person speaking naturally, subtle head motion, natural lip motion, cinematic"
         )
-        width, height = _work_size(story, shot, args.long_edge)
+        width, height = _work_size(
+            story, shot, args.long_edge, square=bool(args.square)
+        )
         meta_path = story.path("meta", f"{sid}_s2v.json")
 
         print(f"\n=== {sid} status={shot.get('keyframe_status')} size={width}x{height} ===")

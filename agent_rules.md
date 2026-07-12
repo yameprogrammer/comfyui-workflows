@@ -106,9 +106,11 @@ agent_custom/
   - SI2V는 스토리 전용이 아님. I2V만으로 립싱크 때우지 말 것.
 * 뮤비 최종 오디오 = **music master** (`music_locked`). SI2V driving 슬라이스는 모션용; 클립 오디오로 원곡을 대체하지 말 것.
 * 조립 = `mix_policy` + stems (`audio/masters|music|dialogue|vo|sfx`). SSOT: [docs/audio_motion_production_modes.md](docs/audio_motion_production_modes.md).
-* SI2V 기본 백엔드 = **`ltx23_ia2v`** (`video_backends.default_backend_s2v`).  
-  **`infinitetalk`** (Wan2.1 I2V+InfiniteTalk) = **1급 대안** — center_voicey 시 립 실용 수준 진입 확인(v4 스모크). 폐기 금지; LTX 드리프트·클로즈업 고정 시 사용.
-* 뮤비 보컬 컷 바인딩: `audio_bind_driving.py -e <ep> --shot S0x --start … --duration …`
+* **본선 = Comfy 생성 품질** (키프레임·I2V·SI2V). 외부 편집 monorepo(OpenMontage 등)는 참고만.
+* SI2V 기본 백엔드 = **`ltx23_ia2v`**. **`infinitetalk`** = 1급 대안 (v4 center_voicey 실용 립). 폐기 금지.
+* SI2V 기본 캔버스 = **square** (얼굴/입); 에피소드 aspect는 deliver/upscale 단계에서.
+* Driving prep 기본 = **`auto`** (demucs → center_voicey).
+* 뮤비 보컬 컷: `audio_bind_driving.py -e <ep> --shot S0x --start … --duration …`
 * CLI: `audio_status.py`, `audio_prepare_driving.py`, `audio_bind_driving.py`, `episode_s2v.py`, `assemble_video.py --mix-policy …`.
 
 ### Rule 8. Z-Image-Turbo ControlNet (Union 2.1)

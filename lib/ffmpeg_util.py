@@ -438,7 +438,40 @@ DRIVING_PREP_MODES = (
     "vocal_band",
     "center_voicey",
     "demucs",
+    "auto",
 )
+
+
+def demucs_available() -> bool:
+    """True if demucs imports in preferred Comfy portable / current Python."""
+    py_candidates = [
+        os.environ.get("COMFY_PYTHON") or "",
+        r"F:\ComfyUI_windows_portable\python_embeded\python.exe",
+        sys.executable,
+    ]
+    py = next((p for p in py_candidates if p and os.path.isfile(p)), sys.executable)
+    try:
+        chk = subprocess.run(
+            [py, "-c", "import demucs"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        return chk.returncode == 0
+    except Exception:
+        return False
+
+
+def resolve_driving_prep_mode(mode: str | None = None) -> str:
+    """
+    Resolve prep mode. `auto` → demucs if installed else center_voicey.
+    """
+    m = (mode or "auto").strip().lower()
+    if m in ("", "auto", "default"):
+        return "demucs" if demucs_available() else "center_voicey"
+    if m not in DRIVING_PREP_MODES or m == "auto":
+        raise ValueError(f"unknown driving prep mode {mode!r}")
+    return m
 
 
 def _driving_af_chain(mode: str) -> str | None:
@@ -696,11 +729,16 @@ def prepare_driving_audio(
     if parent:
         os.makedirs(parent, exist_ok=True)
 
-    mode_l = (mode or "copy").strip().lower()
+    try:
+        mode_l = resolve_driving_prep_mode(mode)
+    except ValueError as e:
+        return {"ok": False, "error": "BAD_MODE", "message": str(e)}
+
     if mode_l == "demucs":
         r = separate_vocals_demucs(input_path, output_path, timeout_sec=max(timeout_sec, 1800))
         if r.get("ok"):
             r["mode"] = "demucs"
+            r["resolved_from"] = (mode or "").strip().lower() or "auto"
         return r
 
     try:

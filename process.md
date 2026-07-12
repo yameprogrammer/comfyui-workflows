@@ -6,6 +6,14 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] 생성 본선 재확인 + SI2V 품질 기본값
+* **작업 에이전트**: Grok
+* **방향**: OpenMontage = 편집/조립 참고만. **본선 = Comfy 이미지·클립 생성 품질**
+* **변경**:
+  1. driving prep 기본 **`auto`** (demucs 있으면 demucs, 없으면 center_voicey)
+  2. `episode_s2v` 기본 **square 640** 얼굴 캔버스 (립 픽셀 우선; `--no-square` 로 에피소드 aspect)
+* **OpenMontage**: 로컬 클론 평가만 (`docs/openmontage_eval_notes.md`). 생성 스택 대체 아님.
+
 ### [2026-07-12] demucs 보컬 분리 설치 + 스모크
 * **작업 에이전트**: Grok
 * **설치**: Comfy portable `python_embeded` → `demucs` 4.1.0 (torch 공유)

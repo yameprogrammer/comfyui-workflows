@@ -26,9 +26,9 @@ def main(argv=None) -> int:
     p.add_argument(
         "--mode",
         "-m",
-        default="center_voicey",
+        default="auto",
         choices=list(DRIVING_PREP_MODES),
-        help="Prep mode (default center_voicey; demucs needs pip install demucs)",
+        help="Prep mode (default auto=demucs if installed else center_voicey)",
     )
     p.add_argument(
         "--episode",

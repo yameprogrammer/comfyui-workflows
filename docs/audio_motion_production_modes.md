@@ -151,8 +151,10 @@ episode_pipeline … i2v → s2v → upscale …
 | CLI | `generate_s2v.py --backend …`, `episode_s2v.py --backend …` |
 | 입력 오디오 | `audio_refs.driving` (+ `audio_bind_driving`) |
 | 드라이빙 prep | `center_voicey` 등; 클립 출력은 48 kHz stereo 정규화 |
-| Work res | IT: %16; LTX: %32 |
+| Work res | IT: %16; LTX: %32. **SI2V 기본 square 640** (`episode_s2v`; 얼굴·입 픽셀 우선) |
+| Driving prep | 기본 **`auto`** = demucs(설치 시) → 아니면 center_voicey |
 | 검수 | VS Code 미리보기는 무음처럼 보일 수 있음 → **OS 미디어 플레이어** |
+| 범위 | **생성(Comfy 클립)** 이 본선. OpenMontage 등 편집 monorepo는 참고 전용 |
 
 ```bash
 python scripts/generate_s2v.py --backend ltx23_ia2v   -i face.png -a drive.wav -o ltx.mp4

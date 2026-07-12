@@ -41,9 +41,9 @@ def main(argv=None) -> int:
     p.add_argument(
         "--prepare-mode",
         "-m",
-        default="center_voicey",
+        default="auto",
         choices=list(DRIVING_PREP_MODES),
-        help="Driving prep (default center_voicey; copy=clean VO; demucs=optional)",
+        help="Driving prep (default auto=demucs if installed else center_voicey)",
     )
     p.add_argument(
         "--role",

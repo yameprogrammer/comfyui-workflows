@@ -79,8 +79,8 @@ def main(argv=None) -> int:
     parser.add_argument("--i2v-backend", default=None)
     parser.add_argument(
         "--s2v-prepare-mode",
-        default="center_voicey",
-        help="SI2V driving audio prep mode (default center_voicey)",
+        default="auto",
+        help="SI2V driving prep (default auto=demucs→center_voicey)",
     )
     parser.add_argument(
         "--s2v-backend",

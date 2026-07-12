@@ -237,16 +237,17 @@ def materialize_driving_audio(
     episode_root: str,
     shot: dict[str, Any],
     *,
-    prepare_mode: str = "center_voicey",
+    prepare_mode: str = "auto",
     cache_dir: str | None = None,
     force: bool = False,
 ) -> dict[str, Any]:
     """
     Resolve shot driving audio, optional time slice, then prep filters → wav path.
 
+    prepare_mode default `auto` → demucs if installed else center_voicey.
     Returns {ok, path, source, prepare_mode, sliced, error?, message?}.
     """
-    from lib.ffmpeg_util import prepare_driving_audio, slice_audio
+    from lib.ffmpeg_util import prepare_driving_audio, resolve_driving_prep_mode, slice_audio
 
     sid = str(shot.get("shot_id") or "shot")
     ref = resolve_driving_audio(episode_root, shot)
@@ -264,7 +265,10 @@ def materialize_driving_audio(
 
     out_dir = cache_dir or os.path.join(episode_root, "audio", "exports", "s2v_drive")
     os.makedirs(out_dir, exist_ok=True)
-    mode = (prepare_mode or "copy").strip().lower()
+    try:
+        mode = resolve_driving_prep_mode(prepare_mode)
+    except ValueError as e:
+        return {"ok": False, "error": "BAD_MODE", "message": str(e)}
     safe_mode = "".join(c if c.isalnum() or c in "-_" else "_" for c in mode)
     base = f"{sid}_drive_{safe_mode}"
     final_path = os.path.join(out_dir, f"{base}.wav")
