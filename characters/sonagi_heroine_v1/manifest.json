@@ -1,0 +1,311 @@
+{
+  "character_id": "sonagi_heroine_v1",
+  "package_version": "0.1.0",
+  "status": "approved",
+  "created_at": "2026-07-12T01:14:18+00:00",
+  "updated_at": "2026-07-12T01:52:25+00:00",
+  "base_model": "moody_pro",
+  "level": "L2",
+  "assets": [
+    {
+      "path": "refs/expression/sonagi_heroine_v1__expression__close__neutral_i2i_lock__s92001__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__expression__close__neutral_i2i_lock__s92001__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "neutral",
+      "seed": 92001,
+      "candidate": 1,
+      "preset_id": "expression.neutral",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:14:54+00:00"
+    },
+    {
+      "path": "refs/expression/sonagi_heroine_v1__expression__close__joy_i2i_lock__s92002__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__expression__close__joy_i2i_lock__s92002__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "joy",
+      "seed": 92002,
+      "candidate": 1,
+      "preset_id": "expression.joy",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:15:26+00:00"
+    },
+    {
+      "path": "refs/expression/sonagi_heroine_v1__expression__close__sad_i2i_lock__s92003__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__expression__close__sad_i2i_lock__s92003__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "sad",
+      "seed": 92003,
+      "candidate": 1,
+      "preset_id": "expression.sad",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:15:57+00:00"
+    },
+    {
+      "path": "refs/expression/sonagi_heroine_v1__expression__close__angry_i2i_lock__s92004__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__expression__close__angry_i2i_lock__s92004__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "angry",
+      "seed": 92004,
+      "candidate": 1,
+      "preset_id": "expression.angry",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:16:28+00:00"
+    },
+    {
+      "path": "refs/expression/sonagi_heroine_v1__expression__close__surprise_i2i_lock__s92005__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__expression__close__surprise_i2i_lock__s92005__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "surprise",
+      "seed": 92005,
+      "candidate": 1,
+      "preset_id": "expression.surprise",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:17:00+00:00"
+    },
+    {
+      "path": "refs/expression/sonagi_heroine_v1__expression__close__think_i2i_lock__s92006__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__expression__close__think_i2i_lock__s92006__c01.json",
+      "sheet": "expression",
+      "view": "close",
+      "variant": "think",
+      "seed": 92006,
+      "candidate": 1,
+      "preset_id": "expression.think",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:17:31+00:00"
+    },
+    {
+      "path": "refs/master/sonagi_heroine_v1__master__full__neutral_fullbody__s897228415305346__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__master__full__neutral_fullbody__s897228415305346__c01.json",
+      "sheet": "master",
+      "view": "full",
+      "variant": "neutral_fullbody",
+      "seed": 897228415305346,
+      "candidate": 1,
+      "preset_id": "master.full_body",
+      "created_at": "2026-07-12T01:20:29+00:00"
+    },
+    {
+      "path": "refs/costume/sonagi_heroine_v1__costume__full__default_outfit__s93001__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__costume__full__default_outfit__s93001__c01.json",
+      "sheet": "costume",
+      "view": "full",
+      "variant": "default_outfit",
+      "seed": 93001,
+      "candidate": 1,
+      "preset_id": "costume.default",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:21:13+00:00"
+    },
+    {
+      "path": "refs/costume/sonagi_heroine_v1__costume__full__alt1_outfit__s93002__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__costume__full__alt1_outfit__s93002__c01.json",
+      "sheet": "costume",
+      "view": "full",
+      "variant": "alt1_outfit",
+      "seed": 93002,
+      "candidate": 1,
+      "preset_id": "costume.alt1",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:21:57+00:00"
+    },
+    {
+      "path": "refs/turnaround/sonagi_heroine_v1__turnaround__front__stand_controlnet__s93003__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__turnaround__front__stand_controlnet__s93003__c01.json",
+      "sheet": "turnaround",
+      "view": "front",
+      "variant": "stand",
+      "seed": 93003,
+      "candidate": 1,
+      "preset_id": "turnaround.front",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:23:05+00:00"
+    },
+    {
+      "path": "refs/turnaround/sonagi_heroine_v1__turnaround__qf__stand_controlnet__s93004__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__turnaround__qf__stand_controlnet__s93004__c01.json",
+      "sheet": "turnaround",
+      "view": "qf",
+      "variant": "stand",
+      "seed": 93004,
+      "candidate": 1,
+      "preset_id": "turnaround.qf",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:24:11+00:00"
+    },
+    {
+      "path": "refs/turnaround/sonagi_heroine_v1__turnaround__side__stand_controlnet__s93005__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__turnaround__side__stand_controlnet__s93005__c01.json",
+      "sheet": "turnaround",
+      "view": "side",
+      "variant": "stand",
+      "seed": 93005,
+      "candidate": 1,
+      "preset_id": "turnaround.side",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:25:17+00:00"
+    },
+    {
+      "path": "refs/turnaround/sonagi_heroine_v1__turnaround__back__stand_controlnet__s93006__c01.png",
+      "meta_path": "meta/sonagi_heroine_v1__turnaround__back__stand_controlnet__s93006__c01.json",
+      "sheet": "turnaround",
+      "view": "back",
+      "variant": "stand",
+      "seed": 93006,
+      "candidate": 1,
+      "preset_id": "turnaround.back",
+      "profile": "video_ref",
+      "created_at": "2026-07-12T01:26:23+00:00"
+    }
+  ],
+  "approved": {
+    "master_front": {
+      "path": "approved/master_front.png",
+      "source": "approved/master_front.png",
+      "approved_at": "2026-07-12T01:52:24+00:00"
+    },
+    "expr_neutral": {
+      "path": "approved/expr_neutral.png",
+      "source": "refs/expression/sonagi_heroine_v1__expression__close__neutral_i2i_lock__s94009__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "expr_joy": {
+      "path": "approved/expr_joy.png",
+      "source": "refs/expression/sonagi_heroine_v1__expression__close__joy__s94010__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "expr_sad": {
+      "path": "approved/expr_sad.png",
+      "source": "refs/expression/sonagi_heroine_v1__expression__close__sad__s94011__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "expr_angry": {
+      "path": "approved/expr_angry.png",
+      "source": "refs/expression/sonagi_heroine_v1__expression__close__angry__s94012__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "expr_surprise": {
+      "path": "approved/expr_surprise.png",
+      "source": "refs/expression/sonagi_heroine_v1__expression__close__surprise__s94013__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "expr_think": {
+      "path": "approved/expr_think.png",
+      "source": "refs/expression/sonagi_heroine_v1__expression__close__think__s94014__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "master_full": {
+      "path": "approved/master_full.png",
+      "source": "refs/master/sonagi_heroine_v1__master__full__neutral_fullbody__s897228415305346__c01.png",
+      "approved_at": "2026-07-12T01:52:24+00:00"
+    },
+    "costume_default": {
+      "path": "approved/costume_default.png",
+      "source": "refs/costume/sonagi_heroine_v1__costume__full__default_outfit__s94015__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "costume_alt1": {
+      "path": "approved/costume_alt1.png",
+      "source": "refs/costume/sonagi_heroine_v1__costume__full__alt1_outfit__s94016__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "turn_front": {
+      "path": "approved/turn_front.png",
+      "source": "refs/turnaround/sonagi_heroine_v1__turnaround__front__stand_controlnet__s94005__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "turn_qf": {
+      "path": "approved/turn_qf.png",
+      "source": "refs/turnaround/sonagi_heroine_v1__turnaround__qf__stand_controlnet__s94006__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "turn_side": {
+      "path": "approved/turn_side.png",
+      "source": "refs/turnaround/sonagi_heroine_v1__turnaround__side__stand_controlnet__s94007__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "turn_back": {
+      "path": "approved/turn_back.png",
+      "source": "refs/turnaround/sonagi_heroine_v1__turnaround__back__stand_controlnet__s94008__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "head_front": {
+      "path": "approved/head_front.png",
+      "source": "refs/head/sonagi_heroine_v1__head__front__turn_i2i_lock__s94001__c01.png",
+      "approved_at": "2026-07-12T01:52:24+00:00"
+    },
+    "head_qf": {
+      "path": "approved/head_qf.png",
+      "source": "refs/head/sonagi_heroine_v1__head__qf__turn__s94002__c01.png",
+      "approved_at": "2026-07-12T01:52:24+00:00"
+    },
+    "head_side": {
+      "path": "approved/head_side.png",
+      "source": "refs/head/sonagi_heroine_v1__head__side__turn__s94003__c01.png",
+      "approved_at": "2026-07-12T01:52:24+00:00"
+    },
+    "head_back": {
+      "path": "approved/head_back.png",
+      "source": "refs/head/sonagi_heroine_v1__head__back__turn__s94004__c01.png",
+      "approved_at": "2026-07-12T01:52:24+00:00"
+    },
+    "costume_detail_upper": {
+      "path": "approved/costume_detail_upper.png",
+      "source": "refs/costume/sonagi_heroine_v1__costume__detail_upper__fabric_collar__s94017__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "costume_detail_footwear": {
+      "path": "approved/costume_detail_footwear.png",
+      "source": "refs/costume/sonagi_heroine_v1__costume__detail_feet__shoes__s94018__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "costume_detail_accessories": {
+      "path": "approved/costume_detail_accessories.png",
+      "source": "refs/costume/sonagi_heroine_v1__costume__detail_acc__minimal_jewelry__s94019__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "pose_stand_idle": {
+      "path": "approved/pose_stand_idle.png",
+      "source": "refs/pose/sonagi_heroine_v1__pose__full__stand_idle_controlnet__s94020__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "pose_walk": {
+      "path": "approved/pose_walk.png",
+      "source": "refs/pose/sonagi_heroine_v1__pose__full__walk_controlnet__s94021__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "pose_sit": {
+      "path": "approved/pose_sit.png",
+      "source": "refs/pose/sonagi_heroine_v1__pose__full__sit_controlnet__s94022__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "pose_hands_hips": {
+      "path": "approved/pose_hands_hips.png",
+      "source": "refs/pose/sonagi_heroine_v1__pose__full__hands_hips_controlnet__s94023__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "pose_wave": {
+      "path": "approved/pose_wave.png",
+      "source": "refs/pose/sonagi_heroine_v1__pose__full__wave_controlnet__s94024__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "pose_look_aside": {
+      "path": "approved/pose_look_aside.png",
+      "source": "refs/pose/sonagi_heroine_v1__pose__full__look_aside_controlnet__s94025__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    },
+    "prop_hand_item": {
+      "path": "approved/prop_hand_item.png",
+      "source": "refs/props/sonagi_heroine_v1__props__half__hand_item__s94026__c01.png",
+      "approved_at": "2026-07-12T01:52:25+00:00"
+    }
+  },
+  "missing_mvp": [],
+  "mvp_profile": "full_sheet",
+  "promoted_from_cast": "sonagi_heroine_cast_v2"
+}

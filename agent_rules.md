@@ -81,9 +81,12 @@ agent_custom/
 ### Rule 6.2 캐릭터 캐스팅 공정 (A→B→C)
 * **A 탐색**: `character_cast_pool.py` — 다엔진(Moody/Krea) 후보. identity 미고정. `characters/casts/`.
 * **B 승격**: `character_promote.py` — 고른 이미지 → 패키지 + `approved/master_front` + core 고정.
-* **C 일관**: `character_expand_sheets` / `character_approve`.
-  - 기본 `i2i` · 흔들림 시 **`i2i_lock`** 또는 **`ipadapter`** (IP-Adapter face; 실패 시 i2i_lock 폴백).
-  - 턴: `controlnet` / `controlnet_empty`.
+* **C 일관 / 캐릭터 시트**: 업계 **풀 시트**가 공정 본체.
+  - 프로필: **`full_sheet`** (`profiles.json` `character_sheet_process_profile`). `video_ref`는 영상 thin pack 전용 — 시트 완성이 아님.
+  - 원샷: `python scripts/character_full_sheet.py --id <id> --run` (expand full_pack → approve → review grids).
+  - 구성: head turn · body turn · expression · costume(+detail) · pose/action · props.
+  - 엔진 auto: 표정/헤드 `i2i`/`i2i_lock`, 턴·포즈 `controlnet`, 의상/소품 `i2i`.
+  - **`ipadapter`**: CLI 유지, **공정 SOP 미사용**.
 * 확정 전 LoRA 학습은 기본 경로 아님. SSOT: [docs/character_casting_pipeline.md](docs/character_casting_pipeline.md).
 
 ### Rule 6.3 Look / Style Core

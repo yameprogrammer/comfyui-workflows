@@ -57,8 +57,11 @@ def resolve_preset_ids(
     result: list[str] = []
 
     for token in tokens:
-        if token in ("all_mvp", "mvp"):
-            result.extend(profile_all_mvp_preset_ids(profile, presets))
+        if token in ("all_mvp", "mvp", "full_pack", "full_sheet"):
+            if token in ("full_pack", "full_sheet") and "full_pack" in groups:
+                result.extend(groups["full_pack"])
+            else:
+                result.extend(profile_all_mvp_preset_ids(profile, presets))
             continue
         if token in groups:
             result.extend(groups[token])
@@ -209,19 +212,25 @@ def main(argv=None) -> int:
         print("[ERROR] code=2 message=no expandable presets selected", file=sys.stderr)
         return EXIT_USAGE
 
-    needs_turnaround = any(
-        (presets["presets"].get(pid) or {}).get("sheet") == "turnaround" for pid in expand_ids
+    needs_fullbody = any(
+        (presets["presets"].get(pid) or {}).get("source_pref") == "fullbody"
+        or (presets["presets"].get(pid) or {}).get("sheet")
+        in ("turnaround", "pose", "costume", "props")
+        for pid in expand_ids
     )
     ensure_fb = args.ensure_fullbody and not args.no_ensure_fullbody
 
+    face_source = pkg.default_source_ref()
+    fullbody_source = None
     if args.source:
         source_path = pkg.resolve(args.source)
+        face_source = source_path
+        fullbody_source = source_path
     else:
-        source_path = None
-        # Prefer full-body for structure-changing CN I2I turnaround
-        if needs_turnaround and args.engine != "controlnet_empty":
+        source_path = face_source
+        if needs_fullbody and args.engine != "controlnet_empty":
             if ensure_fb:
-                source_path = ensure_fullbody_source(
+                fullbody_source = ensure_fullbody_source(
                     pkg,
                     model=model,
                     profile_id=profile_id,
@@ -229,16 +238,15 @@ def main(argv=None) -> int:
                     timeout_sec=args.timeout,
                 )
             else:
-                source_path = find_fullbody_source(pkg)
-        if not source_path:
-            source_path = pkg.default_source_ref()
+                fullbody_source = find_fullbody_source(pkg)
+            source_path = fullbody_source or face_source
 
     # controlnet_empty does not require character image
     if args.engine != "controlnet_empty":
         if not source_path or not os.path.exists(source_path):
             print(
                 "[ERROR] code=20 message=source missing — approve master or pass --source "
-                "(turnaround prefers full-body master)",
+                "(turnaround/pose/costume prefer full-body master)",
                 file=sys.stderr,
             )
             return EXIT_SOURCE_MISSING
@@ -249,7 +257,9 @@ def main(argv=None) -> int:
     global_negative = presets.get("global", {}).get("global_negative", "")
 
     print(f"Profile: {profile_id}")
-    print(f"Source: {source_path or '(none — empty latent CN)'}")
+    print(f"Face source: {face_source or '—'}")
+    print(f"Fullbody source: {fullbody_source or '—'}")
+    print(f"Default source: {source_path or '(none — empty latent CN)'}")
     print(f"Presets ({len(expand_ids)}): {', '.join(expand_ids)}")
     print(f"Candidates/preset: {candidates}")
 
@@ -348,9 +358,19 @@ def main(argv=None) -> int:
             cfg = float(preset.get("cfg") if preset.get("cfg") is not None else 3.5)
             strength = float(preset.get("control_strength") if preset.get("control_strength") is not None else 0.75)
 
+            # Per-preset source preference (face close-up vs full body)
+            pref = (preset.get("source_pref") or "").lower()
+            job_source = source_path
+            if pref == "face" and face_source and os.path.isfile(face_source):
+                job_source = face_source
+            elif pref == "fullbody" and fullbody_source and os.path.isfile(fullbody_source):
+                job_source = fullbody_source
+            elif pref == "fullbody" and face_source:
+                job_source = fullbody_source or face_source
+
             print(
                 f"\n=== [{profile_id}] {pid} engine={engine} c{c} denoise={denoise} "
-                f"seed={seed} size_hint={w}x{h} ==="
+                f"seed={seed} size_hint={w}x{h} src={os.path.basename(job_source or '')} ==="
             )
 
             if engine in ("controlnet", "controlnet_empty"):
@@ -363,8 +383,9 @@ def main(argv=None) -> int:
                 use_empty = engine == "controlnet_empty"
                 # Full-body I2I+CN: slightly higher denoise helps pose change without total identity wipe
                 cn_denoise = 1.0 if use_empty else max(denoise, 0.72)
+                ctrl_pp = preset.get("control_preprocess") or "auto"
                 result = generate_controlnet_image(
-                    input_image_path=source_path,
+                    input_image_path=job_source,
                     control_image_path=control_path,
                     prompt_text=prompt_instruction,
                     denoise_val=cn_denoise,
@@ -380,11 +401,12 @@ def main(argv=None) -> int:
                     empty_latent=use_empty,
                     latent_width=w,
                     latent_height=h,
+                    control_preprocess=str(ctrl_pp),
                 )
             elif engine == "ipadapter":
                 print(f"IPAdapter face lock weight={args.ipa_weight}")
                 result = generate_i2i_ipadapter(
-                    input_image_path=source_path,
+                    input_image_path=job_source,
                     prompt_text=prompt_instruction,
                     denoise_val=denoise,
                     cfg_val=cfg,
@@ -411,7 +433,7 @@ def main(argv=None) -> int:
                         f"{str(result.get('message') or '')[:120]}); fallback → i2i_lock"
                     )
                     result = generate_i2i_lock(
-                        input_image_path=source_path,
+                        input_image_path=job_source,
                         prompt_text=prompt_instruction,
                         denoise_val=denoise,
                         cfg_val=cfg,
@@ -426,7 +448,7 @@ def main(argv=None) -> int:
                     engine = "i2i_lock_fallback"
             elif engine == "i2i_lock":
                 result = generate_i2i_lock(
-                    input_image_path=source_path,
+                    input_image_path=job_source,
                     prompt_text=prompt_instruction,
                     denoise_val=denoise,
                     cfg_val=cfg,
@@ -440,7 +462,7 @@ def main(argv=None) -> int:
                 )
             else:
                 result = generate_i2i_image(
-                    input_image_path=source_path,
+                    input_image_path=job_source,
                     prompt_text=prompt_instruction,
                     denoise_val=denoise,
                     cfg_val=cfg,

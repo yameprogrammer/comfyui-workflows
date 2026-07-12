@@ -1,0 +1,128 @@
+{
+  "id": "sonagi_heroine_v1",
+  "display_name": "Sonagi Heroine",
+  "version": "0.1.0",
+  "status": "approved",
+  "created_at": "2026-07-12T01:14:18+00:00",
+  "updated_at": "2026-07-12T01:58:19+00:00",
+  "style": {
+    "medium": "cinematic_photoreal",
+    "base_model": "moody_pro",
+    "look": "cinematic photoreal film still, Moody-grade naturalistic color, soft dramatic lighting language, gentle film grain, restrained contrast, mid-20s Korean woman, oval face, soft jawline, warm brown eyes,"
+  },
+  "appearance": {
+    "age_range": "mid-20s",
+    "gender_presentation": "female",
+    "ethnicity_notes": "East Asian / Korean",
+    "face": "oval face, soft jawline, warm brown eyes, straight natural brows, natural skin",
+    "hair": "shoulder-length dark brown soft wavy hair",
+    "body": "slim-athletic",
+    "distinctive": [],
+    "wardrobe_default": "black crew-neck t-shirt, light wash blue jeans, white sneakers, minimal jewelry, fully clothed casual",
+    "wardrobe_alt1": "light beige trench coat over white blouse, dark trousers, simple sneakers, clean contemporary look"
+  },
+  "prompts": {
+    "positive_core": "Sonagi Heroine, cinematic photoreal film still, Moody-grade naturalistic color, soft dramatic lighting language, gentle film grain, restrained contrast, mid-20s Korean woman, oval face, soft jawline, warm brown eyes, straight natural brows, natural realistic skin texture, shoulder-length dark brown soft wavy hair, slim-athletic build, soft neutral expression, medium close-up portrait, front-facing, looking at camera, plain light gray seamless studio background, even softbox lighting, sharp focus, high detail, rainy-day ballad heroine presence without props",
+    "negative_core": "blurry, deformed, extra fingers, watermark, text, logo, low quality",
+    "trigger": "sonagi_heroine_v1",
+    "positive_core_file": "prompts/positive_core.txt",
+    "negative_core_file": "prompts/negative_core.txt"
+  },
+  "identity": {
+    "mode": "refs_only",
+    "lora_path": null,
+    "lora_strength_default": null,
+    "primary_ref": "approved/master_front.png",
+    "fallback_refs": [],
+    "promoted_from": {
+      "source": "F:\\ComfyUI_workflows\\agent_custom\\characters\\casts\\sonagi_heroine_cast_v2\\candidates\\sonagi_heroine_cast_v2__ei2i__i2i_light__s91065__c05.png",
+      "cast_id": "sonagi_heroine_cast_v2",
+      "promoted_at": "2026-07-12T01:14:18+00:00",
+      "phase": "cast_promote"
+    }
+  },
+  "consistency_rules": {
+    "must_keep": [],
+    "may_change": [
+      "outfit",
+      "lighting",
+      "background",
+      "pose",
+      "expression"
+    ],
+    "forbidden": []
+  },
+  "performance": {
+    "personality": [],
+    "default_expression": "soft neutral",
+    "mannerisms": []
+  },
+  "sheet_index": {
+    "master": [
+      "approved/master_front.png",
+      "approved/master_full.png"
+    ],
+    "turnaround": [
+      "approved/turn_front.png",
+      "approved/turn_qf.png",
+      "approved/turn_side.png",
+      "approved/turn_back.png"
+    ],
+    "expression": [
+      "approved/expr_neutral.png",
+      "approved/expr_joy.png",
+      "approved/expr_sad.png",
+      "approved/expr_angry.png",
+      "approved/expr_surprise.png",
+      "approved/expr_think.png"
+    ],
+    "costume": [
+      "approved/costume_default.png",
+      "approved/costume_alt1.png",
+      "approved/costume_detail_upper.png",
+      "approved/costume_detail_footwear.png",
+      "approved/costume_detail_accessories.png"
+    ],
+    "head": [
+      "approved/head_front.png",
+      "approved/head_qf.png",
+      "approved/head_side.png",
+      "approved/head_back.png"
+    ],
+    "pose": [
+      "approved/pose_stand_idle.png",
+      "approved/pose_walk.png",
+      "approved/pose_sit.png",
+      "approved/pose_hands_hips.png",
+      "approved/pose_wave.png",
+      "approved/pose_look_aside.png"
+    ],
+    "props": [
+      "approved/prop_hand_item.png"
+    ]
+  },
+  "video_defaults": {
+    "preferred_keyframe_ref": "approved/master_front.png",
+    "i2v_motion_style": "subtle natural motion, cinematic camera, gentle wind",
+    "max_identity_risk_denoise": 0.78,
+    "aspect_ratio_target": "9:16"
+  },
+  "active_profile": "full_sheet",
+  "exports": {
+    "video_ref": {
+      "status": "approved",
+      "updated_at": "2026-07-12T01:26:30+00:00",
+      "path": "exports/video_ref"
+    },
+    "artbook": {
+      "status": "draft",
+      "updated_at": null,
+      "path": "exports/artbook"
+    },
+    "full_sheet": {
+      "status": "approved",
+      "updated_at": "2026-07-12T01:52:25+00:00",
+      "path": "exports/full_sheet"
+    }
+  }
+}

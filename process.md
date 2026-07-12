@@ -4,11 +4,121 @@
 
 ---
 
+## ⏸ HANDOFF — 이어서 할 작업 (2026-07-12 외출 체크포인트)
+
+### 지금 상태 한 줄
+**캐릭터 시트 공정은 `full_sheet` 풀팩으로 정리됨.** 포즈 품질은 레거시 스틱+Canny가 깨져서 **OpenPose 맵 → Union CN** 으로 전환 중. 스모크(walk)는 아티팩트 없이 개선 확인. **turn/pose 전체 재생성 배치가 진행 중이었음** (seed 96001).
+
+### 파일럿 캐릭터
+| 항목 | 값 |
+|------|-----|
+| cast | `sonagi_heroine_cast_v2` (pick: i2i_light s91065 c05) |
+| character_id | `sonagi_heroine_v1` |
+| look | `cinematic_moody_v1` |
+| profile (시트 공정) | **`full_sheet`** (video_ref는 thin only) |
+| 리뷰 그리드 | `characters/sonagi_heroine_v1/exports/full_sheet/review_*.png` |
+| PNG | gitignore (`*.png`) — 로컬에만 존재 |
+
+### 다음에 이어서 (우선순위)
+1. **OpenPose 재생성 배치 확인/완료**  
+   ```bash
+   # 진행 중이었으면 로그 확인 후 미완료 시 재실행
+   python scripts/character_expand_sheets.py --id sonagi_heroine_v1 \
+     --sheets turnaround,pose --profile full_sheet --engine auto \
+     --model pro --candidates 1 --seed-base 96001 --ensure-fullbody
+   python scripts/character_full_sheet.py --id sonagi_heroine_v1 --approve-only
+   # 또는 export만
+   python scripts/character_full_sheet.py --id sonagi_heroine_v1 --export-only
+   ```
+2. **육안 검수** turn/pose 그리드 — 스틱 아티팩트 사라졌는지, side/back 각도 유효한지  
+3. **품질 후속 (미완)**  
+   - head turn 각도 (아직 거의 정면)  
+   - OpenPose 맵 품질 (합성 BODY_18 vs 실사 extract `openpose_extracted_master_full.png`)  
+   - 실사 포즈 레퍼 → DWPose extract → CN (커뮤니티 패턴 강화)  
+4. **ipadapter** 코드 유지, 공정 SOP 미사용 유지
+
+### 핵심 코드/문서
+| 경로 | 역할 |
+|------|------|
+| `characters/profiles.json` | `full_sheet` 공정 프로필 |
+| `characters/sheet_presets.json` | full_pack 26 + control_preprocess=openpose |
+| `lib/openpose_maps.py` | OpenPose 맵 합성 + Comfy python extract |
+| `lib/pose_templates.py` | ensure → openpose 맵 우선 |
+| `scripts/generate_moody_controlnet.py` | openpose/raw 시 **Canny 생략** |
+| `scripts/character_full_sheet.py` | expand+approve+review 원샷 |
+| `docs/character_casting_pipeline.md` | C = full_sheet SOP |
+| `agent_rules.md` Rule 6.2 | 풀시트 공정 규칙 |
+
+### 스모크 성공 예시
+- control: `pose_templates/openpose/openpose_walk_side_1024x1536.png`  
+- out: `characters/sonagi_heroine_v1/refs/pose/_smoke_openpose_walk.png`  
+- 결과: 스틱 오버레이 없음, 보행 포즈 자연스러움 (신발 누락 등 세부는 후속)
+
+---
+
 ## 📅 작업 이력 로그
+
+### [2026-07-12] OpenPose 포즈 경로 전환 (품질 개선 착수) + 체크포인트
+* **작업 에이전트**: Grok
+* **문제**: 자체 스틱 실루엣 + Canny → Union CN → 박스/스틱 아티팩트 (쓸 수 없는 포즈 시트)
+* **리서치**: Z-Image Fun ControlNet Union = Pose 조건은 **OpenPose/DWPose RGB 맵** 직접 입력 (Canny 금지)
+* **구현**:
+  * `lib/openpose_maps.py` — BODY_18 합성 맵 + Comfy python OpenPose extract
+  * `pose_templates.ensure_pose_template` → openpose 맵 우선
+  * `generate_moody_controlnet` `control_preprocess=auto|openpose|canny`
+  * sheet_presets turn/pose → `control_preprocess: openpose`
+* **스모크**: walk OpenPose OK (아티팩트 제거)
+* **진행 중**: sonagi turnaround+pose seed 96001 재생성 (외출 체크포인트 — 이어서 확인)
+* **커밋**: 코드/문서 체크포인트 (PNG는 gitignore)
+
+### [2026-07-12] 업계 풀시트 공정 구현 + 소나기 풀팩 테스트
+* **작업 에이전트**: Grok
+* **사과/교정**: video_ref 표정 MVP를 시트 완성으로 보고한 것 잘못 — 공정 본체=`full_sheet`
+* **구현**:
+  * 프로필 `full_sheet` + `full_pack` 26 presets (head/turn/expr/costume+detail/pose/props)
+  * pose templates walk/sit/wave/hands_hips/look_aside
+  * `character_full_sheet.py` expand+auto-approve+review grids
+  * casting SOP / agent Rule 6.2 갱신
+* **테스트**: `sonagi_heroine_v1` success=26 fail=0 missing_mvp=[]
+* **리뷰**: `characters/sonagi_heroine_v1/exports/full_sheet/review_*.png` + `review_FULL_PACKAGE.png`
+
+### [2026-07-12] 소나기 풀시트 — 전신/턴/의상 보강
+* **작업 에이전트**: Grok
+* **배경**: video_ref `all_mvp`=표정만 → 사용자 피드백 후 전신 세트 추가 생성
+* **추가**: master_full (T2I) + costume×2 (I2I) + turn×4 (ControlNet) → approve 14장
+* **리뷰**: `exports/video_ref/full_package_review.png`
+* **코어**: positive_core 클로즈업 문구 제거 · bible wardrobe 설정
+
+### [2026-07-12] 소나기 B+C — sonagi_heroine_v1 시트 (video_ref MVP)
+* **작업 에이전트**: Grok
+* **Pick**: cast_v2 i2i_light s91065 c05 → promote `sonagi_heroine_v1`
+* **C**: expand expression×6 `--engine i2i_lock` candidates=1 → approve 전부 → **missing_mvp=[] L2**
+* **리뷰**: `characters/sonagi_heroine_v1/exports/video_ref/expression_sheet_review.png`
+* **비고**: i2i_lock denoise cap 0.58 → 표정 변화가 약할 수 있음 (결과 육안 확인 필요)
+
+### [2026-07-12] 소나기 캐스트 v2 — anchor I2I 변주
+* **작업 에이전트**: Grok
+* **Anchor**: v1 moody_pro s88035 c02 (분위기 유사 얼굴)
+* **Cast**: `sonagi_heroine_cast_v2` — I2I/i2i_lock ×10 + anchor, contact_sheet
+* **방법**: T2I 재오디션 아님. denoise 0.42–0.60, pro/real/wild, 의상·헤어·라이트 미세 변주
+* **스크립트**: `scripts/_cast_v2_variations.py` (원샷)
+* **대기**: 사용자 pick → promote
+
+### [2026-07-12] 소나기 주인공 캐스트 테스트 A (Style Core + pool)
+* **작업 에이전트**: Grok
+* **Look**: `cinematic_moody_v1` 지정
+* **Cast**: `sonagi_heroine_cast_v1` — moody_pro×3 + real×2 + wild×2 + krea×2 = **9후보** + contact_sheet
+* **수정**: cast_pool Krea sampler `euler_sde`→`euler_ancestral` (Comfy 400 해결)
+* **대기**: 사용자 pick → B promote → C expand `i2i_lock`
+
+### [2026-07-12] C공정: ipadapter SOP 제외 (코드 유지)
+* **작업 에이전트**: Grok
+* **정책**: SD1.5 IP-Adapter는 ZIT/Krea와 공식 페어가 아니므로 **공정 치트시트·DoD에서 제외**. CLI/`generate_moody_i2i_ipadapter` 코드는 실험용으로 유지.
+* **C 공정 엔진**: `i2i` (기본) · `i2i_lock` (권장 identity). docs/character_casting_pipeline.md 반영.
 
 ### [2026-07-12] C공정 IPAdapter + Style Core Production v1
 * **작업 에이전트**: Grok
-* **C identity**: `--engine i2i_lock|ipadapter` (IP-Adapter plus-face SD15 가중치 설치, ZIT I2I 그래프 주입, 실패 시 lock 폴백). 실측 e2e joy OK.
+* **C identity**: `--engine i2i_lock|ipadapter` 구현 (plus-face SD15, ZIT I2I 주입, lock 폴백). e2e joy OK. → **이후 공정 정책으로 ipadapter는 SOP 제외**.
 * **Look**: `look_create` / `look_status`, episode_status look 검증, look_style_system Production v1 (shot_compose 주입 기존)
 
 ### [2026-07-12] 캐릭터 공정 Production v1 마감

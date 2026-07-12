@@ -102,7 +102,7 @@ appearance =
 | Look | **어떤 필름/그레이드** (global tone) |
 | Location | **어디** |
 
-룩은 캐릭터 시트를 대체하지 않는다. expand IPAdapter와도 독립.
+룩은 캐릭터 시트를 대체하지 않는다. C expand identity 엔진과도 독립 (look = 톤, char = 누구).
 
 ---
 

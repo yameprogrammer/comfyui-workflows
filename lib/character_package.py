@@ -19,6 +19,10 @@ ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 APPROVE_ALIASES = {
     "master_front",
     "master_full",
+    "head_front",
+    "head_qf",
+    "head_side",
+    "head_back",
     "turn_front",
     "turn_qf",
     "turn_side",
@@ -31,6 +35,16 @@ APPROVE_ALIASES = {
     "expr_think",
     "costume_default",
     "costume_alt1",
+    "costume_detail_upper",
+    "costume_detail_footwear",
+    "costume_detail_accessories",
+    "pose_stand_idle",
+    "pose_walk",
+    "pose_sit",
+    "pose_hands_hips",
+    "pose_wave",
+    "pose_look_aside",
+    "prop_hand_item",
 }
 
 
@@ -209,10 +223,16 @@ class CharacterPackage:
         group = "master"
         if alias.startswith("turn_"):
             group = "turnaround"
+        elif alias.startswith("head_"):
+            group = "head"
         elif alias.startswith("expr_"):
             group = "expression"
         elif alias.startswith("costume_"):
             group = "costume"
+        elif alias.startswith("pose_"):
+            group = "pose"
+        elif alias.startswith("prop_"):
+            group = "props"
         sheet_index.setdefault(group, [])
         if rel_dest not in sheet_index[group]:
             sheet_index[group].append(rel_dest)

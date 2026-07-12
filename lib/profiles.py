@@ -1,4 +1,4 @@
-"""Purpose profile loader (video_ref | artbook). SSOT: characters/profiles.json"""
+"""Purpose profile loader (video_ref | full_sheet | artbook). SSOT: characters/profiles.json"""
 
 from __future__ import annotations
 
@@ -8,7 +8,13 @@ from typing import Any
 from lib.character_package import CHARACTERS_DIR, load_json, load_presets
 
 DEFAULT_PROFILES_PATH = os.path.join(CHARACTERS_DIR, "profiles.json")
-PROFILE_IDS = ("video_ref", "artbook")
+PROFILE_IDS = ("video_ref", "full_sheet", "artbook")
+
+
+def character_sheet_process_profile(doc: dict | None = None) -> str:
+    """Production character sheet process profile (industry full pack)."""
+    doc = doc or load_profiles_doc()
+    return doc.get("character_sheet_process_profile") or "full_sheet"
 
 
 def load_profiles_doc(path: str | None = None) -> dict:
@@ -51,10 +57,14 @@ def size_for_sheet(profile: dict, sheet: str, view: str | None = None) -> tuple[
         key = "turnaround"
     elif sheet == "costume":
         key = "costume"
+        if view and str(view).startswith("detail"):
+            key = "expression"
     elif sheet == "pose":
         key = "pose"
     elif sheet == "head":
-        key = "expression"
+        key = "head" if "head" in sizes else "expression"
+    elif sheet == "props":
+        key = "props" if "props" in sizes else "expression"
     pair = sizes.get(key) or sizes.get("master_face") or [1024, 1024]
     return int(pair[0]), int(pair[1])
 
@@ -84,6 +94,11 @@ def expand_sheet_groups_to_preset_ids(
 def profile_all_mvp_preset_ids(profile: dict, presets: dict | None = None) -> list[str]:
     """Preset ids for expand when --sheets all_mvp under this profile (I2I only groups)."""
     presets = presets or load_presets()
+    # Prefer explicit full_pack key for full_sheet / artbook
+    key = profile.get("all_mvp_key")
+    group_map = presets.get("mvp_sheet_groups") or {}
+    if key and key in group_map:
+        return list(group_map[key])
     groups = list(profile.get("mvp_sheet_groups") or [])
     # master is T2I — expand skips it; use expression/turnaround/costume/pose from MVP
     expand_groups = [g for g in groups if g != "master"]
@@ -105,7 +120,7 @@ def apply_profile_to_bible(bible: dict, profile: dict) -> dict:
     pid = profile.get("id") or "video_ref"
     bible["active_profile"] = pid
     exports = bible.setdefault("exports", {})
-    for key in ("video_ref", "artbook"):
+    for key in ("video_ref", "full_sheet", "artbook"):
         exports.setdefault(
             key,
             {

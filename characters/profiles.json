@@ -1,12 +1,13 @@
 {
-  "version": "1.0.0",
-  "description": "Character sheet purpose profiles. Same package/identity; different resolution, MVP sheets, export, and quality defaults.",
+  "version": "1.1.0",
+  "description": "Character sheet purpose profiles. full_sheet = industry pack (production character process). video_ref = thin video identity. artbook = higher-res presentation.",
   "default_profile": "video_ref",
+  "character_sheet_process_profile": "full_sheet",
   "profiles": {
     "video_ref": {
       "id": "video_ref",
-      "label": "영상 레퍼용 (consistency pack)",
-      "purpose": "Keyframe / I2I / I2V identity attachment for video production. Not print.",
+      "label": "영상 레퍼용 (thin consistency pack)",
+      "purpose": "Keyframe / I2V identity only — NOT a full character sheet.",
       "quality_priority": "speed_consistency",
       "default_model": "pro",
       "sizes": {
@@ -15,29 +16,64 @@
         "expression": [1024, 1024],
         "turnaround": [1024, 1536],
         "costume": [1024, 1536],
-        "pose": [1024, 1536]
+        "pose": [1024, 1536],
+        "head": [1024, 1024],
+        "props": [1024, 1024]
       },
       "mvp_sheet_groups": ["master", "expression"],
-      "optional_sheet_groups": ["costume", "turnaround", "pose"],
+      "optional_sheet_groups": ["costume", "turnaround", "pose", "head"],
       "all_mvp_key": "video_ref_mvp",
       "candidates_master_default": 4,
       "candidates_sheet_default": 2,
-      "upscale": {
-        "enabled": false,
-        "scale": 1
-      },
+      "upscale": { "enabled": false, "scale": 1 },
       "grid_export": false,
       "export_subdir": "exports/video_ref",
       "notes": [
-        "Primary profile for agent video pipeline",
-        "1024 base is intentional for speed and I2V keyframes",
-        "Turnaround optional until ControlNet path is wired"
+        "Thin pack for shot_compose / I2V only",
+        "Character sheet production must use full_sheet profile"
+      ]
+    },
+    "full_sheet": {
+      "id": "full_sheet",
+      "label": "업계 풀 캐릭터 시트 (production)",
+      "purpose": "Industry-style model sheet: head turn, body turn, expression, costume+detail, pose/action, props.",
+      "quality_priority": "sheet_completeness",
+      "default_model": "pro",
+      "sizes": {
+        "master_face": [1024, 1024],
+        "master_full_body": [1024, 1536],
+        "expression": [1024, 1024],
+        "turnaround": [1024, 1536],
+        "costume": [1024, 1536],
+        "pose": [1024, 1536],
+        "head": [1024, 1024],
+        "props": [1024, 1280]
+      },
+      "mvp_sheet_groups": [
+        "master",
+        "head",
+        "turnaround",
+        "expression",
+        "costume",
+        "pose",
+        "props"
+      ],
+      "optional_sheet_groups": [],
+      "all_mvp_key": "full_pack",
+      "candidates_master_default": 2,
+      "candidates_sheet_default": 1,
+      "upscale": { "enabled": false, "scale": 1 },
+      "grid_export": true,
+      "export_subdir": "exports/full_sheet",
+      "notes": [
+        "DEFAULT for character sheet process (casting C)",
+        "Use character_full_sheet.py --run for expand+approve+review grids"
       ]
     },
     "artbook": {
       "id": "artbook",
-      "label": "아트북용 (presentation / print-oriented)",
-      "purpose": "High-detail character presentation sheets; the images are deliverables, not only refs.",
+      "label": "아트북용 (presentation / higher res)",
+      "purpose": "Higher-res presentation variant of full_sheet groups.",
       "quality_priority": "detail_print",
       "default_model": "pro",
       "sizes": {
@@ -46,30 +82,33 @@
         "expression": [1536, 1536],
         "turnaround": [1536, 2304],
         "costume": [1536, 2304],
-        "pose": [1536, 2304]
+        "pose": [1536, 2304],
+        "head": [1536, 1536],
+        "props": [1536, 1920]
       },
       "mvp_sheet_groups": [
         "master",
+        "head",
         "turnaround",
         "expression",
         "costume",
-        "pose"
+        "pose",
+        "props"
       ],
-      "optional_sheet_groups": ["head", "color"],
-      "all_mvp_key": "artbook_mvp",
+      "optional_sheet_groups": ["color"],
+      "all_mvp_key": "full_pack",
       "candidates_master_default": 4,
-      "candidates_sheet_default": 4,
+      "candidates_sheet_default": 2,
       "upscale": {
         "enabled": true,
         "scale": 2,
-        "note": "Phase 2: post-approve upscale into exports/artbook; engine may still generate at profile base size first"
+        "note": "Optional post-approve upscale"
       },
       "grid_export": true,
       "export_subdir": "exports/artbook",
       "notes": [
-        "Do not use as default for batch video work",
-        "Shares bible/identity with video_ref; re-bake heroes at higher res when needed",
-        "Full multi-view quality still requires ControlNet for turnaround"
+        "Same groups as full_sheet at higher base size",
+        "Do not use as default for batch video work"
       ]
     }
   },
@@ -83,9 +122,13 @@
       "expr_surprise",
       "expr_think"
     ],
-    "artbook": [
+    "full_sheet": [
       "master_front",
       "master_full",
+      "head_front",
+      "head_qf",
+      "head_side",
+      "head_back",
       "turn_front",
       "turn_qf",
       "turn_side",
@@ -97,17 +140,58 @@
       "expr_surprise",
       "expr_think",
       "costume_default",
-      "costume_alt1"
+      "costume_alt1",
+      "costume_detail_upper",
+      "costume_detail_footwear",
+      "costume_detail_accessories",
+      "pose_stand_idle",
+      "pose_walk",
+      "pose_sit",
+      "pose_hands_hips",
+      "pose_wave",
+      "pose_look_aside",
+      "prop_hand_item"
+    ],
+    "artbook": [
+      "master_front",
+      "master_full",
+      "head_front",
+      "head_qf",
+      "head_side",
+      "head_back",
+      "turn_front",
+      "turn_qf",
+      "turn_side",
+      "turn_back",
+      "expr_neutral",
+      "expr_joy",
+      "expr_sad",
+      "expr_angry",
+      "expr_surprise",
+      "expr_think",
+      "costume_default",
+      "costume_alt1",
+      "costume_detail_upper",
+      "costume_detail_footwear",
+      "costume_detail_accessories",
+      "pose_stand_idle",
+      "pose_walk",
+      "pose_sit",
+      "pose_hands_hips",
+      "pose_wave",
+      "pose_look_aside",
+      "prop_hand_item"
     ]
   },
   "implementation": {
     "cli_flag": "--profile",
     "default": "video_ref",
+    "character_sheet_process": "full_sheet",
     "ssot_file": "characters/profiles.json",
     "bible_fields": ["active_profile", "exports"],
     "do_not": [
       "Duplicate Comfy workflow JSON per profile",
-      "Fork identity into separate character_ids for the same person solely by purpose"
+      "Claim character sheet complete on video_ref MVP alone"
     ]
   }
 }

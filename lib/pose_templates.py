@@ -24,6 +24,16 @@ def pose_template_path(template_id: str, width: int = 1024, height: int = 1536) 
 
 
 def ensure_pose_template(template_id: str, width: int = 1024, height: int = 1536) -> str:
+    """
+    Prefer OpenPose-style maps (Z-Image Union Pose condition).
+    Falls back to legacy black stick silhouette only if openpose generation fails.
+    """
+    try:
+        from lib.openpose_maps import ensure_openpose_map
+
+        return ensure_openpose_map(template_id, width=width, height=height, force=False)
+    except Exception as e:
+        print(f"[pose_templates] openpose map failed ({e}); legacy stick fallback")
     path = pose_template_path(template_id, width, height)
     if not os.path.exists(path):
         generate_pose_template(template_id, path, width, height)
@@ -123,6 +133,86 @@ def generate_pose_template(
             [cx - int(head_r * 0.3), head_y - head_r, cx + head_r, head_y + head_r],
             fill=black,
         )
+
+    elif template_id == "walk_side":
+        # Side mid-stride
+        draw.polygon(
+            [
+                (cx + head_r, head_y),
+                (cx + head_r + int(head_r * 0.7), head_y + 4),
+                (cx + head_r, head_y + int(head_r * 0.4)),
+            ],
+            fill=black,
+        )
+        line((cx, shoulder_y), (cx + int(width * 0.12), int(height * 0.40)), limb)  # front arm
+        line((cx, shoulder_y), (cx - int(width * 0.10), int(height * 0.42)), limb)  # back arm
+        line((cx, shoulder_y), (cx, hip_y), limb + 4)
+        line((cx, hip_y), (cx + int(width * 0.10), knee_y - 20), limb + 2)  # front leg
+        line((cx + int(width * 0.10), knee_y - 20), (cx + int(width * 0.14), foot_y), limb + 2)
+        line((cx, hip_y), (cx - int(width * 0.08), knee_y), limb + 2)  # back leg
+        line((cx - int(width * 0.08), knee_y), (cx - int(width * 0.12), foot_y - 10), limb + 2)
+
+    elif template_id == "sit_chair":
+        seat_y = int(height * 0.55)
+        line((cx - shoulder_w, shoulder_y), (cx + shoulder_w, shoulder_y), limb + 2)
+        line((cx, shoulder_y), (cx, seat_y), limb + 4)
+        line((cx - shoulder_w, shoulder_y), (cx - shoulder_w - 5, seat_y - 20), limb)
+        line((cx + shoulder_w, shoulder_y), (cx + shoulder_w + 5, seat_y - 20), limb)
+        # thighs
+        line((cx - hip_w, seat_y), (cx + hip_w + 30, seat_y), limb + 3)
+        # lower legs down
+        line((cx + hip_w + 20, seat_y), (cx + hip_w + 20, foot_y), limb + 2)
+        line((cx - hip_w // 2, seat_y), (cx - hip_w // 2 - 5, foot_y), limb + 2)
+        # simple seat
+        draw.rectangle(
+            [cx - hip_w - 20, seat_y, cx + hip_w + 40, seat_y + limb],
+            outline=black,
+            width=max(2, limb // 2),
+        )
+
+    elif template_id == "hands_hips":
+        line((cx - shoulder_w, shoulder_y), (cx + shoulder_w, shoulder_y), limb + 2)
+        line((cx, shoulder_y), (cx, hip_y), limb + 4)
+        # arms to hips
+        line((cx - shoulder_w, shoulder_y), (cx - hip_w - 5, hip_y), limb)
+        line((cx + shoulder_w, shoulder_y), (cx + hip_w + 5, hip_y), limb)
+        line((cx - hip_w, hip_y), (cx + hip_w, hip_y), limb + 2)
+        line((cx - hip_w // 2, hip_y), (cx - hip_w // 2, knee_y), limb + 2)
+        line((cx + hip_w // 2, hip_y), (cx + hip_w // 2, knee_y), limb + 2)
+        line((cx - hip_w // 2, knee_y), (cx - hip_w // 2, foot_y), limb + 2)
+        line((cx + hip_w // 2, knee_y), (cx + hip_w // 2, foot_y), limb + 2)
+
+    elif template_id == "wave":
+        line((cx - shoulder_w, shoulder_y), (cx + shoulder_w, shoulder_y), limb + 2)
+        line((cx, shoulder_y), (cx, hip_y), limb + 4)
+        line((cx - shoulder_w, shoulder_y), (cx - shoulder_w - 5, hip_y), limb)
+        # raised arm wave
+        line((cx + shoulder_w, shoulder_y), (cx + shoulder_w + 15, int(height * 0.12)), limb)
+        line((cx + shoulder_w + 15, int(height * 0.12)), (cx + shoulder_w + 35, int(height * 0.08)), limb)
+        line((cx - hip_w, hip_y), (cx + hip_w, hip_y), limb + 2)
+        line((cx - hip_w // 2, hip_y), (cx - hip_w // 2, knee_y), limb + 2)
+        line((cx + hip_w // 2, hip_y), (cx + hip_w // 2, knee_y), limb + 2)
+        line((cx - hip_w // 2, knee_y), (cx - hip_w // 2, foot_y), limb + 2)
+        line((cx + hip_w // 2, knee_y), (cx + hip_w // 2, foot_y), limb + 2)
+
+    elif template_id == "look_aside":
+        # erase centered head drawn above, redraw offset head (body faces front)
+        draw.ellipse(
+            [cx - head_r - 2, head_y - head_r - 2, cx + head_r + 2, head_y + head_r + 2],
+            fill=(255, 255, 255),
+        )
+        hx = cx + int(head_r * 0.55)
+        circle((hx, head_y), head_r)
+        line((hx, neck_y), (cx, shoulder_y), limb + 2)
+        line((cx - shoulder_w, shoulder_y), (cx + shoulder_w, shoulder_y), limb + 2)
+        line((cx, shoulder_y), (cx, hip_y), limb + 4)
+        line((cx - shoulder_w, shoulder_y), (cx - shoulder_w - 5, hip_y), limb)
+        line((cx + shoulder_w, shoulder_y), (cx + shoulder_w + 5, hip_y), limb)
+        line((cx - hip_w, hip_y), (cx + hip_w, hip_y), limb + 2)
+        line((cx - hip_w // 2, hip_y), (cx - hip_w // 2, knee_y), limb + 2)
+        line((cx + hip_w // 2, hip_y), (cx + hip_w // 2, knee_y), limb + 2)
+        line((cx - hip_w // 2, knee_y), (cx - hip_w // 2, foot_y), limb + 2)
+        line((cx + hip_w // 2, knee_y), (cx + hip_w // 2, foot_y), limb + 2)
 
     else:  # stand_front
         line((cx - shoulder_w, shoulder_y), (cx + shoulder_w, shoulder_y), limb + 2)

@@ -85,6 +85,8 @@ def _gen_one(
                 prompt_text=prompt,
                 steps=8,
                 cfg=1.0,
+                sampler="euler_ancestral",
+                scheduler="simple",
                 output_filename=out_path,
             )
         )

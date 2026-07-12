@@ -47,6 +47,29 @@ def _rewire_empty_latent(api_prompt: dict, width: int, height: int, batch_size: 
     return empty_id
 
 
+def _looks_like_openpose_map(path: str) -> bool:
+    name = os.path.basename(path).lower()
+    if "openpose" in name or "dwpose" in name or "pose_map" in name:
+        return True
+    # OpenPose maps are typically black-bg with colored limbs
+    try:
+        from PIL import Image
+        import statistics
+
+        im = Image.open(path).convert("RGB")
+        im.thumbnail((64, 64))
+        pixels = list(im.getdata())
+        if not pixels:
+            return False
+        dark = sum(1 for r, g, b in pixels if r + g + b < 40) / len(pixels)
+        colorful = sum(
+            1 for r, g, b in pixels if max(r, g, b) > 80 and (max(r, g, b) - min(r, g, b)) > 40
+        ) / len(pixels)
+        return dark > 0.55 and colorful > 0.02
+    except Exception:
+        return False
+
+
 def generate_controlnet_image(
     input_image_path,
     control_image_path,
@@ -67,9 +90,16 @@ def generate_controlnet_image(
     latent_width: int | None = None,
     latent_height: int | None = None,
     workflow=None,
+    control_preprocess: str = "auto",
 ):
     """
     ControlNet I2I (default) or empty-latent T2I+ControlNet.
+
+    control_preprocess:
+      - auto: OpenPose/DWPose maps → raw RGB (Union Pose condition);
+              legacy stick figures → Canny
+      - openpose / raw: copy control image as-is (recommended for pose sheets)
+      - canny: edge map (legacy stick / lineart path)
 
     empty_latent=True: ignore portrait VAEEncode base; identity from prompt only
     (use strong positive_core / later LoRA). Pose from control image.
@@ -102,14 +132,21 @@ def generate_controlnet_image(
 
             dummy = Image.new("RGB", (64, 64), (128, 128, 128))
             dummy.save(os.path.join(COMFYUI_INPUT_DIR, temp_input_name))
-        write_canny_rgb(
-            control_image_path,
-            os.path.join(COMFYUI_INPUT_DIR, temp_control_name),
-            low=50,
-            high=150,
-        )
+
+        dest_ctrl = os.path.join(COMFYUI_INPUT_DIR, temp_control_name)
+        mode_pp = (control_preprocess or "auto").lower()
+        if mode_pp == "auto":
+            mode_pp = "openpose" if _looks_like_openpose_map(control_image_path) else "canny"
+        if mode_pp in ("openpose", "raw", "none", "dwpose", "pose"):
+            # Z-Image Union was trained on Pose RGB maps — do NOT Canny them
+            shutil.copy2(control_image_path, dest_ctrl)
+            print(f"Control preprocess=openpose/raw (no Canny) ← {os.path.basename(control_image_path)}")
+        else:
+            write_canny_rgb(control_image_path, dest_ctrl, low=50, high=150)
+            print(f"Control preprocess=canny ← {os.path.basename(control_image_path)}")
+
         mode = "empty_latent" if empty_latent else "i2i_latent"
-        print(f"Processed control edges; mode={mode}")
+        print(f"Control ready; mode={mode} preprocess={mode_pp}")
     except Exception as e:
         print(f"Error copying/processing reference images: {e}")
         return fail_result(error="INPUT_COPY_FAILED", message=str(e))
@@ -249,6 +286,7 @@ def generate_controlnet_image(
         "denoise": denoise_val,
         "cfg": cfg_val,
         "control_strength": control_strength,
+        "control_preprocess": control_preprocess,
         "steps": applied_steps,
         "sampler": "euler",
         "scheduler": "normal",

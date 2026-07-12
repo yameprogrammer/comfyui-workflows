@@ -8,13 +8,13 @@
 
 ## 0. 이게 “완성”인 범위
 
-| 포함 (v1+) | 미포함 (나중에) |
-|-----------|-----------------|
+| 포함 (v1+ 공정) | 코드만 유지 / 미포함 |
+|----------------|----------------------|
 | 다엔진 후보 풀 (Moody + Krea) | InstantID (별도 모델·노드) |
 | 컨택시트 · shortlist · status | 자동 얼굴 QA 점수 |
 | 1장 promote → master_front 잠금 | 탐색 단계 LoRA 학습 |
-| expand: **i2i / i2i_lock / ipadapter** / controlnet | artbook 전용 고해상 파이프 고도화 |
-| 오케스트레이터 `character_pipeline` | shot_compose 다엔진 |
+| expand 공정: **full_sheet** (head/turn/expr/costume/pose/props) | **ipadapter** — CLI 유지, **공정 SOP 미사용** |
+| `character_full_sheet.py` 원샷 + review grids | `video_ref` thin pack만으로 “시트 완성” 보고 금지 |
 
 **사람 게이트는 의도적으로 남김:** 후보 고르기, expression approve.
 
@@ -25,22 +25,35 @@
 ```text
 A cast     multi-engine T2I → characters/casts/<cast_id>/
 B promote  pick → characters/<id>/ + approved/master_front.png
-C expand   I2I sheets from master → refs/ + approve aliases
-           engines: i2i | i2i_lock | ipadapter | controlnet*
-D video    shot_compose → I2V/SI2V  (기존, 본 문서 범위 밖)
+C expand   **full_sheet** industry pack from master
+           head turn · body turn · expression · costume(+detail) · pose · props
+           CLI: character_full_sheet.py --run  |  expand --profile full_sheet --sheets full_pack
+D video    shot_compose → I2V/SI2V  (video_ref thin pack may be enough for shots)
 ```
 
-커뮤니티 정합: **오디션(다모델) → 인간 선택 → 시트 공장(ref 고정 + 선택적 IP-Adapter)**.
+커뮤니티 정합: **오디션 → 인간 선택 → 풀 모델시트 공장 → 영상 레퍼 추출**.
 
-### C identity 엔진
+### C 캐릭터 시트 (공정 SOP — full_sheet)
 
 ```bash
-# 기본
-python scripts/character_expand_sheets.py --id X --sheets all_mvp --engine i2i
-# 일관 강화 (항상 동작)
-python scripts/character_expand_sheets.py --id X --sheets all_mvp --engine i2i_lock
-# IP-Adapter face (모델 필요; 실패 시 i2i_lock 폴백)
-python scripts/character_expand_sheets.py --id X --sheets expression --engine ipadapter --ipa-weight 0.72
+# 원샷 (expand + auto-approve + review grids)
+python scripts/character_full_sheet.py --id X --run
+
+# 또는 단계별
+python scripts/character_expand_sheets.py --id X --profile full_sheet \
+  --sheets full_pack --engine auto --ensure-fullbody --candidates 1
+python scripts/character_full_sheet.py --id X --approve-only
+# 리뷰: characters/<id>/exports/full_sheet/review_*.png
+```
+
+### C 실험 전용 (공정 밖 · 코드 유지)
+
+```bash
+# IP-Adapter face — 공정 치트시트에 넣지 않음
+python scripts/character_expand_sheets.py --id X --sheets expression \
+  --engine ipadapter --ipa-weight 0.72
+# video_ref thin only (NOT full sheet complete)
+python scripts/character_expand_sheets.py --id X --profile video_ref --sheets all_mvp
 ```
 
 ---
@@ -75,21 +88,11 @@ python scripts/character_promote.py \
 
 python scripts/character_status.py --id mina_cast_v1
 
-# --- C. 일관 시트 (video_ref MVP = master 이미 있음 + expressions) ---
-python scripts/character_expand_sheets.py \
-  --id mina_cast_v1 \
-  --sheets all_mvp \
-  --engine ipadapter \
-  --profile video_ref
-# 또는 --engine i2i_lock (IPAdapter 없이 강한 identity)
-
-# 생성 refs 중 고른 것을 approve (표정 등)
-python scripts/character_approve.py --id mina_cast_v1 \
-  --from refs/expression/<file>.png --as expr_neutral
-# … expr_joy, expr_sad, expr_angry, expr_surprise, expr_think
-
-python scripts/character_status.py --id mina_cast_v1
-# missing_mvp=[] 이면 L2 MVP 완료 → shot_compose 가능
+# --- C. 풀 캐릭터 시트 (full_sheet 공정) ---
+python scripts/character_full_sheet.py --id mina_cast_v1 --run
+# 검수: characters/mina_cast_v1/exports/full_sheet/review_FULL_PACKAGE.png
+# missing_mvp=[] (profile=full_sheet) 이면 시트 공정 완료
+# 영상만 급하면 이후 video_ref aliases로도 shot_compose 가능
 ```
 
 ### 2.2 오케스트레이터 (계획 / 실행)
@@ -159,8 +162,8 @@ python scripts/character_expand_sheets.py --id hero_v1 --sheets all_mvp --engine
 | Sheet-first before video | expand before shot_compose |
 | Ref lock after pick | master_front primary_ref |
 | Contact sheet review | cast contact_sheet.png |
-| IPAdapter face | C `--engine ipadapter` (모델: Comfy `models/ipadapter/`) |
-| i2i_lock | C `--engine i2i_lock` (가중치 없이 항상 동작) |
+| i2i_lock | C 공정 권장 identity (가중치 없이 항상 동작) |
+| IPAdapter face | **코드·CLI 유지**, 공정 SOP **제외** (SD1.5 경로; ZIT 페어 아님) |
 
 ---
 
@@ -170,3 +173,4 @@ python scripts/character_expand_sheets.py --id hero_v1 --sheets all_mvp --engine
 |------|------|
 | 2026-07-12 | 초안 A/B/C + CLI |
 | 2026-07-12 | **Production v1**: status/shortlist/pipeline + 실무 SOP DoD |
+| 2026-07-12 | C 공정 엔진 = i2i / i2i_lock only. ipadapter 기능 유지·SOP 제외 |
