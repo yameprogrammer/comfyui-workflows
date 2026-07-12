@@ -20,15 +20,14 @@
 | PNG | gitignore (`*.png`) — 로컬에만 존재 |
 
 ### 다음에 이어서 (우선순위)
-1. **OpenPose 재생성 배치 확인/완료**  
+1. **OpenPose 재생성 재개** (Task1 종료됨 — turn 4장은 나왔을 수 있음, pose 미완)  
    ```bash
-   # 진행 중이었으면 로그 확인 후 미완료 시 재실행
+   # pose만 이어서 (turn 이미 있으면)
    python scripts/character_expand_sheets.py --id sonagi_heroine_v1 \
-     --sheets turnaround,pose --profile full_sheet --engine auto \
-     --model pro --candidates 1 --seed-base 96001 --ensure-fullbody
+     --sheets pose --profile full_sheet --engine auto \
+     --model pro --candidates 1 --seed-base 96005 --ensure-fullbody
+   # turn 재확인/재생성 필요 시: --sheets turnaround,pose --seed-base 96001
    python scripts/character_full_sheet.py --id sonagi_heroine_v1 --approve-only
-   # 또는 export만
-   python scripts/character_full_sheet.py --id sonagi_heroine_v1 --export-only
    ```
 2. **육안 검수** turn/pose 그리드 — 스틱 아티팩트 사라졌는지, side/back 각도 유효한지  
 3. **품질 후속 (미완)**  
@@ -68,8 +67,12 @@
   * `generate_moody_controlnet` `control_preprocess=auto|openpose|canny`
   * sheet_presets turn/pose → `control_preprocess: openpose`
 * **스모크**: walk OpenPose OK (아티팩트 제거)
-* **진행 중**: sonagi turnaround+pose seed 96001 재생성 (외출 체크포인트 — 이어서 확인)
-* **커밋**: 코드/문서 체크포인트 (PNG는 gitignore)
+* **Task1 배치 (seed 96001)**: **강제 종료 완료** (2026-07-12)
+  * ✅ turnaround 4: s96001–96004
+  * ✅ pose: stand_idle s96005, walk s96006, sit s96007
+  * ❌ pose 미완: hands_hips / wave / look_aside
+  * 재개: `--sheets pose --seed-base 96008` (또는 전체 pose 재실행)
+* **커밋**: `7202396` (+ process handoff 보강 가능)
 
 ### [2026-07-12] 업계 풀시트 공정 구현 + 소나기 풀팩 테스트
 * **작업 에이전트**: Grok
