@@ -15,7 +15,8 @@ JSON 브리프 (스키마: [commission_brief.schema.json](commission_brief.schem
 
 - `production_mode`: `music_video` | `story` | `hybrid` | `video_only`
 - `mix_policy`, `default_motion_driver`, `audio.{master,bgm,bgm_volume}`
-- 샷: `motion_driver` (`i2v`|`si2v`|…), `dialogue`/`sfx`/`audio_refs`
+- 샷: `motion_driver` (`i2v`|`si2v`|…), `dialogue`/`sfx`/`audio_refs`  
+  - **`si2v`**: story **대사** 컷 **및** music_video **보컬 퍼포** 컷 (둘 다 1급). driving = 대사 wav 또는 master 보컬 슬라이스
 
 ---
 
@@ -49,13 +50,14 @@ python scripts/shot_compose.py --episode <id> --shot S01 --dry-run
 python scripts/shot_compose.py --episode <id> --all --dry-run
 python scripts/shot_approve.py --episode <id> --shot S01
 
-# 파이프: status → assets → compose → contact → i2v → upscale → assemble → package
+# 파이프: status → assets → compose → contact → i2v → s2v → upscale → assemble → package
 python scripts/episode_pipeline.py --episode <id>
 python scripts/episode_pipeline.py --episode <id> --run --from assets --to package --dry-run
 python scripts/episode_pipeline.py --episode <id> --run --from i2v --to package
 
 # 또는 단계별
-python scripts/episode_i2v.py --episode <id>
+python scripts/episode_i2v.py --episode <id>          # motion_driver=i2v (B-roll 등)
+python scripts/episode_s2v.py --episode <id>          # motion_driver=si2v (대사 · 뮤비 보컬)
 python scripts/episode_upscale.py --episode <id> --preset deliver_1080
 python scripts/audio_status.py --episode <id>
 # mix_policy 에 따라 music/dialogue/sfx stems 배치 후
@@ -66,7 +68,9 @@ python scripts/package_delivery.py --episode <id>
 
 사용자에게: `deliveries/<episode>__<stamp>.zip`
 
-**참고:** `episode_i2v` 는 `motion_driver=i2v` 만, `episode_s2v` 는 `si2v` + `audio_refs.driving` 만 처리. 파이프라인 단계 `s2v` 포함.
+**참고:**  
+- `episode_i2v` → `i2v` 만 / `episode_s2v` → `si2v` + `audio_refs.driving` 만. 파이프에 `s2v` 단계 포함.  
+- 뮤비에서 보컬이 입을 움직이는 컷은 **story 대사가 없어도** `si2v` 로 돌린다.
 
 ---
 

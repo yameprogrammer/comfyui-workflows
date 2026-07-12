@@ -6,6 +6,11 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] 문서: SI2V = story 대사 + music_video 보컬 공통
+* **작업 에이전트**: Grok
+* **요지**: 립싱크는 스토리 대사 전용이 아님. 뮤비 중간 온카메라 보컬/노래 컷도 `motion_driver=si2v` 1급.
+* **갱신**: `audio_motion_production_modes.md` §0.1·§2.4, Rule 7.1, commission_workflow, episode_s2v docstring
+
 ### [2026-07-12] SI2V 재개 — prepare_driving + episode_s2v + 품질 v3/v4
 * **작업 에이전트**: Grok
 * **커밋 정리**: uncommitted 오디오/SI2V/업스케일/로케 묶음을 논리 커밋 6개로 분리 (rtx_vsr 기본, Wan dim snap, audio P0–P1, generate_s2v, cafe_seoul, process log)

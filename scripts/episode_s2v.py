@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Batch SI2V for approved episode keyframes with motion_driver=si2v → clips/work/."""
+"""Batch SI2V for motion_driver=si2v shots → clips/work/*_s2v.mp4.
+
+Use for:
+  - story: on-screen dialogue (driving = dialogue/TTS wav)
+  - music_video: on-camera vocal / singing cuts (driving = master slice ± vocal prep)
+Not story-only — any shot where the mouth must track audio.
+"""
 
 from __future__ import annotations
 

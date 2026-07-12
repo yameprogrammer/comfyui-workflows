@@ -140,7 +140,7 @@ T2I·I2I는 영상의 **“정지 컷 공장”**이다. 영상 품질의 상한
 | **Camera / Motion Control** | 돌리 인, 팬, 오빗 등 카메라 문법 고정 |
 | **Inpaint on video / Object replace** | 로고·소품만 바꾸기 |
 | **Depth / ControlNet 계열** | 구도·포즈 엄격 제어 |
-| **Lip-sync / Talking head (SI2V)** | ✅ InfiniteTalk CLI + episode_s2v — [audio_motion_production_modes.md](audio_motion_production_modes.md) P2 |
+| **Lip-sync / Talking head (SI2V)** | ✅ story 대사 **+** music_video 보컬 퍼포 공통 — InfiniteTalk CLI + episode_s2v ([audio_motion…](audio_motion_production_modes.md) §0.1) |
 | **Audio** (dialogue, SFX, BGM, music master) | 모드별 믹스 정책 — 동 문서 P0–P3 |
 
 ---

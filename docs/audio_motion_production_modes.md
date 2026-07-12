@@ -19,6 +19,24 @@
 
 업스케일 기본은 **RTX VSR** 유지. SeedVR2는 히어로 opt-in (본 문서 범위 밖).
 
+### 0.1 SI2V(립싱크)는 스토리 전용이 아니다
+
+`motion_driver=si2v` 는 **온스크린에서 입이 소리를 내는 모든 컷**에 쓴다. 장르를 가리지 않는다.
+
+| 작품 | SI2V를 쓰는 컷 | 드라이빙 오디오 예 |
+|------|----------------|-------------------|
+| **`music_video`** | 보컬이 카메라 앞에서 **노래·후렴·랩** 하는 퍼포 컷 | master 구간 슬라이스 → (권장) 보컬 stem / `center_voicey` |
+| **`story`** | 캐릭터가 **대사**를 말하는 컷 | `audio/dialogue/` 녹음·TTS |
+| **`hybrid`** | 뮤비 보컬 구간 + 내레이션·대사 혼재 시 해당 샷만 | 샷별 `audio_refs.driving` |
+
+| 작품 | SI2V **안** 쓰는 컷 (보통 `i2v` / `still`) |
+|------|---------------------------------------------|
+| 뮤비 B-roll, 풍경, 손·소품, 춤만(입 닫힘), 비트 연출 | |
+| 스토리 와이드, 리액션(무대사), VO-only(입 안 움직임) | |
+
+**금지 오해:** “SI2V = story 대사 전용 기능” ❌  
+**정답:** SI2V = **립·보컬·스피치 구동 모션 드라이버**. 뮤비 중간 보컬 클로즈업/미디엄도 1급 유스케이스.
+
 ---
 
 ## 1. 프로덕션 모드
@@ -29,18 +47,25 @@
 |------|------|
 | 마스터 오디오 | 클라이언트/제공 **music master** 가 타임라인 SSOT |
 | 길이 | 원곡(또는 편집본) 길이에 영상 구간을 맞춤 |
-| 일반 컷 | `motion_driver=i2v` — 키프레임 + 모션 프롬프트 |
-| 립·퍼포 컷 | `motion_driver=si2v` — 키프레임 + **해당 구간 오디오 슬라이스** |
+| 일반 컷 | `motion_driver=i2v` — 키프레임 + 모션 프롬프트 (풍경·춤·B-roll·비트 연출) |
+| **보컬·립 퍼포 컷** | `motion_driver=si2v` — 키프레임 + **그 구간의 노래 슬라이스(보컬 우선)** |
 | 믹스 | `mix_policy=music_locked` — 최종에 master 정렬. “BGM 후깔”이 아님 |
 | BGM 필드 | `audio/masters/` 또는 `audio/music/` 의 지정 파일 |
+
+뮤비에서 SI2V가 필요한 전형 연출:
+
+- 후렴 직캠/클로즈업 보컬
+- 버스킹·카페 창가에서 **노래를 부르는** 미디엄
+- 듀엣 한 명만 입이 움직이는 구간 (다른 명은 `i2v` 또는 still)
 
 ```text
 music master
   → beat/section markers (수동 또는 툴)
   → shots with t_in/t_out on master
-  → per shot: i2v | si2v(audio slice)
+  → vocal-on-camera shots: si2v(slice ± vocal prep)
+  → other shots: i2v | still
   → upscale (rtx_vsr)
-  → timeline align + music master mux
+  → timeline align + music master mux  (SI2V 클립 오디오는 보통 mute)
 ```
 
 ### 1.2 `story` (드라마·스토리 숏폼)
@@ -83,37 +108,31 @@ synopsis / shots.json
 | `motion_driver` | 필수 입력 | 출력 | 비고 |
 |-----------------|-----------|------|------|
 | **`i2v`** | keyframe, motion_prompt | 무음(또는 무시) work clip | **현재 구현됨** (`episode_i2v` / wan22) |
-| **`si2v`** (S2V) | keyframe, **audio segment**, (opt) text | 립/제스처↔소리 클립 | **✅ `generate_s2v` / `episode_s2v`** |
+| **`si2v`** (S2V) | keyframe, **audio segment**, (opt) text | 립/제스처↔소리 클립 | **✅ `generate_s2v` / `episode_s2v`** — **story 대사 + music_video 보컬 공통** |
 | **`still`** | keyframe | duration hold | Ken Burns 선택 |
 | **`flf2v`** | first + last keyframe | 브리지 | 나중 |
 
-에피소드 배치 CLI는 향후:
+배치 CLI:
 
 ```text
-episode_motion.py  (가칭)
-  for shot in approved:
-    if driver == i2v:  episode_i2v path
-    if driver == si2v: episode_s2v path
-    if driver == still: ffmpeg still
+episode_i2v.py   → motion_driver=i2v
+episode_s2v.py   → motion_driver=si2v   (스토리 대사 컷 · 뮤비 보컬 컷 동일 경로)
+episode_pipeline … i2v → s2v → upscale …
 ```
 
-과도기: `episode_i2v` 는 `motion_driver in (i2v, null, missing)` 만 처리.  
-`si2v` 샷은 스킵 + status `needs_s2v`.
+`episode_i2v` 는 non-i2v 스킵, `episode_s2v` 는 non-si2v 스킵.
 
-### 2.2 SI2V 백엔드 (예정)
+### 2.2 SI2V 백엔드
 
-| 항목 | 방향 |
+| 항목 | 상태 |
 |------|------|
-| 설정 위치 | `video_backends.json` → `backends.s2v_*` 또는 `motion_backends` 섹션 |
-| 상태 | `planned` until workflow in `workflows/agent/` |
-| CLI | `scripts/generate_s2v.py` (I2V 대칭) |
-| 입력 오디오 | `audio_refs.driving` → 파일 + `start_sec`/`end_sec` 또는 full file |
-| Work res | I2V와 동일 — format work preset, **W/H %16==0** |
+| SSOT | `video_backends.json` → `infinitetalk` (ready), `wan_s2v` (planned); 향후 `ltx23_ia2v` 후보 |
+| CLI | `scripts/generate_s2v.py`, `scripts/episode_s2v.py` |
+| 입력 오디오 | `audio_refs.driving` (또는 `dialogue`) → 파일 + 선택 `start_sec`/`end_sec` |
+| 드라이빙 prep | `audio_prepare_driving.py` / `materialize_driving_audio` (`center_voicey` 등) |
+| Work res | format work preset 또는 long-edge cap; **W/H %16==0** |
 
-엔진 후보(로컬 확정 시 문서 갱신): Wan S2V 계열 / Comfy talking-head 노드 등.  
-**미보유 시 스키마·폴더·믹스만 선행**, 러너는 stub.
-
-### 2.3 샷 필드 (확장)
+### 2.3 샷 필드 — **story 대사** 예
 
 ```json
 {
@@ -137,8 +156,43 @@ episode_motion.py  (가칭)
 }
 ```
 
+### 2.4 샷 필드 — **music_video 보컬 퍼포** 예
+
+```json
+{
+  "shot_id": "S07",
+  "motion_driver": "si2v",
+  "duration_sec": 4.0,
+  "music_cue": "chorus A — on-camera vocal",
+  "dialogue": "",
+  "audio_refs": {
+    "driving": {
+      "path": "audio/exports/s2v_drive/chorus_A_vocal.wav",
+      "start_sec": 0,
+      "end_sec": null,
+      "role": "vocal"
+    }
+  },
+  "motion_prompt": "singing to camera, natural lip motion, subtle head sway, cinematic music video",
+  "negative_motion": "warp, identity morph, closed mouth while singing, desync mouth"
+}
+```
+
+준비 파이프 (뮤비):
+
+```bash
+# 1) master 에서 보컬 구간 슬라이스
+python scripts/audio_slice.py -i audio/masters/track.wav --start 38 --duration 4 \
+  -e <ep> --stem exports --name chorus_A_raw
+# 2) 립 드라이빙용 보컬 강조 (풀 믹스면 center_voicey; 분리 stem 있으면 copy)
+python scripts/audio_prepare_driving.py -i …/chorus_A_raw.wav -m center_voicey \
+  -e <ep> --name chorus_A_vocal
+# 3) 샷 motion_driver=si2v + audio_refs.driving → episode_s2v
+python scripts/episode_s2v.py -e <ep> --shots S07 --prepare-mode center_voicey
+```
+
 - `dialogue` / `vo` / `sfx` / `music_cue`: **서술·큐 텍스트** (사람·에이전트 가독)  
-- `audio_refs`: **실제 파일 바인딩** (도구 SSOT)
+- `audio_refs.driving`: **립을 움직일 실제 음원** (대사 wav **또는** 뮤비 보컬/슬라이스 — 역할 동일)
 
 ---
 
@@ -157,11 +211,14 @@ stories/<episode>/audio/
 
 | stem | 폴더 | 믹스 역할 |
 |------|------|-----------|
-| master_music | masters/ or music/ | music_locked 시 최종 기준 |
-| dialogue | dialogue/ | 스토리 대사 |
-| vo | vo/ | 내레이션 |
+| master_music | masters/ or music/ | music_locked 시 최종 기준 (뮤비 원곡) |
+| dialogue | dialogue/ | 스토리 **대사** wav (SI2V driving 후보) |
+| vo | vo/ | 내레이션 (보통 립 불필요) |
 | sfx | sfx/ | 효과 |
-| bgm | music/ | late bed, 볼륨 낮게 |
+| bgm | music/ | story late bed, 볼륨 낮게 |
+| s2v_drive | exports/s2v_drive/ | **SI2V 전용 드라이빙** (뮤비 보컬 slice·prep, 캐시) — 최종 믹스 SSOT는 아님 |
+
+뮤비 보컬 슬라이스를 편의상 `dialogue/` 에 넣어도 동작은 하지만, **역할이 대사가 아니므로** `exports/s2v_drive/` 또는 별도 명명(`…_vocal.wav`)을 권장.
 
 **납품**: `deliveries/` 에 final 뿐 아니라 옵션으로 stems zip (재믹스용) — P3.
 
@@ -181,10 +238,9 @@ stories/<episode>/audio/
 
 SI2V 출력에 드라이빙 오디오가 포함된 경우:
 
-- `use_clip_audio=true` (샷 또는 에피소드): concat 시 클립 오디오 유지, 별도 dialogue stem과 **이중 깔림 주의**  
-- 기본 권장: SI2V는 **모션만** 쓰고 오디오는 stem에서 한 번만 (또는 클립 오디오를 dialogue stem으로 승격)
-
-정책 필드: `episode.audio.use_clip_audio` default `false` for music_video, `true` optional for story si2v.
+- **music_video + music_locked**: 최종 사운드는 **항상 music master**. SI2V 클립 오디오는 기본 **mute** (`use_clip_audio=false`). 드라이빙 슬라이스는 입 모션용일 뿐, 납품 트랙이 아님.  
+- **story**: `use_clip_audio=true` 가능하나, dialogue stem과 **이중 깔림 주의**. 기본 권장도 “모션만 SI2V + 오디오는 stem 한 번”.  
+- 정책 필드: `episode.audio.use_clip_audio` default **`false` for music_video**, optional for story.
 
 ---
 
@@ -294,11 +350,12 @@ commission (mode + mix_policy)
 ## 8. 에이전트 규칙 (요약)
 
 1. **모드를 먼저 정한다.** 뮤비와 스토리를 같은 `assemble --bgm`으로 퉁치지 말 것.  
-2. **립싱크 컷 = SI2V 드라이버.** I2V 후 입만 맞추기는 최후 수단.  
-3. **대·SFX·음악 stem 분리.** 최종 납품 전 한 번만 믹스 (이중 트랙 방지).  
-4. **music_locked** 에서 제공곡이 타임라인 SSOT.  
-5. **story** 에서 BGM은 기본 late bed; 없어도 대사+SFX면 조립 가능해야 함.  
-6. 업스케일은 **rtx_vsr** 기본; 오디오와 무관.
+2. **온스크린 입·보컬 컷 = SI2V.** story 대사 **와** music_video 보컬 퍼포 **모두**. I2V 후 입만 맞추기는 최후 수단.  
+3. **뮤비 SI2V driving ≠ 납품 오디오.** driving은 슬라이스/보컬 stem; 최종은 music master (`music_locked`).  
+4. **대·SFX·음악 stem 분리.** 최종 납품 전 한 번만 믹스 (이중 트랙 방지).  
+5. **music_locked** 에서 제공곡이 타임라인 SSOT.  
+6. **story** 에서 BGM은 기본 late bed; 없어도 대사+SFX면 조립 가능해야 함.  
+7. 업스케일은 **rtx_vsr** 기본; 오디오와 무관.
 
 ---
 
@@ -311,7 +368,7 @@ commission (mode + mix_policy)
 | 노드 | `WanVideoAddS2VEmbeds`, `WanInfiniteTalkToVideo`, MultiTalk*, FantasyTalking* |
 | 예제 | `ComfyUI-WanVideoWrapper/example_workflows/*InfiniteTalk*` |
 | 테스트 음원 | `D:\뮤직비디오 작업\소나기\소나기mastered.wav` (~202.16s) |
-| 슬라이스 예 | `audio_slice.py --start 38 --duration 3.2` → dialogue stem |
+| 슬라이스 예 | `audio_slice.py --start 38 --duration 3.2` → 뮤비 보컬 구간 (s2v_drive / dialogue) |
 
 **실측:** `music_locked` + 소나기 master → mina 12.2s final **video+aac OK**.  
 
@@ -339,3 +396,4 @@ commission (mode + mix_policy)
 | 2026-07-11 | 초안: production_mode / motion_driver / mix_policy / stems / P0–P3 계획 |
 | 2026-07-11 | P1 layered + audio_slice; 소나기 music_locked 스모크; generate_s2v scaffold |
 | 2026-07-12 | prepare_driving + episode_s2v + pipeline s2v; clean VO / center_voicey QA |
+| 2026-07-12 | SI2V = story 대사 **및** music_video 보컬 퍼포 1급 유스케이스 명시 (§0.1, §2.4) |

@@ -100,9 +100,13 @@ agent_custom/
 
 ### Rule 7.1 오디오 · 모션 드라이버
 * 작품 종류 = `production_mode` (`music_video` / `story` / `hybrid` / `video_only`). 뮤비 원곡 ≠ 스토리 late BGM.
-* 샷 모션 = `motion_driver` (`i2v` 기본, **`si2v` 립·보컬 컷**, still…). I2V만으로 립싱크 때우지 말 것.
+* 샷 모션 = `motion_driver` (`i2v` 기본, **`si2v` = 온스크린 입·보컬**, still…).  
+  - **story**: 대사 컷 → `si2v` + dialogue wav.  
+  - **music_video**: 카메라 앞 **노래/보컬 퍼포** 컷 → `si2v` + master 구간 슬라이스(보컬 prep 권장). B-roll·춤-only는 `i2v`.  
+  - SI2V는 스토리 전용이 아님. I2V만으로 립싱크 때우지 말 것.
+* 뮤비 최종 오디오 = **music master** (`music_locked`). SI2V driving 슬라이스는 모션용; 클립 오디오로 원곡을 대체하지 말 것.
 * 조립 = `mix_policy` + stems (`audio/masters|music|dialogue|vo|sfx`). SSOT: [docs/audio_motion_production_modes.md](docs/audio_motion_production_modes.md).
-* CLI: `audio_status.py`, `assemble_video.py --mix-policy …`.
+* CLI: `audio_status.py`, `audio_prepare_driving.py`, `episode_s2v.py`, `assemble_video.py --mix-policy …`.
 
 ### Rule 8. Z-Image-Turbo ControlNet (Union 2.1)
 * 모델 파일은 `models/model_patches/` (`controlnet` 폴더 아님).
