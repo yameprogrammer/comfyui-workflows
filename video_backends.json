@@ -165,15 +165,23 @@
       "engine": "LTX 2.3",
       "workflow": "i2v_ltx23",
       "strengths": ["fast_iteration", "alt_motion"],
-      "notes": "ComfyUI-LTXVideo + local GGUF; workflow not yet in workflows/agent/"
+      "notes": "General I2V (non-SI2V). Local GGUF ready; agent I2V runner not wired yet."
     },
     "infinitetalk": {
       "status": "ready",
       "kind": "s2v",
       "engine": "Wan Multi/InfiniteTalk (WanVideoWrapper)",
-      "workflow": "scripts/generate_s2v.py",
+      "workflow": "scripts/generate_s2v.py --backend infinitetalk",
       "strengths": ["lip_sync", "talking_head", "music_video_vocal_cut"],
-      "notes": "Smoke OK 2026-07-11: I2V 14B Q4 + InfiniTetalk-Single fp16 + Tencent wav2vec HF. Hardlink patch into diffusion_models/Wan2.1/. Prefer re-encoded audio slices."
+      "notes": "Smoke OK. Prefer clean VO / center_voicey driving. Default SI2V backend."
+    },
+    "ltx23_ia2v": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX 2.3 distilled GGUF + custom audio AV latent",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_ia2v",
+      "strengths": ["lip_sync", "custom_audio_i2v", "music_video_vocal_cut", "talking_head"],
+      "notes": "Community Custom-Audio path (image+driving wav → AV latent). Uses local LTX2.3 Q4 distilled + LTX23 audio/video VAE + gemma. Official IC-LoRA LipDub is V2V and needs gated HF lipdub LoRA (not installed)."
     },
     "wan_s2v": {
       "status": "planned",

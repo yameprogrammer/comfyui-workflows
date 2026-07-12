@@ -124,13 +124,26 @@ episode_pipeline … i2v → s2v → upscale …
 
 ### 2.2 SI2V 백엔드
 
+| 백엔드 ID | 상태 | 엔진 | 비고 |
+|-----------|------|------|------|
+| **`infinitetalk`** | ✅ ready | Wan I2V + InfiniteTalk | 기본. 긴 대화·헤드 안정 튜닝 여지 |
+| **`ltx23_ia2v`** | ✅ ready | LTX 2.3 distilled GGUF + **custom audio** AV latent | 커뮤니티 Custom-Audio IA2V. 클린 VO 스모크 양호 |
+| `ltx23_lipdub` | ⬜ blocked | LTX IC-LoRA LipDub (V2V) | 공식 립더빙. **gated HF** `…ic-lora-lipdub-0.9` 미보유 |
+| `wan_s2v` | ⬜ planned | WanVideoAddS2VEmbeds | — |
+
 | 항목 | 상태 |
 |------|------|
-| SSOT | `video_backends.json` → `infinitetalk` (ready), `wan_s2v` (planned); 향후 `ltx23_ia2v` 후보 |
-| CLI | `scripts/generate_s2v.py`, `scripts/episode_s2v.py` |
+| SSOT | `video_backends.json` |
+| CLI | `scripts/generate_s2v.py --backend …`, `episode_s2v.py --backend …` |
 | 입력 오디오 | `audio_refs.driving` (또는 `dialogue`) → 파일 + 선택 `start_sec`/`end_sec` |
 | 드라이빙 prep | `audio_prepare_driving.py` / `materialize_driving_audio` (`center_voicey` 등) |
-| Work res | format work preset 또는 long-edge cap; **W/H %16==0** |
+| Work res | InfiniteTalk: %16; LTX: %32 권장 |
+
+```bash
+# A/B 같은 이미지·오디오
+python scripts/generate_s2v.py --backend infinitetalk -i face.png -a drive.wav -o it.mp4
+python scripts/generate_s2v.py --backend ltx23_ia2v   -i face.png -a drive.wav -o ltx.mp4
+```
 
 ### 2.3 샷 필드 — **story 대사** 예
 
@@ -378,8 +391,10 @@ commission (mode + mix_policy)
 |------|------|------|
 | v1 | `S02_s2v_smoke.mp4` | 파이프 OK. **립싱크 불량** (손 등장·표정 붕괴) |
 | v2 | `S02_s2v_smoke_v2.mp4` | identity 안정↑, 입 개폐 약함. **정밀 립싱크는 여전히 미달** |
-| v3 | `S02_s2v_smoke_v3_clean_vo.mp4` | **클린 TTS VO 5s** + master_front + voicey. 입 개폐 대비 기준 |
-| v4 | `S02_s2v_smoke_v4_center_voicey.mp4` | 소나기 slice **center_voicey** stem (FFmpeg mid+speech EQ) |
+| v3 IT | `S02_s2v_smoke_v3_clean_vo.mp4` | **클린 TTS VO 5s** + master_front + voicey. 입 개폐 대비 기준 |
+| v4 IT | `S02_s2v_smoke_v4_center_voicey.mp4` | 소나기 slice **center_voicey** stem |
+| LTX v1 | `S02_s2v_ltx_v1_clean_vo.mp4` | 동일 클린 VO + **ltx23_ia2v**. 입·표정 다양, ~100s/5s |
+| LTX v2 | `S02_s2v_ltx_v2_center_voicey.mp4` | 동일 center_voicey + LTX |
 
 **드라이빙 준비 CLI:** `python scripts/audio_prepare_driving.py -i mix.wav -m center_voicey -o drive.wav`  
 모드: `copy` / `voicey` / `center` / `vocal_band` / `center_voicey`.

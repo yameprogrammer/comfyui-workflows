@@ -6,6 +6,17 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] LTX 2.3 IA2V 백엔드 연동 + IT A/B
+* **작업 에이전트**: Grok
+* **인벤토리**: ComfyUI-LTXVideo, GGUF distilled/dev Q4, LTX23 audio/video VAE, gemma, distilled-lora-384 ✅  
+  공식 **IC-LoRA LipDub** HF gated → 다운로드 거부 (승인 필요). V2V Just-Dub 경로 보류.
+* **구현**: `lib/ltx_s2v.py` custom-audio 최소 그래프; `generate_s2v --backend ltx23_ia2v|infinitetalk`; episode_s2v `--backend`; SaveVideo `images[].mp4` 복사 픽스
+* **실측** (master_front 640², clean VO 5s):
+  - LTX v1: success ~100s, 입 개폐·블링크·미소 변화 명확, identity 안정, 손 살짝 등장
+  - IT v3(이전): 입 개폐 명확, 소요 ~12min
+* **권장**: 립 품질 우선 A/B 시 `ltx23_ia2v` 후보; 기본은 당분간 IT 유지 가능. LipDub LoRA HF 승인 후 V2V 경로 추가.
+* **다음**: HF LipDub 승인·다운로드 시 `ltx23_lipdub`; demucs 보컬; 뮤비 타임라인 연동
+
 ### [2026-07-12] 문서: SI2V = story 대사 + music_video 보컬 공통
 * **작업 에이전트**: Grok
 * **요지**: 립싱크는 스토리 대사 전용이 아님. 뮤비 중간 온카메라 보컬/노래 컷도 `motion_driver=si2v` 1급.

@@ -13,12 +13,14 @@
 | `i2v_wan22_a14b` | `I2V-wan22-a14b.json` | `scripts/generate_i2v.py` (default) |
 | `t2i_krea` | `T2I-krea.json` | `scripts/generate_krea.py` |
 | `t2i_z_image_turbo` | `T2I-z-image-turbo.json` | (베이스/참고) |
-| *(SI2V InfiniteTalk)* | **JSON 없음 — API inject** | `scripts/generate_s2v.py` / `episode_s2v.py` |
+| *(SI2V InfiniteTalk)* | **JSON 없음 — API inject** | `generate_s2v.py --backend infinitetalk` |
+| *(SI2V LTX custom-audio)* | **JSON 없음 — API inject** | `generate_s2v.py --backend ltx23_ia2v` |
 
 별칭·파일 매핑은 [catalog.json](catalog.json) 이 코드와 공유하는 SSOT입니다.
 
-SI2V는 WanVideoWrapper 노드 그래프를 `generate_s2v.build_infinitetalk_api` 가 런타임에 조립한다.  
-human UI 예제(`ComfyUI-WanVideoWrapper/example_workflows/*InfiniteTalk*`)를 수정할 때 러너 노드 타입과 동기화할 것.
+SI2V는 런타임 API inject (`lib/ltx_s2v.py` / `build_infinitetalk_api`).  
+참고 휴먼 WF: `F:\ComfyUI_workflows\LTX2.3\Custom-Audio\…`, Wan InfiniteTalk 예제.  
+공식 LTX IC-LoRA LipDub은 V2V + gated 가중치 — 에이전트 미연동.
 
 ## Agent-friendly 설계 원칙
 

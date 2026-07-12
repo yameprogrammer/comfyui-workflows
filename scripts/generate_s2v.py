@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """
-Speech/Sound-to-Video (SI2V) via Wan Multi/InfiniteTalk (ComfyUI-WanVideoWrapper).
+Speech/Sound-to-Video (SI2V) multi-backend.
 
-Local inventory:
+Backends:
+  - infinitetalk (default): Wan Multi/InfiniteTalk (WanVideoWrapper)
+  - ltx23_ia2v: LTX 2.3 image + custom audio (community IA2V / AV latent)
+
+Wan inventory:
   - diffusion_models/Wan2.1/wan2.1-i2v-14b-720p-Q4_K_M.gguf
-  - diffusion_models/Wan2.1/Wan2_1-InfiniTetalk-Single_fp16.safetensors (hardlink from model_patches)
-  - wav2vec2/wav2vec2-korean-base_fp16.safetensors
-  - vae/wan_2.1_vae.safetensors, clip_vision_h, umt5-xxl-enc-bf16
+  - InfiniTetalk-Single + wav2vec / umt5 / clip_vision / wan_2.1_vae
+
+LTX inventory (portable):
+  - diffusion_models/LTX2.3/*-Q4_K_M.gguf + distilled-lora-384
+  - vae/LTX23_{video,audio}_vae_bf16 + gemma + text_projection
 """
 
 from __future__ import annotations
@@ -34,6 +40,15 @@ from lib.comfy_client import (
     utc_now_iso,
     write_meta,
 )
+from lib.ltx_s2v import (
+    DEFAULT_DISTILL_LORA,
+    DEFAULT_UNET_GGUF,
+    build_ltx_custom_audio_api,
+    snap_ltx_dim,
+    snap_ltx_frames,
+)
+
+S2V_BACKENDS = ("infinitetalk", "ltx23_ia2v")
 
 COMFY_OUTPUT_DIR = r"F:\ComfyUI_windows_portable\ComfyUI\output"
 COMFY_TEMP_DIR = r"F:\ComfyUI_windows_portable\ComfyUI\temp"
@@ -334,6 +349,7 @@ def generate_s2v(
     audio_path: str,
     output_filename: str | None = None,
     *,
+    backend: str = "infinitetalk",
     prompt: str = "a person speaking naturally, subtle head motion, cinematic",
     negative: str = DEFAULT_NEG,
     width: int = 640,
@@ -346,6 +362,8 @@ def generate_s2v(
     i2v_model: str = DEFAULT_I2V,
     multitalk_model: str = DEFAULT_MULTITALK,
     wav2vec: str = DEFAULT_WAV2VEC,
+    ltx_unet: str = DEFAULT_UNET_GGUF,
+    ltx_lora: str = DEFAULT_DISTILL_LORA,
     server_address: str = DEFAULT_SERVER,
     timeout_sec: int = 3600,
     meta_out: str | None = None,
@@ -360,8 +378,21 @@ def generate_s2v(
     if not os.path.isfile(audio_path):
         return fail_result(error="AUDIO_MISSING", message=audio_path)
 
-    width = _snap_dim(width, 16)
-    height = _snap_dim(height, 16)
+    backend = (backend or "infinitetalk").strip().lower()
+    if backend not in S2V_BACKENDS:
+        return fail_result(
+            error="BAD_BACKEND",
+            message=f"{backend!r}; choose from {S2V_BACKENDS}",
+        )
+
+    if backend == "ltx23_ia2v":
+        width = snap_ltx_dim(width, 32)
+        height = snap_ltx_dim(height, 32)
+        if fps is None or fps <= 0:
+            fps = 24.0
+    else:
+        width = _snap_dim(width, 16)
+        height = _snap_dim(height, 16)
 
     if num_frames is None:
         dur = _probe_audio_duration(audio_path)
@@ -369,16 +400,28 @@ def generate_s2v(
             # bad container metadata (seen with wav copy-slice) — fallback short smoke
             print(f"[WARN] audio duration probe={dur}; using 5.0s for frame count")
             dur = 5.0
-        num_frames = _snap_frames(int(round(float(dur) * float(fps))))
+        raw_frames = int(round(float(dur) * float(fps)))
+        if backend == "ltx23_ia2v":
+            num_frames = snap_ltx_frames(raw_frames)
+        else:
+            num_frames = _snap_frames(raw_frames)
     else:
-        num_frames = _snap_frames(num_frames)
+        if backend == "ltx23_ia2v":
+            num_frames = snap_ltx_frames(num_frames)
+        else:
+            num_frames = _snap_frames(num_frames)
 
     # MultiTalk window often prefers values like 81; clamp smoke length
-    if num_frames < 17:
-        num_frames = 17
-    if num_frames > 129:
-        print(f"[WARN] clamping frames {num_frames} -> 81 for smoke stability")
-        num_frames = 81
+    if backend == "infinitetalk":
+        if num_frames < 17:
+            num_frames = 17
+        if num_frames > 129:
+            print(f"[WARN] clamping frames {num_frames} -> 81 for smoke stability")
+            num_frames = 81
+    else:
+        if num_frames > 121:
+            print(f"[WARN] clamping LTX frames {num_frames} -> 121 for smoke VRAM")
+            num_frames = 121
 
     seed = seed if seed is not None else random.randint(1, 2**31 - 1)
     if output_filename is None:
@@ -387,51 +430,77 @@ def generate_s2v(
         )
     ensure_parent_dir(output_filename)
 
-    # copy image into Comfy input
+    # copy image + audio into Comfy input
     img_name = "temp_s2v_input.png"
+    audio_name = "temp_s2v_drive.wav"
     os.makedirs(COMFYUI_INPUT_DIR, exist_ok=True)
     shutil.copy2(input_image_path, os.path.join(COMFYUI_INPUT_DIR, img_name))
     audio_abs = os.path.abspath(audio_path)
+    # LTX LoadAudio needs file under input/; InfiniteTalk uses abs path but copy is fine
+    shutil.copy2(audio_abs, os.path.join(COMFYUI_INPUT_DIR, audio_name))
 
-    api = build_infinitetalk_api(
-        image_name=img_name,
-        audio_abs_path=audio_abs,
-        prompt=prompt,
-        negative=negative or DEFAULT_NEG,
-        width=width,
-        height=height,
-        num_frames=num_frames,
-        fps=fps,
-        steps=steps,
-        cfg=cfg,
-        seed=seed,
-        i2v_model=i2v_model,
-        multitalk_model=multitalk_model,
-        wav2vec=wav2vec,
-        vae=DEFAULT_VAE,
-        clip_vision=DEFAULT_CLIP_VISION,
-        t5=DEFAULT_T5,
-        api_opts={
-            "audio_scale": audio_scale,
-            "audio_cfg_scale": audio_cfg_scale,
-            "scheduler": scheduler,
-            "shift": shift,
-        },
-    )
-
-    print(
-        f"generate_s2v backend=infinitetalk {width}x{height} frames={num_frames} "
-        f"fps={fps} steps={steps} seed={seed}"
-    )
-    print(f"  image={input_image_path}")
-    print(f"  audio={audio_path}")
-    print(f"  i2v={i2v_model}")
-    print(f"  multitalk={multitalk_model}")
+    if backend == "ltx23_ia2v":
+        api = build_ltx_custom_audio_api(
+            image_name=img_name,
+            audio_name=audio_name,
+            prompt=prompt,
+            negative=negative or DEFAULT_NEG,
+            width=width,
+            height=height,
+            num_frames=num_frames,
+            fps=fps,
+            seed=seed,
+            cfg=cfg,
+            unet_gguf=ltx_unet,
+            distill_lora=ltx_lora,
+        )
+        print(
+            f"generate_s2v backend=ltx23_ia2v {width}x{height} frames={num_frames} "
+            f"fps={fps} seed={seed} (distilled sigma schedule)"
+        )
+        print(f"  image={input_image_path}")
+        print(f"  audio={audio_path}")
+        print(f"  unet={ltx_unet}")
+        print(f"  lora={ltx_lora}")
+    else:
+        api = build_infinitetalk_api(
+            image_name=img_name,
+            audio_abs_path=os.path.join(COMFYUI_INPUT_DIR, audio_name),
+            prompt=prompt,
+            negative=negative or DEFAULT_NEG,
+            width=width,
+            height=height,
+            num_frames=num_frames,
+            fps=fps,
+            steps=steps,
+            cfg=cfg,
+            seed=seed,
+            i2v_model=i2v_model,
+            multitalk_model=multitalk_model,
+            wav2vec=wav2vec,
+            vae=DEFAULT_VAE,
+            clip_vision=DEFAULT_CLIP_VISION,
+            t5=DEFAULT_T5,
+            api_opts={
+                "audio_scale": audio_scale,
+                "audio_cfg_scale": audio_cfg_scale,
+                "scheduler": scheduler,
+                "shift": shift,
+            },
+        )
+        print(
+            f"generate_s2v backend=infinitetalk {width}x{height} frames={num_frames} "
+            f"fps={fps} steps={steps} seed={seed}"
+        )
+        print(f"  image={input_image_path}")
+        print(f"  audio={audio_path}")
+        print(f"  i2v={i2v_model}")
+        print(f"  multitalk={multitalk_model}")
 
     if dry_run:
         meta = {
             "mode": "s2v",
-            "backend": "infinitetalk",
+            "backend": backend,
             "status": "dry_run",
             "width": width,
             "height": height,
@@ -485,13 +554,18 @@ def generate_s2v(
             error="EXECUTION_ERROR", message=str(err_msg)[:800], prompt_id=prompt_id, seed=seed
         )
 
-    # find video
+    # find video (InfiniteTalk: gifs/videos; LTX SaveVideo: images[].mp4)
     video_info = None
     for _nid, out in (history.get("outputs") or {}).items():
-        for key in ("gifs", "videos"):
-            if key in out and out[key]:
-                video_info = out[key][0]
-                break
+        for key in ("gifs", "videos", "images"):
+            if key not in out or not out[key]:
+                continue
+            cand = out[key][0]
+            fn = str(cand.get("filename") or "")
+            if key == "images" and not fn.lower().endswith((".mp4", ".webm", ".mkv")):
+                continue
+            video_info = cand
+            break
         if video_info:
             break
 
@@ -512,13 +586,17 @@ def generate_s2v(
             urllib.request.urlretrieve(view, output_filename)
             print(f"Downloaded: {filename}")
     else:
+        prefixes = ("agent_ltx_s2v", "agent_s2v")
         candidates = []
         for folder in (COMFY_OUTPUT_DIR, COMFY_TEMP_DIR):
             if not os.path.isdir(folder):
                 continue
             for root, _d, files in os.walk(folder):
                 for fn in files:
-                    if fn.lower().endswith(".mp4") and "agent_s2v" in fn.lower():
+                    if not fn.lower().endswith(".mp4"):
+                        continue
+                    fl = fn.lower()
+                    if any(p in fl for p in prefixes):
                         fp = os.path.join(root, fn)
                         candidates.append((os.path.getmtime(fp), fp))
         if not candidates:
@@ -529,7 +607,7 @@ def generate_s2v(
 
     meta = {
         "mode": "s2v",
-        "backend": "infinitetalk",
+        "backend": backend,
         "status": "ok",
         "width": width,
         "height": height,
@@ -540,8 +618,8 @@ def generate_s2v(
         "seed": seed,
         "prompt": prompt,
         "negative": negative,
-        "i2v_model": i2v_model,
-        "multitalk_model": multitalk_model,
+        "i2v_model": i2v_model if backend == "infinitetalk" else ltx_unet,
+        "multitalk_model": multitalk_model if backend == "infinitetalk" else ltx_lora,
         "source_image": os.path.abspath(input_image_path),
         "driving_audio": audio_abs,
         "output_path": os.path.abspath(output_filename),
@@ -563,16 +641,22 @@ def generate_s2v(
 
 
 def main(argv=None) -> int:
-    p = argparse.ArgumentParser(description="SI2V / InfiniteTalk smoke runner")
+    p = argparse.ArgumentParser(description="SI2V multi-backend (InfiniteTalk / LTX custom-audio)")
     p.add_argument("--input", "-i", required=True, help="Keyframe image")
     p.add_argument("--audio", "-a", required=True, help="Driving audio")
     p.add_argument("--output", "-o", default=None)
+    p.add_argument(
+        "--backend",
+        default="infinitetalk",
+        choices=list(S2V_BACKENDS),
+        help="infinitetalk (default) | ltx23_ia2v",
+    )
     p.add_argument("--prompt", "-p", default="a person singing softly, natural lip motion, cinematic")
     p.add_argument("--negative", default=DEFAULT_NEG)
     p.add_argument("--width", type=int, default=640)
     p.add_argument("--height", type=int, default=640)
     p.add_argument("--frames", type=int, default=None)
-    p.add_argument("--fps", type=float, default=25.0, help="InfiniteTalk examples use 25")
+    p.add_argument("--fps", type=float, default=25.0, help="Default 25 (IT examples / LTX often 24)")
     p.add_argument("--steps", type=int, default=20)
     p.add_argument("--cfg", type=float, default=1.0)
     p.add_argument("--audio-scale", type=float, default=1.5)
@@ -586,12 +670,15 @@ def main(argv=None) -> int:
     p.add_argument("--i2v-model", default=DEFAULT_I2V)
     p.add_argument("--multitalk-model", default=DEFAULT_MULTITALK)
     p.add_argument("--wav2vec", default=DEFAULT_WAV2VEC)
+    p.add_argument("--ltx-unet", default=DEFAULT_UNET_GGUF)
+    p.add_argument("--ltx-lora", default=DEFAULT_DISTILL_LORA)
     args = p.parse_args(argv)
 
     r = generate_s2v(
         args.input,
         args.audio,
         args.output,
+        backend=args.backend,
         prompt=args.prompt,
         negative=args.negative,
         width=args.width,
@@ -604,6 +691,8 @@ def main(argv=None) -> int:
         i2v_model=args.i2v_model,
         multitalk_model=args.multitalk_model,
         wav2vec=args.wav2vec,
+        ltx_unet=args.ltx_unet,
+        ltx_lora=args.ltx_lora,
         timeout_sec=args.timeout,
         meta_out=args.meta_out,
         dry_run=args.dry_run,

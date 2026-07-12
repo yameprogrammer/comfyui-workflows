@@ -121,6 +121,11 @@ def main(argv=None) -> int:
         default=None,
         help="Optional fixed seed for all shots (default random per shot)",
     )
+    parser.add_argument(
+        "--backend",
+        default=None,
+        help="SI2V backend: infinitetalk | ltx23_ia2v (default episode default_backend_s2v / infinitetalk)",
+    )
     args = parser.parse_args(argv)
 
     if not validate_episode_id(args.episode):
@@ -166,7 +171,7 @@ def main(argv=None) -> int:
         )
         return EXIT_NONE
 
-    backend = story.doc.get("default_backend_s2v") or "infinitetalk"
+    backend = args.backend or story.doc.get("default_backend_s2v") or "infinitetalk"
     print(
         f"episode_s2v episode={args.episode} backend={backend} "
         f"shots={len(selected)} skipped={len(skipped)} "
@@ -232,6 +237,7 @@ def main(argv=None) -> int:
             kf_path,
             audio_path,
             clip_path,
+            backend=backend,
             prompt=motion,
             width=width,
             height=height,
