@@ -195,6 +195,29 @@ def extract_first_image(history_entry: dict) -> tuple[str, str, str]:
     raise FileNotFoundError("Output image not found in ComfyUI history")
 
 
+def extract_first_audio(history_entry: dict) -> tuple[str, str, str]:
+    """Return (filename, subfolder, type) for first audio artifact in history."""
+    outputs = history_entry.get("outputs", {})
+    for _node_id, node_output in outputs.items():
+        for key in ("audio", "audios"):
+            if key not in node_output:
+                continue
+            items = node_output[key]
+            if not isinstance(items, list):
+                items = [items]
+            for item in items:
+                if isinstance(item, dict) and item.get("filename"):
+                    return (
+                        item["filename"],
+                        item.get("subfolder", "") or "",
+                        item.get("type", "output") or "output",
+                    )
+        # Some nodes put a single dict
+        if isinstance(node_output.get("gifs"), list):
+            pass
+    raise FileNotFoundError("Output audio not found in ComfyUI history")
+
+
 def download_image(
     server_address: str,
     filename: str,
@@ -211,6 +234,17 @@ def download_image(
     )
     urllib.request.urlretrieve(view_url, dest_path)
     return dest_path
+
+
+def download_audio(
+    server_address: str,
+    filename: str,
+    subfolder: str,
+    media_type: str,
+    dest_path: str,
+) -> str:
+    """Same /view endpoint as images; works for SaveAudio outputs."""
+    return download_image(server_address, filename, subfolder, media_type, dest_path)
 
 
 def fail_result(**extra) -> dict:

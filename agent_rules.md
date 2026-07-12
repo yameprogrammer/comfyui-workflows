@@ -146,6 +146,12 @@ agent_custom/
 * Driving prep 기본 = **`auto`** (demucs → center_voicey).
 * 뮤비 보컬 컷: `audio_bind_driving.py -e <ep> --shot S0x --start … --duration …`
 * CLI: `audio_status.py`, `audio_prepare_driving.py`, `audio_bind_driving.py`, `episode_s2v.py`, `assemble_video.py --mix-policy …`.
+* **대사/내레이션 TTS (Qwen3-TTS)**:  
+  - 로컬 Comfy `FB_Qwen3TTS*` — custom 프리셋 / design 새 목소리 / clone 복제.  
+  - CLI: `generate_qwen3_tts.py`, `episode_tts.py --bind-si2v` → dialogue wav + SI2V driving.  
+  - **본선 감정 대사** = TTS(감정 instruct) → prepare_driving → `episode_s2v` (LTX/InfiniteTalk).  
+  - LTX native A/V 한 패스는 보조; 대본 통제 립싱크는 외부 TTS 경로.  
+  - SSOT: [docs/qwen3_tts_ltx_audio_pipeline.md](docs/qwen3_tts_ltx_audio_pipeline.md).
 
 ### Rule 8. Z-Image-Turbo ControlNet (Union 2.1)
 * 모델 파일은 `models/model_patches/` (`controlnet` 폴더 아님).

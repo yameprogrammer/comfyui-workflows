@@ -77,6 +77,14 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] Qwen3-TTS 도구화 + LTX/SI2V 연동 설계
+* **작업 에이전트**: Grok
+* **리서치**: Qwen3 CustomVoice/VoiceDesign/Clone; Comfy FB nodes; 커뮤니티 Qwen3-TTS+LTX talking avatar; LTX audio-cond I2V
+* **구현**: `generate_qwen3_tts.py`, `episode_tts.py --bind-si2v`, `comfy_client` extract/download audio
+* **문서**: `docs/qwen3_tts_ltx_audio_pipeline.md` · Rule 7.1 TTS 절
+* **로컬**: CustomVoice 1.7B + Sohee 등 프리셋; design/clone 모델 온디맨드
+* **본선 경로**: TTS wav → driving prep → episode_s2v (기존 립싱크)
+
 ### [2026-07-12] 스토리보드·키프레임 커뮤니티 리서치 → 공정 반영
 * **작업 에이전트**: Grok
 * **리서치**: YT/커뮤니티/벤더 (Topview asset cards, Kling keyframe-first, Runway/Luma multi-keyframe, Reddit bake-keyframes-first, FLF2V, location docs)

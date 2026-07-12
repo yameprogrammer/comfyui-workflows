@@ -72,8 +72,8 @@ music master
 
 | 항목 | 정책 |
 |------|------|
-| 대사 | 온스크린 캐릭터 말 → `dialogue` stem (+ 필요 시 SI2V 입력) |
-| VO | 오프 내레이션 → `vo` stem (보통 립싱크 불필요) |
+| 대사 | 온스크린 캐릭터 말 → `dialogue` stem (+ SI2V driving). **생성: Qwen3-TTS** (`episode_tts.py`) |
+| VO | 오프 내레이션 → `vo` stem (보통 립싱크 불필요). 동일 TTS CLI `--role vo` |
 | SFX | 장면 효과·앰비언스 → `sfx` stem, 샷 큐 또는 글로벌 |
 | BGM | **후반 침대** 가능 — 생성 입력이 아닐 수 있음 |
 | 일반 컷 | `i2v` |
