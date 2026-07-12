@@ -42,3 +42,7 @@ deliveries/*
 scripts/__pycache__/
 lib/__pycache__/
 
+# Third-party reference clones (not part of agent_custom product)
+/OpenMontage/
+/OpenMontage_full/
+
