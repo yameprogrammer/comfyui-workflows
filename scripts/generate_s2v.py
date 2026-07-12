@@ -413,7 +413,7 @@ def generate_s2v(
     timeout_sec: int = 3600,
     meta_out: str | None = None,
     dry_run: bool = False,
-    audio_scale: float = 1.5,
+    audio_scale: float = 1.35,  # mild IT default; LTX callers can pass 1.5
     audio_cfg_scale: float = 1.0,
     scheduler: str = "dpm++_sde",
     shift: float = 11.0,
@@ -779,7 +779,12 @@ def main(argv=None) -> int:
         help="Sampler steps (IT default 8 with speed LoRA, 20 without)",
     )
     p.add_argument("--cfg", type=float, default=1.0)
-    p.add_argument("--audio-scale", type=float, default=1.5)
+    p.add_argument(
+        "--audio-scale",
+        type=float,
+        default=1.35,
+        help="IT lip intensity (mild default 1.35; raise to ~1.6 for bigger mouths)",
+    )
     p.add_argument("--audio-cfg-scale", type=float, default=1.0)
     p.add_argument("--scheduler", default="dpm++_sde")
     p.add_argument("--shift", type=float, default=11.0)

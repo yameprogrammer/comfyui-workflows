@@ -391,26 +391,26 @@ def main(argv=None) -> int:
 
                 ext_audio = None
                 keep_va = False
-                # Prefer explicit stems so dialogue is always the clear TTS line.
-                # SI2V lips were generated from driving/TTS — mux that same stem under
-                # the SI2V *video* (LTX embedded audio can be weak/wrong/noisy).
-                for key in ("driving", "dialogue", "vo"):
+                # Per-shot stems only (never stack all dialogue from t=0).
+                # SI2V: prefer driving (prep used at gen) then dialogue TTS; never VO.
+                # Non-SI2V: vo then dialogue; never driving.
+                stem_order = (
+                    ("driving", "dialogue")
+                    if driver == "si2v"
+                    else ("vo", "dialogue")
+                )
+                for key in stem_order:
                     item = refs.get(key)
                     if isinstance(item, dict) and item.get("path"):
                         cand = story.path(
                             *str(item["path"]).replace("\\", "/").split("/")
                         )
                         if os.path.isfile(cand):
-                            # For pure VO shots prefer vo; for si2v prefer driving then dialogue
-                            if driver == "si2v" and key == "vo":
-                                continue
-                            if driver != "si2v" and key == "driving":
-                                continue
                             ext_audio = cand
                             print(
                                 f"  bake {sid}: stem {key} "
                                 f"(trim≤{clip_dur:.2f}s; "
-                                f"{'lip-matched TTS' if driver == 'si2v' else 'no spill'})"
+                                f"{'lip-matched' if driver == 'si2v' else 'no spill'})"
                             )
                             break
                 if ext_audio is None and probe_has_audio(src):

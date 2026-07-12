@@ -304,9 +304,8 @@ python scripts/episode_pipeline.py -e EP --run --from s2v --to s2v --profile her
    - format-consistent work aspect  
 2. **InfiniteTalk = `hero` 프로필 / 명시적 `--backend infinitetalk`**  
    - 히어로 CU 1–2컷  
-   - 기본 파라미터를 **조금 낮춤** (832 / 16fps / 12step) — 그래프 수정 없이  
-3. **Comfy 그래프 변경 (lightx2v 노드 삽입, TeaCache) = 후순위**  
-   - 위험·회귀 큼 → 파라미터/프로필 안정화 후 별도 작업  
+   - **mild 기본**: 832 / 16fps / **10step** / audio_scale **1.35** + lightx2v + TeaCache  
+3. **lightx2v + TeaCache** = IT 경로에 구현됨 (`--no-speed` / `--no-teacache`로 끌 수 있음)
 
 ### 10.5 다음에 안전하게 할 수 있는 작업 (Comfy 비침습)
 
@@ -333,9 +332,44 @@ loras/Wan2.1/Wan21_I2V_14B_lightx2v_cfg_step_distill_lora_rank64.safetensors
 ```
 
 ```bash
-# hero 빠름 (기본 가속)
+# hero mild (기본 가속 + 입 과장 완화)
 python scripts/episode_s2v.py -e EP --shots S03 --backend infinitetalk
 
 # 예전 느린 풀퀄
 python scripts/episode_s2v.py -e EP --shots S03 --backend infinitetalk --no-speed --no-teacache --steps 20 --fps 25 --long-edge 960
 ```
+
+---
+
+## 11. 백로그 · 우선순위 (에이전트 도구)
+
+### 11.1 지금 진행: 립 / 조립 안정화 (P0)
+
+| ID | 항목 | 상태 |
+|----|------|------|
+| L1 | IT hero 기본 = mild (1.35 / 10step / lightx2v+TeaCache) | ✅ |
+| L2 | SI2V 말하기 프롬프트 강제 (TTS bind + episode_s2v) | ✅ |
+| L3 | assemble bake (샷별 stem, spill trim, BGM under speech) | ✅ |
+| L4 | format-consistent SI2V 캔버스 (정사각 opt-in) | ✅ |
+| L5 | pipeline deliver=LTX / hero=IT mild | ✅ |
+| L6 | episode_qa 게이트 | ✅ |
+| L7 | 문서·기본값 불일치 정리 (deferred 주석 등) | 🔄 |
+| L8 | sonagi 최종 조립이 mild 클립 기준인지 확인 | 운영 |
+
+**의도적으로 안 하는 것:** 대사 길이 hard-cap, long_edge 강제 상한 (연출 걸림돌).
+
+### 11.2 후보 (나중): Ideogram 4 타이포 도구
+
+| 항목 | 내용 |
+|------|------|
+| 왜 | 이미지 내 글자/간판/포스터 타이포 강점 (로케 사이니지, 타이틀 카드, 썸네일) |
+| 형태 | `generate_ideogram4.py` + agent WF; **전 구간 T2I 기본 교체 아님** |
+| 슬롯 | location signage ref, title_card, menu_board, end card |
+| 전제 | 로컬 가중치/VRAM, 라이선스(Non-Commercial 등), JSON/bbox 캡션 헬퍼 |
+| 우선순위 | **립/조립 안정화 이후** |
+
+### 11.3 기타 후보 (낮음)
+
+- MagCache / TorchCompile / SageAttention (회귀 위험)
+- LTX 일반 I2V 러너
+- 대사 3초 권장 경고 (강제 아님, 필요할 때만 soft tip)

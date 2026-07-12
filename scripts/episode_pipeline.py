@@ -37,8 +37,8 @@ STAGES = [
     "package",
 ]
 
-# Agent profiles — speed-aware highway (docs/agent_video_tooling_reliability.md §10)
-# Comfy graph accel (lightx2v/TeaCache) deferred; params only.
+# Agent profiles — speed-aware highway (docs/agent_video_tooling_reliability.md §10–11)
+# IT hero: lightx2v + TeaCache + mild lips (1.35 / 10step).
 PROFILES = {
     "preview": {
         "s2v_backend": "ltx23_ia2v",
