@@ -2,7 +2,7 @@
   "version": 3,
   "description": "I2V backend + format SSOT. Deliver pixel tiers (deliver_1080/2160…) live in upscale_backends.json; format only picks aspect. See docs/video_delivery_and_backends.md",
   "default_backend": "wan22",
-  "default_backend_s2v": "ltx23_ia2v",
+  "default_backend_s2v": "infinitetalk",
   "default_format": "cinematic_16x9",
   "default_work_preset": "work_16x9_540",
   "default_deliver_tier": "deliver_1080",
@@ -174,15 +174,15 @@
       "engine": "Wan 2.1 I2V + InfiniteTalk (WanVideoWrapper)",
       "workflow": "scripts/generate_s2v.py --backend infinitetalk",
       "strengths": ["lip_sync", "talking_head", "music_video_vocal_cut", "long_dialogue", "face_stability"],
-      "notes": "1st-class alt (not experimental). 2026-07-12 user QA: S02_s2v_smoke_v4_center_voicey — lip sync becoming usable with center_voicey driving. Prefer clean VO / center_voicey. Slower than LTX (~12min/5s). Keep for face-close / LTX drift cases."
+      "notes": "DEFAULT SI2V for agent deliver path (2026-07-12). Best lip lock with center_voicey driving. Prefer episode work aspect (not square) for format consistency. Slower (~10–12min/5s)."
     },
     "ltx23_ia2v": {
       "status": "ready",
       "kind": "s2v",
       "engine": "LTX 2.3 distilled GGUF + custom audio AV latent",
       "workflow": "scripts/generate_s2v.py --backend ltx23_ia2v",
-      "strengths": ["lip_sync", "custom_audio_i2v", "music_video_vocal_cut", "talking_head", "fast_iteration"],
-      "notes": "DEFAULT SI2V (2026-07-12 A/B). Custom-Audio IA2V; ~1–2min/5s. HF LipDub IC-LoRA still gated."
+      "strengths": ["fast_iteration", "custom_audio_i2v", "preview"],
+      "notes": "PREVIEW/fast only — not agent default. Custom-Audio IA2V ~1–2min/5s. Lip quality less reliable than InfiniteTalk; use --profile preview or --backend ltx23_ia2v explicitly."
     },
     "wan_s2v": {
       "status": "planned",

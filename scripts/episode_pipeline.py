@@ -33,8 +33,31 @@ STAGES = [
     "s2v",
     "upscale",
     "assemble",
+    "qa",
     "package",
 ]
+
+# Agent profiles — narrow highway defaults (see docs/agent_video_tooling_reliability.md)
+PROFILES = {
+    "deliver": {
+        "s2v_backend": "infinitetalk",
+        "s2v_prepare_mode": "center_voicey",
+        "s2v_square": False,
+        "s2v_audio_scale": 2.0,
+        "assemble_stage": "work",
+        "qa_strict": True,
+        "notes": "Best lips + format-consistent SI2V; bake assemble + QA gate",
+    },
+    "preview": {
+        "s2v_backend": "ltx23_ia2v",
+        "s2v_prepare_mode": "center_voicey",
+        "s2v_square": False,
+        "s2v_audio_scale": 1.5,
+        "assemble_stage": "work",
+        "qa_strict": False,
+        "notes": "Fast LTX SI2V preview; QA warnings only",
+    },
+}
 
 
 def _slice_stages(from_s: str, to_s: str) -> list[str]:
@@ -76,20 +99,31 @@ def main(argv=None) -> int:
         action="store_true",
         help="Forward dry-run to child stages (no Comfy/FFmpeg work)",
     )
+    parser.add_argument(
+        "--profile",
+        choices=list(PROFILES.keys()),
+        default="deliver",
+        help="Agent profile: deliver (default, InfiniteTalk) | preview (fast LTX)",
+    )
     parser.add_argument("--i2v-backend", default=None)
     parser.add_argument(
         "--s2v-prepare-mode",
-        default="auto",
-        help="SI2V driving prep (default auto=demucs→center_voicey)",
+        default=None,
+        help="SI2V driving prep (default from profile: center_voicey)",
     )
     parser.add_argument(
         "--s2v-backend",
         default=None,
-        help="SI2V backend (default episode / video_backends default_backend_s2v = ltx23_ia2v)",
+        help="Override SI2V backend (default from profile / video_backends)",
     )
     parser.add_argument("--upscale-backend", default=None)
     parser.add_argument("--upscale-preset", default=None)
-    parser.add_argument("--assemble-stage", choices=["auto", "work", "deliver"], default="auto")
+    parser.add_argument(
+        "--assemble-stage",
+        choices=["auto", "work", "deliver"],
+        default=None,
+        help="Assemble clip stage (default from profile: work)",
+    )
     parser.add_argument("--no-bgm", action="store_true")
     parser.add_argument("--no-zip", action="store_true")
     parser.add_argument(
@@ -99,7 +133,21 @@ def main(argv=None) -> int:
     )
     parser.add_argument("--stop-on-error", action="store_true", default=True)
     parser.add_argument("--continue-on-error", action="store_true")
+    parser.add_argument(
+        "--no-qa-strict",
+        action="store_true",
+        help="QA stage reports only (do not fail pipeline)",
+    )
     args = parser.parse_args(argv)
+
+    profile = PROFILES[args.profile]
+    if args.s2v_backend is None:
+        args.s2v_backend = profile["s2v_backend"]
+    if args.s2v_prepare_mode is None:
+        args.s2v_prepare_mode = profile["s2v_prepare_mode"]
+    if args.assemble_stage is None:
+        args.assemble_stage = profile["assemble_stage"]
+    qa_strict = profile.get("qa_strict", True) and not args.no_qa_strict
 
     if not validate_episode_id(args.episode):
         print("[ERROR] code=2 invalid episode id", file=sys.stderr)
@@ -120,7 +168,13 @@ def main(argv=None) -> int:
     print("=== STATUS ===")
     print(format_status_text(report))
     print()
-    print(f"=== PLAN stages={stages} run={args.run} dry_run={args.dry_run} ===")
+    print(
+        f"=== PLAN profile={args.profile} stages={stages} "
+        f"run={args.run} dry_run={args.dry_run} ==="
+    )
+    print(f"  s2v_backend={args.s2v_backend} prepare={args.s2v_prepare_mode}")
+    print(f"  assemble_stage={args.assemble_stage} qa_strict={qa_strict}")
+    print(f"  profile_notes={profile.get('notes')}")
     print(f"suggested overall_next={report['overall_next']}")
 
     if not args.run:
@@ -178,9 +232,16 @@ def main(argv=None) -> int:
                 "all_approved",
                 "--prepare-mode",
                 args.s2v_prepare_mode,
+                "--audio-scale",
+                str(profile.get("s2v_audio_scale", 2.0)),
             ]
             if args.s2v_backend:
                 argv2.extend(["--backend", args.s2v_backend])
+            # format-consistent canvas unless profile forces square
+            if profile.get("s2v_square"):
+                argv2.append("--square")
+            else:
+                argv2.append("--no-square")
             if args.dry_run:
                 argv2.append("--dry-run")
             if stop:
@@ -206,12 +267,32 @@ def main(argv=None) -> int:
         elif stage == "assemble":
             from assemble_video import main as asm_main
 
-            argv2 = ["--episode", ep, "--stage", args.assemble_stage]
+            argv2 = [
+                "--episode",
+                ep,
+                "--stage",
+                args.assemble_stage,
+                "--mix-policy",
+                "layered",
+            ]
             if args.dry_run:
                 argv2.append("--dry-run")
             if args.no_bgm:
                 argv2.append("--no-bgm")
             code = asm_main(argv2)
+        elif stage == "qa":
+            from episode_qa import main as qa_main
+
+            argv2 = ["--episode", ep]
+            if qa_strict:
+                argv2.append("--strict")
+            else:
+                argv2.append("--no-strict")
+            if args.dry_run:
+                print("[dry-run] skip episode_qa")
+                code = 0
+            else:
+                code = qa_main(argv2)
         elif stage == "package":
             from package_delivery import main as pkg_main
 

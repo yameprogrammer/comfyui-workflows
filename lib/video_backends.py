@@ -83,7 +83,7 @@ def resolve_s2v_backend(
     """
     Resolve SI2V backend id.
 
-    Order: explicit → episode default_backend_s2v → video_backends.default_backend_s2v → ltx23_ia2v.
+    Order: explicit → episode default_backend_s2v → video_backends.default_backend_s2v → infinitetalk.
     """
     doc = cfg or load_video_backends()
     if backend_id and str(backend_id).strip():
@@ -91,7 +91,7 @@ def resolve_s2v_backend(
     elif episode_doc and episode_doc.get("default_backend_s2v"):
         bid = str(episode_doc["default_backend_s2v"]).strip()
     else:
-        bid = str(doc.get("default_backend_s2v") or "ltx23_ia2v").strip()
+        bid = str(doc.get("default_backend_s2v") or "infinitetalk").strip()
 
     entry = get_backend(bid, doc)
     if (entry.get("kind") or "i2v") != "s2v":

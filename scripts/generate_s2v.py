@@ -350,8 +350,11 @@ def generate_s2v(
     audio_path: str,
     output_filename: str | None = None,
     *,
-    backend: str = "ltx23_ia2v",
-    prompt: str = "a person speaking naturally, subtle head motion, cinematic",
+    backend: str = "infinitetalk",
+    prompt: str = (
+        "person speaking clearly with natural lip sync, mouth opens and closes "
+        "with the dialogue, jaw movement, subtle head motion, keep identity fixed, cinematic"
+    ),
     negative: str = DEFAULT_NEG,
     width: int = 640,
     height: int = 640,
@@ -379,7 +382,7 @@ def generate_s2v(
     if not os.path.isfile(audio_path):
         return fail_result(error="AUDIO_MISSING", message=audio_path)
 
-    backend = (backend or "ltx23_ia2v").strip().lower()
+    backend = (backend or "infinitetalk").strip().lower()
     if backend not in S2V_BACKENDS:
         return fail_result(
             error="BAD_BACKEND",
@@ -665,11 +668,18 @@ def main(argv=None) -> int:
     p.add_argument("--output", "-o", default=None)
     p.add_argument(
         "--backend",
-        default="ltx23_ia2v",
+        default="infinitetalk",
         choices=list(S2V_BACKENDS),
-        help="ltx23_ia2v (default) | infinitetalk",
+        help="infinitetalk (default, best lips) | ltx23_ia2v (fast preview)",
     )
-    p.add_argument("--prompt", "-p", default="a person singing softly, natural lip motion, cinematic")
+    p.add_argument(
+        "--prompt",
+        "-p",
+        default=(
+            "person speaking clearly with natural lip sync, mouth opens and closes "
+            "with the dialogue, jaw movement, subtle head motion, keep identity fixed"
+        ),
+    )
     p.add_argument("--negative", default=DEFAULT_NEG)
     p.add_argument("--width", type=int, default=640)
     p.add_argument("--height", type=int, default=640)

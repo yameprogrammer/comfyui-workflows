@@ -60,17 +60,17 @@ def _work_size(
     shot: dict,
     long_edge: int,
     *,
-    square: bool = True,
+    square: bool = False,
 ) -> tuple[int, int]:
     """
     SI2V generation size.
 
-    Default square (640) — face/lip models (LTX custom-audio, InfiniteTalk) were
-    QA'd at 640²; landscape work presets (960×544) waste face pixels after long-edge cap.
+    Default: episode work aspect (format-consistent with I2V).
+    Opt-in square=True for tight face CU when agent explicitly wants it.
     """
     long_edge = max(256, int(long_edge))
     if square:
-        # Prefer even multiple of 32 for LTX; 16 for Wan.
+        # Prefer even multiple of 32 for LTX; 16 for Wan/InfiniteTalk.
         side = long_edge if long_edge % 32 == 0 else (long_edge // 32) * 32
         side = max(256, side)
         return side, side
@@ -85,12 +85,15 @@ def _work_size(
             pr = get_preset(str(preset_id or cfg.get("default_work_preset")), cfg)
             w, h = int(pr["width"]), int(pr["height"])
         except Exception:
-            w, h = 640, 640
+            w, h = 960, 544
     m = max(w, h)
     if m > long_edge:
         scale = long_edge / float(m)
-        w = max(16, int(round(w * scale)))
-        h = max(16, int(round(h * scale)))
+        w = max(16, int(round(w * scale / 16) * 16))
+        h = max(16, int(round(h * scale / 16) * 16))
+    else:
+        w = max(16, int(round(w / 16) * 16))
+        h = max(16, int(round(h / 16) * 16))
     return w, h
 
 
@@ -119,15 +122,21 @@ def main(argv=None) -> int:
         dest="square",
         action="store_true",
         default=None,
-        help="Force square face canvas (default: on)",
+        help="Force square face canvas (opt-in; default is episode work aspect)",
     )
     parser.add_argument(
         "--no-square",
         dest="square",
         action="store_false",
-        help="Use episode work aspect instead of square",
+        help="Use episode work aspect (default)",
     )
-    parser.set_defaults(square=True)
+    parser.set_defaults(square=False)
+    parser.add_argument(
+        "--long-edge",
+        type=int,
+        default=960,
+        help="Cap long edge when scaling work size (default 960, matches work_16x9_540)",
+    )
     parser.add_argument(
         "--force-audio",
         action="store_true",
@@ -136,8 +145,12 @@ def main(argv=None) -> int:
     parser.add_argument("--fps", type=float, default=25.0)
     parser.add_argument("--steps", type=int, default=20)
     parser.add_argument("--cfg", type=float, default=1.0)
-    parser.add_argument("--audio-scale", type=float, default=1.5)
-    parser.add_argument("--long-edge", type=int, default=640, help="Cap work long edge (default 640)")
+    parser.add_argument(
+        "--audio-scale",
+        type=float,
+        default=2.0,
+        help="InfiniteTalk audio_scale (default 2.0 for stronger lips)",
+    )
     parser.add_argument("--timeout", type=int, default=3600)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument(
@@ -154,7 +167,7 @@ def main(argv=None) -> int:
     parser.add_argument(
         "--backend",
         default=None,
-        help="SI2V backend: infinitetalk | ltx23_ia2v (default episode default_backend_s2v / infinitetalk)",
+        help="SI2V backend: infinitetalk (default) | ltx23_ia2v (preview)",
     )
     args = parser.parse_args(argv)
 

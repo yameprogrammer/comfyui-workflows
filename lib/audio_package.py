@@ -116,6 +116,21 @@ def ensure_audio_dirs(episode_root: str) -> list[str]:
     return created
 
 
+# Junk / probe stems agents must never auto-pick as BGM or dialogue mix.
+_STEM_IGNORE_PREFIXES = ("_", "archive", "probe", "tmp", "temp", "test_")
+_STEM_IGNORE_SUBSTR = ("_archive", "_probe", "_smoke", "sample_happy", "clipped")
+
+
+def _is_junk_stem_name(name: str) -> bool:
+    low = name.lower()
+    base = os.path.splitext(low)[0]
+    if base.startswith(_STEM_IGNORE_PREFIXES) or low.startswith("."):
+        return True
+    if any(s in low for s in _STEM_IGNORE_SUBSTR):
+        return True
+    return False
+
+
 def _list_audio_files(folder: str) -> list[str]:
     if not os.path.isdir(folder):
         return []
@@ -124,9 +139,84 @@ def _list_audio_files(folder: str) -> list[str]:
         low = name.lower()
         if low.startswith("."):
             continue
+        if _is_junk_stem_name(name):
+            continue
+        # Skip nested archive folders' files only if we recurse later; flat list only.
         if any(low.endswith(ext) for ext in AUDIO_EXTS):
             out.append(os.path.join(folder, name))
     return out
+
+
+def probe_audio_duration(path: str) -> float | None:
+    """Return duration seconds via ffprobe, or None."""
+    if not path or not os.path.isfile(path):
+        return None
+    try:
+        import json
+        import shutil
+        import subprocess
+
+        ffprobe = shutil.which("ffprobe") or "ffprobe"
+        out = subprocess.check_output(
+            [
+                ffprobe,
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "json",
+                path,
+            ],
+            text=True,
+            stderr=subprocess.STDOUT,
+            timeout=30,
+        )
+        return float(json.loads(out)["format"]["duration"])
+    except Exception:
+        return None
+
+
+def check_stem_fits_shot(
+    audio_path: str,
+    shot_duration_sec: float,
+    *,
+    slack_sec: float = 0.35,
+) -> dict[str, Any]:
+    """
+    Guard: VO/dialogue longer than the shot spills into the next cut.
+
+    Returns {ok, duration, shot_duration, spill_sec, error?, message?}.
+    """
+    shot_d = max(0.1, float(shot_duration_sec))
+    ad = probe_audio_duration(audio_path)
+    if ad is None:
+        return {
+            "ok": True,
+            "duration": None,
+            "shot_duration": shot_d,
+            "spill_sec": 0.0,
+            "warning": "could_not_probe_duration",
+        }
+    spill = max(0.0, float(ad) - shot_d - float(slack_sec))
+    if spill > 0:
+        return {
+            "ok": False,
+            "error": "AUDIO_SPILL",
+            "duration": ad,
+            "shot_duration": shot_d,
+            "spill_sec": spill,
+            "message": (
+                f"audio {ad:.2f}s exceeds shot {shot_d:.2f}s by ~{spill:.2f}s "
+                f"(will overlap next shot). Shorten TTS or lengthen shot."
+            ),
+        }
+    return {
+        "ok": True,
+        "duration": ad,
+        "shot_duration": shot_d,
+        "spill_sec": 0.0,
+    }
 
 
 def resolve_path(episode_root: str, rel_or_abs: str | None) -> str | None:

@@ -23,6 +23,7 @@ import os
 import sys
 
 from generate_qwen3_tts import CUSTOM_SPEAKERS, LANGUAGES, generate_qwen3_tts
+from lib.audio_package import check_stem_fits_shot
 from lib.ffmpeg_util import DRIVING_PREP_MODES, prepare_driving_audio
 from lib.story_package import StoryPackage, validate_episode_id
 
@@ -30,6 +31,7 @@ EXIT_OK = 0
 EXIT_USAGE = 2
 EXIT_MISSING = 11
 EXIT_FAIL = 30
+EXIT_SPILL = 41
 
 
 def main(argv=None) -> int:
@@ -70,6 +72,16 @@ def main(argv=None) -> int:
         choices=list(DRIVING_PREP_MODES),
     )
     p.add_argument("--no-prepare", action="store_true", help="Skip driving prep")
+    p.add_argument(
+        "--strict",
+        action="store_true",
+        help="Fail if TTS duration exceeds shot duration (audio spill)",
+    )
+    p.add_argument(
+        "--allow-spill",
+        action="store_true",
+        help="Allow VO/dialogue longer than shot (not recommended)",
+    )
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args(argv)
 
@@ -131,6 +143,26 @@ def main(argv=None) -> int:
         print(f"[ERROR] TTS {r.get('error')}: {r.get('message')}", file=sys.stderr)
         return EXIT_FAIL
 
+    shot_dur = float(shot.get("duration_sec") or 4.0)
+    fit = check_stem_fits_shot(out_path, shot_dur)
+    if not fit.get("ok"):
+        msg = fit.get("message") or "audio spill"
+        if args.allow_spill:
+            print(f"[WARN] AUDIO_SPILL allowed: {msg}", file=sys.stderr)
+        else:
+            # Default: warn; --strict fails (agent deliver path should pass --strict)
+            print(f"[WARN] {msg}", file=sys.stderr)
+            if args.strict:
+                print(
+                    "[ERROR] code=41 AUDIO_SPILL (use shorter text or raise duration_sec)",
+                    file=sys.stderr,
+                )
+                return EXIT_SPILL
+    elif fit.get("duration") is not None:
+        print(
+            f"  duration={fit['duration']:.2f}s shot={fit['shot_duration']:.2f}s ok"
+        )
+
     fields: dict = {
         args.role if args.role in ("dialogue", "vo") else "dialogue": text,
     }
@@ -174,11 +206,24 @@ def main(argv=None) -> int:
             "prepare_mode": None if args.no_prepare else args.prepare_mode,
         }
         fields["motion_driver"] = "si2v"
-        if not (shot.get("motion_prompt") or "").strip():
-            fields["motion_prompt"] = (
-                "character speaks the dialogue, natural lip sync, subtle head motion, "
-                "keep identity and wardrobe fixed"
-            )
+        # Always write a speaking motion template (I2V still prompts kill lips).
+        speak = (
+            "character speaking dialogue clearly with natural lip sync, "
+            "mouth opens and closes with the words, jaw movement, subtle head motion, "
+            "soft blinks, keep identity wardrobe and set fixed"
+        )
+        prev = (shot.get("motion_prompt") or "").strip().lower()
+        has_speak = any(k in prev for k in ("speak", "lip", "mouth", "talk", "dialogue"))
+        anti_talk = any(
+            k in prev
+            for k in ("micro facial", "natural blink", "do not change", "static mouth")
+        )
+        if (not prev) or anti_talk or (not has_speak):
+            fields["motion_prompt"] = speak
+        fields["negative_motion"] = (
+            shot.get("negative_motion")
+            or "static mouth, closed lips, frozen face, no lip movement, still image, identity morph"
+        )
         print(f"  bound SI2V driving={driving_rel}")
 
     fields["audio_refs"] = audio_refs

@@ -23,7 +23,7 @@
 | **스토리보드 / 에피소드** | 📐 설계 | 샷리스트·키프레임·배치 I2V — [storyboard_pipeline_design.md](storyboard_pipeline_design.md) |
 | **I2V (Wan2.2 A14B GGUF)** | ✅ MVP | `generate_i2v.py` + format/preset |
 | **업스케일 ≤4K** | ✅ MVP | `upscale_image/video.py` |
-| **조립** | ❌ 미구축 | FFmpeg concat, 오디오 |
+| **조립** | ✅ MVP | `assemble_video` bake + BGM; `episode_qa` 게이트 |
 
 T2I·I2I는 영상의 **“정지 컷 공장”**이다. 영상 품질의 상한은 여기서 거의 결정된다.  
 **자산 삼각형** (캐릭터·로케·스토리) 통합 지도: [production_asset_pipeline.md](production_asset_pipeline.md).
