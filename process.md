@@ -6,6 +6,13 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] 캐릭터 공정 Production v1 마감
+* **작업 에이전트**: Grok
+* **DoD**: A cast → B promote → C expand/approve 를 **실무 치트시트 + CLI 세트**로 완결
+* **추가**: `character_status`, `character_shortlist`, `character_pipeline`, SOP DoD in casting doc
+* **검증**: promote+expand dry-run E2E; cast real smoke (moody_pro×1) when Comfy up
+* **후속(비블로커)**: InstantID, shot_compose multi-engine, auto-approve
+
 ### [2026-07-12] 캐릭터 공정 A/B/C + 커뮤니티 리서치 반영
 * **작업 에이전트**: Grok
 * **리서치 요약**: sheet-first / multi-model cast / human gate / CN turnaround / IPAdapter는 확정 후 (후속)

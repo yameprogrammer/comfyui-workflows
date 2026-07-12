@@ -159,3 +159,53 @@ def list_candidate_paths(cast_id: str) -> list[str]:
         if n.lower().endswith((".png", ".jpg", ".jpeg", ".webp"))
     ]
     return files
+
+
+def list_casts() -> list[str]:
+    if not os.path.isdir(CASTS_DIR):
+        return []
+    out = []
+    for name in sorted(os.listdir(CASTS_DIR)):
+        if os.path.isfile(os.path.join(CASTS_DIR, name, "manifest.json")):
+            out.append(name)
+    return out
+
+
+def format_cast_status(cast_id: str) -> str:
+    man = load_manifest(cast_id)
+    paths = list_candidate_paths(cast_id)
+    lines = [
+        f"cast={cast_id} status={man.get('status')} engines={man.get('engines')}",
+        f"candidates_disk={len(paths)} manifest_entries={len(man.get('candidates') or [])}",
+        f"shortlist={man.get('shortlist') or []}",
+        f"promoted_character_id={man.get('promoted_character_id') or '—'}",
+        f"prompt={(man.get('prompt') or '')[:100]}…",
+        "",
+        f"{'#':<3} {'ENGINE':<12} {'SEED':<10} {'FILE'}",
+    ]
+    for i, c in enumerate(man.get("candidates") or [], 1):
+        lines.append(
+            f"{i:<3} {str(c.get('engine') or '?'):<12} "
+            f"{str(c.get('seed') or '?'):<10} {c.get('file') or '?'}"
+        )
+    if not (man.get("candidates") or []) and paths:
+        for i, p in enumerate(paths, 1):
+            lines.append(f"{i:<3} {'(disk)':<12} {'—':<10} candidates/{os.path.basename(p)}")
+    return "\n".join(lines)
+
+
+def add_shortlist(cast_id: str, files: list[str]) -> dict[str, Any]:
+    man = load_manifest(cast_id)
+    sl = list(man.get("shortlist") or [])
+    for f in files:
+        rel = f.replace("\\", "/")
+        if "candidates/" not in rel and not os.path.isabs(f):
+            rel = f"candidates/{os.path.basename(f)}"
+        elif os.path.isabs(f):
+            rel = f"candidates/{os.path.basename(f)}"
+        if rel not in sl:
+            sl.append(rel)
+    man["shortlist"] = sl
+    man["status"] = "shortlisted" if sl else man.get("status")
+    save_manifest(cast_id, man)
+    return man

@@ -179,6 +179,22 @@ def main(argv=None) -> int:
             seed = seed_base + idx * 17
             fn = candidate_filename(args.cast, eng, seed, i)
             out_path = os.path.join(cand_dir, fn)
+            if os.path.isfile(out_path) and not args.dry_run:
+                print(f"\n=== {eng} c{i:02d} seed={seed} SKIP exists ===")
+                ok_n += 1
+                rel = f"candidates/{fn}"
+                if not any((e.get("file") == rel) for e in new_entries):
+                    new_entries.append(
+                        {
+                            "file": rel,
+                            "engine": eng,
+                            "seed": seed,
+                            "index": i,
+                            "created_at": utc_now_iso(),
+                            "status": "candidate",
+                        }
+                    )
+                continue
             print(f"\n=== {eng} c{i:02d} seed={seed} ===")
             r = _gen_one(
                 engine=eng,

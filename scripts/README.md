@@ -50,7 +50,10 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `assets_list.py` | char/loc/look 목록·에피소드 자산 점검 | `--episode` |
 | `generate_krea.py` | Krea T2I | `t2i_krea` |
 | `character_cast_pool.py` | **A** 다엔진 캐스팅 풀 (Moody/Krea) | 탐색 T2I |
+| `character_shortlist.py` | A shortlist 찜 | cast |
+| `character_status.py` | cast / 패키지 진행 상태 | ops |
 | `character_promote.py` | **B** 후보 → 패키지 + master_front | cast→lock |
+| `character_pipeline.py` | A→B→C 오케스트레이션 | production v1 |
 | `character_create.py` | 패키지 + 마스터 후보 (Moody 단일 경로) | t2i |
 | `character_approve.py` | refs → approved 승격 | — |
 | `character_expand_sheets.py` | **C** 일관 시트 배치 | i2i / controlnet |
