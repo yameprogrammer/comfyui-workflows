@@ -261,7 +261,7 @@ python scripts/episode_pipeline.py -e EP --run --from s2v --to s2v --profile her
 |---------|------|------|------|
 | **preview** | LTX | ★★★★★ | 탐색·스모크 |
 | **deliver** (default) | **LTX** | ★★★★★ | 에이전트 실무 기본 (말하기 프롬프트 강제) |
-| **hero** | InfiniteTalk | ★★ | 얼굴 CU 최종 립 (해상도/fps/steps 축소 적용) |
+| **hero** | InfiniteTalk **mild** | ★★ | CU 립: 832/16fps/**10step**/scale **1.35** + lightx2v+TeaCache (~3분/컷) |
 
 ---
 
@@ -322,10 +322,11 @@ python scripts/episode_pipeline.py -e EP --run --from s2v --to s2v --profile her
 
 | 플래그 | 기본 | 효과 |
 |--------|------|------|
-| lightx2v distill LoRA | **ON** | steps → 8 (cfg=1) |
+| lightx2v distill LoRA | **ON** | cfg=1, 저 step 가능 |
 | `WanVideoTeaCache` | **ON** | step 캐시 가속 |
-| hero: 832 / 16fps / 8step | profile | 픽셀·프레임 수 감소 |
+| hero mild: 832 / 16fps / **10step** / scale **1.35** | profile | 과장 입↓, ~3분/컷 (2026-07-12 QA) |
 | `--no-speed` / `--no-teacache` | off | 풀퀄 회귀용 |
+| 대사 길이·long_edge 강제 상한 | **규칙 아님** | 연출 자유 유지; 필요 시 플래그만 |
 
 ```
 loras/Wan2.1/Wan21_I2V_14B_lightx2v_cfg_step_distill_lora_rank64.safetensors

@@ -68,16 +68,16 @@ PROFILES = {
         "s2v_backend": "infinitetalk",
         "s2v_prepare_mode": "center_voicey",
         "s2v_square": False,
-        "s2v_audio_scale": 2.0,
-        # lightx2v distill + TeaCache + mild canvas (see generate_s2v speed path)
+        # mild lips (user QA 2026-07-12): scale 1.35 / 10step less exaggerated than 2.0/8
+        "s2v_audio_scale": 1.35,
         "s2v_fps": 16.0,
-        "s2v_steps": 8,
+        "s2v_steps": 10,
         "s2v_long_edge": 832,
         "s2v_speed": True,
         "s2v_teacache": True,
         "assemble_stage": "work",
         "qa_strict": True,
-        "notes": "InfiniteTalk + lightx2v 8step + TeaCache; 832/16fps. Hero CU only.",
+        "notes": "InfiniteTalk mild: lightx2v+TeaCache, 832/16fps/10step, audio_scale 1.35. Hero CU only.",
     },
 }
 

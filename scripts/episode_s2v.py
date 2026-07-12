@@ -240,11 +240,11 @@ def main(argv=None) -> int:
         print(f"[ERROR] code=2 s2v backend: {e}", file=sys.stderr)
         return EXIT_USAGE
 
-    # Backend-aware speed defaults (IT uses lightx2v+TeaCache by default in generate_s2v).
+    # Backend-aware defaults. IT mild: scale 1.35 / 10step (less exaggerated mouths).
     if backend == "infinitetalk":
         fps = float(args.fps if args.fps is not None else 16.0)
-        steps = int(args.steps if args.steps is not None else 8)
-        audio_scale = float(args.audio_scale if args.audio_scale is not None else 2.0)
+        steps = int(args.steps if args.steps is not None else 10)
+        audio_scale = float(args.audio_scale if args.audio_scale is not None else 1.35)
         long_edge = int(args.long_edge if args.long_edge is not None else 832)
         it_speed = not getattr(args, "no_speed", False)
         it_teacache = not getattr(args, "no_teacache", False)

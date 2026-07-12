@@ -70,7 +70,8 @@ DEFAULT_T5 = "umt5-xxl-enc-bf16.safetensors"
 DEFAULT_IT_SPEED_LORA = (
     r"Wan2.1\Wan21_I2V_14B_lightx2v_cfg_step_distill_lora_rank64.safetensors"
 )
-DEFAULT_IT_SPEED_STEPS = 8
+# With lightx2v: 8 is fastest; production mild default is 10 (episode_s2v / hero profile).
+DEFAULT_IT_SPEED_STEPS = 10
 
 
 def _snap_dim(n: int, multiple: int = 16) -> int:
