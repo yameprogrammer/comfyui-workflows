@@ -171,10 +171,10 @@
     "infinitetalk": {
       "status": "ready",
       "kind": "s2v",
-      "engine": "Wan Multi/InfiniteTalk (WanVideoWrapper)",
+      "engine": "Wan 2.1 I2V + InfiniteTalk (WanVideoWrapper)",
       "workflow": "scripts/generate_s2v.py --backend infinitetalk",
-      "strengths": ["lip_sync", "talking_head", "music_video_vocal_cut", "long_dialogue"],
-      "notes": "Alt SI2V. Prefer clean VO / center_voicey. Slower than LTX distilled (~12min/5s)."
+      "strengths": ["lip_sync", "talking_head", "music_video_vocal_cut", "long_dialogue", "face_stability"],
+      "notes": "1st-class alt (not experimental). 2026-07-12 user QA: S02_s2v_smoke_v4_center_voicey — lip sync becoming usable with center_voicey driving. Prefer clean VO / center_voicey. Slower than LTX (~12min/5s). Keep for face-close / LTX drift cases."
     },
     "ltx23_ia2v": {
       "status": "ready",

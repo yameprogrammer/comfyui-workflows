@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 from typing import Any
 
@@ -427,14 +428,16 @@ def slice_audio(
     return result
 
 
-# SI2V driving-audio prep modes (no MelBand/demucs required).
+# SI2V driving-audio prep modes.
 # Full-mix music often starves lip motion; emphasize speech band / stereo center.
+# "demucs" is optional (requires `demucs` package + model download).
 DRIVING_PREP_MODES = (
     "copy",
     "voicey",
     "center",
     "vocal_band",
     "center_voicey",
+    "demucs",
 )
 
 
@@ -474,9 +477,127 @@ def _driving_af_chain(mode: str) -> str | None:
             "acompressor=threshold=-18dB:ratio=3.5:attack=8:release=100,"
             "loudnorm=I=-16:TP=-1.5:LRA=11"
         )
+    if m == "demucs":
+        # Handled in prepare_driving_audio (external package).
+        return None
     raise ValueError(
         f"unknown driving prep mode {mode!r}; choose from {DRIVING_PREP_MODES}"
     )
+
+
+def separate_vocals_demucs(
+    input_path: str,
+    output_path: str,
+    *,
+    model: str = "htdemucs",
+    timeout_sec: float = 1800,
+) -> dict[str, Any]:
+    """
+    Extract vocals stem via demucs CLI if installed.
+
+    Install (portable or system): `pip install demucs`
+    First run downloads model weights.
+    """
+    if not os.path.isfile(input_path):
+        return {"ok": False, "error": "AUDIO_MISSING", "message": input_path}
+    parent = os.path.dirname(os.path.abspath(output_path))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+
+    # Prefer Comfy portable python (torch usually present), then current interpreter.
+    py_candidates = [
+        os.environ.get("COMFY_PYTHON") or "",
+        r"F:\ComfyUI_windows_portable\python_embeded\python.exe",
+        sys.executable if "sys" in dir() else "",
+    ]
+    import sys as _sys
+
+    py_candidates.append(_sys.executable)
+    py = next((p for p in py_candidates if p and os.path.isfile(p)), _sys.executable)
+
+    # Quick import check
+    try:
+        chk = subprocess.run(
+            [py, "-c", "import demucs"],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        if chk.returncode != 0:
+            return {
+                "ok": False,
+                "error": "DEMUCS_MISSING",
+                "message": (
+                    f"demucs not importable in {py}. "
+                    "Install: `python -m pip install demucs` then retry mode=demucs. "
+                    "Fallback: --mode center_voicey"
+                ),
+            }
+    except Exception as e:
+        return {"ok": False, "error": "DEMUCS_CHECK_FAILED", "message": str(e)}
+
+    out_dir = tempfile.mkdtemp(prefix="demucs_")
+    try:
+        cmd = [
+            py,
+            "-m",
+            "demucs",
+            "-n",
+            model,
+            "--two-stems",
+            "vocals",
+            "-o",
+            out_dir,
+            input_path,
+        ]
+        try:
+            proc = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=timeout_sec,
+            )
+        except subprocess.TimeoutExpired:
+            return {"ok": False, "error": "DEMUCS_TIMEOUT", "message": f">{timeout_sec}s"}
+        if proc.returncode != 0:
+            err = (proc.stderr or proc.stdout or "")[-800:]
+            return {
+                "ok": False,
+                "error": "DEMUCS_FAILED",
+                "message": err[:500],
+                "returncode": proc.returncode,
+            }
+        # demucs writes out_dir/<model>/<track_name>/vocals.wav
+        vocals = None
+        for root, _d, files in os.walk(out_dir):
+            for fn in files:
+                if fn.lower() == "vocals.wav":
+                    vocals = os.path.join(root, fn)
+                    break
+            if vocals:
+                break
+        if not vocals or not os.path.isfile(vocals):
+            return {
+                "ok": False,
+                "error": "DEMUCS_NO_VOCALS",
+                "message": f"no vocals.wav under {out_dir}",
+            }
+        # Normalize to mono 48k pcm
+        return prepare_driving_audio(
+            vocals,
+            output_path,
+            mode="voicey",
+            sample_rate=48000,
+            mono=True,
+            timeout_sec=timeout_sec,
+        )
+    finally:
+        try:
+            shutil.rmtree(out_dir, ignore_errors=True)
+        except Exception:
+            pass
 
 
 def normalize_clip_audio(
@@ -566,8 +687,8 @@ def prepare_driving_audio(
     """
     Prepare a SI2V driving stem from a mix or dialogue wav.
 
-    Modes use FFmpeg filters only (no demucs/MelBand). Prefer true vocal
-    separation when available; this is the offline fallback for lip-sync smokes.
+    FFmpeg modes: copy|voicey|center|vocal_band|center_voicey.
+    Optional demucs: true vocal stem if package installed; else clear error.
     """
     if not os.path.isfile(input_path):
         return {"ok": False, "error": "AUDIO_MISSING", "message": input_path}
@@ -575,8 +696,15 @@ def prepare_driving_audio(
     if parent:
         os.makedirs(parent, exist_ok=True)
 
+    mode_l = (mode or "copy").strip().lower()
+    if mode_l == "demucs":
+        r = separate_vocals_demucs(input_path, output_path, timeout_sec=max(timeout_sec, 1800))
+        if r.get("ok"):
+            r["mode"] = "demucs"
+        return r
+
     try:
-        af = _driving_af_chain(mode)
+        af = _driving_af_chain(mode_l)
     except ValueError as e:
         return {"ok": False, "error": "BAD_MODE", "message": str(e)}
 
@@ -598,7 +726,7 @@ def prepare_driving_audio(
     )
     result = run_ffmpeg(args, timeout_sec=timeout_sec)
     result["output_path"] = os.path.abspath(output_path)
-    result["mode"] = (mode or "copy").strip().lower()
+    result["mode"] = mode_l
     result["sample_rate"] = int(sample_rate)
     result["channels"] = ac
     return result

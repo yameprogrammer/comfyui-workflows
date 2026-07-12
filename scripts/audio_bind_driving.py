@@ -43,7 +43,7 @@ def main(argv=None) -> int:
         "-m",
         default="center_voicey",
         choices=list(DRIVING_PREP_MODES),
-        help="Driving prep (default center_voicey; use copy for clean VO)",
+        help="Driving prep (default center_voicey; copy=clean VO; demucs=optional)",
     )
     p.add_argument(
         "--role",

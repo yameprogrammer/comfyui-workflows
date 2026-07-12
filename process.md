@@ -6,6 +6,12 @@
 
 ## 📅 작업 이력 로그
 
+### [2026-07-12] InfiniteTalk v4 QA — 1급 대안 유지
+* **작업 에이전트**: Grok (+ 사용자 육안)
+* **클립**: `S02_s2v_smoke_v4_center_voicey(_playable).mp4` — Wan2.1+InfiniteTalk + center_voicey
+* **판정**: 입이 **제법 맞기 시작** → 실험용이 아니라 **후속 프로덕션 후보로 문서·backends 고정**
+* **정책**: default=LTX, IT=1급 대안 (face stability / LTX drift 시)
+
 ### [2026-07-12] SI2V 기본=LTX + 뮤비 driving 바인딩 CLI
 * **작업 에이전트**: Grok
 * **default_backend_s2v** = `ltx23_ia2v` (`video_backends.json`, generate/episode_s2v 기본)

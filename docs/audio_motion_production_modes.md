@@ -126,23 +126,37 @@ episode_pipeline … i2v → s2v → upscale …
 
 | 백엔드 ID | 상태 | 엔진 | 비고 |
 |-----------|------|------|------|
-| **`ltx23_ia2v`** | ✅ **default** | LTX 2.3 distilled GGUF + **custom audio** AV latent | 커뮤니티 Custom-Audio. 속도·립 품질 A/B 우세 (2026-07-12) |
-| **`infinitetalk`** | ✅ ready | Wan I2V + InfiniteTalk | 긴 대화·대안 경로 |
-| `ltx23_lipdub` | ⬜ blocked | LTX IC-LoRA LipDub (V2V) | 공식 립더빙. **gated HF** `…ic-lora-lipdub-0.9` 미보유 |
+| **`ltx23_ia2v`** | ✅ **default** | LTX 2.3 distilled GGUF + **custom audio** AV latent | 속도 우위. Custom-Audio IA2V |
+| **`infinitetalk`** | ✅ **ready (1급 대안)** | **Wan 2.1 I2V** + InfiniteTalk | `center_voicey` 시 립 동기 **실용 수준** 진입 (v4 사용자 육안). **폐기 금지** |
+| `ltx23_lipdub` | ⬜ blocked | LTX IC-LoRA LipDub (V2V) | 공식 립더빙. **gated HF** |
 | `wan_s2v` | ⬜ planned | WanVideoAddS2VEmbeds | — |
+
+#### 백엔드 선택 휴리스틱 (에이전트)
+
+| 상황 | 권장 |
+|------|------|
+| 기본 / 빠른 배치 / 뮤비 보컬 컷 | **`ltx23_ia2v`** |
+| LTX 손·의상 드리프트, 얼굴 클로즈업 고정 우선 | **`infinitetalk`** |
+| 클린 VO 톡킹 헤드 | 둘 다 OK → 먼저 LTX, 불만 시 IT |
+| 품질 비교 | 같은 이미지·driving으로 **양쪽 생성 후 육안** |
+
+> **메모 (2026-07-12):**  
+> `S02_s2v_smoke_v4_center_voicey(_playable).mp4` — InfiniteTalk + 소나기 **center_voicey**  
+> 사용자 육안: **입이 제법 맞기 시작**. Wan/InfiniteTalk 스택은 임시 실험이 아니라 **후속 프로덕션 후보**.  
+> (I2V 베이스 = 로컬 **Wan2.1** 14B Q4 + InfiniteTalk 패치. 일반 모션용 Wan2.2 A14B 와는 별 트랙.)
 
 | 항목 | 상태 |
 |------|------|
-| SSOT | `video_backends.json` |
-| CLI | `scripts/generate_s2v.py --backend …`, `episode_s2v.py --backend …` |
-| 입력 오디오 | `audio_refs.driving` (또는 `dialogue`) → 파일 + 선택 `start_sec`/`end_sec` |
-| 드라이빙 prep | `audio_prepare_driving.py` / `materialize_driving_audio` (`center_voicey` 등) |
-| Work res | InfiniteTalk: %16; LTX: %32 권장 |
+| SSOT | `video_backends.json` (`default_backend_s2v` = ltx23_ia2v) |
+| CLI | `generate_s2v.py --backend …`, `episode_s2v.py --backend …` |
+| 입력 오디오 | `audio_refs.driving` (+ `audio_bind_driving`) |
+| 드라이빙 prep | `center_voicey` 등; 클립 출력은 48 kHz stereo 정규화 |
+| Work res | IT: %16; LTX: %32 |
+| 검수 | VS Code 미리보기는 무음처럼 보일 수 있음 → **OS 미디어 플레이어** |
 
 ```bash
-# A/B 같은 이미지·오디오
-python scripts/generate_s2v.py --backend infinitetalk -i face.png -a drive.wav -o it.mp4
 python scripts/generate_s2v.py --backend ltx23_ia2v   -i face.png -a drive.wav -o ltx.mp4
+python scripts/generate_s2v.py --backend infinitetalk -i face.png -a drive.wav -o it.mp4
 ```
 
 ### 2.3 샷 필드 — **story 대사** 예
@@ -393,15 +407,15 @@ commission (mode + mix_policy)
 | v1 | `S02_s2v_smoke.mp4` | 파이프 OK. **립싱크 불량** (손 등장·표정 붕괴) |
 | v2 | `S02_s2v_smoke_v2.mp4` | identity 안정↑, 입 개폐 약함. **정밀 립싱크는 여전히 미달** |
 | v3 IT | `S02_s2v_smoke_v3_clean_vo.mp4` | **클린 TTS VO 5s** + master_front + voicey. 입 개폐 대비 기준 |
-| v4 IT | `S02_s2v_smoke_v4_center_voicey.mp4` | 소나기 slice **center_voicey** stem |
-| LTX v1 | `S02_s2v_ltx_v1_clean_vo.mp4` | 동일 클린 VO + **ltx23_ia2v**. 입·표정 다양, ~100s/5s |
-| LTX v2 | `S02_s2v_ltx_v2_center_voicey.mp4` | 동일 center_voicey + LTX |
+| v4 IT | `S02_s2v_smoke_v4_center_voicey.mp4` (+ `_playable`) | 소나기 **center_voicey**. **사용자 육안: 립이 제법 맞기 시작 → IT 유지 후보** |
+| LTX v1 | `S02_s2v_ltx_v1_clean_vo.mp4` | 클린 VO + LTX. 입·표정 다양, ~1–2min/5s |
+| LTX v2 | `S02_s2v_ltx_v2_center_voicey.mp4` | center_voicey + LTX |
 
 **드라이빙 준비 CLI:** `python scripts/audio_prepare_driving.py -i mix.wav -m center_voicey -o drive.wav`  
-모드: `copy` / `voicey` / `center` / `vocal_band` / `center_voicey`.
+모드: `copy` / `voicey` / `center` / `vocal_band` / `center_voicey` / (옵션) `demucs` if installed.
 
 주의: **exit 0 ≠ 립싱크 합격**. 풀 믹스 음원·보컬 미분리 시 약함.  
-권장 순서: (1) 클린 dialogue/VO → (2) FFmpeg center_voicey → (3) MelBand/demucs 보컬 stem (미설치 시 후순위).
+권장 순서: (1) 클린 dialogue/VO → (2) FFmpeg center_voicey → (3) demucs/MelBand 보컬 stem.
 
 ---
 
@@ -413,3 +427,5 @@ commission (mode + mix_policy)
 | 2026-07-11 | P1 layered + audio_slice; 소나기 music_locked 스모크; generate_s2v scaffold |
 | 2026-07-12 | prepare_driving + episode_s2v + pipeline s2v; clean VO / center_voicey QA |
 | 2026-07-12 | SI2V = story 대사 **및** music_video 보컬 퍼포 1급 유스케이스 명시 (§0.1, §2.4) |
+| 2026-07-12 | IT v4 center_voicey 사용자 QA: 립 실용 수준 진입 → infinitetalk 1급 대안 유지 기록 |
+| 2026-07-12 | prepare mode `demucs` 옵션 훅 (패키지 있으면 보컬 stem; 없으면 center_voicey 폴백 안내) |
