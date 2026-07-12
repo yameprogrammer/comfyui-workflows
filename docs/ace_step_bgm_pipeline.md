@@ -67,6 +67,19 @@ python scripts/generate_bgm.py --engine sonilo \
 | `--bpm` / `--keyscale` | 템포·조성 |
 | `--profile turbo\|base` | turbo=8step 빠름 |
 | `--engine ace\|sonilo` | 기본 ace |
+| `--audio-codes` / `--no-audio-codes` | 기본 **ON** (OFF면 클리핑 쓰레기 PCM) |
+
+---
+
+## 3.1 알려진 장애 (2026-07-12, 이 머신)
+
+| 증상 | 원인 | 대응 |
+|------|------|------|
+| mp3는 생기는데 **소리 없음/먹먹** | `generate_audio_codes=False` → peak 풀스케일 상수 PCM | 기본 ON 유지. 다운로드 후 `volumedetect` 검증 실패 시 에러 |
+| ComfyUI **프로세스 종료** | `TextEncodeAceStepAudio1.5` LM sampling 중 `CUDA error: device-side assert` (OOM 아님; RTX 4090 24GB 여유 있었음). assert 후 CUDA 컨텍스트 붕괴 → unload 중 2차 크래시 | Comfy `ace15.py` 샘플링 가드 + 에이전트 기본 `temperature=0`/`top_p=1.0`. **재시작 필수** (CUDA assert 후 서버 재사용 불가) |
+| 큐 대기 중 hang | 8188 다운 | Comfy 다시 켠 뒤 재큐 |
+
+로그 위치: `F:\ComfyUI_windows_portable\ComfyUI\user\comfyui.log` (이전 크래시는 `comfyui.prev.log`)
 
 ---
 

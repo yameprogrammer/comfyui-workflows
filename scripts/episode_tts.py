@@ -47,10 +47,17 @@ def main(argv=None) -> int:
     p.add_argument("--speaker", default="Sohee", help=f"custom speakers: {CUSTOM_SPEAKERS}")
     p.add_argument("--language", default="Korean", choices=list(LANGUAGES))
     p.add_argument("--instruct", default="", help="Emotion / voice design instruct")
-    p.add_argument("--ref-audio", default=None)
-    p.add_argument("--ref-text", default="")
+    p.add_argument("--ref-audio", default=None, help="Clone sample (or use --voice-id)")
+    p.add_argument("--ref-text", default="", help="Transcript of ref audio")
+    p.add_argument(
+        "--voice-id",
+        default=None,
+        help="Registered voices/<id> profile (clone)",
+    )
     p.add_argument("--model-size", default="1.7B", choices=["0.6B", "1.7B"])
     p.add_argument("--seed", type=int, default=None)
+    p.add_argument("--temperature", type=float, default=0.9)
+    p.add_argument("--top-p", type=float, default=0.8)
     p.add_argument("--timeout", type=int, default=600)
     p.add_argument(
         "--bind-si2v",
@@ -111,9 +118,12 @@ def main(argv=None) -> int:
         instruct=args.instruct,
         ref_audio=args.ref_audio,
         ref_text=args.ref_text,
+        voice_id=args.voice_id,
         model_size=args.model_size,
         output_filename=out_path,
         seed=args.seed,
+        temperature=args.temperature,
+        top_p=args.top_p,
         timeout_sec=args.timeout,
         meta_out=story.path("meta", f"{args.shot}_tts.json"),
     )

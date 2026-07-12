@@ -22,6 +22,9 @@ import _bootstrap  # noqa: F401
 import argparse
 import os
 import random
+import re
+import shutil
+import subprocess
 import sys
 from typing import Any
 
@@ -37,6 +40,106 @@ from lib.comfy_client import (
     wait_for_history,
     write_meta,
 )
+
+
+def _ffmpeg_bin() -> str | None:
+    return shutil.which("ffmpeg")
+
+
+def validate_bgm_audio(path: str) -> dict[str, Any]:
+    """Fail hard on silent / full-scale garbage ACE outputs.
+
+    ACE with generate_audio_codes=False often yields constant peak PCM
+    (looks like a file, plays as silence/harsh digital hash).
+    """
+    if not path or not os.path.isfile(path):
+        return {"ok": False, "error": "MISSING_FILE", "message": f"no file: {path}"}
+    size = os.path.getsize(path)
+    if size < 2000:
+        return {
+            "ok": False,
+            "error": "AUDIO_TOO_SMALL",
+            "message": f"file only {size} bytes",
+            "size": size,
+        }
+
+    ff = _ffmpeg_bin()
+    if not ff:
+        # Cannot deep-validate; accept with warning.
+        return {
+            "ok": True,
+            "warning": "ffmpeg not on PATH; skipped PCM check",
+            "size": size,
+        }
+
+    try:
+        proc = subprocess.run(
+            [
+                ff,
+                "-hide_banner",
+                "-nostats",
+                "-i",
+                path,
+                "-af",
+                "volumedetect",
+                "-f",
+                "null",
+                "-",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=120,
+            check=False,
+        )
+    except Exception as e:
+        return {
+            "ok": True,
+            "warning": f"volumedetect failed: {e}",
+            "size": size,
+        }
+
+    log = (proc.stderr or "") + "\n" + (proc.stdout or "")
+    mean_m = re.search(r"mean_volume:\s*([-\d.]+)\s*dB", log)
+    max_m = re.search(r"max_volume:\s*([-\d.]+)\s*dB", log)
+    if not mean_m or not max_m:
+        return {
+            "ok": True,
+            "warning": "could not parse volumedetect",
+            "size": size,
+            "ffmpeg_tail": log[-400:],
+        }
+
+    mean_db = float(mean_m.group(1))
+    max_db = float(max_m.group(1))
+    stats = {"mean_db": mean_db, "max_db": max_db, "size": size}
+
+    # Near-digital silence
+    if max_db <= -50.0:
+        return {
+            "ok": False,
+            "error": "AUDIO_SILENT",
+            "message": (
+                f"max_volume={max_db} dB (silent). "
+                "Regenerate with --audio-codes (default ON)."
+            ),
+            **stats,
+        }
+
+    # Full-scale flat / clipped garbage (ACE without audio codes)
+    # Real music: max near 0 is ok but mean is much lower (e.g. -15..-30).
+    if max_db >= -0.5 and mean_db >= -3.0:
+        return {
+            "ok": False,
+            "error": "AUDIO_CLIPPED_GARBAGE",
+            "message": (
+                f"mean={mean_db} dB max={max_db} dB looks like constant full-scale PCM "
+                "(not listenable). ACE needs generate_audio_codes=True; do not use "
+                "--no-audio-codes. Also free VRAM / restart Comfy if previous run OOMed."
+            ),
+            **stats,
+        }
+
+    return {"ok": True, **stats}
 
 # Paths matching user workflow audio_ace_step1_5_xl_turbo.json
 UNET_TURBO = r"ACESTEP1.5\acestep_v1.5_xl_turbo_bf16.safetensors"
@@ -134,9 +237,13 @@ def _build_ace_api(
                 "language": language,
                 "keyscale": keyscale,
                 "generate_audio_codes": bool(generate_audio_codes),
+                # Safer LM sampling defaults:
+                # stock top_p=0.9 + fp16 multinomial has been observed to
+                # CUDA-assert and kill the whole Comfy process on this box.
+                # top_p=1.0 skips nucleus filter; temperature=0 uses argmax.
                 "cfg_scale": 2.0,
-                "temperature": 0.85,
-                "top_p": 0.9,
+                "temperature": 0.0,
+                "top_p": 1.0,
                 "top_k": 0,
                 "min_p": 0.0,
             },
@@ -227,7 +334,7 @@ def generate_bgm(
     keyscale: str = "A minor",
     timesignature: str = "4",
     instrumental: bool = True,
-    generate_audio_codes: bool = False,
+    generate_audio_codes: bool = True,
     output_filename: str | None = None,
     server_address: str = DEFAULT_SERVER,
     timeout_sec: int = 900,
@@ -296,7 +403,7 @@ def generate_bgm(
 
     print(
         f"BGM engine={engine} profile={profile} sec={seconds} bpm={bpm} "
-        f"seed={seed} steps={steps}"
+        f"seed={seed} steps={steps} audio_codes={generate_audio_codes if engine == 'ace' else 'n/a'}"
     )
     print(f"  prompt[:160]={prompt[:160]!r}")
 
@@ -352,6 +459,27 @@ def generate_bgm(
             error="DOWNLOAD_FAILED", message=str(e), seed=seed, prompt_id=prompt_id
         )
 
+    check = validate_bgm_audio(output_filename)
+    if not check.get("ok"):
+        print(
+            f"[ERROR] audio validation failed: {check.get('error')}: {check.get('message')}",
+            file=sys.stderr,
+        )
+        return fail_result(
+            error=check.get("error") or "AUDIO_INVALID",
+            message=check.get("message") or "invalid audio",
+            seed=seed,
+            prompt_id=prompt_id,
+            output_path=os.path.abspath(output_filename),
+            audio_stats=check,
+        )
+    if check.get("warning"):
+        print(f"[warn] {check['warning']}")
+    else:
+        print(
+            f"Audio OK mean={check.get('mean_db')} dB max={check.get('max_db')} dB"
+        )
+
     meta_path = resolve_meta_out(output_filename, meta_out)
     meta = {
         "mode": f"bgm_{engine}",
@@ -366,6 +494,12 @@ def generate_bgm(
         "language": language,
         "keyscale": keyscale,
         "instrumental": instrumental,
+        "generate_audio_codes": generate_audio_codes if engine == "ace" else None,
+        "audio_stats": {
+            k: check[k]
+            for k in ("mean_db", "max_db", "size", "warning")
+            if k in check
+        },
         "output_path": os.path.abspath(output_filename),
         "comfy_prompt_id": prompt_id,
         "created_at": utc_now_iso(),
@@ -382,6 +516,7 @@ def generate_bgm(
         prompt_id=prompt_id,
         meta_path=meta_path,
         meta=meta,
+        audio_stats=check,
     )
 
 
@@ -427,8 +562,16 @@ def main(argv=None) -> int:
     )
     p.add_argument(
         "--audio-codes",
+        dest="audio_codes",
         action="store_true",
-        help="ACE generate_audio_codes (slower, sometimes higher quality)",
+        default=True,
+        help="ACE generate_audio_codes (default ON; quality critical)",
+    )
+    p.add_argument(
+        "--no-audio-codes",
+        dest="audio_codes",
+        action="store_false",
+        help="Disable audio codes (usually worse / can yield silence)",
     )
     p.add_argument("--output", "-o", default=None)
     p.add_argument("--timeout", type=int, default=900)

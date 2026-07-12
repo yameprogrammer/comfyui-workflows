@@ -90,70 +90,86 @@ VO-only (입 안 움직임): TTS → `audio/vo/` 만 넣고 `motion_driver=i2v` 
 
 ---
 
-## 3. CLI
+## 3. 어색함 조정
+
+| 손잡이 | 효과 | 권장 |
+|--------|------|------|
+| `--instruct` | 감정·연출 | 구체적이되 과장 줄이기 |
+| `--temperature` | 낮을수록 안정 | 어색하면 **0.65–0.8** |
+| `--top-p` / `--top-k` | 다양성 | 기본 0.8 / 20 |
+| `--repetition-penalty` | 반복 완화 | 1.05–1.15 |
+| `--seed` | 재현 | 좋은 결과 고정 |
+| 대본 길이 | 길면 리듬 붕괴 | **문장 단위** 분할 |
+| 화자 | Sohee 등 | 캐릭 톤에 맞게 교체 |
 
 ```bash
-# 프리셋 화자 + 감정
+# 기쁨이 과장되면 이렇게 부드럽게
+python scripts/generate_qwen3_tts.py --mode custom --speaker Sohee --language Korean \
+  --instruct "warm gentle happy, natural smile in voice, not exaggerated" \
+  --temperature 0.7 --top-p 0.75 \
+  --text "오늘 정말 기뻐. 좋은 소식이 와서 설레." \
+  -o out_happy_soft.mp3
+```
+
+---
+
+## 4. CLI
+
+```bash
+# 프리셋 + 감정
 python scripts/generate_qwen3_tts.py \
   --mode custom --speaker Sohee --language Korean \
-  --instruct "soft sad, quiet, intimate rainy-day mood" \
-  --text "비가 오네. 창밖이 흐려." \
-  -o F:/generated_audio/line01.mp3
+  --instruct "soft sad, quiet, intimate" --temperature 0.75 \
+  --text "비가 오네. 창밖이 흐려." -o line01.mp3
 
-# 새 목소리 설계 (VoiceDesign 모델 필요)
-python scripts/generate_qwen3_tts.py \
-  --mode design --language Korean \
-  --instruct "20대 한국 여성, 따뜻하고 낮은 톤, 내레이션, 차분함" \
-  --text "그날 오후, 카페 창가에 앉아 있었다." \
-  -o F:/generated_audio/narr.mp3
+# Voice design (모델 첫 실행 시 다운로드 가능)
+python scripts/generate_qwen3_tts.py --mode design --language Korean \
+  --instruct "20대 한국 여성, 낮은 톤 내레이션" \
+  --text "그날 오후…" -o narr.mp3
 
-# 내 목소리 복제 (Base 모델 + ref)
-python scripts/generate_qwen3_tts.py \
-  --mode clone --language Korean \
-  --ref-audio path/to/my_voice_8s.wav \
-  --ref-text "레퍼런스에서 말한 그대로의 문장" \
-  --text "복제된 목소리로 읽을 새 대사" \
-  --model-size 0.6B \
-  -o F:/generated_audio/clone_line.mp3
+# --- 보이스 클론 (본인 / 타인) ---
+python scripts/voice_register.py --id my_voice_v1 --name "Me" \
+  --ref path/to/clean_8s.wav \
+  --ref-text "레퍼런스에서 말한 문장 그대로" --language Korean
 
-# 에피소드 샷에 묶기 + SI2V 준비
+python scripts/generate_qwen3_tts.py --voice-id my_voice_v1 \
+  --text "복제 목소리로 새 대사" -o clone_line.mp3
+
+# 일회성 클론
+python scripts/generate_qwen3_tts.py --mode clone \
+  --ref-audio talent.wav --ref-text "…" --text "…" -o talent.mp3
+
+# 샷 바인딩 + SI2V
 python scripts/episode_tts.py -e my_ep -s S02 \
-  --text "비가 오네. 창밖이 흐려." \
-  --mode custom --speaker Sohee \
-  --instruct "soft sad Korean woman, intimate" \
-  --bind-si2v
-
+  --voice-id my_voice_v1 --text "..." --bind-si2v
 python scripts/episode_s2v.py -e my_ep --shots S02
 ```
 
 ---
 
-## 4. 파일 규약
+## 5. 파일 규약
 
 | 경로 | 용도 |
 |------|------|
+| `voices/<id>/ref.*` + `voice.json` | 등록된 클론 프로필 |
 | `stories/<ep>/audio/dialogue/S0x_qwen3tts.mp3` | 온스크린 대사 |
 | `stories/<ep>/audio/vo/S0x_qwen3tts.mp3` | 내레이션 |
 | `stories/<ep>/audio/exports/s2v_drive/S0x_*.wav` | SI2V driving |
 | `stories/<ep>/meta/S0x_tts.json` | 시드·화자·instruct |
 
-샷 필드:
-- `dialogue` / `vo` — 대본  
-- `audio_refs.tts` — 생성 메타  
-- `audio_refs.driving` — 립싱크 입력  
-- `motion_driver=si2v`  
+샷 필드: `dialogue` / `vo`, `audio_refs.tts`, `audio_refs.driving`, `motion_driver=si2v`
 
 ---
 
-## 5. 한계 · 후속
+## 6. 한계 · 후속
 
 | 항목 | 상태 |
 |------|------|
-| CustomVoice 로컬 | ✅ 설치됨 · CLI ready |
-| VoiceDesign / Base 클론 모델 | 첫 실행 다운로드 가능 |
-| LTX native dialogue-in-one-pass | 문서화; 본선은 **외부 TTS → SI2V** |
-| 캐릭터별 보이스 프로필 bible | 후속 (`voices/<id>/` 또는 character bible) |
-| 멀티 스피커 대화 | `QwenTTSMultiSpeakerNode` 존재 · 배치 후속 |
+| CustomVoice 로컬 | ✅ 1.7B + 튜닝 CLI |
+| Clone 등록 | ✅ `voice_register` + `--voice-id` |
+| Base / VoiceDesign 체크포인트 | 첫 clone·design 시 다운로드 |
+| LTX native dialogue-in-one-pass | 보조; 본선 TTS→SI2V |
+| 캐릭터 bible ↔ voice_id 자동 링크 | 후속 |
 
 ---
 
