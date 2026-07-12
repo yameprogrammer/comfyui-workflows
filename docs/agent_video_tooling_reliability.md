@@ -237,20 +237,90 @@ PR-A (SI2V defaults + format canvas)
 
 | PR | 상태 | 내용 |
 |----|------|------|
-| A | ✅ | `default_backend_s2v=infinitetalk`; SI2V 기본 episode work aspect (`--square` opt-in); TTS bind 말하기 템플릿; generate/episode defaults |
+| A | ✅ | SI2V format 캔버스 (`--square` opt-in); TTS bind 말하기 템플릿; QA/pipeline 골격 |
 | B | ✅ | stem duration spill 검사 (`--strict`); BGM junk 이름 필터 (`_probe`, `_archive`, …) |
 | C | ✅ | `scripts/episode_qa.py` + pipeline `qa` stage |
-| D | ✅ | `episode_pipeline --profile deliver\|preview` |
+| D | ✅ | `episode_pipeline --profile preview\|deliver\|hero` |
 | E | ✅ | 본 문서 + backends notes |
+| Speed | 🔄 | §10 리서치 반영: **기본 SI2V=LTX**, IT는 hero. Comfy 그래프(lightx2v/TeaCache)는 보류 |
 
 ### 에이전트 기본 호출
 
 ```bash
+# 일상 / 납품 루프 (빠름: LTX SI2V)
 python scripts/episode_pipeline.py -e EP --run --from i2v --to assemble --profile deliver
 python scripts/episode_qa.py -e EP --strict
+
+# 히어로 CU 립만 InfiniteTalk (느림 — 컷 수 제한)
+python scripts/episode_s2v.py -e EP --shots S03 --backend infinitetalk --profile-params
+# 또는 pipeline
+python scripts/episode_pipeline.py -e EP --run --from s2v --to s2v --profile hero --shots ...
 ```
 
-- **deliver**: InfiniteTalk SI2V, format 캔버스, assemble layered bake, QA strict  
-- **preview**: LTX SI2V 빠른 프리뷰, QA soft  
+| profile | SI2V | 속도 | 용도 |
+|---------|------|------|------|
+| **preview** | LTX | ★★★★★ | 탐색·스모크 |
+| **deliver** (default) | **LTX** | ★★★★★ | 에이전트 실무 기본 (말하기 프롬프트 강제) |
+| **hero** | InfiniteTalk | ★★ | 얼굴 CU 최종 립 (해상도/fps/steps 축소 적용) |
 
-다음 개선(비차단): format-일치 SI2V 재생성으로 ASPECT_MISMATCH 경고 제거, upscale 기본 경로.
+---
+
+## 10. SI2V 속도 리서치 · 정책 (2026-07-12)
+
+### 10.1 측정·체감 (이 머신 / RTX 4090급)
+
+| 경로 | 대략 | 설정 예 |
+|------|------|---------|
+| LTX `ltx23_ia2v` | **~1–2 min / 5s** | distilled GGUF, custom-audio |
+| InfiniteTalk (풀) | **~10–12+ min / 4–5s** | 960×544, 25fps, **20 steps**, lightx2v **미적용** |
+
+→ 대사 컷을 전부 IT 풀퀄로 돌리면 **에이전트 반복 루프 불가**에 가깝다.
+
+### 10.2 느린 이유 (현재 IT 그래프)
+
+- Wan2.1 **14B** + InfiniteTalk 패치  
+- 고해상(960×544) × 고 fps(25) × 다수 프레임(~100)  
+- steps=20, **distill LoRA 미연결**  
+- TeaCache / SageAttention 미적용  
+
+### 10.3 커뮤니티·문서에서 알려진 가속 (우선순위)
+
+| 방법 | 기대 | 위험/메모 | 우리 적용 |
+|------|------|-----------|-----------|
+| **lightx2v I2V distill LoRA + 4–8 steps** | 큰 폭 (수 배) | LoRA 없으면 저 step 품질 붕괴 | **로컬 LoRA 있음** (`Wan2.1/Wan21_I2V_14B_lightx2v_…`). **그래프 배선은 Comfy 직접 변경 → 보류** |
+| 해상도 480p~832 long-edge | ~2× | 얼굴 디테일↓ | ✅ CLI: hero `long_edge=832` |
+| fps 25→16 | ~1.5× | 보간 후처리 가능 | ✅ hero `fps=16` |
+| steps 20→12 (LoRA 없이 중간값) | ~1.5× | 립/디테일 약간↓ 가능 | ✅ hero `steps=12` |
+| 대사 2–3s 제한 | 선형 | 연출 제약 | 정책 권장 (strict spill과 맞음) |
+| TeaCache / SageAttention | ~1.3–2× | 노드·호환 | **보류** (Comfy 커스텀 경로) |
+| LTX를 기본 루프로 | 구조적 해결 | 립 상한 IT보다 낮을 수 있음 | ✅ **default SI2V = LTX** |
+
+참고 링크·맥락: InfiniteTalk+lightx2v 4step, TeaCache on Wan, LTX vs IT 속도 비교 커뮤니티 리포트 (2025–2026).
+
+### 10.4 정책 결정
+
+1. **에이전트 기본 SI2V = `ltx23_ia2v`**  
+   - 말하기 motion 템플릿 강제 유지 (입 안 벌림 재발 방지)  
+   - format-consistent work aspect  
+2. **InfiniteTalk = `hero` 프로필 / 명시적 `--backend infinitetalk`**  
+   - 히어로 CU 1–2컷  
+   - 기본 파라미터를 **조금 낮춤** (832 / 16fps / 12step) — 그래프 수정 없이  
+3. **Comfy 그래프 변경 (lightx2v 노드 삽입, TeaCache) = 후순위**  
+   - 위험·회귀 큼 → 파라미터/프로필 안정화 후 별도 작업  
+
+### 10.5 다음에 안전하게 할 수 있는 작업 (Comfy 비침습)
+
+- [x] 문서화 (본 절)  
+- [x] profile 재정의: preview / deliver=LTX, hero=IT  
+- [x] IT 호출 시 steps/fps/long_edge 기본 완화  
+- [ ] 샷 단위 타이밍 로그 (`meta/*_s2v.json`에 `elapsed_sec`)  
+- [ ] 대사 권장 최대 초 정책 (TTS/QA 경고)  
+- [ ] lightx2v 그래프 배선 스모크 (별도 PR, Comfy 주의)
+
+### 10.6 로컬 가속 자산 (배선 대기)
+
+```
+ComfyUI/models/loras/Wan2.1/Wan21_I2V_14B_lightx2v_cfg_step_distill_lora_rank64.safetensors
+```
+
+→ InfiniteTalk `WanVideoModelLoader` 경로에 LoRA 연결 시 4–8 step 실험 가능. **지금은 연결하지 않음.**

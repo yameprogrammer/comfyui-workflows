@@ -37,25 +37,45 @@ STAGES = [
     "package",
 ]
 
-# Agent profiles — narrow highway defaults (see docs/agent_video_tooling_reliability.md)
+# Agent profiles — speed-aware highway (docs/agent_video_tooling_reliability.md §10)
+# Comfy graph accel (lightx2v/TeaCache) deferred; params only.
 PROFILES = {
-    "deliver": {
-        "s2v_backend": "infinitetalk",
-        "s2v_prepare_mode": "center_voicey",
-        "s2v_square": False,
-        "s2v_audio_scale": 2.0,
-        "assemble_stage": "work",
-        "qa_strict": True,
-        "notes": "Best lips + format-consistent SI2V; bake assemble + QA gate",
-    },
     "preview": {
         "s2v_backend": "ltx23_ia2v",
         "s2v_prepare_mode": "center_voicey",
         "s2v_square": False,
         "s2v_audio_scale": 1.5,
+        "s2v_fps": 25.0,
+        "s2v_steps": 20,
+        "s2v_long_edge": 960,
         "assemble_stage": "work",
         "qa_strict": False,
-        "notes": "Fast LTX SI2V preview; QA warnings only",
+        "notes": "Fast LTX SI2V; explore/smoke",
+    },
+    "deliver": {
+        "s2v_backend": "ltx23_ia2v",
+        "s2v_prepare_mode": "center_voicey",
+        "s2v_square": False,
+        "s2v_audio_scale": 1.5,
+        "s2v_fps": 25.0,
+        "s2v_steps": 20,
+        "s2v_long_edge": 960,
+        "assemble_stage": "work",
+        "qa_strict": True,
+        "notes": "Agent default ship path: LTX SI2V (~1–2min/cut) + speaking prompts + QA strict",
+    },
+    "hero": {
+        "s2v_backend": "infinitetalk",
+        "s2v_prepare_mode": "center_voicey",
+        "s2v_square": False,
+        "s2v_audio_scale": 2.0,
+        # Speed knobs without Comfy graph edits (lightx2v wire still deferred)
+        "s2v_fps": 16.0,
+        "s2v_steps": 12,
+        "s2v_long_edge": 832,
+        "assemble_stage": "work",
+        "qa_strict": True,
+        "notes": "InfiniteTalk lips for 1–2 hero CU; 832/16fps/12step. Still minutes/cut — do not batch all shots.",
     },
 }
 
@@ -103,7 +123,7 @@ def main(argv=None) -> int:
         "--profile",
         choices=list(PROFILES.keys()),
         default="deliver",
-        help="Agent profile: deliver (default, InfiniteTalk) | preview (fast LTX)",
+        help="Agent profile: deliver|preview (LTX, fast) | hero (InfiniteTalk lips, slow)",
     )
     parser.add_argument("--i2v-backend", default=None)
     parser.add_argument(
@@ -233,7 +253,13 @@ def main(argv=None) -> int:
                 "--prepare-mode",
                 args.s2v_prepare_mode,
                 "--audio-scale",
-                str(profile.get("s2v_audio_scale", 2.0)),
+                str(profile.get("s2v_audio_scale", 1.5)),
+                "--fps",
+                str(profile.get("s2v_fps", 25.0)),
+                "--steps",
+                str(int(profile.get("s2v_steps", 20))),
+                "--long-edge",
+                str(int(profile.get("s2v_long_edge", 960))),
             ]
             if args.s2v_backend:
                 argv2.extend(["--backend", args.s2v_backend])

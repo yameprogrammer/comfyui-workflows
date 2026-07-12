@@ -2,7 +2,7 @@
   "version": 3,
   "description": "I2V backend + format SSOT. Deliver pixel tiers (deliver_1080/2160…) live in upscale_backends.json; format only picks aspect. See docs/video_delivery_and_backends.md",
   "default_backend": "wan22",
-  "default_backend_s2v": "infinitetalk",
+  "default_backend_s2v": "ltx23_ia2v",
   "default_format": "cinematic_16x9",
   "default_work_preset": "work_16x9_540",
   "default_deliver_tier": "deliver_1080",
@@ -173,16 +173,16 @@
       "kind": "s2v",
       "engine": "Wan 2.1 I2V + InfiniteTalk (WanVideoWrapper)",
       "workflow": "scripts/generate_s2v.py --backend infinitetalk",
-      "strengths": ["lip_sync", "talking_head", "music_video_vocal_cut", "long_dialogue", "face_stability"],
-      "notes": "DEFAULT SI2V for agent deliver path (2026-07-12). Best lip lock with center_voicey driving. Prefer episode work aspect (not square) for format consistency. Slower (~10–12min/5s)."
+      "strengths": ["lip_sync", "talking_head", "music_video_vocal_cut", "face_stability", "hero_cut"],
+      "notes": "HERO lips only (not agent default). Best lip lock; full 960@20step ~10–12min/5s on 4090. Use --profile hero (832/16fps/12step, still no lightx2v graph). lightx2v LoRA exists locally but graph wire deferred."
     },
     "ltx23_ia2v": {
       "status": "ready",
       "kind": "s2v",
       "engine": "LTX 2.3 distilled GGUF + custom audio AV latent",
       "workflow": "scripts/generate_s2v.py --backend ltx23_ia2v",
-      "strengths": ["fast_iteration", "custom_audio_i2v", "preview"],
-      "notes": "PREVIEW/fast only — not agent default. Custom-Audio IA2V ~1–2min/5s. Lip quality less reliable than InfiniteTalk; use --profile preview or --backend ltx23_ia2v explicitly."
+      "strengths": ["fast_iteration", "custom_audio_i2v", "agent_default", "preview", "deliver"],
+      "notes": "DEFAULT agent SI2V (2026-07-12 speed policy). ~1–2min/5s. Require speaking motion prompts (anti still/blink-only). Format work aspect. InfiniteTalk = hero profile for CU lips."
     },
     "wan_s2v": {
       "status": "planned",

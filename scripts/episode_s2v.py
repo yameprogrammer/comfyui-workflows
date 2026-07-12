@@ -134,22 +134,32 @@ def main(argv=None) -> int:
     parser.add_argument(
         "--long-edge",
         type=int,
-        default=960,
-        help="Cap long edge when scaling work size (default 960, matches work_16x9_540)",
+        default=None,
+        help="Cap long edge (default 960 LTX / 832 InfiniteTalk hero)",
     )
     parser.add_argument(
         "--force-audio",
         action="store_true",
         help="Rebuild cached prepared driving wavs",
     )
-    parser.add_argument("--fps", type=float, default=25.0)
-    parser.add_argument("--steps", type=int, default=20)
+    parser.add_argument(
+        "--fps",
+        type=float,
+        default=None,
+        help="Frame rate (default 25 LTX / 16 InfiniteTalk hero)",
+    )
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=None,
+        help="Sampler steps (LTX unused schedule; IT default 12 without lightx2v)",
+    )
     parser.add_argument("--cfg", type=float, default=1.0)
     parser.add_argument(
         "--audio-scale",
         type=float,
-        default=2.0,
-        help="InfiniteTalk audio_scale (default 2.0 for stronger lips)",
+        default=None,
+        help="InfiniteTalk audio_scale (default 1.5 LTX path / 2.0 IT)",
     )
     parser.add_argument("--timeout", type=int, default=3600)
     parser.add_argument("--dry-run", action="store_true")
@@ -219,10 +229,24 @@ def main(argv=None) -> int:
     except (KeyError, ValueError, RuntimeError) as e:
         print(f"[ERROR] code=2 s2v backend: {e}", file=sys.stderr)
         return EXIT_USAGE
+
+    # Backend-aware speed defaults (no Comfy graph edits).
+    if backend == "infinitetalk":
+        fps = float(args.fps if args.fps is not None else 16.0)
+        steps = int(args.steps if args.steps is not None else 12)
+        audio_scale = float(args.audio_scale if args.audio_scale is not None else 2.0)
+        long_edge = int(args.long_edge if args.long_edge is not None else 832)
+    else:
+        fps = float(args.fps if args.fps is not None else 25.0)
+        steps = int(args.steps if args.steps is not None else 20)
+        audio_scale = float(args.audio_scale if args.audio_scale is not None else 1.5)
+        long_edge = int(args.long_edge if args.long_edge is not None else 960)
+
     print(
         f"episode_s2v episode={args.episode} backend={backend} "
         f"shots={len(selected)} skipped={len(skipped)} "
-        f"prepare={args.prepare_mode} fps={args.fps} steps={args.steps}"
+        f"prepare={args.prepare_mode} fps={fps} steps={steps} "
+        f"long_edge={long_edge} audio_scale={audio_scale}"
     )
 
     ok = 0
@@ -257,7 +281,7 @@ def main(argv=None) -> int:
             )
             print(f"  [si2v] using speaking motion prompt (overrode non-talk I2V prompt)")
         width, height = _work_size(
-            story, shot, args.long_edge, square=bool(args.square)
+            story, shot, long_edge, square=bool(args.square)
         )
         meta_path = story.path("meta", f"{sid}_s2v.json")
 
@@ -299,6 +323,9 @@ def main(argv=None) -> int:
             ok += 1
             continue
 
+        import time as _time
+
+        t0 = _time.time()
         result = generate_s2v(
             kf_path,
             audio_path,
@@ -307,15 +334,16 @@ def main(argv=None) -> int:
             prompt=motion,
             width=width,
             height=height,
-            fps=args.fps,
-            steps=args.steps,
+            fps=fps,
+            steps=steps,
             cfg=args.cfg,
-            audio_scale=args.audio_scale,
+            audio_scale=audio_scale,
             seed=args.seed,
             timeout_sec=args.timeout,
             meta_out=meta_path,
             dry_run=False,
         )
+        elapsed = _time.time() - t0
 
         if result.get("ok"):
             ok += 1
@@ -328,8 +356,28 @@ def main(argv=None) -> int:
                 s2v_backend=backend,
                 s2v_prepare_mode=args.prepare_mode,
                 s2v_driving_audio=os.path.relpath(audio_path, story.root).replace("\\", "/"),
+                s2v_elapsed_sec=round(elapsed, 2),
+                s2v_size=f"{width}x{height}",
+                s2v_fps=fps,
+                s2v_steps=steps,
             )
-            print(f"  OK {clip_path}")
+            print(f"  OK {clip_path} elapsed={elapsed:.1f}s")
+            # Patch meta with timing if present
+            try:
+                if meta_path and os.path.isfile(meta_path):
+                    import json as _json
+
+                    with open(meta_path, encoding="utf-8") as f:
+                        meta = _json.load(f)
+                    meta["elapsed_sec"] = round(elapsed, 2)
+                    meta["width"] = width
+                    meta["height"] = height
+                    meta["fps"] = fps
+                    meta["steps"] = steps
+                    with open(meta_path, "w", encoding="utf-8") as f:
+                        _json.dump(meta, f, ensure_ascii=False, indent=2)
+            except Exception:
+                pass
         else:
             fail += 1
             story.update_shot(
@@ -337,8 +385,9 @@ def main(argv=None) -> int:
                 s2v_status="failed",
                 s2v_error=result.get("error"),
                 s2v_at=utc_now_iso(),
+                s2v_elapsed_sec=round(elapsed, 2),
             )
-            print(f"  FAIL {result.get('error')} {result.get('message')}")
+            print(f"  FAIL {result.get('error')} {result.get('message')} elapsed={elapsed:.1f}s")
             if args.stop_on_error:
                 break
 
