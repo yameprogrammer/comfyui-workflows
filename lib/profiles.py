@@ -57,14 +57,19 @@ def size_for_sheet(profile: dict, sheet: str, view: str | None = None) -> tuple[
         key = "turnaround"
     elif sheet == "costume":
         key = "costume"
-        if view and str(view).startswith("detail"):
-            key = "expression"
+        v = str(view or "")
+        if v.startswith("detail") or v in ("flat_front", "flat_back", "callout"):
+            key = "expression"  # square-ish product / detail
     elif sheet == "pose":
         key = "pose"
     elif sheet == "head":
         key = "head" if "head" in sizes else "expression"
     elif sheet == "props":
         key = "props" if "props" in sizes else "expression"
+        v = str(view or "")
+        if v in ("hero", "turn_3view"):
+            # wide-ish product sheet; use props size or expression square
+            key = "props" if "props" in sizes else "expression"
     pair = sizes.get(key) or sizes.get("master_face") or [1024, 1024]
     return int(pair[0]), int(pair[1])
 

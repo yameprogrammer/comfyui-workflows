@@ -33,6 +33,9 @@ APPROVE_ALIASES = {
     "expr_angry",
     "expr_surprise",
     "expr_think",
+    "costume_flat_front",
+    "costume_flat_back",
+    "costume_callout",
     "costume_default",
     "costume_alt1",
     "costume_detail_upper",
@@ -44,6 +47,8 @@ APPROVE_ALIASES = {
     "pose_hands_hips",
     "pose_wave",
     "pose_look_aside",
+    "prop_hero",
+    "prop_turn_3view",
     "prop_hand_item",
 }
 

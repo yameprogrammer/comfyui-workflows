@@ -276,12 +276,30 @@ approved keyframe
 | `scripts/episode_upscale.py` | work→deliver 배치 |
 
 ```bash
-python scripts/story_init.py --id mina_cafe_ep01 --format cinematic_16x9
-python scripts/shot_compose.py --episode mina_cafe_ep01 --shot S01
+# 0) Asset packs ready: character full_sheet + location full_sheet + look
+# 1) Episode
+python scripts/story_init.py --id mina_cafe_ep01 --format cinematic_16x9 \
+  --look cinematic_moody_v1 --seed-shots 3
+
+# 2) Edit shots.json: action, shot_type, character_ids, location_id,
+#    optional character_ref_alias / location_ref_alias / motion_prompt
+
+# 3) Production keyframes (community: bake stills first @ episode format)
+python scripts/shot_compose.py --episode mina_cafe_ep01 --all
+
+# 4) Human board package (contact + inventory)
+python scripts/storyboard_export.py --episode mina_cafe_ep01
+# → stories/<ep>/board/storyboard_contact.png
+
+# 5) Gate
 python scripts/shot_approve.py --episode mina_cafe_ep01 --shot S01
+
+# 6) Motion (prompt = motion only; identity from keyframe pixels)
 python scripts/episode_i2v.py --episode mina_cafe_ep01 --shots all_approved
-python scripts/episode_upscale.py --episode mina_cafe_ep01 --preset deliver_1080 --backend seedvr2
+python scripts/episode_upscale.py --episode mina_cafe_ep01 --preset deliver_1080
 ```
+
+커뮤니티 리서치 SSOT: [storyboard_keyframe_community_research.md](storyboard_keyframe_community_research.md)
 
 ---
 
@@ -318,11 +336,12 @@ python scripts/episode_upscale.py --episode mina_cafe_ep01 --preset deliver_1080
 | **S1** | `stories/_template` + shots.schema.json | S0 | ✅ |
 | **S2** | `story_init` + shots.json | S1 | ✅ |
 | **S3** | `shot_compose` (look+char+loc → keyframe) | S2, L2, character L2 | ✅ |
-| **S4** | `shot_approve` (+ contact sheet later) | S3 | ✅ approve / contact ⬜ |
+| **S4** | `shot_approve` (+ contact sheet later) | S3 | ✅ approve |
 | **S5** | `episode_i2v` 배치 | S4, generate_i2v | ✅ |
-| **S6** | first–last continuity 옵션 | S5 | ⬜ |
-| **S7** | board panels / animatic | S2 | ✅ contact_sheet / animatic ⬜ |
+| **S6** | first–last continuity 옵션 | S5 | ⬜ (필드·meta 준비, 배치 후속) |
+| **S7** | board contact / inventory export | S2 | ✅ `storyboard_export.py` |
 | **S8** | episode upscale + assemble 연동 | S5, D4/D5 | ✅ |
+| **S9** | shot_type별 approved ref 바인딩 + 커뮤니티 SOP | S3 | ✅ (2026-07-12 research) |
 
 ---
 

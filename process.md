@@ -4,10 +4,36 @@
 
 ---
 
-## ⏸ HANDOFF — 이어서 할 작업 (2026-07-12 외출 체크포인트)
+## 🎯 수정 목표 (시트 품질 — 사용자 확정 2026-07-12)
+
+캐릭터 시트 품질 개선 **DoD 3종**. 공정에 슬롯이 있는 것과 별개로, **육안으로 통과**해야 완료.
+
+| # | 목표 | 합격 기준 (육안) | 실패 예 |
+|---|------|------------------|---------|
+| **1** | 풀바디 생성 시 **가이드/본 안 보이게** | 최종 PNG에 OpenPose 스틱·박스·관절 가이드 **잔상 0** | 몸에 색 선/스틱 오버레이 |
+| **2** | **감정 헤드** + **방향 턴 헤드** 확실히 | 표정 6종 서로 구분 가능 · head front/qf/side/back **방향 전환 확실** | 전부 비슷한 정면 미소 · side/back이 정면 |
+| **3** | **바디 프로필용 풀바디 다방향 턴** | body turn front/qf/side/back **각도 다양·전신 유지** | 전 컷 정면 전신 · 측면인데 정면 얼굴 |
+
+### 기술 메모 (구현 시)
+* **#1**: pose ControlNet = OpenPose RGB 맵만 (Canny 스틱 금지) · strength 과다 시 스틱 베이크
+* **#2-expr**: Moody I2I 표정 유지 (expression chart 분리)
+* **#2/#3 turn (공정 기본 = Qwen multi-angles)**:  
+  - **Qwen-Image-Edit-2511** + Lightning 4step + Multiple-Angles LoRA (`<sks> azimuth elevation distance`)
+  - head: master_front → 4 view · body: master_full → 4 view  
+  - 정면 Moody I2I / OpenPose-only 턴은 **레거시** (정면 고착·누드/아티팩트 실패 다수)  
+  - CLI: `python scripts/character_qwen_turns.py --id <id> --mode both --approve`  
+  - expand 연동: `sheet_presets` head/turnaround `engine=qwen` · `character_full_sheet.py --run`  
+  - 폴백: OpenPose multiview strip / `character_turnaround_sheet.py`
+
+### 검증 캐릭터
+`sonagi_heroine_v1` · profile `full_sheet` · look `cinematic_moody_v1`
+
+---
+
+## ⏸ HANDOFF — 이어서 할 작업 (2026-07-12)
 
 ### 지금 상태 한 줄
-**캐릭터 시트 공정은 `full_sheet` 풀팩으로 정리됨.** 포즈 품질은 레거시 스틱+Canny가 깨져서 **OpenPose 맵 → Union CN** 으로 전환 중. 스모크(walk)는 아티팩트 없이 개선 확인. **turn/pose 전체 재생성 배치가 진행 중이었음** (seed 96001).
+**B2 wardrobe/props 잠금 + 순서 고정 공정 READY.** 턴=Qwen. 소나기: cream cardigan 룩 잠금 → costume/body turn/props 재생성 완료. pose는 아직 구 의상(검정 티) — 필요 시 `--phases rest` 또는 pose만 재생성.
 
 ### 파일럿 캐릭터
 | 항목 | 값 |
@@ -16,35 +42,29 @@
 | character_id | `sonagi_heroine_v1` |
 | look | `cinematic_moody_v1` |
 | profile (시트 공정) | **`full_sheet`** (video_ref는 thin only) |
-| 리뷰 그리드 | `characters/sonagi_heroine_v1/exports/full_sheet/review_*.png` |
+| Qwen 턴 리뷰 | `exports/full_sheet/review_qwen_turns_both.png` |
+| 풀 패키지 리뷰 | `exports/full_sheet/review_FULL_PACKAGE.png` |
 | PNG | gitignore (`*.png`) — 로컬에만 존재 |
 
 ### 다음에 이어서 (우선순위)
-1. **OpenPose 재생성 재개** (Task1 종료됨 — turn 4장은 나왔을 수 있음, pose 미완)  
+1. **육안 검수** Qwen head/body 턴 (`review_02_head_turn.png`, `review_03_body_turn.png`, `review_qwen_turns_both.png`)  
+2. 통과 시: expression/costume/pose 기존 유지, FULL_PACKAGE 재export만  
+3. 턴 재생성 필요 시:
    ```bash
-   # pose만 이어서 (turn 이미 있으면)
-   python scripts/character_expand_sheets.py --id sonagi_heroine_v1 \
-     --sheets pose --profile full_sheet --engine auto \
-     --model pro --candidates 1 --seed-base 96005 --ensure-fullbody
-   # turn 재확인/재생성 필요 시: --sheets turnaround,pose --seed-base 96001
+   python scripts/character_qwen_turns.py --id sonagi_heroine_v1 --mode both --seed-base 100801 --approve
    python scripts/character_full_sheet.py --id sonagi_heroine_v1 --approve-only
    ```
-2. **육안 검수** turn/pose 그리드 — 스틱 아티팩트 사라졌는지, side/back 각도 유효한지  
-3. **품질 후속 (미완)**  
-   - head turn 각도 (아직 거의 정면)  
-   - OpenPose 맵 품질 (합성 BODY_18 vs 실사 extract `openpose_extracted_master_full.png`)  
-   - 실사 포즈 레퍼 → DWPose extract → CN (커뮤니티 패턴 강화)  
-4. **ipadapter** 코드 유지, 공정 SOP 미사용 유지
+4. pose 세부 품질 / 피부 플라스틱 후속 (expr 코어 태그는 반영됨)
+5. **ipadapter** 코드 유지, 공정 SOP 미사용 유지
 
 ### 핵심 코드/문서
 | 경로 | 역할 |
 |------|------|
-| `characters/profiles.json` | `full_sheet` 공정 프로필 |
-| `characters/sheet_presets.json` | full_pack 26 + control_preprocess=openpose |
-| `lib/openpose_maps.py` | OpenPose 맵 합성 + Comfy python extract |
-| `lib/pose_templates.py` | ensure → openpose 맵 우선 |
-| `scripts/generate_moody_controlnet.py` | openpose/raw 시 **Canny 생략** |
-| `scripts/character_full_sheet.py` | expand+approve+review 원샷 |
+| `scripts/generate_qwen_angle.py` | Qwen-Image-Edit-2511 multi-angle API graph |
+| `scripts/character_qwen_turns.py` | head/body 4+4 배치 + approve |
+| `scripts/character_expand_sheets.py` | `engine=qwen` + auto 프리셋 연동 |
+| `scripts/character_full_sheet.py` | expand+approve+review (turn 기본 qwen) |
+| `characters/sheet_presets.json` | head/turnaround `engine=qwen` (v1.2) |
 | `docs/character_casting_pipeline.md` | C = full_sheet SOP |
 | `agent_rules.md` Rule 6.2 | 풀시트 공정 규칙 |
 
@@ -56,6 +76,65 @@
 ---
 
 ## 📅 작업 이력 로그
+
+### [2026-07-12] 스토리보드·키프레임 커뮤니티 리서치 → 공정 반영
+* **작업 에이전트**: Grok
+* **리서치**: YT/커뮤니티/벤더 (Topview asset cards, Kling keyframe-first, Runway/Luma multi-keyframe, Reddit bake-keyframes-first, FLF2V, location docs)
+* **문서**: `docs/storyboard_keyframe_community_research.md`
+* **구현 반영**:
+  * `stories/shot_type_presets.json` v2 — shot_type별 char/loc approved alias 우선순위 + i2v_hint
+  * `shot_compose.py` — 타입 기반 ref 바인딩, wardrobe_lock, motion_prompt 제안, I2V 규칙 meta
+  * `storyboard_export.py` — contact sheet + inventory + checklist (`board/`)
+  * Rule 6.1 / storyboard design SOP / scripts README
+* **운영 포맷**: asset packs → shots.json → keyframes/*.png → board/storyboard_contact.png → approve → I2V
+
+### [2026-07-12] 로케이션 시트 L3 파일럿 + full_sheet 원샷
+* **작업 에이전트**: Grok
+* **상태**: 인프라(L1–L2)는 이미 있었고 MVP 미완 → 보완
+* **구현**:
+  * `scripts/location_full_sheet.py` — expand + auto-approve + review grids
+  * expand: bible `landmarks` 주입 (prop_a/b)
+  * auto-approve 엄격 매칭 (wrong alias 방지)
+* **파일럿 `cafe_seoul_v1`**: video_ref MVP 완료 L2, missing_mvp=[]
+  * angles eye/reverse/high/low + empty_stage
+  * lighting day/golden
+  * landmarks a/b
+  * 리뷰: `locations/cafe_seoul_v1/exports/video_ref/review_*.png`
+* **후속**: ControlNet 각도 강화(L4), 소나기용 로케 추가, shot_compose 연동 검수
+
+### [2026-07-12] B2.5 off-body design plates (의상 flat/callout + 소품 hero/3view)
+* **작업 에이전트**: Grok
+* **추가**: 사람 없는 의상·소품 디자인 플레이트
+  * `costume.flat_front` / `flat_back` / `callout` (T2I product)
+  * `props.hero` / `props.turn_3view` (T2I product)
+  * on-model `props.hand_item` 유지
+* **공정**: full_sheet Phase B2.5 `design_pack` → 이후 on-model costume
+* **시트**: `sheet_presets` v1.4, expand engine `t2i`, full_sheet `--phases design`
+* **MVP**: full_sheet aliases +5 (flat×2, callout, prop_hero, prop_turn_3view)
+
+### [2026-07-12] B2 wardrobe/props 잠금 + full_sheet 생성 순서 재배열
+* **작업 에이전트**: Grok
+* **문제**: 의상 일관성 붕괴 — face 직후 full_pack 일괄, wardrobe/props 선결정 없음, detail/props 하드코딩
+* **구현**:
+  * `lib/wardrobe.py` + `scripts/character_set_wardrobe.py` (B2)
+  * bible: `props_default`, `wardrobe_locked`, consistency must_keep default wardrobe
+  * expand: bible 주입 (costume/detail/pose/props), costume_default 소스 우선
+  * `character_full_sheet.py`: wardrobe 게이트 + Phase0 master_full →1 costume →2 Qwen turns →3 rest
+  * sheet_presets v1.3 full_pack 순서 costume-first · wardrobe_pack/body_pack
+  * promote optional `--wardrobe-default` / casting SOP Rule 6.2 갱신
+
+### [2026-07-12] Qwen multi-angles → 캐릭터 시트 턴 기본 경로
+* **작업 에이전트**: Grok
+* **문제**: Moody OpenPose head/body 턴 시트 엉망 (정면 고착·아티팩트)
+* **해결**: 로컬 Qwen-Image-Edit-2511 + Lightning + Multiple-Angles LoRA 를 공정 기본으로 편입
+* **구현**:
+  * `generate_qwen_angle.py` / `character_qwen_turns.py`
+  * `sheet_presets` head.* / turnaround.* → `engine=qwen`, `qwen_view=…`
+  * `character_expand_sheets.py` engine `qwen` 분기
+  * `character_full_sheet.py` turn 기본 qwen + approve 시 `qwen_*` 우선
+  * Rule 6.2 / casting SOP / process 목표 메모 갱신
+* **파일럿**: `sonagi_heroine_v1` Qwen 8/8 ok, approve head_* + turn_*
+* **리뷰**: `exports/full_sheet/review_qwen_turns_both.png`
 
 ### [2026-07-12] OpenPose 포즈 경로 전환 (품질 개선 착수) + 체크포인트
 * **작업 에이전트**: Grok

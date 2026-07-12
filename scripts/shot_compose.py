@@ -96,36 +96,87 @@ def _compose_all(args) -> int:
     return EXIT_OK
 
 
-def resolve_character_ref(pkg: CharacterPackage, shot: dict, character_id: str) -> str | None:
+def _approved_alias_path(pkg, alias: str) -> str | None:
+    """Character or location package: approved/<alias>.png or manifest path."""
+    p = pkg.path("approved", f"{alias}.png")
+    if os.path.isfile(p):
+        return p
+    approved = (pkg.manifest.get("approved") or {}).get(alias)
+    if approved:
+        path = pkg.resolve(approved.get("path") or f"approved/{alias}.png")
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def resolve_character_ref(
+    pkg: CharacterPackage,
+    shot: dict,
+    character_id: str,
+    *,
+    alias_priority: list[str] | None = None,
+) -> str | None:
+    """
+    Community practice: bind the right sheet plate to the shot type.
+    Priority: shot.character_refs → shot.character_ref_alias → type aliases → defaults.
+    """
     refs = shot.get("character_refs") or {}
     rel = refs.get(character_id)
     if rel:
         path = pkg.resolve(rel)
         if os.path.isfile(path):
             return path
-    for rel in (
-        "approved/master_front.png",
-        "approved/expr_neutral.png",
-        "approved/master_full.png",
+
+    alias = shot.get("character_ref_alias")
+    if alias:
+        path = _approved_alias_path(pkg, str(alias))
+        if path:
+            return path
+
+    for a in alias_priority or []:
+        path = _approved_alias_path(pkg, a)
+        if path:
+            return path
+
+    for a in (
+        "master_front",
+        "expr_neutral",
+        "costume_default",
+        "master_full",
     ):
-        p = pkg.resolve(rel)
-        if os.path.isfile(p):
-            return p
+        path = _approved_alias_path(pkg, a)
+        if path:
+            return path
     return pkg.default_source_ref()
 
 
-def resolve_location_ref(pkg: LocationPackage, shot: dict) -> str | None:
+def resolve_location_ref(
+    pkg: LocationPackage,
+    shot: dict,
+    *,
+    alias_priority: list[str] | None = None,
+) -> str | None:
     rel = shot.get("location_ref")
     if rel:
         path = pkg.resolve(rel)
         if os.path.isfile(path):
             return path
-    for alias in ("empty_stage", "master_wide", "angle_eye"):
-        approved = (pkg.manifest.get("approved") or {}).get(alias)
-        if approved:
-            p = pkg.resolve(approved["path"])
-            if os.path.isfile(p):
-                return p
+
+    alias = shot.get("location_ref_alias")
+    if alias:
+        path = _approved_alias_path(pkg, str(alias))
+        if path:
+            return path
+
+    for a in alias_priority or []:
+        path = _approved_alias_path(pkg, a)
+        if path:
+            return path
+
+    for a in ("empty_stage", "master_wide", "angle_eye"):
+        path = _approved_alias_path(pkg, a)
+        if path:
+            return path
     return pkg.default_source_ref()
 
 
@@ -243,10 +294,14 @@ def main(argv=None) -> int:
     types = load_shot_types()
     type_meta = types.get(shot_type) or {}
     framing = type_meta.get("framing") or ""
+    char_alias_priority = list(type_meta.get("character_ref_aliases") or [])
+    loc_alias_priority = list(type_meta.get("location_ref_aliases") or [])
+    i2v_hint = (type_meta.get("i2v_hint") or "").strip()
 
     char_cores: list[str] = []
     char_negs: list[str] = []
     char_source: str | None = None
+    wardrobe_lock = ""
     for cid in char_ids:
         if not validate_character_id(cid):
             print(f"[ERROR] code=2 bad character id {cid}", file=sys.stderr)
@@ -260,8 +315,14 @@ def main(argv=None) -> int:
             print(f"[WARN] character {cid} status=draft — prefer approved package")
         char_cores.append(cpkg.read_positive_core())
         char_negs.append(cpkg.read_negative_core())
+        app = cpkg.bible.get("appearance") or {}
+        w = (app.get("wardrobe_default") or "").strip()
+        if w and not wardrobe_lock:
+            wardrobe_lock = w
         if char_source is None:
-            char_source = resolve_character_ref(cpkg, shot, cid)
+            char_source = resolve_character_ref(
+                cpkg, shot, cid, alias_priority=char_alias_priority
+            )
 
     loc_core = ""
     loc_neg = ""
@@ -277,7 +338,9 @@ def main(argv=None) -> int:
             if arch:
                 loc_core = assemble_prompt(core=loc_core, instruction=arch)
             loc_neg = lpkg.read_negative_core()
-            loc_source = resolve_location_ref(lpkg, shot)
+            loc_source = resolve_location_ref(
+                lpkg, shot, alias_priority=loc_alias_priority
+            )
         except FileNotFoundError:
             # Soft: allow compose from action text until location pack exists
             print(
@@ -294,7 +357,6 @@ def main(argv=None) -> int:
             source = loc_source or char_source
         else:
             source = char_source or loc_source
-
     mode = args.mode
     if mode == "auto":
         mode = "i2i" if source and os.path.isfile(source) else "t2i"
@@ -307,21 +369,28 @@ def main(argv=None) -> int:
     ]
     cam_text = ", ".join(b for b in cam_bits if b)
 
+    wardrobe_clause = f"wearing {wardrobe_lock}" if wardrobe_lock else ""
     appearance = assemble_prompt(
         core=look_pos,
         instruction=assemble_prompt(
             core=", ".join(char_cores),
-            instruction=loc_core,
+            instruction=assemble_prompt(
+                core=loc_core,
+                instruction=action,
+                style_lock=wardrobe_clause,
+            ),
             style_lock=framing,
-            quality_tags=action,
             suffix=cam_text,
         ),
-        quality_tags="cinematic still suitable for later animation, highly detailed, sharp focus",
+        quality_tags=(
+            "cinematic production keyframe still for later image-to-video, "
+            "highly detailed, sharp focus, locked identity and wardrobe"
+        ),
     )
     negative = assemble_prompt(
         core=look_neg,
         instruction=", ".join(char_negs + ([loc_neg] if loc_neg else [])),
-        suffix="watermark, text, logo, morphing face, identity shift",
+        suffix="watermark, text, logo, morphing face, identity shift, different person",
     )
 
     model = args.model or story.doc.get("default_model") or "pro"
@@ -355,16 +424,25 @@ def main(argv=None) -> int:
         if not source or not os.path.isfile(source):
             print("[ERROR] code=20 I2I needs source ref", file=sys.stderr)
             return EXIT_SOURCE
+        # I2I body: action + framing + wardrobe; cores via prefix (identity anchors)
+        i2i_body = assemble_prompt(
+            core=action,
+            instruction=framing,
+            style_lock=wardrobe_clause,
+            suffix=cam_text,
+        )
         result = generate_i2i_image(
             input_image_path=source,
-            prompt_text=action,
+            prompt_text=i2i_body,
             denoise_val=denoise,
             cfg_val=cfg,
             model_type=model,
             output_filename=out_path,
             seed=seed,
             negative_text=negative,
-            core_prefix=assemble_prompt(core=look_pos, instruction=", ".join(char_cores + [loc_core])),
+            core_prefix=assemble_prompt(
+                core=look_pos, instruction=", ".join(char_cores + [loc_core])
+            ),
             meta_out=meta_path,
             timeout_sec=args.timeout,
         )
@@ -411,9 +489,14 @@ def main(argv=None) -> int:
             meta = {}
     else:
         meta = {}
+    # Community: I2V should animate motion only — do not re-describe face identity
+    motion_prompt = (shot.get("motion_prompt") or "").strip() or i2v_hint or (
+        f"subtle natural motion, {cam_text or 'locked camera'}, keep identity and wardrobe fixed"
+    )
     meta.update(
         {
             "mode": "shot_compose",
+            "role": "production_keyframe",
             "episode_id": args.episode,
             "shot_id": args.shot,
             "look_id": look_id,
@@ -421,17 +504,29 @@ def main(argv=None) -> int:
             "work_preset": work_preset_id,
             "width": width,
             "height": height,
+            "shot_type": shot_type,
             "character_ids": char_ids,
             "location_id": location_id,
             "compose_mode": mode,
             "source": os.path.abspath(source) if source else None,
+            "char_source": os.path.abspath(char_source) if char_source else None,
+            "loc_source": os.path.abspath(loc_source) if loc_source else None,
+            "wardrobe_lock": wardrobe_lock or None,
             "output_path": os.path.abspath(out_path),
+            "motion_prompt_suggested": motion_prompt,
+            "i2v_rule": "Prompt motion/camera only; do not re-describe face or wardrobe.",
             "created_at": utc_now_iso(),
         }
     )
     write_meta(meta_path, meta)
 
+    # Persist motion suggestion on shot if empty
+    if not (shot.get("motion_prompt") or "").strip():
+        story.update_shot(args.shot, motion_prompt=motion_prompt)
+
     print(f"OK keyframe={out_path} status=draft")
+    print(f"  motion_prompt_suggested={motion_prompt[:120]}")
+    print("  next: python scripts/storyboard_export.py -e", args.episode)
     print("  approve: python scripts/shot_approve.py --episode", args.episode, "--shot", args.shot)
     return EXIT_OK
 

@@ -19,7 +19,11 @@
     "body": "",
     "distinctive": [],
     "wardrobe_default": "",
-    "wardrobe_alt1": ""
+    "wardrobe_alt1": "",
+    "props_default": "",
+    "props_notes": "",
+    "wardrobe_locked": false,
+    "wardrobe_locked_at": null
   },
   "prompts": {
     "positive_core": "",
@@ -36,9 +40,10 @@
     "fallback_refs": []
   },
   "consistency_rules": {
-    "must_keep": [],
-    "may_change": ["outfit", "lighting", "background", "pose", "expression"],
-    "forbidden": []
+    "must_keep": ["face identity", "hair color and length", "body proportions"],
+    "may_change": ["lighting", "background", "pose", "expression", "camera angle"],
+    "forbidden": [],
+    "notes": "After B2 wardrobe lock, default wardrobe is must_keep; alt1 is intentional variant only"
   },
   "performance": {
     "personality": [],

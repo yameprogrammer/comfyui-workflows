@@ -2,19 +2,37 @@
   "location_id": "cafe_seoul_v1",
   "name": "Seoul Sidewalk Cafe",
   "version": "0.1.0",
-  "status": "draft",
-  "level": "L1",
+  "status": "approved",
+  "level": "L2",
   "created_at": "2026-07-11T14:16:31+00:00",
-  "updated_at": "2026-07-11T14:19:01+00:00",
+  "updated_at": "2026-07-12T06:35:30+00:00",
   "active_profile": "video_ref",
   "type": "interior_cafe",
-  "atmosphere": [],
+  "atmosphere": [
+    "warm",
+    "quiet",
+    "afternoon",
+    "intimate"
+  ],
   "architecture_lock": "narrow Seoul cafe interior, warm wood panel walls, large street-facing window on the left, green fabric awning edge visible, round marble-top tables with thin black metal legs, wooden chairs, small plants on sill, soft afternoon daylight from window, matte ceramic cups, no people, empty customer area, cinematic still, fixed architecture and furniture layout",
-  "material_signature": [],
-  "palette": [],
-  "landmarks": [],
-  "scale_notes": "",
-  "default_lighting": "",
+  "material_signature": [
+    "warm wood panel walls",
+    "matte ceramic cups",
+    "worn wood chairs",
+    "brushed black metal table legs"
+  ],
+  "palette": [
+    "#C4A484",
+    "#2F3E46",
+    "#E9C46A",
+    "#1B4332"
+  ],
+  "landmarks": [
+    "round marble-top cafe table with thin black metal legs",
+    "green fabric awning edge and large street-facing window"
+  ],
+  "scale_notes": "door ~2.1m; table height ~75cm; window sill ~90cm",
+  "default_lighting": "soft afternoon daylight from large window camera-left",
   "forbidden": [
     "changing storefront shape",
     "relocated landmarks",
@@ -35,12 +53,20 @@
       "approved/master_wide.png"
     ],
     "angles": [
-      "approved/angle_eye.png"
+      "approved/angle_eye.png",
+      "approved/angle_reverse.png",
+      "approved/angle_high.png",
+      "approved/angle_low.png"
     ],
     "lighting": [
-      "approved/light_day.png"
+      "approved/light_day.png",
+      "approved/light_golden.png",
+      "approved/light_night.png"
     ],
-    "landmarks": [],
+    "landmarks": [
+      "approved/landmark_a.png",
+      "approved/landmark_b.png"
+    ],
     "empty_stage": [
       "approved/empty_stage.png"
     ]

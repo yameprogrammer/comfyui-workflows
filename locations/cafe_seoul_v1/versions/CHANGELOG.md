@@ -6,3 +6,36 @@
 - 2026-07-11T14:19:00+00:00: approved empty_stage from refs/empty_stage/cafe_seoul_v1__angles__empty_stage__clear_fg__s42001__c01.png
 - 2026-07-11T14:19:00+00:00: approved angle_eye from refs/angles/cafe_seoul_v1__angles__eye__stand__s42011__c01.png
 - 2026-07-11T14:19:01+00:00: approved light_day from refs/lighting/cafe_seoul_v1__lighting__day__window__s42021__c01.png
+- 2026-07-12T06:34:32+00:00: expand sheets=all_mvp ok=8/8
+- 2026-07-12T06:34:32+00:00: approved master_wide from refs/master/cafe_seoul_v1__master__wide__establishing__s41002__c02.png
+- 2026-07-12T06:34:32+00:00: approved angle_eye from refs/angles/cafe_seoul_v1__angles__eye__stand__s43001__c01.png
+- 2026-07-12T06:34:32+00:00: approved angle_reverse from refs/angles/cafe_seoul_v1__angles__reverse__stand__s43011__c01.png
+- 2026-07-12T06:34:32+00:00: approved angle_high from refs/angles/cafe_seoul_v1__angles__high__stand__s43021__c01.png
+- 2026-07-12T06:34:32+00:00: approved angle_low from refs/angles/cafe_seoul_v1__angles__low__stand__s43031__c01.png
+- 2026-07-12T06:34:32+00:00: approved empty_stage from refs/empty_stage/cafe_seoul_v1__angles__empty_stage__clear_fg__s43041__c01.png
+- 2026-07-12T06:34:32+00:00: approved light_day from refs/lighting/cafe_seoul_v1__lighting__day__window__s43051__c01.png
+- 2026-07-12T06:34:32+00:00: approved light_golden from refs/lighting/cafe_seoul_v1__lighting__golden__hour__s43061__c01.png
+- 2026-07-12T06:34:32+00:00: approved light_night from refs/lighting/cafe_seoul_v1__lighting__golden__hour__s43061__c01.png
+- 2026-07-12T06:34:32+00:00: approved landmark_a from refs/landmarks/cafe_seoul_v1__landmarks__close__prop_a__s43071__c01.png
+- 2026-07-12T06:34:32+00:00: approved landmark_b from refs/landmarks/cafe_seoul_v1__landmarks__close__prop_a__s43071__c01.png
+- 2026-07-12T06:34:41+00:00: approved master_wide from approved/master_wide.png
+- 2026-07-12T06:34:41+00:00: approved angle_eye from refs/angles/cafe_seoul_v1__angles__eye__stand__s43001__c01.png
+- 2026-07-12T06:34:41+00:00: approved angle_reverse from refs/angles/cafe_seoul_v1__angles__reverse__stand__s43011__c01.png
+- 2026-07-12T06:34:41+00:00: approved angle_high from refs/angles/cafe_seoul_v1__angles__high__stand__s43021__c01.png
+- 2026-07-12T06:34:41+00:00: approved angle_low from refs/angles/cafe_seoul_v1__angles__low__stand__s43031__c01.png
+- 2026-07-12T06:34:41+00:00: approved empty_stage from refs/empty_stage/cafe_seoul_v1__angles__empty_stage__clear_fg__s43041__c01.png
+- 2026-07-12T06:34:41+00:00: approved light_day from refs/lighting/cafe_seoul_v1__lighting__day__window__s43051__c01.png
+- 2026-07-12T06:34:41+00:00: approved light_golden from refs/lighting/cafe_seoul_v1__lighting__golden__hour__s43061__c01.png
+- 2026-07-12T06:34:41+00:00: approved landmark_a from refs/landmarks/cafe_seoul_v1__landmarks__close__prop_a__s43071__c01.png
+- 2026-07-12T06:34:41+00:00: approved landmark_b from refs/landmarks/cafe_seoul_v1__landmarks__close__prop_a__s43071__c01.png
+- 2026-07-12T06:35:15+00:00: expand sheets=landmarks ok=1/1
+- 2026-07-12T06:35:15+00:00: approved master_wide from approved/master_wide.png
+- 2026-07-12T06:35:15+00:00: approved angle_eye from refs/angles/cafe_seoul_v1__angles__eye__stand__s43001__c01.png
+- 2026-07-12T06:35:15+00:00: approved angle_reverse from refs/angles/cafe_seoul_v1__angles__reverse__stand__s43011__c01.png
+- 2026-07-12T06:35:15+00:00: approved angle_high from refs/angles/cafe_seoul_v1__angles__high__stand__s43021__c01.png
+- 2026-07-12T06:35:15+00:00: approved angle_low from refs/angles/cafe_seoul_v1__angles__low__stand__s43031__c01.png
+- 2026-07-12T06:35:15+00:00: approved empty_stage from refs/empty_stage/cafe_seoul_v1__angles__empty_stage__clear_fg__s43041__c01.png
+- 2026-07-12T06:35:15+00:00: approved light_day from refs/lighting/cafe_seoul_v1__lighting__day__window__s43051__c01.png
+- 2026-07-12T06:35:15+00:00: approved light_golden from refs/lighting/cafe_seoul_v1__lighting__golden__hour__s43061__c01.png
+- 2026-07-12T06:35:15+00:00: approved landmark_a from refs/landmarks/cafe_seoul_v1__landmarks__close__prop_a__s43071__c01.png
+- 2026-07-12T06:35:15+00:00: approved landmark_b from refs/landmarks/cafe_seoul_v1__landmarks__close__prop_b__s43101__c01.png

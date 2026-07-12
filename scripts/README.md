@@ -56,7 +56,20 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `character_pipeline.py` | A→B→C 오케스트레이션 | production v1 |
 | `character_create.py` | 패키지 + 마스터 후보 (Moody 단일 경로) | t2i |
 | `character_approve.py` | refs → approved 승격 | — |
-| `character_expand_sheets.py` | **C** 일관 시트 | i2i / **i2i_lock** / **ipadapter** / controlnet |
+| `character_set_wardrobe.py` | **B2** 의상·소품 잠금 | bible wardrobe/props + lock 게이트 |
+| `character_expand_sheets.py` | **C** 시트 expand | t2i design / qwen / i2i / controlnet |
+| `character_qwen_turns.py` | **C** head/body 턴 | Qwen multi-angles (body=costume 우선) |
+| `generate_qwen_angle.py` | Qwen 각도 1장 | Multiple-Angles LoRA `<sks> …` |
+| `character_full_sheet.py` | **C** full_sheet 원샷 | design→costume→turns→rest + wardrobe 게이트 |
+| `location_create.py` | 로케 패키지 + master T2I | architecture lock |
+| `location_expand_sheets.py` | 로케 angles/lighting/landmarks | I2I from master_wide |
+| `location_approve.py` | 로케 approved 승격 | alias |
+| `location_full_sheet.py` | 로케 video_ref 원샷 | expand+approve+review |
+| `story_init.py` | 에피소드 패키지 | shots.json + format/look |
+| `shot_compose.py` | 프로덕션 키프레임 | look+char+loc @ format; shot_type ref 바인딩 |
+| `storyboard_export.py` | 보드 contact + inventory | 사람 게이트용 패키지 |
+| `shot_approve.py` | keyframe_status 승격 | draft→approved |
+| `episode_i2v.py` | approved 키프레임→영상 | motion-only 프롬프트 |
 | `generate_moody_i2i_ipadapter.py` | I2I + IP-Adapter face | C identity |
 | `generate_moody_i2i_lock.py` | I2I identity-strong (폴백) | C identity |
 | `look_create.py` | Style Core 룩 패키지 생성 | looks/ |

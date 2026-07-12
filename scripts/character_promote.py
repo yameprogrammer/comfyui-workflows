@@ -61,6 +61,13 @@ def main(argv=None) -> int:
     )
     p.add_argument("--force", action="store_true", help="Overwrite existing package")
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument(
+        "--wardrobe-default",
+        default=None,
+        help="Optional B2 wardrobe_default at promote time",
+    )
+    p.add_argument("--wardrobe-alt1", default=None, help="Optional wardrobe_alt1")
+    p.add_argument("--props-default", default=None, help="Optional props_default")
     args = p.parse_args(argv)
 
     if not validate_character_id(args.id):
@@ -142,6 +149,16 @@ def main(argv=None) -> int:
     }
     pkg.bible["status"] = "in_review"
     pkg.write_core_prompts(positive, negative)
+    if args.wardrobe_default or args.wardrobe_alt1 or args.props_default:
+        from lib.wardrobe import set_wardrobe
+
+        set_wardrobe(
+            pkg.bible,
+            wardrobe_default=args.wardrobe_default,
+            wardrobe_alt1=args.wardrobe_alt1,
+            props_default=args.props_default,
+            lock=bool(args.wardrobe_default),
+        )
     pkg.save_bible()
 
     pkg.manifest = fill_manifest_from_create(
@@ -184,8 +201,13 @@ def main(argv=None) -> int:
     print(f"OK character={args.id}")
     print(f"  approved/master_front.png ← {dest_approved}")
     print(f"  missing_mvp={pkg.manifest.get('missing_mvp')}")
+    if not (args.wardrobe_default or "").strip():
+        print(
+            f"  next B2: python scripts/character_set_wardrobe.py --id {args.id} "
+            f"--default \"...\" --alt1 \"...\" --props \"...\" --lock"
+        )
     print(
-        f"  next: python scripts/character_expand_sheets.py --id {args.id} --sheets all_mvp"
+        f"  next C:  python scripts/character_full_sheet.py --id {args.id} --run"
     )
     return EXIT_OK
 

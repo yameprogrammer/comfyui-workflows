@@ -14,6 +14,7 @@
 | 컨택시트 · shortlist · status | 자동 얼굴 QA 점수 |
 | 1장 promote → master_front 잠금 | 탐색 단계 LoRA 학습 |
 | expand 공정: **full_sheet** (head/turn/expr/costume/pose/props) | **ipadapter** — CLI 유지, **공정 SOP 미사용** |
+| head/body turn: **Qwen multi-angles** (기본) | OpenPose CN turn — 레거시 폴백만 |
 | `character_full_sheet.py` 원샷 + review grids | `video_ref` thin pack만으로 “시트 완성” 보고 금지 |
 
 **사람 게이트는 의도적으로 남김:** 후보 고르기, expression approve.
@@ -25,23 +26,49 @@
 ```text
 A cast     multi-engine T2I → characters/casts/<cast_id>/
 B promote  pick → characters/<id>/ + approved/master_front.png
-C expand   **full_sheet** industry pack from master
-           head turn · body turn · expression · costume(+detail) · pose · props
-           CLI: character_full_sheet.py --run  |  expand --profile full_sheet --sheets full_pack
+B2 lock    wardrobe_default + wardrobe_alt1 + props_default  (bible, human gate)
+C expand   **full_sheet** ordered industry pack
+           master_full → design flats/props (off-body) → on-model costume
+           → Qwen turns → expr/pose/props.hand
+           CLI: character_full_sheet.py --run
 D video    shot_compose → I2V/SI2V  (video_ref thin pack may be enough for shots)
 ```
 
-커뮤니티 정합: **오디션 → 인간 선택 → 풀 모델시트 공장 → 영상 레퍼 추출**.
+커뮤니티 정합: **오디션 → 얼굴 → 의상/소품 잠금 → 디자인 플레이트(옷/소품 단독) → 착용 모델시트 → 영상 레퍼**.
+
+### B2 의상·소품 잠금 (face 직후 필수)
+
+```bash
+python scripts/character_set_wardrobe.py --id X \
+  --default "cream knit cardigan over white blouse, light wash jeans, white sneakers, small silver earrings" \
+  --alt1 "beige trench coat over white blouse, dark trousers, sneakers" \
+  --props "closed black compact umbrella held in right hand at realistic scale" \
+  --lock
+python scripts/character_set_wardrobe.py --id X --show
+```
+
+bible SSOT: `appearance.wardrobe_*`, `props_default`, `wardrobe_locked`.  
+`character_full_sheet.py --run` 은 미잠금 시 중단 (비상: `--allow-unlocked-wardrobe`).
 
 ### C 캐릭터 시트 (공정 SOP — full_sheet)
 
 ```bash
-# 원샷 (expand + auto-approve + review grids)
+# 원샷 (B2 이후) — 단계 순서 고정
 python scripts/character_full_sheet.py --id X --run
+# Phase0 master_full → B2.5 design (flat/callout/prop) → on-model costume
+# → Qwen turns → expr/pose/props.hand
 
-# 또는 단계별
-python scripts/character_expand_sheets.py --id X --profile full_sheet \
-  --sheets full_pack --engine auto --ensure-fullbody --candidates 1
+# 페이즈만
+python scripts/character_full_sheet.py --id X --run --phases design
+python scripts/character_full_sheet.py --id X --run --phases costume
+python scripts/character_full_sheet.py --id X --run --phases turns
+python scripts/character_full_sheet.py --id X --run --phases rest
+
+# design_pack만 expand
+python scripts/character_expand_sheets.py --id X --sheets design_pack --require-wardrobe
+
+# 턴만 (body 소스 = costume_default 우선)
+python scripts/character_qwen_turns.py --id X --mode both --approve
 python scripts/character_full_sheet.py --id X --approve-only
 # 리뷰: characters/<id>/exports/full_sheet/review_*.png
 ```
@@ -52,6 +79,9 @@ python scripts/character_full_sheet.py --id X --approve-only
 # IP-Adapter face — 공정 치트시트에 넣지 않음
 python scripts/character_expand_sheets.py --id X --sheets expression \
   --engine ipadapter --ipa-weight 0.72
+# OpenPose 턴 폴백 (공정 기본 아님)
+python scripts/character_expand_sheets.py --id X --sheets head,turnaround \
+  --engine controlnet --ensure-fullbody
 # video_ref thin only (NOT full sheet complete)
 python scripts/character_expand_sheets.py --id X --profile video_ref --sheets all_mvp
 ```
@@ -87,6 +117,10 @@ python scripts/character_promote.py \
   --profile video_ref
 
 python scripts/character_status.py --id mina_cast_v1
+
+# --- B2. 의상·소품 잠금 (풀시트 전 필수) ---
+python scripts/character_set_wardrobe.py --id mina_cast_v1 \
+  --default "..." --alt1 "..." --props "..." --lock
 
 # --- C. 풀 캐릭터 시트 (full_sheet 공정) ---
 python scripts/character_full_sheet.py --id mina_cast_v1 --run

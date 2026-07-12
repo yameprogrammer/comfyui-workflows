@@ -1,7 +1,8 @@
 # 🗺️ 로케이션(세트) 시트 시스템 — 기획·설계
 
 - **작성일**: 2026-07-11  
-- **상태**: 설계 문서 (구현 대기)  
+- **상태**: L2 CLI + video_ref 파일럿 READY (`cafe_seoul_v1`)  
+
 - **목적**: 영상 파이프에서 **장소 일관성**을 캐릭터 시트와 동급으로 다루기  
 - **관련**: [character_sheet_system_design.md](character_sheet_system_design.md), [storyboard_pipeline_design.md](storyboard_pipeline_design.md), [production_asset_pipeline.md](production_asset_pipeline.md), [video_pipeline_roadmap.md](video_pipeline_roadmap.md)
 
@@ -189,9 +190,19 @@ negative = negative_core + "different building, relocated landmarks, style shift
 | (공유) `lib/location_package.py` | 캐릭터 패키지 미러 |
 
 ```bash
-python scripts/location_create.py --id cafe_seoul_v1 --name "Seoul Cafe" --profile video_ref
+# create + master candidates
+python scripts/location_create.py --id cafe_seoul_v1 --name "Seoul Cafe" \
+  --architecture "..." --profile video_ref
+python scripts/location_approve.py --id cafe_seoul_v1 \
+  --from refs/master/<pick>.png --as master_wide --set-primary
+
+# 원샷: expand MVP → auto-approve → review grids
+python scripts/location_full_sheet.py --id cafe_seoul_v1 --run
+
+# 또는 단계별
 python scripts/location_expand_sheets.py --id cafe_seoul_v1 --sheets all_mvp
-python scripts/location_approve.py --id cafe_seoul_v1 --from refs/master/... --as master_wide --set-primary
+python scripts/location_full_sheet.py --id cafe_seoul_v1 --approve-only
+# 리뷰: locations/<id>/exports/video_ref/review_*.png
 ```
 
 ---
@@ -217,9 +228,9 @@ python scripts/location_approve.py --id cafe_seoul_v1 --from refs/master/... --a
 | **L0** | 본 설계 문서 | — | ✅ |
 | **L1** | `locations/_template` + schemas + presets | L0 | ✅ |
 | **L2** | create / expand / approve CLI | L1 | ✅ |
-| **L3** | video_ref 파일럿 1곳 (e.g. mina 카페) | L2 + Comfy 실생성 | ⬜ |
+| **L3** | video_ref 파일럿 `cafe_seoul_v1` + `location_full_sheet.py` | L2 + Comfy | ✅ |
 | **L4** | ControlNet/depth 각도 강화 | L2 | ⬜ |
-| **L5** | artbook export + contact sheet | L2 | ⬜ |
+| **L5** | artbook export (review grids 일부 포함) | L2 | 🟡 |
 | **L6** | storyboard CLI 연동 (`location_id` 필수) | L2 + S* | ⬜ |
 
 ---

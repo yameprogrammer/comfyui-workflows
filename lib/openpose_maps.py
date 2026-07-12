@@ -145,10 +145,96 @@ def _offset(
     return out
 
 
+def _head_keypoints(view: str) -> List[Optional[Tuple[float, float]]]:
+    """
+    BODY_18 head+shoulders only (short arm stubs). Portrait-framed for head turns.
+    Hips/legs always None so maps never look like full-body sticks.
+    """
+    # 0 nose,1 neck,2 Rsh,3 Rel,4 Rwr,5 Lsh,6 Lel,7 Lwr,
+    # 8-13 legs, 14 Reye,15 Leye,16 Rear,17 Lear
+    none_legs = [None] * 6
+    v = (view or "front").lower()
+    if v in ("front", "head_front"):
+        return [
+            (0.50, 0.38),
+            (0.50, 0.55),
+            (0.34, 0.62),
+            (0.28, 0.78),
+            (0.26, 0.88),
+            (0.66, 0.62),
+            (0.72, 0.78),
+            (0.74, 0.88),
+            *none_legs,
+            (0.44, 0.34),
+            (0.56, 0.34),
+            (0.36, 0.40),
+            (0.64, 0.40),
+        ]
+    if v in ("qf", "head_qf", "three_quarter"):
+        return [
+            (0.60, 0.40),  # nose yaw right
+            (0.52, 0.55),
+            (0.40, 0.64),
+            (0.34, 0.78),
+            (0.32, 0.88),
+            (0.72, 0.60),
+            (0.80, 0.76),
+            (0.82, 0.86),
+            *none_legs,
+            (0.54, 0.35),
+            (0.66, 0.36),
+            (0.46, 0.42),
+            (0.74, 0.40),
+        ]
+    if v in ("side", "head_side", "profile"):
+        # right profile — nose to the right, single eye/ear
+        return [
+            (0.70, 0.42),
+            (0.50, 0.55),
+            (0.50, 0.64),
+            (0.58, 0.78),
+            (0.62, 0.86),
+            (0.50, 0.64),
+            (0.42, 0.78),
+            (0.40, 0.86),
+            *none_legs,
+            (0.62, 0.38),
+            None,
+            (0.46, 0.44),
+            None,
+        ]
+    if v in ("back", "head_back", "rear"):
+        return [
+            None,
+            (0.50, 0.55),
+            (0.66, 0.62),
+            (0.72, 0.78),
+            (0.74, 0.88),
+            (0.34, 0.62),
+            (0.28, 0.78),
+            (0.26, 0.88),
+            *none_legs,
+            None,
+            None,
+            (0.64, 0.42),
+            (0.36, 0.42),
+        ]
+    return _head_keypoints("front")
+
 def _pose_keypoints(template_id: str) -> List[Optional[Tuple[float, float]]]:
     """Return BODY_18 keypoints for a named sheet pose."""
     k = _base_front_keypoints()
     tid = (template_id or "stand_front").lower()
+
+    # --- Head-only turn maps (portrait OpenPose) ---
+    if tid.startswith("head_") or tid in (
+        "head_front",
+        "head_qf",
+        "head_side",
+        "head_back",
+    ):
+        view = tid.replace("head_", "") if tid.startswith("head_") else "front"
+        return _head_keypoints(view)
 
     if tid in ("stand_front", "stand_idle"):
         # slight weight shift
@@ -157,74 +243,73 @@ def _pose_keypoints(template_id: str) -> List[Optional[Tuple[float, float]]]:
         return k
 
     if tid in ("stand_qf", "look_aside"):
-        # three-quarter: compress x, shift right shoulder forward
-        out = []
-        for i, p in enumerate(k):
-            if p is None:
-                out.append(None)
-                continue
-            x, y = p
-            # perspective squash toward center-right
-            x = 0.50 + (x - 0.50) * 0.75 + 0.04
-            if i in (2, 3, 4):  # right arm slightly back
-                x -= 0.02
-            if i in (5, 6, 7):  # left arm forward
-                x += 0.03
-            out.append((x, y))
-        if tid == "look_aside":
-            # head turn: nose/eyes shift
-            out[0] = (0.56, 0.10)
-            out[14] = (0.54, 0.09)
-            out[15] = (0.58, 0.09)
-            out[16] = (0.52, 0.10)
-            out[17] = None  # far ear hidden
-        return out
+        # EXPLICIT 45° body yaw (stronger than mild squash)
+        return [
+            (0.56, 0.11),  # nose
+            (0.52, 0.17),
+            (0.40, 0.22),  # R shoulder back
+            (0.34, 0.34),
+            (0.30, 0.46),
+            (0.68, 0.20),  # L shoulder forward
+            (0.74, 0.32),
+            (0.78, 0.44),
+            (0.46, 0.48),
+            (0.44, 0.68),
+            (0.42, 0.88),
+            (0.58, 0.47),
+            (0.62, 0.67),
+            (0.64, 0.88),
+            (0.52, 0.10),
+            (0.60, 0.10),
+            (0.46, 0.12),
+            (0.66, 0.12),
+        ]
 
     if tid == "stand_side":
-        # strict right-facing profile — collapse shoulders/hips to midline
-        cx = 0.52
+        # STRICT right profile — exaggerated depth cues
+        cx = 0.50
         return [
-            (0.58, 0.10),  # nose forward
-            (cx, 0.16),  # neck
-            (cx, 0.20),  # R shoulder (near)
-            (0.58, 0.32),  # R elbow
-            (0.62, 0.44),  # R wrist
-            (cx, 0.20),  # L shoulder (overlap)
-            (0.48, 0.33),  # L elbow slightly back
-            (0.46, 0.44),  # L wrist
-            (cx, 0.48),  # R hip
-            (0.56, 0.68),  # R knee
-            (0.58, 0.88),  # R ankle
-            (cx, 0.48),  # L hip
-            (0.50, 0.68),  # L knee
-            (0.48, 0.88),  # L ankle
-            (0.57, 0.09),  # R eye
-            None,  # L eye hidden
-            (0.54, 0.10),  # R ear
-            None,  # L ear
+            (0.66, 0.11),  # nose far forward
+            (cx, 0.17),
+            (cx, 0.21),
+            (0.64, 0.34),  # front arm
+            (0.70, 0.46),
+            (cx, 0.21),
+            (0.38, 0.35),  # back arm
+            (0.34, 0.46),
+            (cx, 0.48),
+            (0.62, 0.68),  # front leg
+            (0.66, 0.90),
+            (cx, 0.48),
+            (0.40, 0.68),  # back leg
+            (0.36, 0.90),
+            (0.62, 0.10),  # one eye
+            None,
+            (0.48, 0.12),  # ear
+            None,
         ]
 
     if tid == "stand_back":
-        # back view — no face, ears outer
+        # STRICT rear — no face keypoints, mirrored limb layout
         return [
-            None,  # nose hidden
+            None,  # no nose
             (0.50, 0.16),
-            (0.62, 0.20),  # viewer-left = character right when facing away... use mirror of front
-            (0.66, 0.32),
-            (0.68, 0.44),
-            (0.38, 0.20),
-            (0.34, 0.32),
-            (0.32, 0.44),
-            (0.56, 0.48),
-            (0.56, 0.68),
-            (0.56, 0.88),
-            (0.44, 0.48),
-            (0.44, 0.68),
-            (0.44, 0.88),
+            (0.64, 0.21),
+            (0.70, 0.34),
+            (0.72, 0.46),
+            (0.36, 0.21),
+            (0.30, 0.34),
+            (0.28, 0.46),
+            (0.58, 0.48),
+            (0.58, 0.68),
+            (0.58, 0.90),
+            (0.42, 0.48),
+            (0.42, 0.68),
+            (0.42, 0.90),
             None,
             None,
-            (0.58, 0.12),
-            (0.42, 0.12),
+            (0.60, 0.13),
+            (0.40, 0.13),
         ]
 
     if tid == "walk_side":
@@ -368,8 +453,19 @@ def ensure_all_openpose_maps(
         "hands_hips",
         "wave",
         "look_aside",
+        "head_front",
+        "head_qf",
+        "head_side",
+        "head_back",
     ]
-    return {tid: ensure_openpose_map(tid, width, height, force=force) for tid in ids}
+    out: Dict[str, str] = {}
+    for tid in ids:
+        # head maps prefer square; body maps use requested size
+        if tid.startswith("head_"):
+            out[tid] = ensure_openpose_map(tid, min(width, height), min(width, height), force=force)
+        else:
+            out[tid] = ensure_openpose_map(tid, width, height, force=force)
+    return out
 
 
 def find_comfy_python() -> Optional[str]:

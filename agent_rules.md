@@ -82,11 +82,19 @@ agent_custom/
 * **A 탐색**: `character_cast_pool.py` — 다엔진(Moody/Krea) 후보. identity 미고정. `characters/casts/`.
 * **B 승격**: `character_promote.py` — 고른 이미지 → 패키지 + `approved/master_front` + core 고정.
 * **C 일관 / 캐릭터 시트**: 업계 **풀 시트**가 공정 본체.
-  - 프로필: **`full_sheet`** (`profiles.json` `character_sheet_process_profile`). `video_ref`는 영상 thin pack 전용 — 시트 완성이 아님.
-  - 원샷: `python scripts/character_full_sheet.py --id <id> --run` (expand full_pack → approve → review grids).
-  - 구성: head turn · body turn · expression · costume(+detail) · pose/action · props.
-  - 엔진 auto: 표정/헤드 `i2i`/`i2i_lock`, 턴·포즈 `controlnet`, 의상/소품 `i2i`.
-  - **`ipadapter`**: CLI 유지, **공정 SOP 미사용**.
+  - 프로필: **`full_sheet`**. `video_ref`는 영상 thin pack 전용 — 시트 완성이 아님.
+  - **B2 필수 (face 다음)**: 의상·소품 선잠금  
+    `python scripts/character_set_wardrobe.py --id <id> --default "..." --alt1 "..." --props "..." --lock`  
+    bible: `wardrobe_default` / `wardrobe_alt1` / `props_default` / `wardrobe_locked`.
+  - **원샷 C**: `python scripts/character_full_sheet.py --id <id> --run`  
+    순서: wardrobe 게이트 → master_full → **B2.5 design plates** (off-body flat/callout/prop) → on-model costume → **Qwen turns** → expr/pose/props.hand → grids.  
+    미잠금 시 중단 (`--allow-unlocked-wardrobe` 비상만).
+  - **B2.5 디자인 플레이트** (사람 없음): `costume.flat_front/back`, `costume.callout`, `props.hero`, `props.turn_3view` (T2I product).  
+    페이즈만: `--phases design`
+  - 엔진: design=`t2i` product · head/body turn=`qwen` · expression=`i2i` · pose=`controlnet` · on-model costume/props=`i2i`+bible.
+  - body 소스 우선순위: `approved/costume_default` → `master_full`.
+  - 턴만: `character_qwen_turns.py --mode both --approve`
+  - OpenPose 턴 / **ipadapter**: 레거시·실험, 공정 SOP 기본 아님.
 * 확정 전 LoRA 학습은 기본 경로 아님. SSOT: [docs/character_casting_pipeline.md](docs/character_casting_pipeline.md).
 
 ### Rule 6.3 Look / Style Core
@@ -104,7 +112,17 @@ agent_custom/
 * 키프레임·I2V: **draft 로케/캐릭터 금지**. `location_id` 없이 배경 즉흥 금지.
 * **Storyboard-first**: 키프레임 검수 전 전 샷 I2V 금지.
 * **비율**: char/loc 시트 ref는 고유 비율 OK. **board/keyframe/I2V 출력만 episode format 캔버스**.
-* 로케이션: [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md). 스토리: [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md).
+* 로케이션: [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md).  
+  - 패키지: `locations/<id>/` · 원샷: `python scripts/location_full_sheet.py --id <id> --run`  
+  - MVP(video_ref): master_wide + angles(eye/reverse/high/low) + empty_stage + light_day  
+  - 파일럿: `cafe_seoul_v1` (L2). 키프레임은 `location_id` + approved 로케 ref 없이 배경 즉흥 금지.  
+* 스토리보드 · 키프레임 (커뮤니티 실무 정렬):  
+  - SSOT: [docs/storyboard_keyframe_community_research.md](docs/storyboard_keyframe_community_research.md)  
+  - 순서: asset packs → `story_init` → `shot_compose` → **`storyboard_export`** (contact gate) → `shot_approve` → I2V.  
+  - **T2V 장편 직행 금지**. 샷당 production keyframe still @ episode format.  
+  - I2V `motion_prompt` = 모션/카메라만 (얼굴·의상 재서술 금지).  
+  - `shot_type`이 approved ref 우선순위 결정 (`stories/shot_type_presets.json`).  
+* 스토리 설계: [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md).
 
 ### Rule 7. 영상 해상도·백엔드 규약
 * **format** = 종횡비 (`cinematic_16x9` …). 16:9 고정 아님. SSOT: `video_backends.json`.

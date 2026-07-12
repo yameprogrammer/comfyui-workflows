@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "status": "approved",
   "created_at": "2026-07-12T01:14:18+00:00",
-  "updated_at": "2026-07-12T01:58:19+00:00",
+  "updated_at": "2026-07-12T06:27:03+00:00",
   "style": {
     "medium": "cinematic_photoreal",
     "base_model": "moody_pro",
@@ -18,8 +18,12 @@
     "hair": "shoulder-length dark brown soft wavy hair",
     "body": "slim-athletic",
     "distinctive": [],
-    "wardrobe_default": "black crew-neck t-shirt, light wash blue jeans, white sneakers, minimal jewelry, fully clothed casual",
-    "wardrobe_alt1": "light beige trench coat over white blouse, dark trousers, simple sneakers, clean contemporary look"
+    "wardrobe_default": "soft cream knit cardigan over white blouse, light wash blue jeans, white low-top sneakers, small silver stud earrings, rainy-day ballad heroine casual, fully clothed",
+    "wardrobe_alt1": "light beige trench coat over white blouse, dark navy trousers, simple white sneakers, clean contemporary rainy-day look, fully clothed",
+    "props_default": "closed black compact umbrella held in the right hand at realistic human scale, clear hand grip",
+    "props_notes": "Sonagi rainy motif; prop must contact hand, not float",
+    "wardrobe_locked": true,
+    "wardrobe_locked_at": "2026-07-12T06:10:37+00:00"
   },
   "prompts": {
     "positive_core": "Sonagi Heroine, cinematic photoreal film still, Moody-grade naturalistic color, soft dramatic lighting language, gentle film grain, restrained contrast, mid-20s Korean woman, oval face, soft jawline, warm brown eyes, straight natural brows, natural realistic skin texture, shoulder-length dark brown soft wavy hair, slim-athletic build, soft neutral expression, medium close-up portrait, front-facing, looking at camera, plain light gray seamless studio background, even softbox lighting, sharp focus, high detail, rainy-day ballad heroine presence without props",
@@ -42,13 +46,19 @@
     }
   },
   "consistency_rules": {
-    "must_keep": [],
+    "must_keep": [
+      "face identity",
+      "hair color and length",
+      "default wardrobe",
+      "body proportions"
+    ],
     "may_change": [
-      "outfit",
       "lighting",
       "background",
       "pose",
-      "expression"
+      "expression",
+      "camera angle",
+      "wardrobe_alt1 intentional only"
     ],
     "forbidden": []
   },
@@ -81,7 +91,10 @@
       "approved/costume_alt1.png",
       "approved/costume_detail_upper.png",
       "approved/costume_detail_footwear.png",
-      "approved/costume_detail_accessories.png"
+      "approved/costume_detail_accessories.png",
+      "approved/costume_flat_front.png",
+      "approved/costume_flat_back.png",
+      "approved/costume_callout.png"
     ],
     "head": [
       "approved/head_front.png",
@@ -98,7 +111,9 @@
       "approved/pose_look_aside.png"
     ],
     "props": [
-      "approved/prop_hand_item.png"
+      "approved/prop_hand_item.png",
+      "approved/prop_hero.png",
+      "approved/prop_turn_3view.png"
     ]
   },
   "video_defaults": {
@@ -121,7 +136,7 @@
     },
     "full_sheet": {
       "status": "approved",
-      "updated_at": "2026-07-12T01:52:25+00:00",
+      "updated_at": "2026-07-12T06:27:03+00:00",
       "path": "exports/full_sheet"
     }
   }

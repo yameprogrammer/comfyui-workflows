@@ -8,7 +8,8 @@
       "default_model": "pro",
       "candidates_master_default": 3,
       "size_default": {"width": 1280, "height": 720},
-      "mvp_aliases_key": "mvp_aliases_video_ref"
+      "mvp_aliases_key": "mvp_aliases_video_ref",
+      "export_subdir": "exports/video_ref"
     },
     "artbook": {
       "id": "artbook",
@@ -16,7 +17,8 @@
       "default_model": "pro",
       "candidates_master_default": 4,
       "size_default": {"width": 1536, "height": 1024},
-      "mvp_aliases_key": "mvp_aliases_artbook"
+      "mvp_aliases_key": "mvp_aliases_artbook",
+      "export_subdir": "exports/artbook"
     }
   }
 }

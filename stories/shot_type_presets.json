@@ -1,25 +1,63 @@
 {
-  "version": 1,
+  "version": 2,
+  "description": "Shot type → framing + preferred approved ref aliases (community: pick right ref TYPE). Used by shot_compose.py",
   "shot_types": {
     "establishing": {
       "framing": "wide establishing, environment first, no hero character or tiny figures only",
-      "prefer_source": "location"
+      "prefer_source": "location",
+      "character_ref_aliases": [],
+      "location_ref_aliases": ["master_wide", "angle_eye", "empty_stage"],
+      "i2v_hint": "slow camera drift or gentle push-in, environment only, no new people"
     },
     "wide": {
-      "framing": "wide full-body in set, readable environment",
-      "prefer_source": "character"
+      "framing": "wide full-body in set, readable environment, character fully visible head-to-toe",
+      "prefer_source": "character",
+      "character_ref_aliases": [
+        "costume_default",
+        "master_full",
+        "turn_front",
+        "pose_stand_idle"
+      ],
+      "location_ref_aliases": ["empty_stage", "angle_eye", "master_wide"],
+      "i2v_hint": "subtle body motion, ambient room life, keep identity and wardrobe fixed"
     },
     "medium": {
-      "framing": "medium shot waist-up, dialogue-friendly",
-      "prefer_source": "character"
+      "framing": "medium shot waist-up, dialogue-friendly, set readable behind",
+      "prefer_source": "character",
+      "character_ref_aliases": [
+        "master_front",
+        "costume_default",
+        "expr_neutral",
+        "master_full"
+      ],
+      "location_ref_aliases": ["empty_stage", "angle_eye"],
+      "i2v_hint": "subtle head and shoulder motion, natural blink, camera locked or micro move"
     },
     "closeup": {
       "framing": "close-up face, shallow depth of field, set softly behind",
-      "prefer_source": "character"
+      "prefer_source": "character",
+      "character_ref_aliases": [
+        "expr_neutral",
+        "master_front",
+        "head_front",
+        "expr_think"
+      ],
+      "location_ref_aliases": ["empty_stage", "angle_eye"],
+      "i2v_hint": "micro facial motion only, eyes soft, do not invent new face identity"
     },
     "insert": {
       "framing": "insert detail of prop or landmark, no face required",
-      "prefer_source": "location"
+      "prefer_source": "location",
+      "character_ref_aliases": [],
+      "location_ref_aliases": ["landmark_a", "landmark_b", "empty_stage"],
+      "i2v_hint": "slow detail move or light shift on object only"
+    },
+    "pov": {
+      "framing": "point-of-view subjective frame, hands or prop edge optional",
+      "prefer_source": "location",
+      "character_ref_aliases": ["prop_hand_item"],
+      "location_ref_aliases": ["angle_eye", "empty_stage", "master_wide"],
+      "i2v_hint": "handheld micro sway, forward glance"
     }
   }
 }

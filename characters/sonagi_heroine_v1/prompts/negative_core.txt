@@ -1,1 +1,1 @@
-blurry, deformed, extra fingers, watermark, text, logo, low quality
+blurry, deformed, extra fingers, watermark, text, logo, low quality, stick figure, openpose skeleton, colored joint dots, controlnet guide lines, wireframe overlay, identity shift, plastic skin, porcelain skin, waxy skin, airbrushed skin, overly smooth CGI skin, doll face, beauty filter

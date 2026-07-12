@@ -138,9 +138,27 @@ def main(argv=None) -> int:
             out_path = os.path.join(out_dir, fname)
             meta_path = pkg.path("meta", os.path.splitext(fname)[0] + ".json")
 
+            instruction = p.get("instruction") or ""
+            # Inject bible landmarks for landmark plates
+            landmarks = pkg.bible.get("landmarks") or []
+            if key == "landmarks.prop_a" and landmarks:
+                instruction = (
+                    f"close-up material study of primary landmark: {landmarks[0]}, "
+                    f"same location style and palette, product-like detail, no people"
+                )
+            elif key == "landmarks.prop_b" and len(landmarks) > 1:
+                instruction = (
+                    f"close-up material study of secondary landmark: {landmarks[1]}, "
+                    f"same location style and palette, product-like detail, no people"
+                )
+            elif key.startswith("landmarks.") and landmarks:
+                instruction = (
+                    f"{instruction}, landmarks of this set: {', '.join(landmarks[:4])}"
+                )
+
             prompt = assemble_prompt(
                 core=positive_core,
-                instruction=p.get("instruction") or "",
+                instruction=instruction,
                 style_lock=p.get("style_lock") or "",
                 quality_tags=quality,
             )
