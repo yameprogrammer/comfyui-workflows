@@ -71,15 +71,29 @@ python scripts/generate_bgm.py --engine sonilo \
 
 ---
 
-## 3.1 알려진 장애 (2026-07-12, 이 머신)
+## 3.1 알려진 장애 & 수정 (2026-07-12 ~ 07-14, 이 머신)
 
 | 증상 | 원인 | 대응 |
 |------|------|------|
-| mp3는 생기는데 **소리 없음/먹먹** | `generate_audio_codes=False` → peak 풀스케일 상수 PCM | 기본 ON 유지. 다운로드 후 `volumedetect` 검증 실패 시 에러 |
-| ComfyUI **프로세스 종료** | `TextEncodeAceStepAudio1.5` LM sampling 중 `CUDA error: device-side assert` (OOM 아님; RTX 4090 24GB 여유 있었음). assert 후 CUDA 컨텍스트 붕괴 → unload 중 2차 크래시 | Comfy `ace15.py` 샘플링 가드 + 에이전트 기본 `temperature=0`/`top_p=1.0`. **재시작 필수** (CUDA assert 후 서버 재사용 불가) |
-| 큐 대기 중 hang | 8188 다운 | Comfy 다시 켠 뒤 재큐 |
+| mp3는 생기는데 **소리 없음/먹먹** | `generate_audio_codes=False` → peak 풀스케일 상수 PCM | 기본 ON 유지. `validate_bgm_audio` hard fail |
+| **~16s 이상** 한 방 생성 시 동일 쓰레기 PCM | 이 환경에서 ACE LM audio-codes 단일 샷 **~15s 이하만 안정**. 더 긴 요청은 상수 PCM | `generate_bgm` 이 **15s 청크 생성 → crossfade stitch** (`AGENT_ACE_CHUNK_SEC`, 기본 15) |
+| ComfyUI **프로세스 종료** | LM sampling CUDA device-side assert (과거) | `ace15.py` float32 샘플링 가드 유지. assert 후 **Comfy 재시작** |
+| 긴 생성 품질 저하 가능 | `ace15.py` `max_tokens=lm_metadata["min_tokens"]` 오타 (동일 값이 default일 땐 무해) | Comfy `comfy/text_encoders/ace15.py` 를 `max_tokens=lm_metadata["max_tokens"]` 로 패치 |
 
-로그 위치: `F:\ComfyUI_windows_portable\ComfyUI\user\comfyui.log` (이전 크래시는 `comfyui.prev.log`)
+### 안정 운용 (이 박스)
+
+```bash
+# 45s 카페 침대 — 내부적으로 15s×3 stitch
+python scripts/generate_bgm.py --engine ace --profile turbo --audio-codes \
+  --seconds 45 --bpm 78 --prompt "soft cafe instrumental guitar piano, no vocals" \
+  -o stories/<ep>/audio/music/bgm_ace.mp3
+```
+
+- 청크마다 `/free` unload 후 생성 (연속 실패 감소)  
+- 샘플링: 공식에 가깝게 `temperature=0.85` `top_p=0.9` (에이전트 그래프)  
+- 검증 통과 예: mean ≈ −18 dB, max ≈ −2 dB  
+
+로그: `F:\ComfyUI_windows_portable\ComfyUI\user\comfyui.log`
 
 ---
 

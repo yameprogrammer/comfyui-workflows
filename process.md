@@ -886,3 +886,10 @@
 ### [2026-07-14] P2 wrap: assemble --subs, sfx notes
 - assemble_video --subs writes SRT + soft-burn companion
 - docs/sfx_queue_notes.md for layered SFX convention
+
+### [2026-07-14] ACE-Step BGM fix (chunk stitch + ace15 max_tokens)
+- Root cause (this box): single-shot ACE reliable only ~<=15s; longer => full-scale garbage PCM
+- Fix: generate_bgm auto-chunks (15s) + acrossfade stitch; free models between chunks
+- Comfy patch: text_encoders/ace15.py max_tokens=metadata max_tokens (was min_tokens twice)
+- Sampling restored to temp=0.85 top_p=0.9 (official)
+- Smoke: bgm_cafe_ace.mp3 45s mean~-18.5dB OK

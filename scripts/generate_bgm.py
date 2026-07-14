@@ -46,6 +46,74 @@ def _ffmpeg_bin() -> str | None:
     return shutil.which("ffmpeg")
 
 
+# This machine: ACE LM audio-codes reliably works up to ~15s single-shot;
+# longer requests produce full-scale garbage PCM. Stitch chunks for long beds.
+ACE_CHUNK_SEC_DEFAULT = 15.0
+
+
+def _ace_chunk_sec() -> float:
+    try:
+        return max(8.0, min(30.0, float(os.environ.get("AGENT_ACE_CHUNK_SEC", ACE_CHUNK_SEC_DEFAULT))))
+    except ValueError:
+        return ACE_CHUNK_SEC_DEFAULT
+
+
+def _free_comfy(server_address: str = DEFAULT_SERVER) -> None:
+    """Unload models between ACE chunks (reduces garbage after warm loads)."""
+    import json
+    import urllib.error
+    import urllib.request
+
+    try:
+        req = urllib.request.Request(
+            f"http://{server_address}/free",
+            data=json.dumps({"unload_models": True, "free_memory": True}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+        )
+        urllib.request.urlopen(req, timeout=60).read()
+    except Exception as e:
+        print(f"[warn] comfy free: {e}")
+
+
+def _concat_crossfade(paths: list[str], out_path: str, *, xfade_sec: float = 0.8) -> dict[str, Any]:
+    """Concatenate mp3 segments with short crossfades via ffmpeg."""
+    ff = _ffmpeg_bin()
+    if not ff:
+        return {"ok": False, "error": "FFMPEG_MISSING"}
+    if len(paths) == 1:
+        shutil.copy2(paths[0], out_path)
+        return {"ok": True, "path": out_path}
+    # Build acrossfade chain
+    # ffmpeg -i a -i b -i c -filter_complex "[0][1]acrossfade=d=0.8[a01];[a01][2]acrossfade=d=0.8[a]"
+    n = len(paths)
+    args: list[str] = []
+    for p in paths:
+        args.extend(["-i", p])
+    if n == 2:
+        fc = f"[0:a][1:a]acrossfade=d={xfade_sec}:c1=tri:c2=tri[aout]"
+    else:
+        parts = []
+        prev = "[0:a]"
+        for i in range(1, n):
+            out_l = f"[a{i}]" if i < n - 1 else "[aout]"
+            left = prev if i == 1 else f"[a{i-1}]"
+            parts.append(f"{left}[{i}:a]acrossfade=d={xfade_sec}:c1=tri:c2=tri{out_l}")
+            prev = out_l
+        fc = ";".join(parts)
+    cmd = [ff, "-y", *args, "-filter_complex", fc, "-map", "[aout]", "-c:a", "libmp3lame", "-q:a", "2", out_path]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=300, check=False)
+    except Exception as e:
+        return {"ok": False, "error": "FFMPEG_FAIL", "message": str(e)}
+    if proc.returncode != 0 or not os.path.isfile(out_path):
+        return {
+            "ok": False,
+            "error": "FFMPEG_FAIL",
+            "message": (proc.stderr or "")[-400:],
+        }
+    return {"ok": True, "path": out_path}
+
+
 def validate_bgm_audio(path: str) -> dict[str, Any]:
     """Fail hard on silent / full-scale garbage ACE outputs.
 
@@ -237,13 +305,13 @@ def _build_ace_api(
                 "language": language,
                 "keyscale": keyscale,
                 "generate_audio_codes": bool(generate_audio_codes),
-                # Safer LM sampling defaults:
-                # stock top_p=0.9 + fp16 multinomial has been observed to
-                # CUDA-assert and kill the whole Comfy process on this box.
-                # top_p=1.0 skips nucleus filter; temperature=0 uses argmax.
+                # Official defaults (turbo WF). ace15.py samples LM in float32 now,
+                # so top_p/temperature are safer than the old CUDA-assert era.
+                # temperature=0 (argmax) was observed to yield flat full-scale garbage
+                # more often on long clips after a warm model load.
                 "cfg_scale": 2.0,
-                "temperature": 0.0,
-                "top_p": 1.0,
+                "temperature": 0.85,
+                "top_p": 0.9,
                 "top_k": 0,
                 "min_p": 0.0,
             },
@@ -319,52 +387,32 @@ def _build_sonilo_api(
     }
 
 
-def generate_bgm(
-    prompt: str,
+def _generate_bgm_single(
     *,
-    lyrics: str = "",
-    seconds: float = 45.0,
-    bpm: int = 90,
-    engine: str = "ace",
-    profile: str = "turbo",
-    seed: int | None = None,
-    steps: int | None = None,
-    cfg: float | None = None,
-    language: str = "en",
-    keyscale: str = "A minor",
-    timesignature: str = "4",
-    instrumental: bool = True,
-    generate_audio_codes: bool = True,
-    output_filename: str | None = None,
-    server_address: str = DEFAULT_SERVER,
-    timeout_sec: int = 900,
-    meta_out: str | None = None,
+    prompt: str,
+    lyrics: str,
+    seconds: float,
+    bpm: int,
+    engine: str,
+    profile: str,
+    seed: int,
+    steps: int | None,
+    cfg: float | None,
+    language: str,
+    keyscale: str,
+    timesignature: str,
+    instrumental: bool,
+    generate_audio_codes: bool,
+    output_filename: str,
+    server_address: str,
+    timeout_sec: int,
+    free_before: bool = True,
 ) -> dict:
-    prompt = (prompt or "").strip()
-    if not prompt:
-        return fail_result(error="EMPTY_PROMPT", message="prompt required")
-
-    seed = seed if seed is not None else random.randint(1, 2**31 - 1)
-    seconds = max(5.0, min(float(seconds), 240.0))
-    bpm = max(40, min(int(bpm), 200))
-
-    if instrumental and "no vocal" not in prompt.lower() and "instrumental" not in prompt.lower():
-        prompt = (
-            f"{prompt.rstrip('.')}. instrumental only, no vocals, no singing, no rap, "
-            f"background music bed, clean mix"
-        )
-
-    if output_filename is None:
-        output_filename = os.path.join(
-            r"F:\generated_audio", f"bgm_{engine}_{seed}.mp3"
-        )
-    parent = os.path.dirname(os.path.abspath(output_filename))
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    """One Comfy ACE/Sonilo run into output_filename."""
+    if free_before and engine == "ace":
+        _free_comfy(server_address)
 
     prefix = f"agent_bgm_{engine}"
-    engine = engine.lower().strip()
-
     if engine == "ace":
         if profile == "base":
             unet = UNET_BASE
@@ -405,7 +453,6 @@ def generate_bgm(
         f"BGM engine={engine} profile={profile} sec={seconds} bpm={bpm} "
         f"seed={seed} steps={steps} audio_codes={generate_audio_codes if engine == 'ace' else 'n/a'}"
     )
-    print(f"  prompt[:160]={prompt[:160]!r}")
 
     try:
         prompt_id = queue_prompt(server_address, api)
@@ -473,12 +520,165 @@ def generate_bgm(
             output_path=os.path.abspath(output_filename),
             audio_stats=check,
         )
-    if check.get("warning"):
-        print(f"[warn] {check['warning']}")
-    else:
-        print(
-            f"Audio OK mean={check.get('mean_db')} dB max={check.get('max_db')} dB"
+    print(f"Audio OK mean={check.get('mean_db')} dB max={check.get('max_db')} dB")
+    return ok_result(
+        output_path=os.path.abspath(output_filename),
+        seed=seed,
+        prompt_id=prompt_id,
+        audio_stats=check,
+        steps=steps,
+        cfg=cfg,
+    )
+
+
+def generate_bgm(
+    prompt: str,
+    *,
+    lyrics: str = "",
+    seconds: float = 45.0,
+    bpm: int = 90,
+    engine: str = "ace",
+    profile: str = "turbo",
+    seed: int | None = None,
+    steps: int | None = None,
+    cfg: float | None = None,
+    language: str = "en",
+    keyscale: str = "A minor",
+    timesignature: str = "4",
+    instrumental: bool = True,
+    generate_audio_codes: bool = True,
+    output_filename: str | None = None,
+    server_address: str = DEFAULT_SERVER,
+    timeout_sec: int = 900,
+    meta_out: str | None = None,
+) -> dict:
+    prompt = (prompt or "").strip()
+    if not prompt:
+        return fail_result(error="EMPTY_PROMPT", message="prompt required")
+
+    seed = seed if seed is not None else random.randint(1, 2**31 - 1)
+    seconds = max(5.0, min(float(seconds), 240.0))
+    bpm = max(40, min(int(bpm), 200))
+
+    if instrumental and "no vocal" not in prompt.lower() and "instrumental" not in prompt.lower():
+        prompt = (
+            f"{prompt.rstrip('.')}. instrumental only, no vocals, no singing, no rap, "
+            f"background music bed, clean mix"
         )
+
+    if output_filename is None:
+        output_filename = os.path.join(
+            r"F:\generated_audio", f"bgm_{engine}_{seed}.mp3"
+        )
+    parent = os.path.dirname(os.path.abspath(output_filename))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+
+    engine = engine.lower().strip()
+    chunk_sec = _ace_chunk_sec()
+    stitch = engine == "ace" and seconds > chunk_sec + 0.5
+    print(
+        f"BGM plan engine={engine} target={seconds}s "
+        f"{'chunk=' + str(chunk_sec) + 's stitch' if stitch else 'single-shot'}"
+    )
+    print(f"  prompt[:160]={prompt[:160]!r}")
+
+    chunk_paths: list[str] = []
+    prompt_ids: list[str] = []
+    checks: list[dict] = []
+    tmp_dir = None
+    try:
+        if stitch:
+            import math
+            import tempfile
+
+            n = int(math.ceil(seconds / chunk_sec))
+            tmp_dir = tempfile.mkdtemp(prefix="ace_bgm_chunks_")
+            remaining = seconds
+            for i in range(n):
+                this_sec = min(chunk_sec, remaining)
+                remaining -= this_sec
+                chunk_path = os.path.join(tmp_dir, f"chunk_{i:02d}.mp3")
+                print(f"\n--- ACE chunk {i+1}/{n} ({this_sec:.1f}s) ---")
+                r = _generate_bgm_single(
+                    prompt=prompt,
+                    lyrics=lyrics,
+                    seconds=this_sec,
+                    bpm=bpm,
+                    engine=engine,
+                    profile=profile,
+                    seed=seed + i * 9973,
+                    steps=steps,
+                    cfg=cfg,
+                    language=language,
+                    keyscale=keyscale,
+                    timesignature=timesignature,
+                    instrumental=instrumental,
+                    generate_audio_codes=generate_audio_codes,
+                    output_filename=chunk_path,
+                    server_address=server_address,
+                    timeout_sec=timeout_sec,
+                    free_before=True,
+                )
+                if not r.get("ok"):
+                    return r
+                chunk_paths.append(chunk_path)
+                if r.get("prompt_id"):
+                    prompt_ids.append(str(r["prompt_id"]))
+                if r.get("audio_stats"):
+                    checks.append(r["audio_stats"])
+                steps = r.get("steps", steps)
+                cfg = r.get("cfg", cfg)
+            print(f"\nStitching {len(chunk_paths)} chunks → {output_filename}")
+            cr = _concat_crossfade(chunk_paths, output_filename, xfade_sec=0.75)
+            if not cr.get("ok"):
+                return fail_result(
+                    error=cr.get("error") or "STITCH_FAILED",
+                    message=cr.get("message") or "chunk concat failed",
+                    seed=seed,
+                )
+            check = validate_bgm_audio(output_filename)
+            if not check.get("ok"):
+                return fail_result(
+                    error=check.get("error") or "AUDIO_INVALID",
+                    message=check.get("message") or "stitched audio invalid",
+                    seed=seed,
+                    audio_stats=check,
+                )
+            print(
+                f"Stitch OK mean={check.get('mean_db')} dB max={check.get('max_db')} dB"
+            )
+            prompt_id = prompt_ids[-1] if prompt_ids else None
+        else:
+            r = _generate_bgm_single(
+                prompt=prompt,
+                lyrics=lyrics,
+                seconds=seconds,
+                bpm=bpm,
+                engine=engine,
+                profile=profile,
+                seed=seed,
+                steps=steps,
+                cfg=cfg,
+                language=language,
+                keyscale=keyscale,
+                timesignature=timesignature,
+                instrumental=instrumental,
+                generate_audio_codes=generate_audio_codes,
+                output_filename=output_filename,
+                server_address=server_address,
+                timeout_sec=timeout_sec,
+                free_before=(engine == "ace"),
+            )
+            if not r.get("ok"):
+                return r
+            check = r.get("audio_stats") or {}
+            prompt_id = r.get("prompt_id")
+            steps = r.get("steps", steps)
+            cfg = r.get("cfg", cfg)
+    finally:
+        if tmp_dir and os.path.isdir(tmp_dir):
+            shutil.rmtree(tmp_dir, ignore_errors=True)
 
     meta_path = resolve_meta_out(output_filename, meta_out)
     meta = {
@@ -495,15 +695,21 @@ def generate_bgm(
         "keyscale": keyscale,
         "instrumental": instrumental,
         "generate_audio_codes": generate_audio_codes if engine == "ace" else None,
+        "ace_chunk_sec": chunk_sec if stitch else None,
+        "ace_stitched": bool(stitch),
         "audio_stats": {
             k: check[k]
             for k in ("mean_db", "max_db", "size", "warning")
-            if k in check
+            if k in (check or {})
         },
         "output_path": os.path.abspath(output_filename),
         "comfy_prompt_id": prompt_id,
         "created_at": utc_now_iso(),
         "assemble_hint": "place under stories/<ep>/audio/music/ ; mix_policy bgm late",
+        "fix": (
+            "ACE reliable single-shot ~15s on this box; longer beds auto-chunk+crossfade. "
+            "Requires generate_audio_codes=True. Comfy ace15 max_tokens bug patched."
+        ),
     }
     if meta_path:
         write_meta(meta_path, meta)
