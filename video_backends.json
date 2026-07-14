@@ -232,15 +232,32 @@
     "ltx23_aio_v2v": {
       "status": "ready",
       "kind": "s2v",
-      "engine": "LTX AIO Video to Video — switch select",
-      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_v2v -i last_of_prev.png [-a drive.wav]",
-      "notes": "Activates [[P:03 Video to Video]]. Chain scripts often use i2v_audio + last frame as first instead."
+      "engine": "LTX AIO Video to Video — switch select (legacy alias)",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_v2v -i still.png [-v drive.mp4]",
+      "notes": "Legacy name. Prefer ltx23_aio_v2v_true + generate_v2v for reference-video intents. Without -v behaves like still-conditioned path."
     },
     "ltx23_aio_v2v_audio": {
       "status": "ready",
       "kind": "s2v",
-      "engine": "LTX AIO V2V + Audio — switch select",
-      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_v2v_audio -i ref.png -a drive.wav"
+      "engine": "LTX AIO V2V + Audio — switch select (legacy alias)",
+      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_v2v_audio -i ref.png -a drive.wav [-v video.mp4]"
+    },
+    "ltx23_aio_v2v_true": {
+      "status": "experimental",
+      "kind": "v2v",
+      "engine": "LTX AIO [[P:03 Video to Video]] + VHS_LoadVideo (true -v)",
+      "workflow": "scripts/generate_v2v.py --intent camera|motion|style -v ref.mp4 -i key.png",
+      "intents": ["camera", "motion", "style"],
+      "strengths": ["camera_plate", "motion_retarget", "style_transfer"],
+      "notes": "SSOT: docs/v2v_intent_pipeline_design.md. Requires driving video copy into Comfy input."
+    },
+    "ltx23_aio_v2v_true_audio": {
+      "status": "experimental",
+      "kind": "v2v",
+      "engine": "LTX AIO V2V + Audio ports",
+      "workflow": "scripts/generate_v2v.py --intent motion -v ref.mp4 -i key.png -a drive.wav",
+      "intents": ["camera", "motion", "style"],
+      "notes": "Optional audio track; not a substitute for SI2V lips."
     },
     "ltx23_aio_t2v": {
       "status": "ready",

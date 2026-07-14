@@ -133,10 +133,46 @@ def build_aio_switched_api(
         _set(api, "786", "image", last_image_name)
     if mid_image_name:
         _set(api, "1705", "image", mid_image_name)
-    # V2V video if present as VHS_LoadVideo
-    if video_name and "787" in api:
-        # widgets vary; set common field names
-        _set(api, "787", "video", video_name)
+    # V2V: VHS_LoadVideo [[P:03 Video to Video]] (node 787 in AIO v44)
+    if video_name:
+        load_ids = []
+        if "787" in api:
+            load_ids.append("787")
+        for nid, node in api.items():
+            if not isinstance(node, dict):
+                continue
+            if node.get("class_type") == "VHS_LoadVideo" and nid not in load_ids:
+                load_ids.append(str(nid))
+        skip_frames = 0
+        if fps_i > 0 and float(trim_start_sec or 0) > 0:
+            skip_frames = max(0, int(round(float(trim_start_sec) * float(fps_i))))
+        frame_cap = 0
+        if fps_i > 0 and float(trim_dur or 0) > 0:
+            frame_cap = max(1, int(round(float(trim_dur) * float(fps_i))))
+        for nid in load_ids:
+            _set(api, nid, "video", video_name)
+            _set(api, nid, "force_rate", float(fps_i))
+            if skip_frames:
+                _set(api, nid, "skip_first_frames", int(skip_frames))
+            if frame_cap:
+                _set(api, nid, "frame_load_cap", int(frame_cap))
+            # Keep UI preview payload in sync if expand left it as a dict
+            try:
+                prev = (api.get(nid) or {}).get("inputs", {}).get("videopreview")
+                if isinstance(prev, dict):
+                    params = dict(prev.get("params") or {})
+                    params["filename"] = video_name
+                    params["type"] = "input"
+                    params["force_rate"] = float(fps_i)
+                    if skip_frames:
+                        params["skip_first_frames"] = int(skip_frames)
+                    if frame_cap:
+                        params["frame_load_cap"] = int(frame_cap)
+                    prev = dict(prev)
+                    prev["params"] = params
+                    _set(api, nid, "videopreview", prev)
+            except Exception:
+                pass
 
     _set(api, "1792", "start_index", float(trim_start_sec))
     _set(api, "1792", "duration", float(trim_dur))
@@ -178,5 +214,7 @@ def build_aio_switched_api(
         "seed": seed,
         "mode_changes": len(ui.get("_agent_aio_mode_changes") or []),
         "active_ports": ui.get("_agent_aio_active_ports"),
+        "video_name": video_name,
+        "image_name": image_name,
     }
     return api, meta

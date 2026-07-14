@@ -58,6 +58,7 @@
 | [comfy_memory_and_model_switching.md](comfy_memory_and_model_switching.md) | VRAM·모델 패밀리 전환 | ✅ |
 | [upscale_research_and_design.md](upscale_research_and_design.md) | ≤4K 업스케일 | ✅ |
 | [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) | FLF/원테이크 이음 | ✅ chain_one_take · shot_compose --from-prev-shot |
+| [v2v_intent_pipeline_design.md](v2v_intent_pipeline_design.md) | **V2V 의도** camera/motion/style · generate_v2v | 📋 P0 · experimental |
 | [shorts_subtitles.md](shorts_subtitles.md) | 쇼츠 SRT + soft burn | ✅ |
 | [sfx_queue_notes.md](sfx_queue_notes.md) | SFX 큐 관례 | ✅ 문서 |
 | [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md) | **댄스 챌린지 쇼츠 공정** (레퍼 안무·별 장르) | 📋 설계 초안 · 미착수 |

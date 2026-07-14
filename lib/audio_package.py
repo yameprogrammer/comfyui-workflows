@@ -41,7 +41,15 @@ MIX_POLICIES = (
     "layered",
 )
 
-MOTION_DRIVERS = ("i2v", "si2v", "still", "flf2v")
+MOTION_DRIVERS = (
+    "i2v",
+    "si2v",
+    "still",
+    "flf2v",
+    "v2v_camera",
+    "v2v_motion",
+    "v2v_style",
+)
 
 STEM_DIRS = ("masters", "music", "dialogue", "vo", "sfx", "beds", "exports")
 

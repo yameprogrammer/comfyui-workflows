@@ -24,7 +24,15 @@
     },
     "default_motion_driver": {
       "type": "string",
-      "enum": ["i2v", "si2v", "still", "flf2v"]
+      "enum": [
+        "i2v",
+        "si2v",
+        "still",
+        "flf2v",
+        "v2v_camera",
+        "v2v_motion",
+        "v2v_style"
+      ]
     },
     "default_backend_i2v": { "type": "string" },
     "default_backend_s2v": { "type": ["string", "null"] },
@@ -52,7 +60,30 @@
           "duration_sec": { "type": "number" },
           "motion_driver": {
             "type": "string",
-            "enum": ["i2v", "si2v", "still", "flf2v"]
+            "enum": [
+              "i2v",
+              "si2v",
+              "still",
+              "flf2v",
+              "v2v_camera",
+              "v2v_motion",
+              "v2v_style"
+            ]
+          },
+          "video_refs": {
+            "type": "object",
+            "description": "V2V driving video refs — see docs/v2v_intent_pipeline_design.md",
+            "properties": {
+              "driving": { "type": "string" },
+              "video": { "type": "string" },
+              "intent": {
+                "type": "string",
+                "enum": ["camera", "motion", "style"]
+              },
+              "trim_start_sec": { "type": "number" },
+              "trim_duration_sec": { "type": ["number", "null"] },
+              "strength": { "type": "number" }
+            }
           },
           "character_ids": { "type": "array", "items": { "type": "string" } },
           "location_id": { "type": ["string", "null"] },

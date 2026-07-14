@@ -1,3 +1,9 @@
+## 2026-07-15 — V2V intent pipeline (camera/motion/style) P0
+- docs/v2v_intent_pipeline_design.md SSOT (separate from FLF + SI2V)
+- lib/v2v_contract.py · generate_v2v.py · episode_v2v.py
+- LTX AIO true video inject (node 787 VHS_LoadVideo) + generate_s2v --video
+- backends: ltx23_aio_v2v_true(_audio); motion_driver enum v2v_*
+- tooling_todo P3-4; schema video_refs
 ## 2026-07-15 — ComfyUI auto-ensure (autostart)
 - `lib/comfy_client.ensure_comfy_running`: probe → lock → bat spawn → ready wait
 - Default bat: `F:\ComfyUI_windows_portable\run_nvidia_gpu_fast_fp16_accumulation.bat`

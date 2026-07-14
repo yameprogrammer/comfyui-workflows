@@ -44,7 +44,14 @@ def _filter_i2v_drivers(story: StoryPackage, selected: list[dict]) -> tuple[list
         d = shot_motion_driver(s, story.doc)
         if d in ("i2v",):
             run.append(s)
-        elif d in ("still", "si2v", "flf2v"):
+        elif d in (
+            "still",
+            "si2v",
+            "flf2v",
+            "v2v_camera",
+            "v2v_motion",
+            "v2v_style",
+        ):
             skip.append(s)
         else:
             run.append(s)

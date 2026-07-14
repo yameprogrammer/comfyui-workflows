@@ -97,6 +97,8 @@ S2V_BACKENDS = (
     "ltx23_aio_fml_audio",
     "ltx23_aio_v2v",
     "ltx23_aio_v2v_audio",
+    "ltx23_aio_v2v_true",
+    "ltx23_aio_v2v_true_audio",
     "ltx23_aio_t2v",
     "ltx23_aio_t2v_audio",
 )
@@ -545,9 +547,14 @@ def generate_s2v(
     guide_strength: float = 0.9,
     allow_clamp: bool | None = None,
     tail_sec: float | None = None,
+    video_path: str | None = None,
+    trim_start_sec: float = 0.0,
 ) -> dict:
-    if not os.path.isfile(input_image_path):
+    # T2V / pure V2V may omit still; still required for classic I2V/SI2V paths.
+    if input_image_path and not os.path.isfile(input_image_path):
         return fail_result(error="SOURCE_MISSING", message=input_image_path)
+    if video_path and not os.path.isfile(video_path):
+        return fail_result(error="VIDEO_MISSING", message=video_path)
 
     backend = (backend or "ltx23_ia2v").strip().lower()
     if backend not in S2V_BACKENDS:
@@ -658,11 +665,23 @@ def generate_s2v(
         )
     ensure_parent_dir(output_filename)
 
-    # copy image + optional audio into Comfy input
-    img_name = "temp_s2v_input.png"
+    # copy image + optional audio/video into Comfy input
+    img_name = None
     audio_name = "temp_s2v_drive.wav"
     os.makedirs(COMFYUI_INPUT_DIR, exist_ok=True)
-    shutil.copy2(input_image_path, os.path.join(COMFYUI_INPUT_DIR, img_name))
+    if input_image_path and os.path.isfile(input_image_path):
+        img_name = "temp_s2v_input.png"
+        shutil.copy2(input_image_path, os.path.join(COMFYUI_INPUT_DIR, img_name))
+    vid_name = None
+    if video_path and os.path.isfile(video_path):
+        vext = os.path.splitext(video_path)[1].lower() or ".mp4"
+        if vext not in (".mp4", ".webm", ".mov", ".mkv", ".avi", ".gif"):
+            vext = ".mp4"
+        vid_name = f"temp_s2v_drive{vext}"
+        shutil.copy2(
+            os.path.abspath(video_path),
+            os.path.join(COMFYUI_INPUT_DIR, vid_name),
+        )
     audio_abs = os.path.abspath(audio_path) if audio_path else ""
     if audio_path and os.path.isfile(audio_path):
         # preserve extension (AIO LoadAudio handles mp3/wav)
@@ -723,6 +742,13 @@ def generate_s2v(
             return fail_result(
                 error="MID_LAST_REQUIRED", message=f"mode {mode} needs --mid and --last"
             )
+        if mode in ("v2v", "v2v_audio") and not vid_name:
+            # True V2V needs a driving video. Legacy last-frame-only calls still work as I2V-like.
+            print(
+                "[WARN] mode v2v without --video: AIO Video port has no file "
+                "(legacy last-frame / still-only path)",
+                file=sys.stderr,
+            )
 
         force_mini = os.environ.get("AGENT_LTX_FORCE_MINI_GRAPH", "").strip().lower() in (
             "1",
@@ -739,6 +765,14 @@ def generate_s2v(
         ltx_runner = "none"
 
         adur = _probe_audio_duration(audio_path) if audio_path else None
+        vdur = None
+        if video_path and os.path.isfile(video_path):
+            try:
+                from lib.ffmpeg_util import probe_duration as _probe_vid
+
+                vdur = _probe_vid(video_path)
+            except Exception:
+                vdur = None
         edge = max(int(width), int(height))
         if edge < 512:
             edge = 1024
@@ -768,6 +802,10 @@ def generate_s2v(
             clip_sec = float(int(_math.ceil(float(adur) + pad - 1e-9)) + max(0, extra))
         elif num_frames and fps:
             clip_sec = float(num_frames) / float(fps)
+        elif vdur and mode in ("v2v", "v2v_audio", "i2v", "i2v_audio"):
+            # True V2V: length from driving video after trim_start
+            remain = max(0.1, float(vdur) - float(trim_start_sec or 0.0))
+            clip_sec = remain
         if seed is None:
             seed = random.randint(0, 2**63 - 1)
 
@@ -779,12 +817,15 @@ def generate_s2v(
                     audio_name=audio_for_graph,
                     last_image_name=last_name,
                     mid_image_name=mid_name,
+                    video_name=vid_name,
                     prompt=prompt,
                     negative=negative or "animation, cartoon, text",
                     seed=int(seed),
-                    audio_duration_sec=float(adur) if adur else None,
+                    audio_duration_sec=float(adur) if adur else (
+                        float(clip_sec) if clip_sec and mode in ("v2v", "v2v_audio") else None
+                    ),
                     clip_length_sec=clip_sec,
-                    trim_start_sec=0.0,
+                    trim_start_sec=float(trim_start_sec or 0.0),
                     longer_edge=edge,
                     aspect=aspect,
                     fps=int(round(float(fps))),
@@ -1186,8 +1227,26 @@ def generate_s2v(
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="SI2V multi-backend (InfiniteTalk / LTX AIO modes)")
-    p.add_argument("--input", "-i", required=True, help="First/keyframe image (v2v: last frame of prior clip)")
+    p.add_argument(
+        "--input",
+        "-i",
+        required=True,
+        help="First/keyframe image (true V2V: identity/scene still; legacy v2v: last frame)",
+    )
     p.add_argument("--audio", "-a", default=None, help="Driving audio (required for *_audio / IT)")
+    p.add_argument(
+        "--video",
+        "-v",
+        default=None,
+        dest="video_path",
+        help="Driving/reference video for AIO v2v / v2v_audio (VHS_LoadVideo)",
+    )
+    p.add_argument(
+        "--trim-start",
+        type=float,
+        default=0.0,
+        help="Seconds to skip at start of driving video / audio trim (AIO)",
+    )
     p.add_argument("--last", default=None, dest="last_image", help="Last frame (flf/fml)")
     p.add_argument("--mid", default=None, dest="mid_image", help="Mid frame (fml)")
     p.add_argument(
@@ -1327,6 +1386,8 @@ def main(argv=None) -> int:
         guide_strength=args.guide_strength,
         allow_clamp=True if args.allow_clamp else None,
         tail_sec=args.tail_sec,
+        video_path=args.video_path,
+        trim_start_sec=float(args.trim_start or 0.0),
     )
     if r.get("ok"):
         print(f"OK {r.get('output_path') or '(dry-run)'}")

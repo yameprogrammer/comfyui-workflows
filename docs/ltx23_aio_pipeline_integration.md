@@ -27,11 +27,12 @@
 | First/Last + Audio | `ltx23_aio_flf_audio` | `+ -a wav` | △ | ❌ |
 | First/Mid/Last | `ltx23_aio_fml` | `-i --mid --last` | △ | ❌ |
 | First/Mid/Last + Audio | `ltx23_aio_fml_audio` | `+ -a` | △ | ❌ |
-| Video to Video | `ltx23_aio_v2v` | `-i last_of_prev.png` [ `-a` ] | △ last-frame continue | ❌ (ExtendSampler 아님) |
+| Video to Video | `ltx23_aio_v2v_true` | `-v drive.mp4 -i still.png` | ✅ true LoadVideo | ✅ `[[P:03]]` |
+| Video to Video (legacy name) | `ltx23_aio_v2v` | `-i still` [ `-v` ] | △ still-only if no `-v` | 모드 스위치 |
 
-**V2V 주의:** 에이전트 V2V는 AIO의 풀 latent `ExtendSampler` 연장이 아니라,  
-**이전 클립 마지막 프레임을 first로 이어서 생성** (원테이크 last-frame 체인과 동일 철학).  
-풀 인코드 연장은 후속.
+**V2V 의도 파이프 (camera/motion/style):** [v2v_intent_pipeline_design.md](v2v_intent_pipeline_design.md) · `scripts/generate_v2v.py`.  
+**레거시 주의:** 예전 메모의 “last-frame continue = V2V” 는 원테이크 체인 철학이었고,  
+**레퍼 영상 모션/카메라/스타일** 은 `generate_v2v --intent … -v` 경로를 쓴다.
 
 또는 `--backend ltx23_aio --ltx-mode flf_audio` 처럼 **mode 오버라이드** 가능.
 

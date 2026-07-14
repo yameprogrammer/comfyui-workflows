@@ -134,6 +134,16 @@
 
 - 예: pure_mv_hook, product_ugc — 필요 시 동일 패턴으로 문서화  
 
+### P3-4. V2V 의도 파이프 (camera / motion / style)
+
+| 항목 | 내용 |
+|------|------|
+| **의도** | 레퍼 비디오로 카메라 연출·모션 리타겟·스타일 트랜스퍼 (본선 SI2V와 분리) |
+| **SSOT** | **[v2v_intent_pipeline_design.md](v2v_intent_pipeline_design.md)** |
+| **P0** | `generate_v2v.py` · AIO `-v` inject · `ltx23_aio_v2v_true` · schema enum |
+| **P1** | `episode_v2v.py` 배치 강화 · status flags · length hard contract |
+| **하지 않음** | 대사 본선 대체 · FLF를 V2V에 흡수 |
+
 ---
 
 ## 하지 않음 (의도적)
@@ -172,6 +182,8 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 - [ ] P2-1 face restore / P2-3 SFX lib / P2-4 pose lock / P2-5 OM 이식 (선택)
 - [ ] **P3-1 댄스 챌린지 파이프** — [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md)  
 - [x] **P3-2 기획 자율** — 문서 레일 [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) (기능 코드 비필수)  
+- [x] **P3-4 V2V 의도 P0** — [v2v_intent_pipeline_design.md](v2v_intent_pipeline_design.md) · `generate_v2v` / `episode_v2v`  
+- [ ] **P3-4 V2V P1** — status/length 계약·실 스모크 클립  
 
 ---
 
@@ -179,6 +191,7 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 
 | 날짜 | 내용 |
 |------|------|
+| 2026-07-15 | **P3-4 V2V intent** 설계 + P0 CLI (camera/motion/style) |
 | 2026-07-14 | 초안. P0–P2 백로그. “잔잔” → **음성 감정 연동 퍼포먼스** 로 정정 반영 |
 | 2026-07-14 | **P3-1 댄스 챌린지** 백로그 + 설계 초안 링크. 토킹 에피와 별 트랙 명시 |
 | 2026-07-14 | **P0-2 performance** 테이블 + episode_tts/s2v 연동 + still 오탐 수정 |

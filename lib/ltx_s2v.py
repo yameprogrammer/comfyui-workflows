@@ -66,6 +66,9 @@ BACKEND_TO_AIO_MODE = {
     "ltx23_aio_fml_audio": "fml_audio",
     "ltx23_aio_v2v": "v2v",
     "ltx23_aio_v2v_audio": "v2v_audio",
+    # True reference-video V2V (generate_v2v / --video inject)
+    "ltx23_aio_v2v_true": "v2v",
+    "ltx23_aio_v2v_true_audio": "v2v_audio",
     "ltx23_aio_t2v": "t2v",
     "ltx23_aio_t2v_audio": "t2v_audio",
 }

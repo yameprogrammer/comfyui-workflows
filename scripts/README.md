@@ -19,6 +19,8 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | 스크립트 | 역할 | 워크플로우 (catalog) |
 |----------|------|----------------------|
 | `comfy_ensure.py` | ComfyUI 기동 확인/자동 기동 (중복 방지) | `127.0.0.1:8188` · bat autostart |
+| `generate_v2v.py` | V2V 의도 (camera/motion/style) | LTX AIO true `-v` · docs/v2v_intent… |
+| `episode_v2v.py` | 에피소드 `motion_driver=v2v_*` 배치 | `refs/video` + approved keyframe |
 | `generate_moody.py` | T2I | `t2i_moody` |
 | `generate_moody_i2i.py` | I2I | `i2i_moody` |
 | `generate_moody_controlnet.py` | I2I + ControlNet | `i2i_controlnet_moody` |
