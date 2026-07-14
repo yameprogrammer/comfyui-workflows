@@ -168,7 +168,8 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 - [x] P1-3 surgical keyframe edit path  
 - [x] P1-4 clip review contact soft  
 - [x] P1-5 TTS–performance 원샷 (`episode_tts --performance`, thin)
-- [x] P2-2 subtitles SRT+burn\n- [ ] P2-1/3/4/5 선택  
+- [x] P2-2 subtitles SRT+burn  
+- [ ] P2-1 face restore / P2-3 SFX lib / P2-4 pose lock / P2-5 OM 이식 (선택)
 - [ ] **P3-1 댄스 챌린지 파이프** — [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md)  
 - [x] **P3-2 기획 자율** — 문서 레일 [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) (기능 코드 비필수)  
 

@@ -882,3 +882,7 @@
 ### [2026-07-14] P2-2 episode subtitles SRT + soft burn
 - `lib/subtitles.py`, `scripts/episode_subtitles.py`
 - Timeline from work clips; soft-burn via ffmpeg subtitles filter
+
+### [2026-07-14] P2 wrap: assemble --subs, sfx notes
+- assemble_video --subs writes SRT + soft-burn companion
+- docs/sfx_queue_notes.md for layered SFX convention

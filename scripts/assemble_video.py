@@ -220,6 +220,11 @@ def main(argv=None) -> int:
         help="Fail if mix_policy needs audio but stems missing",
     )
     parser.add_argument(
+        "--subs",
+        action="store_true",
+        help="After assemble: write SRT and soft-burn to <final>_subs.mp4 (P2-2)",
+    )
+    parser.add_argument(
         "--force-clip-gate",
         action="store_true",
         help=(
@@ -645,6 +650,26 @@ def main(argv=None) -> int:
     print(f"OK final={out}")
     print(f"  meta={meta_path}")
     print(f"  has_audio={has_audio}")
+
+    if args.subs and not args.dry_run:
+        try:
+            from lib.subtitles import burn_subtitles, write_episode_srt
+
+            srt_r = write_episode_srt(story)
+            print(f"  srt={srt_r.get('path')} cues={srt_r.get('cue_count')}")
+            root, ext = os.path.splitext(out)
+            subs_out = f"{root}_subs{ext or '.mp4'}"
+            br = burn_subtitles(out, srt_r["path"], subs_out)
+            if br.get("ok"):
+                print(f"  subs_burned={br.get('output_path') or subs_out}")
+            else:
+                print(
+                    f"[WARN] subs burn failed: {br.get('error')} {br.get('message')}",
+                    file=sys.stderr,
+                )
+        except Exception as e:
+            print(f"[WARN] --subs failed: {e}", file=sys.stderr)
+
     return EXIT_OK
 
 

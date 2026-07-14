@@ -57,7 +57,9 @@
 | [ltx23_aio_ia2v_agent_usage.md](ltx23_aio_ia2v_agent_usage.md) | LTX IA2V 에이전트 사용법 | ✅ |
 | [comfy_memory_and_model_switching.md](comfy_memory_and_model_switching.md) | VRAM·모델 패밀리 전환 | ✅ |
 | [upscale_research_and_design.md](upscale_research_and_design.md) | ≤4K 업스케일 | ✅ |
-| [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) | FLF/원테이크 이음 | 📋 예정 (CLI 미완) |
+| [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) | FLF/원테이크 이음 | ✅ chain_one_take · shot_compose --from-prev-shot |
+| [shorts_subtitles.md](shorts_subtitles.md) | 쇼츠 SRT + soft burn | ✅ |
+| [sfx_queue_notes.md](sfx_queue_notes.md) | SFX 큐 관례 | ✅ 문서 |
 | [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md) | **댄스 챌린지 쇼츠 공정** (레퍼 안무·별 장르) | 📋 설계 초안 · 미착수 |
 | [delivery_handoff.md](delivery_handoff.md) | `deliveries/` 패키징 | ✅ |
 
