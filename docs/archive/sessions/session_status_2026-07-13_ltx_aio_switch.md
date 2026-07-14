@@ -1,3 +1,5 @@
+> **ARCHIVED (2026-07-14)** — 운영 SSOT 아님. 인덱스: [../../README.md](../../README.md). 활성 백로그: [../../agent_video_tooling_todo.md](../../agent_video_tooling_todo.md).
+
 # 세션 상태 — 2026-07-13 (LTX AIO 스위치 · cafe_gomin 쇼츠)
 
 - **채널**: 채널 주인장이 뭐해야 할지모르겠답니다  
@@ -66,18 +68,25 @@
 
 ## 3. 다음에 할 일 (Next)
 
+### 공정 규칙 (2026-07-13 추가 · 완료)
+- **합본 전 컷별 검수** Rule 7.2 · `clip_status` · assemble exit 22 · chain 이전 컷 승인 필수  
+- 퀄리티 실험도 **컷 승인 후** 합본 — 중간 컷만 고치려고 final을 먼저 보지 말 것
+
 우선순위 제안:
 
-1. **LTX 얼굴 살리기**  
-   - 샷 3–5s 분할, `clip ≈ audio (+0.3~0.5s)`  
-   - **approved 키프레임 고정** (붕괴 last-frame seed 금지)  
+1. **LTX 얼굴/입·사물** (컷 단위) — **S02 벤치 완료**  
+   - ✅ S02 A/B: baseline 6s (**채택**, 입·사물) ≫ tight 4s / IT mild  
+   - ✅ Clip Length 기본 **`audio+1.5`** 유지 (`AGENT_LTX_CLIP_TIGHT=1` 실험용)  
+   - ✅ 본선 `S02_s2v.mp4` = baseline (교체 없음)  
+   - ⬜ S02 `shot_approve --clip approved`  
+   - ⬜ S03/S05 장대사: 분할 vs 고정 KF vs 체인 (장클립 드리프트는 별 과제)  
    - 필요 시 FLF (`ltx23_aio_flf(_audio)`)
 
 2. **IT turbo/mild 프로파일**  
    - 4step/480p vs 8–10step 1샷 벤치 (시간·얼굴)  
    - hero 대사만 IT, 나머지는 LTX 하이브리드
 
-3. **조립**  
+3. **조립** (전 컷 clip approved 후)  
    - 클립 오디오/TTS remux 정책 정리  
    - playable 24fps 조립 경로 고정
 
@@ -106,3 +115,4 @@
 - 강제 미니: `AGENT_LTX_FORCE_MINI_GRAPH=1`  
 - IT attention 폴백: `AGENT_IT_ATTENTION=sdpa`  
 - 에피소드 런타임 산출물(clips/exports/mp4)은 `.gitignore` — 로컬/채널 워크스페이스에만 존재
+

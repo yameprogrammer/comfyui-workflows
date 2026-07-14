@@ -29,11 +29,11 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `location_approve.py` | refs → approved 승격 | aliases: master_wide, empty_stage, … |
 | `story_init.py` | 에피소드 패키지 생성 | `stories/` + format + look |
 | `shot_compose.py` | look+char+loc → 키프레임 | format work size |
-| `shot_approve.py` | keyframe_status 승격 | I2V 전 게이트 |
+| `shot_approve.py` | keyframe / **clip** / lip 승격 | I2V 전 + **assemble 전 컷 게이트** |
 | `episode_i2v.py` | approved 키프레임 배치 I2V (`motion_driver=i2v`) | → `clips/work/` |
 | `episode_s2v.py` | approved 키프레임 배치 SI2V (`motion_driver=si2v`) | → `clips/work/*_s2v.mp4` |
 | `episode_upscale.py` | work 클립 배치 업스케일 | → `clips/deliver/` (default rtx_vsr) |
-| `assemble_video.py` | FFmpeg concat + **mix_policy** stems | → `exports/final/` |
+| `assemble_video.py` | FFmpeg concat + **mix_policy** stems; **clip_status hard gate** (exit 22) | → `exports/final/` |
 | `audio_status.py` | production_mode / stems / si2v 준비도 | 설계: docs/audio_motion_production_modes.md |
 | `audio_slice.py` | 마스터 음원 구간 추출 → stems | 뮤비/SI2V 준비 |
 | `audio_prepare_driving.py` | SI2V 드라이빙 stem (center/voicey/vocal_band) | MelBand 없을 때 FFmpeg 폴백 |
@@ -68,7 +68,7 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `story_init.py` | 에피소드 패키지 | shots.json + format/look |
 | `shot_compose.py` | 프로덕션 키프레임 | look+char+loc @ format; shot_type ref 바인딩 |
 | `storyboard_export.py` | 보드 contact + inventory | 사람 게이트용 패키지 |
-| `shot_approve.py` | keyframe_status 승격 | draft→approved |
+| `shot_approve.py` | keyframe / clip_status / lip_status | draft→approved; assemble needs `--clip approved` |
 | `episode_i2v.py` | approved 키프레임→영상 | motion-only 프롬프트 |
 | `generate_qwen3_tts.py` | 대사/VO TTS | custom/design/clone + temp/top-p 튜닝 |
 | `voice_register.py` | 클론 보이스 등록 | `voices/<id>/` (본인·타인 샘플) |

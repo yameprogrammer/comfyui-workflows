@@ -1,42 +1,94 @@
-# docs/ — 에이전트용 설계·스펙 문서
+# docs/ — 에이전트용 설계·스펙 (2026-07-14 정리)
 
 코드보다 **문서 SSOT**를 둘 때 이 폴더를 연다.  
-실행 규칙·작업 이력은 루트 `agent_rules.md` / `process.md` 를 유지한다.
+실행 규칙·이력: 루트 `agent_rules.md` · `process.md` · 소비자 `AGENTS.md`.
 
-## 영상 제작 — 자산 파이프 (읽기 순서)
+**정리 원칙**
 
-| 순서 | 문서 | 역할 |
+| 구역 | 의미 |
+|------|------|
+| **활성 (아래 표)** | 지금 파이프·기본값·게이트의 SSOT 또는 살아 있는 백로그 |
+| **참고** | 설계 배경·리서치. 구현과 충돌하면 **활성 문서·코드 우선** |
+| **`archive/`** | 유효 기간 지난 세션 노트·일회성 디버그·원문 리서치 — [archive/README.md](archive/README.md) |
+
+---
+
+## 1. 에이전트가 먼저 읽을 것 (쇼츠 제작)
+
+| 우선 | 문서 | 역할 | 상태 |
+|------|------|------|------|
+| 0 | [agent_consumer_workspace_contract.md](agent_consumer_workspace_contract.md) | 공장 vs 작업대 · export 의무 | ✅ 계약 |
+| 1 | [production_asset_pipeline.md](production_asset_pipeline.md) | 캐릭·로케·룩·스토리·I2V 통합 지도 | ✅ |
+| 2 | [agent_video_tooling_todo.md](agent_video_tooling_todo.md) | **근시일 구현 백로그** (길이·감정 모션·export) | 📋 TODO |
+| 3 | [agent_av_smoke_checklist.md](agent_av_smoke_checklist.md) | AV 스모크·컷 승인 체크 | ✅ |
+| 4 | [audio_motion_production_modes.md](audio_motion_production_modes.md) | production_mode · SI2V · mix | ✅ 구현 진행 |
+| 5 | [video_delivery_and_backends.md](video_delivery_and_backends.md) | format / work·deliver / 백엔드 | ✅ |
+| 6 | [commission_workflow.md](commission_workflow.md) | 수주 → 납품 순서 | ✅ |
+| — | [grok_build_hybrid_tooling.md](grok_build_hybrid_tooling.md) | Grok 전용: 네이티브+공장 (Rule 8) | ✅ |
+
+---
+
+## 2. 자산 파이프 (캐릭 · 룩 · 로케 · 보드)
+
+| 문서 | 역할 | 상태 |
 |------|------|------|
-| 1 | [production_asset_pipeline.md](production_asset_pipeline.md) | **통합 지도** — 캐릭터·로케·룩·스토리·I2V·납품 |
-| 2 | [character_impl_spec.md](character_impl_spec.md) | 캐릭터 시트 **구현 SSOT** |
-| 2b | [character_casting_pipeline.md](character_casting_pipeline.md) | **탐색 풀 → 승격 → 일관 시트** 공정 |
-| 3 | [location_sheet_system_design.md](location_sheet_system_design.md) | 로케이션 시트 설계 (구현 대기) |
-| 4 | [look_style_system.md](look_style_system.md) | Look/style core (`looks/`) |
-| 5 | [storyboard_pipeline_design.md](storyboard_pipeline_design.md) | 샷리스트·보드·키프레임 설계 (구현 대기) |
-| 6 | [video_pipeline_roadmap.md](video_pipeline_roadmap.md) | 전체 영상 로드맵 |
-| 7 | [video_delivery_and_backends.md](video_delivery_and_backends.md) | format / work·deliver / I2V 백엔드 |
-| 8 | [upscale_research_and_design.md](upscale_research_and_design.md) | 업스케일 ≤4K |
-| 9 | [delivery_handoff.md](delivery_handoff.md) | 사용자 납품 패키징 (`deliveries/`) |
-| 10 | [commission_workflow.md](commission_workflow.md) | 수주 브리프 → 납품 순서 |
-| 11 | [audio_motion_production_modes.md](audio_motion_production_modes.md) | **오디오·SI2V·production_mode / mix_policy** |
-| 12 | [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) | **📋 FLF2V/F2F** 싱글테이크 이음 — 예정 기능 (S6) |
-| 13 | [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md) | LTX AIO 백엔드 매핑 (구 approx → **스위치 러너 기본**) |
-| 13b | [ltx23_aio_workflow_routing_analysis.md](ltx23_aio_workflow_routing_analysis.md) | **AIO 스위치·mute·`[[P:]]` 라우팅 분석** |
-| 13c | [ltx23_aio_ia2v_agent_usage.md](ltx23_aio_ia2v_agent_usage.md) | **IA2V 사용법** — Trim/Clip/해상도 입력별 조정 + 스위치 러너 |
-| 13d | [ltx23_manual_vs_agent_failure_analysis.md](ltx23_manual_vs_agent_failure_analysis.md) | **수동 성공 vs 에이전트 실패** 원인 대조 |
-| 13e | [session_status_2026-07-13_ltx_aio_switch.md](session_status_2026-07-13_ltx_aio_switch.md) | **2026-07-13 EOD** — Done/QA/Next (쇼츠·스위치·Sage) |
-| 14 | [comfy_memory_and_model_switching.md](comfy_memory_and_model_switching.md) | **Comfy 메모리·이종 모델 전환** (I2I↔LTX hang 분석) |
+| [character_impl_spec.md](character_impl_spec.md) | 캐릭 시트 **구현 SSOT** | ✅ |
+| [character_casting_pipeline.md](character_casting_pipeline.md) | 탐색 풀 → 승격 → 시트 | ✅ |
+| [character_sheet_system_design.md](character_sheet_system_design.md) | 장기 설계 배경 | 📚 참고 (충돌 시 impl_spec) |
+| [location_sheet_system_design.md](location_sheet_system_design.md) | 로케 시트 | ✅ 구현됨 (`locations/`, full_sheet) |
+| [look_style_system.md](look_style_system.md) | Look core | ✅ |
+| [storyboard_pipeline_design.md](storyboard_pipeline_design.md) | 샷·보드·키프레임 | ✅ 구현됨 (`shot_compose`, `storyboard_export`) |
+| [moody_workflow_guide.md](moody_workflow_guide.md) | Moody T2I/I2I 운용 | ✅ |
 
-## 기타
+---
+
+## 3. 영상·오디오 백엔드
+
+| 문서 | 역할 | 상태 |
+|------|------|------|
+| [video_pipeline_roadmap.md](video_pipeline_roadmap.md) | 전체 로드맵 (초기 목표 포함) | 📚 역사+방향 — **신규 TODO는 tooling_todo** |
+| [agent_video_tooling_reliability.md](agent_video_tooling_reliability.md) | 안정화 PR A–E, 립 게이트 L1–L11 | 📚 완료 이력 — 신규는 tooling_todo |
+| [wan22_i2v_speed_research.md](wan22_i2v_speed_research.md) | Wan2.2 속도·캐시·BlockSwap | ✅ 참고+정책 |
+| [qwen3_tts_ltx_audio_pipeline.md](qwen3_tts_ltx_audio_pipeline.md) | TTS 운용 | ✅ |
+| [ace_step_bgm_pipeline.md](ace_step_bgm_pipeline.md) | ACE-Step BGM | ✅ |
+| [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md) | LTX AIO 백엔드 매핑 | ✅ |
+| [ltx23_aio_ia2v_agent_usage.md](ltx23_aio_ia2v_agent_usage.md) | LTX IA2V 에이전트 사용법 | ✅ |
+| [comfy_memory_and_model_switching.md](comfy_memory_and_model_switching.md) | VRAM·모델 패밀리 전환 | ✅ |
+| [upscale_research_and_design.md](upscale_research_and_design.md) | ≤4K 업스케일 | ✅ |
+| [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) | FLF/원테이크 이음 | 📋 예정 (CLI 미완) |
+| [delivery_handoff.md](delivery_handoff.md) | `deliveries/` 패키징 | ✅ |
+
+---
+
+## 4. 선택 참고 (본선 아님)
 
 | 문서 | 역할 |
 |------|------|
-| [character_sheet_system_design.md](character_sheet_system_design.md) | 캐릭터 장기 설계·리서치 |
-| [moody_workflow_guide.md](moody_workflow_guide.md) | Moody T2I/I2I 운용 (국소 편집은 inpaint 후속) |
-| [openmontage_capability_catalog.md](openmontage_capability_catalog.md) | **OpenMontage 기능 목록·유용도** (참고 monorepo, 공식 연동 미정의) |
-| [openmontage_pipeline_recipes.md](openmontage_pipeline_recipes.md) | **OpenMontage 제작 레시피(파이프라인) 목록·설명** |
-| [openmontage_eval_notes.md](openmontage_eval_notes.md) | OpenMontage 클론 평가 요약 → 카탈로그로 상세 링크 |
+| [openmontage_capability_catalog.md](openmontage_capability_catalog.md) | OpenMontage 기능·유용도 라벨 |
+| [openmontage_pipeline_recipes.md](openmontage_pipeline_recipes.md) | OM 파이프 레시피 목록 |
+| [commission_brief.schema.json](commission_brief.schema.json) | 브리프 JSON 스키마 |
 
-워크플로우 JSON: `../workflows/agent/`  
-CLI: `../scripts/`  
-데이터: `../characters/` · `../looks/` · `../locations/` · `../stories/`
+OpenMontage로 `episode_pipeline` 대체 금지.
+
+---
+
+## 5. 아카이브 (2026-07-14 이동)
+
+| 이전 위치 | → |
+|-----------|---|
+| `session_status_2026-07-13_ltx_aio_switch.md` | `archive/sessions/` |
+| LTX 라우팅 분석·스냅샷·manual vs agent·JSON | `archive/ltx23_debug/` |
+| turnaround/storyboard 커뮤니티 리서치, OM eval notes | `archive/research/` |
+
+상세: [archive/README.md](archive/README.md).
+
+---
+
+## 경로
+
+```text
+workflows/agent/     워크플로우 JSON
+scripts/             CLI
+lib/                 공유 코드
+characters|looks|locations|stories/
+```

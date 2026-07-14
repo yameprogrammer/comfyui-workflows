@@ -20,14 +20,21 @@ python scripts/export_episode_to_workspace.py -e YOUR_EP
 
 Full contract: [docs/agent_consumer_workspace_contract.md](docs/agent_consumer_workspace_contract.md)  
 AV reliability: [docs/agent_av_smoke_checklist.md](docs/agent_av_smoke_checklist.md)  
-Tooling rules for **maintainers**: [agent_rules.md](agent_rules.md)
+Near-term tooling backlog: [docs/agent_video_tooling_todo.md](docs/agent_video_tooling_todo.md)  
+Tooling rules for **maintainers**: [agent_rules.md](agent_rules.md)  
+**Grok Build only** — hybrid native image/video + factory CLI: [docs/grok_build_hybrid_tooling.md](docs/grok_build_hybrid_tooling.md) · [agent_rules.md](agent_rules.md) Rule 8.  
+Default: **agent picks tools** until the user names a tool; factory remains SSOT for lips/assemble/gates.
 
 ## Video highway (short)
 
 ```bash
 python scripts/smoke_agent_av.py -e EP
-python scripts/episode_pipeline.py -e EP --run --from i2v --to qa --profile deliver
-# SI2V lips: watch clip, then
-python scripts/shot_approve.py -e EP -s S0x --lip approved
+python scripts/episode_pipeline.py -e EP --run --from i2v --to s2v --profile deliver
+# Per-cut review BEFORE assemble (hard gate — do not skip on deliver path)
+python scripts/shot_approve.py -e EP -s S0x --clip approved   # each work clip
+python scripts/episode_status.py -e EP                        # need_clip_approve=0
+python scripts/assemble_video.py -e EP --stage work
 python scripts/export_episode_to_workspace.py -e EP --dest "$AGENT_WORKSPACE/episodes/EP"
 ```
+
+**Rule:** never jump to final assemble to judge middle cuts. Approve each `clips/work` clip first (`clip_status`). Assemble rejects unapproved clips (exit 22) unless `--force-clip-gate` (debug only).

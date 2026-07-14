@@ -88,8 +88,33 @@ def build_aio_switched_api(
     else:
         trim_dur = 3.0
     if clip_length_sec is None or clip_length_sec <= 0:
-        # slightly longer than speech OK (user trims later)
-        clip_length_sec = trim_dur + 1.5 if mode.endswith("_audio") or mode == "i2v_audio" else trim_dur
+        # AIO Clip Length is whole seconds. Production default: audio + 1.5s then ceil.
+        # S02 bench (2026-07-13): +1.5 (→6s on 3.72s VO) beat tight ceil(audio) for
+        # lip + prop stability. Tight mode: AGENT_LTX_CLIP_TIGHT=1 or PAD_SEC=0.
+        # AGENT_LTX_CLIP_PAD_SEC = fractional pad before ceil (default 1.5)
+        # AGENT_LTX_CLIP_EXTRA_SEC = whole seconds after ceil (default 0)
+        import os
+
+        tight = os.environ.get("AGENT_LTX_CLIP_TIGHT", "").strip().lower() in (
+            "1",
+            "true",
+            "yes",
+        )
+        default_pad = "0" if tight else "1.5"
+        try:
+            pad = float(os.environ.get("AGENT_LTX_CLIP_PAD_SEC", default_pad) or default_pad)
+        except ValueError:
+            pad = 0.0 if tight else 1.5
+        try:
+            extra = int(float(os.environ.get("AGENT_LTX_CLIP_EXTRA_SEC", "0") or 0))
+        except ValueError:
+            extra = 0
+        if mode.endswith("_audio") or mode == "i2v_audio":
+            clip_length_sec = float(
+                int(math.ceil(trim_dur + pad - 1e-9)) + max(0, extra)
+            )
+        else:
+            clip_length_sec = trim_dur
     clip_i = max(1, min(20, int(math.ceil(float(clip_length_sec) - 1e-9))))
     edge = int(longer_edge or 1024)
     edge = max(512, min(2048, int(round(edge / 64.0) * 64)))

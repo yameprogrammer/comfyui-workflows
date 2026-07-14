@@ -1,3 +1,5 @@
+> **ARCHIVED (2026-07-14)** — 운영 SSOT 아님. 인덱스: [../../README.md](../../README.md). 활성 백로그: [../../agent_video_tooling_todo.md](../../agent_video_tooling_todo.md).
+
 # Character Sheet Turn (Head / Body) — Community Research Notes
 
 - **Date**: 2026-07-12  
@@ -117,3 +119,4 @@ no beauty portrait posing, technical model sheet head rotation
 - Z-Image ControlNet Union: Pose/DWPose as control  
 - Flux Kontext / multi-view Comfy tutorials: dedicated turnaround tooling + single-ref identity  
 - Traditional: front / 3/4 / side / back same stance
+

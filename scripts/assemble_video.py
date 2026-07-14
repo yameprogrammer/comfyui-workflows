@@ -39,6 +39,7 @@ EXIT_OK = 0
 EXIT_USAGE = 2
 EXIT_MISSING = 11
 EXIT_NONE = 21
+EXIT_CLIP_GATE = 22
 EXIT_FFMPEG = 40
 EXIT_AUDIO = 41
 
@@ -47,19 +48,29 @@ def _clip_path(story: StoryPackage, shot: dict, stage: str) -> str | None:
     """Resolve best clip path for stage: deliver | work | auto."""
     sid = shot.get("shot_id")
     deliver_rel = shot.get("clip_deliver") or f"clips/deliver/{sid}.mp4"
-    work_rel = shot.get("clip_work") or f"clips/work/{sid}.mp4"
     deliver = story.path(*deliver_rel.replace("\\", "/").split("/"))
-    work = story.path(*work_rel.replace("\\", "/").split("/"))
+
+    work_candidates: list[str] = []
+    for rel in (
+        shot.get("clip_work_s2v"),
+        shot.get("clip_work"),
+        f"clips/work/{sid}_s2v.mp4",
+        f"clips/work/{sid}.mp4",
+    ):
+        if not rel:
+            continue
+        p = story.path(*str(rel).replace("\\", "/").split("/"))
+        if p not in work_candidates:
+            work_candidates.append(p)
+    work = next((p for p in work_candidates if os.path.isfile(p)), None)
 
     if stage == "deliver":
         return deliver if os.path.isfile(deliver) else None
     if stage == "work":
-        return work if os.path.isfile(work) else None
+        return work
     if os.path.isfile(deliver):
         return deliver
-    if os.path.isfile(work):
-        return work
-    return None
+    return work
 
 
 def _default_bgm(story: StoryPackage) -> str | None:
@@ -208,6 +219,14 @@ def main(argv=None) -> int:
         action="store_true",
         help="Fail if mix_policy needs audio but stems missing",
     )
+    parser.add_argument(
+        "--force-clip-gate",
+        action="store_true",
+        help=(
+            "Skip clip_status hard gate (debug/preview only). "
+            "Deliver path must NOT use this — Rule 7.2"
+        ),
+    )
     args = parser.parse_args(argv)
 
     if not validate_episode_id(args.episode):
@@ -240,16 +259,48 @@ def main(argv=None) -> int:
             return EXIT_USAGE
 
     clips: list[tuple[str, str]] = []
+    selected_with_clip: list[dict] = []
     for s in selected:
         path = _clip_path(story, s, args.stage)
         if path:
             clips.append((s.get("shot_id") or "?", path))
+            selected_with_clip.append(s)
         else:
             print(f"[WARN] skip {s.get('shot_id')}: no {args.stage} clip")
 
     if not clips:
         print("[ERROR] code=21 no clips to assemble", file=sys.stderr)
         return EXIT_NONE
+
+    # Rule 7.2: hard gate — every clip in the assemble list must be clip_status approved
+    if not args.force_clip_gate:
+        from lib.episode_status import CLIP_STATUS_OK, normalize_clip_status
+
+        gate_fail: list[str] = []
+        for s in selected_with_clip:
+            sid = s.get("shot_id") or "?"
+            st = normalize_clip_status(s, work_ok=True)
+            if st not in CLIP_STATUS_OK:
+                gate_fail.append(f"{sid}:clip_status={st or 'pending'}")
+        if gate_fail:
+            print(
+                "[ERROR] code=22 CLIP_NOT_APPROVED — assemble blocked until per-cut review",
+                file=sys.stderr,
+            )
+            for line in gate_fail:
+                print(f"  - {line}", file=sys.stderr)
+            print(
+                "  Fix: watch each clips/work clip, then:\n"
+                "    python scripts/shot_approve.py -e "
+                f"{args.episode} -s <SHOT> --clip approved\n"
+                "  Debug-only bypass: --force-clip-gate (forbidden on deliver path)",
+                file=sys.stderr,
+            )
+            return EXIT_CLIP_GATE
+    else:
+        print(
+            "[WARN] --force-clip-gate: skipping clip_status check (not for deliver)"
+        )
 
     out = args.output or story.path("exports", "final", f"{args.episode}_final.mp4")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)

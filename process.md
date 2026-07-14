@@ -1,6 +1,103 @@
+## 2026-07-14 — docs cleanup
+- docs/README.md 재작성: 활성 / 참고 / archive
+- archive/: sessions, ltx23_debug, research (세션노트·LTX 일회성 분석·원문 리서치)
+- 깨진 링크 수정 (storyboard, LTX, openmontage)
+- video_pipeline_roadmap / reliability → 신규 작업은 agent_video_tooling_todo 로 안내
+## 2026-07-14 — agent_video_tooling_todo.md
+- P0: SI2V length contract, emotion-linked performance motion (not always calm), auto-export
+- P1/P2 backlog + sprint order; linked from agent_rules + AGENTS
+## 2026-07-14 — Rule 8: agent-autonomous tool pick
+- Until user names a tool, Grok Build agent chooses factory vs native image/video
+- User tool override wins; no per-step tool menus
+## 2026-07-14 — Grok Build hybrid tooling rule
+- docs/grok_build_hybrid_tooling.md + agent_rules Rule 8 + AGENTS.md pointer
+- Native image_gen/edit/video for preview & surgical stills; factory SSOT for lips/assemble/export
+- Does not change non-Grok agents
 # 📈 Moody 워크플로우 개발 및 변경 이력 (process.md)
 
 이 문서는 에이전트들이 `agent_custom` 디렉토리 내에서 진행한 작업 내역을 누적하여 기록하는 개발 로그입니다. 새로운 작업을 시작하거나 마칠 때 반드시 이 문서를 업데이트해 주십시오.
+
+[2026-07-13] - Grok — **cafe_gomin_ep01 스토리보드 재작성 (신 시놉)**
+- S01–S09 · sho_heroine_v3 · one_take continuity · BGM under · 24fps
+- 대사 6 + sip I2V + open/close I2V; SI2V default infinitetalk
+- `STORYBOARD_DESIGN.md` · `beats.md` · `shots.json` (구 대본 교체)
+- 채널: `episodes/cafe_gomin_ep01/`
+- Next: shot_compose 키프레임
+
+[2026-07-13] - Grok — **v3 의상 수정: 짧은 치마 + alt1 수정 + 원테이크 요구**
+- wardrobe: SHORT mini skirt + strappy sandals (여름)
+- costume_alt1 I2I 미니어처 버그 → crop 전신 인셋으로 교체 승인
+- 시놉/캐논: **원 테이크 감** 명시
+- 주의: `--sheets costume` 은 그룹 전체; alt1만은 `--only costume.alt1`
+
+[2026-07-13] - Grok — **sho_heroine_v3 full_sheet 완료**
+- `character_full_sheet --run --model real --turn-engine qwen` ~19분, exit 0
+- missing_mvp=[] · approved 33 · review_FULL_PACKAGE + grids
+- 채널: `characters/sho_heroine_v3/exports/full_sheet/`
+- Next: 신 시놉 스토리보드 / shots.json
+
+[2026-07-13] - Grok — **여주 v3 promote + 여름 의상 lock + BGM 요구**
+- pick → **`sho_heroine_v3`** · summer wardrobe + iced americano props
+
+[2026-07-13] - Grok — **여주 재캐스팅 cast v2 (시놉 개정)**
+- cast_id: `short_cafe_gomin_cast_v2` · 9 OK
+- 채널: `casts/short_cafe_gomin_cast_v2/`
+
+[2026-07-13] - Grok — **IT 립 승자 → hero 기본 반영**
+- 승자: `S02_it_lip_24fps_s12_as1.5_notea` (차분·입 맞춤)
+- 기본: **24fps / 12step / audio_scale 1.5 / lightx2v ON / TeaCache OFF**
+- 갱신: `episode_s2v`, `episode_pipeline` hero, `generate_s2v` defaults
+- 벤치: `_bench_it_lip/` · `exports/bench_it_lip/`
+
+[2026-07-13] - Grok — **Wan2.2 BlockSwap = 상황별 조절 (기록)**
+- 개념: 블록 GPU↔offload (**VRAM ↔ 속도**). 품질 스킵 아님.
+- 스모크: swap20 32.2s · swap10 24.2s · swap0 20.3s (작 스펙 OOM 없음)
+- **정책**: 만능 고정 아님 — 일상 출발 deliver=10, 큰 작업/OOM→20+, 여유 시 0 시도
+- SSOT: `docs/wan22_i2v_speed_research.md` §4.1 · CLI `--block-swap`
+- 클립: `_bench_wan22_speed/S01_p1b_swap{0,10,20}_f17.mp4`
+
+[2026-07-13] - Grok — **Wan2.2 Tea/MagCache 품질 탈락 → 기본 off**
+- 사용자 육안: `S01_p1_teacache_*` / `S01_p1_magcache_*` **자글자글** 사용 불가
+- 조치: 전 프로필 `cache=none` 기본; `--cache` 는 실험 opt-in 만
+- 본선 가속 유지분: **sageattn + lightx2v steps + preview 저해상/저step** (캐시 제외)
+
+[2026-07-13] - Grok — **Wan2.2 I2V P1: TeaCache/MagCache + 프로필**
+- TeaCache/MagCache → dual sampler `cache_args`; BlockSwap 프로필화
+- 벤치 속도: none 32.3s · tea 26.2s · mag 24.4s — **이후 품질 탈락으로 기본 off**
+- VHS unique prefix (Comfy full-cache 시 구 파일 복사 버그 수정)
+- **Next**: 본선 속도는 sage+steps/해상도; cache 재시도 시 thresh 대폭 하향 A/B
+
+[2026-07-13] - Grok — **Wan2.2 I2V P0 구현·스모크**
+- **W0**: steps + dual boundary (`steps//2`) INTConstant 배선 수정
+- **W1**: attention 기본 `sageattn` (`--attention` / `AGENT_WAN_ATTENTION=sdpa`)
+- **W2**: `elapsed_sec` meta + `--dry-run`
+- **스모크** (368×640, 17f, 6step, seed42): sage warm **38.3s** / sdpa **40.3s** / sage cold 54.9s
+- 벤치: `stories/cafe_gomin_ep01/clips/work/_bench_wan22_speed/`
+
+[2026-07-13] - Grok — **Wan2.2 I2V 속도 리서치**
+- **문서**: `docs/wan22_i2v_speed_research.md`
+- **현황 (리서치 시점)**: lightx2v 있음; sage/TeaCache 미적용 → P0에서 sage 적용
+- IT 가속과 별 경로 (2.1 IT ≠ 2.2 I2V 그래프)
+
+[2026-07-13] - Grok — **퀄리티: S02 벤치 결과 → +1.5 유지**
+- 비교: baseline 6s (audio+1.5) vs LTX tight 4s vs IT mild
+- **사용자 판정**: baseline이 **입모양·사물 안정** 우세 → 채택
+- 가설 “꼬리 짧을수록 좋음”은 S02에서 기각; 장클립 드리프트는 별 이슈
+- 도구 기본 Clip Length: **`audio+1.5` 유지** (tight 실험: `AGENT_LTX_CLIP_TIGHT=1`)
+- 본선 `S02_s2v.mp4` = baseline 동일; 다음 `shot_approve --clip`
+
+[2026-07-13] - Grok — **퀄리티: LTX Clip Length A/B (중간 실험)**
+- tight `ceil(audio)` 구현 후 S02 벤치 → **사용자 기각**, +1.5 복귀 (위 항목)
+
+[2026-07-13] - Grok — **컷별 검수 규칙 + assemble 하드 게이트**
+- **배경**: 합본 후 중간 컷 교체 비용↑ · last-frame 체인 붕괴 전파
+- **규칙**: `agent_rules.md` Rule 7.2 — Clip-first (합본 전 `clip_status=approved` 필수)
+- **코드**:
+  - `shot_approve.py --clip` · `lib/episode_status` clip 게이트
+  - `assemble_video` 미승인 시 exit 22 (`--force-clip-gate` 우회만)
+  - `chain_si2v_last_frame` 이전 컷 승인 전 다음 샷 금지
+  - `episode_qa --require-clip`
+- **Next 연결**: LTX 얼굴 살리기 실험도 **컷 단위 승인 후** 합본
 
 [2026-07-13] - Grok — **EOD / 어디까지 됐나**
 - **상태 SSOT**: `docs/session_status_2026-07-13_ltx_aio_switch.md`
@@ -735,3 +832,7 @@
 
 ---
 *(새로운 변경 사항은 상단에 누적하여 추가해 주십시오.)*
+
+
+
+

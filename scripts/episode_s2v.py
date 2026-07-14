@@ -146,20 +146,20 @@ def main(argv=None) -> int:
         "--fps",
         type=float,
         default=None,
-        help="Frame rate (default 25 LTX / 16 InfiniteTalk hero)",
+        help="Frame rate (default 25 LTX / 24 InfiniteTalk hero lip)",
     )
     parser.add_argument(
         "--steps",
         type=int,
         default=None,
-        help="Sampler steps (LTX unused schedule; IT default 12 without lightx2v)",
+        help="Sampler steps (IT default 12 with lightx2v; 20 without)",
     )
     parser.add_argument("--cfg", type=float, default=1.0)
     parser.add_argument(
         "--audio-scale",
         type=float,
         default=None,
-        help="InfiniteTalk audio_scale (default 1.5 LTX path / 2.0 IT)",
+        help="InfiniteTalk audio_scale (default 1.5 hero lip; LTX path 1.5)",
     )
     parser.add_argument(
         "--no-speed",
@@ -167,9 +167,14 @@ def main(argv=None) -> int:
         help="InfiniteTalk: disable lightx2v distill LoRA (full quality, slow)",
     )
     parser.add_argument(
+        "--teacache",
+        action="store_true",
+        help="InfiniteTalk: enable WanVideoTeaCache (default off — better lip timing)",
+    )
+    parser.add_argument(
         "--no-teacache",
         action="store_true",
-        help="InfiniteTalk: disable WanVideoTeaCache",
+        help="InfiniteTalk: disable TeaCache (default; kept for CLI compat)",
     )
     parser.add_argument("--timeout", type=int, default=3600)
     parser.add_argument("--dry-run", action="store_true")
@@ -240,14 +245,17 @@ def main(argv=None) -> int:
         print(f"[ERROR] code=2 s2v backend: {e}", file=sys.stderr)
         return EXIT_USAGE
 
-    # Backend-aware defaults. IT mild: scale 1.35 / 10step (less exaggerated mouths).
+    # Backend-aware defaults. IT lip (2026-07-13 QA C): 24fps / 12step / scale 1.5 / no TeaCache.
     if backend == "infinitetalk":
-        fps = float(args.fps if args.fps is not None else 16.0)
-        steps = int(args.steps if args.steps is not None else 10)
-        audio_scale = float(args.audio_scale if args.audio_scale is not None else 1.35)
+        fps = float(args.fps if args.fps is not None else 24.0)
+        steps = int(args.steps if args.steps is not None else 12)
+        audio_scale = float(args.audio_scale if args.audio_scale is not None else 1.5)
         long_edge = int(args.long_edge if args.long_edge is not None else 832)
         it_speed = not getattr(args, "no_speed", False)
-        it_teacache = not getattr(args, "no_teacache", False)
+        # TeaCache default OFF for lip timing; opt-in --teacache
+        it_teacache = bool(getattr(args, "teacache", False)) and not bool(
+            getattr(args, "no_teacache", False)
+        )
     else:
         fps = float(args.fps if args.fps is not None else 25.0)
         steps = int(args.steps if args.steps is not None else 20)
@@ -376,13 +384,14 @@ def main(argv=None) -> int:
                 s2v_size=f"{width}x{height}",
                 s2v_fps=fps,
                 s2v_steps=steps,
-                # Human/vision gate — tools never auto-approve lips
+                # Human/vision gate — tools never auto-approve clips/lips
+                clip_status="pending",
                 lip_status="pending",
             )
             print(f"  OK {clip_path} elapsed={elapsed:.1f}s")
             print(
-                f"  lip_status=pending → review clip then: "
-                f"python scripts/shot_approve.py -e {args.episode} -s {sid} --lip approved"
+                f"  clip_status=pending → review clip then: "
+                f"python scripts/shot_approve.py -e {args.episode} -s {sid} --clip approved"
             )
             # Patch meta with timing if present
             try:

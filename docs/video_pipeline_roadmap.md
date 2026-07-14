@@ -2,9 +2,10 @@
 
 이 문서는 `agent_custom` 작업공간에서 **AI 에이전트가 ComfyUI 도구를 이용해 멋진 영상물을 제작**하기 위한 1차 목표와, 그 목표를 달성하기 위해 필요한 워크플로우 구성을 정리한 설계 문서입니다.
 
-- **작성일**: 2026-07-11
-- **상태**: T2I/I2I/캐릭터/I2V MVP 구축, 조립·업스케일 후속
-- **현재 기반**: Z-Image-Turbo (Moody) 이미지 + Wan2.2 I2V 영상
+- **작성일**: 2026-07-11  
+- **갱신**: 2026-07-14 — 1차 MVP(조립·SI2V·BGM·게이트) 다수 완료. **신규 TODO → [agent_video_tooling_todo.md](agent_video_tooling_todo.md)**  
+- **상태**: 역사적 로드맵 + 방향 문서 (일일 작업 목록 아님)  
+- **현재 기반**: Z-Image-Turbo (Moody) 이미지 + Wan2.2 I2V + InfiniteTalk/LTX SI2V
 
 ---
 

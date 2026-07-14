@@ -79,6 +79,195 @@ def _snap_frames(n: int) -> int:
     return base
 
 
+def _link_node_id(val) -> str | None:
+    """Comfy link input is [node_id, slot] or bare value."""
+    if isinstance(val, list) and len(val) >= 1:
+        return str(val[0])
+    return None
+
+
+def resolve_wan_attention(explicit: str | None = None) -> str:
+    """Default sageattn (same policy as InfiniteTalk). Fallback: AGENT_WAN_ATTENTION=sdpa."""
+    if explicit is not None and str(explicit).strip():
+        return str(explicit).strip()
+    return (os.environ.get("AGENT_WAN_ATTENTION") or "sageattn").strip() or "sageattn"
+
+
+# P1: speed profiles (knobs only; aspect still from --format/--preset)
+# QA 2026-07-13: TeaCache/MagCache → temporal grain/"자글자글" unusable on deliver path.
+# Cache remains opt-in via --cache for experiments only (not profile defaults).
+I2V_SPEED_PROFILES: dict[str, dict] = {
+    "preview": {
+        "steps": 4,
+        "cache": "none",
+        "teacache_thresh": 0.15,
+        "magcache_thresh": 0.01,
+        "magcache_k": 2,
+        # Bench 2026-07-13: lower swap = faster; 0 OK on 368x640 smoke (24GB class)
+        "block_swap": 8,
+        "max_long_edge": 480,
+        "notes": "fast scout: fewer steps + smaller long_edge; low block_swap",
+    },
+    "deliver": {
+        "steps": 6,
+        "cache": "none",
+        "teacache_thresh": 0.15,
+        "magcache_thresh": 0.01,
+        "magcache_k": 2,
+        # Starting point only — raise on OOM/long clips, lower if VRAM free. See docs §4.1
+        "block_swap": 10,
+        "max_long_edge": None,
+        "notes": "production I2V: sage + lightx2v; block_swap start=10 (tune per job)",
+    },
+    "quality": {
+        "steps": 8,
+        "cache": "none",
+        "teacache_thresh": 0.15,
+        "magcache_thresh": 0.01,
+        "magcache_k": 2,
+        "block_swap": 10,
+        "max_long_edge": None,
+        "notes": "hero still motion; more steps; block_swap=10",
+    },
+}
+
+
+def resolve_i2v_speed_profile(name: str | None) -> dict:
+    key = (name or "deliver").strip().lower() or "deliver"
+    if key not in I2V_SPEED_PROFILES:
+        raise ValueError(
+            f"unknown I2V profile {name!r}; known: {', '.join(I2V_SPEED_PROFILES)}"
+        )
+    return dict(I2V_SPEED_PROFILES[key], name=key)
+
+
+def _apply_max_long_edge(width: int, height: int, max_long_edge: int | None) -> tuple[int, int]:
+    if not max_long_edge or max_long_edge <= 0:
+        return width, height
+    le = max(width, height)
+    if le <= max_long_edge:
+        return width, height
+    scale = float(max_long_edge) / float(le)
+    return _snap_dim(int(round(width * scale)), 16), _snap_dim(int(round(height * scale)), 16)
+
+
+def _apply_wan22_block_swap(api_prompt: dict, blocks_to_swap: int) -> dict:
+    blocks = max(0, int(blocks_to_swap))
+    ids = _find_nodes(api_prompt, "WanVideoBlockSwap")
+    for nid in ids:
+        api_prompt[nid]["inputs"]["blocks_to_swap"] = blocks
+    return {"blocks_to_swap": blocks, "node_ids": ids}
+
+
+def _apply_wan22_cache(
+    api_prompt: dict,
+    *,
+    cache: str,
+    teacache_thresh: float = 0.2,
+    magcache_thresh: float = 0.02,
+    magcache_k: int = 4,
+) -> dict:
+    """Attach WanVideoTeaCache or WanVideoMagCache to all WanVideoSampler cache_args."""
+    mode = (cache or "none").strip().lower()
+    samplers = _find_nodes(api_prompt, "WanVideoSampler")
+    if mode in ("", "none", "off", "false", "0"):
+        for nid in samplers:
+            api_prompt[nid]["inputs"].pop("cache_args", None)
+        return {"cache": "none", "samplers": samplers}
+
+    node_id = "agent_wan_cache"
+    if mode in ("teacache", "tea"):
+        api_prompt[node_id] = {
+            "class_type": "WanVideoTeaCache",
+            "inputs": {
+                "rel_l1_thresh": float(teacache_thresh),
+                "start_step": 1,
+                "end_step": -1,
+                "cache_device": "offload_device",
+                "use_coefficients": True,
+                "mode": "e",
+            },
+        }
+        kind = "teacache"
+        thresh = float(teacache_thresh)
+    elif mode in ("magcache", "mag"):
+        api_prompt[node_id] = {
+            "class_type": "WanVideoMagCache",
+            "inputs": {
+                "magcache_thresh": float(magcache_thresh),
+                "magcache_K": int(magcache_k),
+                "start_step": 1,
+                "end_step": -1,
+                "cache_device": "offload_device",
+            },
+        }
+        kind = "magcache"
+        thresh = float(magcache_thresh)
+    else:
+        raise ValueError(f"unknown cache mode {cache!r}; use teacache|magcache|none")
+
+    for nid in samplers:
+        api_prompt[nid]["inputs"]["cache_args"] = [node_id, 0]
+
+    return {
+        "cache": kind,
+        "node_id": node_id,
+        "thresh": thresh,
+        "magcache_k": int(magcache_k) if kind == "magcache" else None,
+        "samplers": samplers,
+    }
+
+
+def _apply_wan22_steps_and_boundary(api_prompt: dict, steps: int) -> dict:
+    """Wire total steps + dual high/low boundary (steps//2) into INTConstants / samplers.
+
+    WF pattern: both WanVideoSampler share steps INTConstant; boundary INT feeds
+    high end_step and low start_step.
+    """
+    steps_n = max(1, int(steps))
+    boundary = max(1, steps_n // 2)
+    steps_const: set[str] = set()
+    boundary_const: set[str] = set()
+
+    for nid in _find_nodes(api_prompt, "WanVideoSampler"):
+        inp = api_prompt[nid]["inputs"]
+        sid = _link_node_id(inp.get("steps"))
+        if sid:
+            steps_const.add(sid)
+        else:
+            inp["steps"] = steps_n
+        for key in ("start_step", "end_step"):
+            raw = inp.get(key)
+            bid = _link_node_id(raw)
+            if bid:
+                boundary_const.add(bid)
+
+    for sid in steps_const:
+        node = api_prompt.get(sid)
+        if node and node.get("class_type") == "INTConstant":
+            node["inputs"]["value"] = steps_n
+
+    for bid in boundary_const:
+        node = api_prompt.get(bid)
+        if node and node.get("class_type") == "INTConstant":
+            node["inputs"]["value"] = boundary
+
+    # Legacy: older graphs used a lone INTConstant(30) as step count
+    for nid in _find_nodes(api_prompt, "INTConstant"):
+        if nid in steps_const or nid in boundary_const:
+            continue
+        val = api_prompt[nid]["inputs"].get("value")
+        if val == 30:
+            api_prompt[nid]["inputs"]["value"] = steps_n
+
+    return {
+        "steps": steps_n,
+        "boundary": boundary,
+        "steps_const_ids": sorted(steps_const),
+        "boundary_const_ids": sorted(boundary_const),
+    }
+
+
 def generate_i2v(
     input_image_path: str,
     prompt_text: str,
@@ -88,7 +277,7 @@ def generate_i2v(
     height: int | None = None,
     num_frames: int = 49,
     seed: int | None = None,
-    steps: int = 6,
+    steps: int | None = None,
     cfg: float = 1.0,
     frame_rate: int = 16,
     backend: str | None = None,
@@ -98,10 +287,41 @@ def generate_i2v(
     meta_out: str | None = None,
     server_address: str = DEFAULT_SERVER,
     timeout_sec: int = 1800,
+    attention_mode: str | None = None,
+    dry_run: bool = False,
+    profile: str | None = "deliver",
+    cache: str | None = None,
+    teacache_thresh: float | None = None,
+    magcache_thresh: float | None = None,
+    magcache_k: int | None = None,
+    block_swap: int | None = None,
+    apply_profile_long_edge: bool = True,
 ):
     if not os.path.exists(input_image_path):
         print(f"Error: input image not found: {input_image_path}")
         return fail_result(error="SOURCE_MISSING", message=input_image_path)
+
+    try:
+        speed_prof = resolve_i2v_speed_profile(profile)
+    except ValueError as e:
+        return fail_result(error="BAD_PROFILE", message=str(e))
+
+    # Profile fills defaults; explicit args win when not None
+    if steps is None:
+        steps = int(speed_prof["steps"])
+    cache_mode = (cache if cache is not None else speed_prof["cache"]) or "none"
+    tc_thresh = (
+        float(teacache_thresh)
+        if teacache_thresh is not None
+        else float(speed_prof["teacache_thresh"])
+    )
+    mc_thresh = (
+        float(magcache_thresh)
+        if magcache_thresh is not None
+        else float(speed_prof["magcache_thresh"])
+    )
+    mc_k = int(magcache_k if magcache_k is not None else speed_prof["magcache_k"])
+    blocks = int(block_swap if block_swap is not None else speed_prof["block_swap"])
 
     try:
         job = resolve_i2v_job(
@@ -126,6 +346,16 @@ def generate_i2v(
     width = int(job["width"])
     height = int(job["height"])
     wf_path = job["workflow_path"]
+
+    if apply_profile_long_edge:
+        mle = speed_prof.get("max_long_edge")
+        ow, oh = width, height
+        width, height = _apply_max_long_edge(width, height, mle)
+        if (width, height) != (ow, oh):
+            print(
+                f"[profile {speed_prof['name']}] long_edge cap {mle}: "
+                f"{ow}x{oh} -> {width}x{height}"
+            )
 
     eng = ensure_engine(
         family_for_i2v_backend(backend_id),
@@ -198,6 +428,12 @@ def generate_i2v(
 
     new_seed = seed if seed is not None else random.randint(1, 2**31 - 1)
 
+    wan_attention = resolve_wan_attention(attention_mode)
+    wan_step_info: dict = {}
+    wan_cache_info: dict = {}
+    wan_swap_info: dict = {}
+    vhs_prefix = f"agent_i2v_{int(time.time())}"
+
     # --- wan22-specific graph injection (default path) ---
     if backend_id == "wan22" or "wan" in os.path.basename(wf_path).lower():
         model_high = r"Wan2.2\Wan2.2-I2V-A14B-HighNoise-Q4_K_M.gguf"
@@ -208,10 +444,12 @@ def generate_i2v(
         if len(loaders) >= 2:
             api_prompt[loaders[0]]["inputs"]["model"] = model_high
             api_prompt[loaders[0]]["inputs"]["quantization"] = "disabled"
-            api_prompt[loaders[0]]["inputs"]["attention_mode"] = "sdpa"
+            api_prompt[loaders[0]]["inputs"]["attention_mode"] = wan_attention
             api_prompt[loaders[1]]["inputs"]["model"] = model_low
             api_prompt[loaders[1]]["inputs"]["quantization"] = "disabled"
-            api_prompt[loaders[1]]["inputs"]["attention_mode"] = "sdpa"
+            api_prompt[loaders[1]]["inputs"]["attention_mode"] = wan_attention
+        elif len(loaders) == 1:
+            api_prompt[loaders[0]]["inputs"]["attention_mode"] = wan_attention
         loras = _find_nodes(api_prompt, "WanVideoLoraSelect")
         for nid in loras:
             cur = str(api_prompt[nid]["inputs"].get("lora", ""))
@@ -249,15 +487,30 @@ def generate_i2v(
             if not (isinstance(inp.get("cfg"), list) and len(inp.get("cfg") or []) == 2):
                 inp["cfg"] = cfg
 
-        for nid in _find_nodes(api_prompt, "INTConstant"):
-            val = api_prompt[nid]["inputs"].get("value")
-            if val == 30:
-                api_prompt[nid]["inputs"]["value"] = steps
+        # P0 W0: steps + dual-pass boundary (was only patching INTConstant==30 → no-op)
+        wan_step_info = _apply_wan22_steps_and_boundary(api_prompt, int(steps))
+        steps = int(wan_step_info["steps"])
 
+        # P1: BlockSwap + TeaCache/MagCache on both high/low samplers
+        wan_swap_info = _apply_wan22_block_swap(api_prompt, blocks)
+        try:
+            wan_cache_info = _apply_wan22_cache(
+                api_prompt,
+                cache=str(cache_mode),
+                teacache_thresh=tc_thresh,
+                magcache_thresh=mc_thresh,
+                magcache_k=mc_k,
+            )
+        except ValueError as e:
+            return fail_result(error="BAD_CACHE", message=str(e), backend=backend_id)
+
+        # Unique prefix avoids Comfy execution_cache returning empty outputs +
+        # picking an older agent_i2v_*.mp4 by mtime (false "2s" successes).
+        vhs_prefix = f"agent_i2v_{int(new_seed)}_{int(time.time())}"
         for nid in _find_nodes(api_prompt, "VHS_VideoCombine"):
             inp = api_prompt[nid]["inputs"]
             inp["frame_rate"] = frame_rate
-            inp["filename_prefix"] = "agent_i2v"
+            inp["filename_prefix"] = vhs_prefix
             inp["save_output"] = True
             inp["format"] = inp.get("format") or "video/h264-mp4"
     else:
@@ -274,9 +527,56 @@ def generate_i2v(
     for _nid, node in api_prompt.items():
         node["inputs"].pop("_widgets_values", None)
 
+    boundary = wan_step_info.get("boundary")
     print(
-        f"Queue I2V: {width}x{height} frames={num_frames} steps={steps} cfg={cfg} seed={new_seed}"
+        f"Queue I2V: profile={speed_prof['name']} {width}x{height} frames={num_frames} "
+        f"steps={steps}"
+        f"{f' boundary={boundary}' if boundary is not None else ''} "
+        f"cfg={cfg} seed={new_seed} attention={wan_attention} "
+        f"cache={wan_cache_info.get('cache', cache_mode)} "
+        f"block_swap={wan_swap_info.get('blocks_to_swap', blocks)}"
     )
+    if dry_run:
+        meta_path = resolve_meta_out(output_filename, meta_out)
+        meta = {
+            "mode": "i2v",
+            "backend": backend_id,
+            "status": "dry_run",
+            "format": format_id,
+            "preset": preset_id,
+            "speed_profile": speed_prof["name"],
+            "aspect": aspect or job["preset"].get("aspect"),
+            "workflow": os.path.basename(wf_path),
+            "seed": new_seed,
+            "width": width,
+            "height": height,
+            "num_frames": num_frames,
+            "steps": steps,
+            "steps_boundary": boundary,
+            "steps_wiring": wan_step_info,
+            "cache": wan_cache_info,
+            "block_swap": wan_swap_info,
+            "cfg": cfg,
+            "frame_rate": frame_rate,
+            "attention_mode": wan_attention,
+            "dry_run": True,
+            "created_at": utc_now_iso(),
+        }
+        if meta_path:
+            write_meta(meta_path, meta)
+        print("[dry-run] skip Comfy queue")
+        return ok_result(
+            output_path=os.path.abspath(output_filename) if output_filename else None,
+            seed=new_seed,
+            meta_path=meta_path,
+            meta=meta,
+            backend=backend_id,
+            preset=preset_id,
+            dry_run=True,
+            speed_profile=speed_prof["name"],
+        )
+
+    t0 = time.time()
     payload = json.dumps({"prompt": api_prompt}).encode("utf-8")
     req = urllib.request.Request(
         f"http://{server_address}/prompt",
@@ -342,24 +642,30 @@ def generate_i2v(
 
     if not video_info:
         candidates = []
+        prefix_l = vhs_prefix.lower()
         for folder in (COMFY_OUTPUT_DIR, COMFY_TEMP_DIR):
             if not os.path.isdir(folder):
                 continue
             for root, _dirs, files in os.walk(folder):
                 for fn in files:
-                    if fn.lower().endswith(".mp4") and "agent_i2v" in fn.lower():
+                    low = fn.lower()
+                    if low.endswith(".mp4") and prefix_l in low:
                         fp = os.path.join(root, fn)
                         candidates.append((os.path.getmtime(fp), fp))
         if candidates:
             candidates.sort(reverse=True)
             src = candidates[0][1]
             shutil.copy2(src, output_filename)
-            print(f"Copied newest agent_i2v mp4: {src} -> {output_filename}")
+            print(f"Copied matched prefix mp4: {src} -> {output_filename}")
         else:
-            print("[ERROR] No video in history outputs")
+            # Fully cached runs can leave empty outputs — do not steal old agent_i2v_*.mp4
+            print(
+                f"[ERROR] No video in history outputs "
+                f"(prefix={vhs_prefix!r}). If Comfy fully cache-hit, re-run with new seed."
+            )
             return fail_result(
                 error="COMFY_NO_OUTPUT",
-                message="no video output",
+                message=f"no video output for prefix {vhs_prefix}",
                 seed=new_seed,
                 prompt_id=prompt_id,
             )
@@ -380,6 +686,9 @@ def generate_i2v(
             print(f"Downloading video via API: {filename}")
             urllib.request.urlretrieve(view_url, output_filename)
 
+    elapsed = round(time.time() - t0, 2)
+    print(f"I2V elapsed_sec={elapsed} attention={wan_attention} steps={steps}")
+
     meta_path = resolve_meta_out(output_filename, meta_out)
     meta = {
         "mode": "i2v",
@@ -397,12 +706,29 @@ def generate_i2v(
         "height": height,
         "num_frames": num_frames,
         "steps": steps,
+        "steps_boundary": boundary,
+        "steps_wiring": wan_step_info or None,
         "cfg": cfg,
         "frame_rate": frame_rate,
+        "attention_mode": wan_attention,
+        "speed_profile": speed_prof["name"],
+        "cache": wan_cache_info or {"cache": cache_mode},
+        "block_swap": wan_swap_info or {"blocks_to_swap": blocks},
+        "elapsed_sec": elapsed,
         "source_image": os.path.abspath(input_image_path),
         "output_path": os.path.abspath(output_filename),
         "comfy_prompt_id": prompt_id,
         "created_at": utc_now_iso(),
+        "p0_speed": {
+            "steps_wired": True,
+            "attention_default": "sageattn",
+            "elapsed_logged": True,
+        },
+        "p1_speed": {
+            "cache": (wan_cache_info or {}).get("cache"),
+            "block_swap": (wan_swap_info or {}).get("blocks_to_swap"),
+            "profile": speed_prof["name"],
+        },
     }
     if meta_path:
         write_meta(meta_path, meta)
@@ -416,6 +742,9 @@ def generate_i2v(
         meta=meta,
         backend=backend_id,
         preset=preset_id,
+        elapsed_sec=elapsed,
+        attention_mode=wan_attention,
+        speed_profile=speed_prof["name"],
     )
 
 
@@ -486,9 +815,55 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--frames", type=int, default=49, help="Frame count")
     parser.add_argument("--fps", type=int, default=16)
-    parser.add_argument("--steps", type=int, default=6)
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=None,
+        help="Sampler steps (default: from --profile; deliver=6)",
+    )
     parser.add_argument("--cfg", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument(
+        "--profile",
+        choices=list(I2V_SPEED_PROFILES.keys()),
+        default="deliver",
+        help="Speed profile preview|deliver|quality (default deliver)",
+    )
+    parser.add_argument(
+        "--cache",
+        choices=["teacache", "magcache", "none"],
+        default=None,
+        help=(
+            "Step cache: teacache|magcache|none. Default none "
+            "(QA: Tea/Mag grain rejected on deliver path)"
+        ),
+    )
+    parser.add_argument("--teacache-thresh", type=float, default=None)
+    parser.add_argument("--magcache-thresh", type=float, default=None)
+    parser.add_argument("--magcache-k", type=int, default=None)
+    parser.add_argument(
+        "--block-swap",
+        type=int,
+        default=None,
+        help=(
+            "WanVideoBlockSwap blocks — VRAM vs speed; tune per job "
+            "(start deliver=10; raise if OOM; 0=fastest/more VRAM). "
+            "See docs/wan22_i2v_speed_research.md §4.1"
+        ),
+    )
+    parser.add_argument(
+        "--no-profile-long-edge",
+        action="store_true",
+        help="Do not apply preview max_long_edge downscale",
+    )
+    parser.add_argument(
+        "--attention",
+        default=None,
+        help=(
+            "WanVideoModelLoader attention_mode (default: sageattn via AGENT_WAN_ATTENTION). "
+            "Examples: sageattn, sdpa, flash_attn_2"
+        ),
+    )
     parser.add_argument(
         "--workflow",
         default=None,
@@ -496,6 +871,16 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--meta-out", default=None)
     parser.add_argument("--timeout", type=int, default=1800)
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Build/inject graph and write meta only (no Comfy queue)",
+    )
+    parser.add_argument(
+        "--list-profiles",
+        action="store_true",
+        help="Print I2V speed profiles and exit",
+    )
     parser.add_argument(
         "--list-presets",
         action="store_true",
@@ -517,11 +902,15 @@ def _build_parser() -> argparse.ArgumentParser:
 if __name__ == "__main__":
     parser = _build_parser()
     # allow --list-* without --input
-    if any(a in ("--list-presets", "--list-backends", "--list-formats") for a in sys.argv[1:]):
+    if any(
+        a in ("--list-presets", "--list-backends", "--list-formats", "--list-profiles")
+        for a in sys.argv[1:]
+    ):
         pre = argparse.ArgumentParser(add_help=False)
         pre.add_argument("--list-presets", action="store_true")
         pre.add_argument("--list-backends", action="store_true")
         pre.add_argument("--list-formats", action="store_true")
+        pre.add_argument("--list-profiles", action="store_true")
         pre_args, _ = pre.parse_known_args()
         cfg = load_video_backends()
         if pre_args.list_backends:
@@ -542,6 +931,13 @@ if __name__ == "__main__":
                 print(
                     f"{pid}  {p['width']}x{p['height']}  "
                     f"aspect={p.get('aspect')}  stage={p.get('stage')}"
+                )
+        if pre_args.list_profiles:
+            for name, p in I2V_SPEED_PROFILES.items():
+                print(
+                    f"{name}  steps={p['steps']} cache={p['cache']} "
+                    f"block_swap={p['block_swap']} "
+                    f"max_long_edge={p.get('max_long_edge')}  # {p.get('notes')}"
                 )
         sys.exit(0)
 
@@ -577,5 +973,14 @@ if __name__ == "__main__":
         workflow_path=wf,
         meta_out=args.meta_out,
         timeout_sec=args.timeout,
+        attention_mode=args.attention,
+        dry_run=bool(args.dry_run),
+        profile=args.profile,
+        cache=args.cache,
+        teacache_thresh=args.teacache_thresh,
+        magcache_thresh=args.magcache_thresh,
+        magcache_k=args.magcache_k,
+        block_swap=args.block_swap,
+        apply_profile_long_edge=not args.no_profile_long_edge,
     )
     sys.exit(0 if result.get("ok") else 1)

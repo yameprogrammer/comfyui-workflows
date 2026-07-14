@@ -73,6 +73,7 @@ def run_episode_qa(
     strict: bool = True,
     check_final: bool = True,
     require_lip: bool = False,
+    require_clip: bool = False,
 ) -> dict:
     story = StoryPackage.load(episode_id)
     exp_w, exp_h = _expected_work_size(story)
@@ -105,6 +106,20 @@ def run_episode_qa(
                 else f"clips/work/{sid}.mp4"
             )
         work_path = story.path(*str(work_rel).replace("\\", "/").split("/"))
+        if not os.path.isfile(work_path):
+            for alt_rel in (
+                shot.get("clip_work_s2v"),
+                shot.get("clip_work"),
+                f"clips/work/{sid}_s2v.mp4",
+                f"clips/work/{sid}.mp4",
+            ):
+                if not alt_rel:
+                    continue
+                alt = story.path(*str(alt_rel).replace("\\", "/").split("/"))
+                if os.path.isfile(alt):
+                    work_path = alt
+                    work_rel = alt_rel
+                    break
         entry["work_path"] = work_path
         entry["work_exists"] = os.path.isfile(work_path)
 
@@ -168,6 +183,25 @@ def run_episode_qa(
                 entry["aspect_ok"] = True
         except Exception:
             entry["aspect_ok"] = None
+
+        # Per-cut clip gate (I2V + SI2V) — assemble hard gate; soft here unless --require-clip
+        if entry.get("work_exists"):
+            from lib.episode_status import CLIP_STATUS_OK, normalize_clip_status
+
+            clip_st = normalize_clip_status(shot, work_ok=True)
+            entry["clip_status"] = clip_st
+            if clip_st not in CLIP_STATUS_OK:
+                issues.append(
+                    {
+                        "code": "CLIP_VISUAL_PENDING",
+                        "shot_id": sid,
+                        "message": (
+                            f"clip_status={clip_st or 'pending'!r} — human/vision gate: "
+                            f"shot_approve -e {episode_id} -s {sid} --clip approved"
+                        ),
+                        "severity": "warning",
+                    }
+                )
 
         if driver == "si2v":
             if resolve_driving_audio(story.root, shot) is None:
@@ -252,6 +286,10 @@ def run_episode_qa(
         for i in issues:
             if i.get("code") == "LIP_VISUAL_PENDING":
                 i["severity"] = "error"
+    if require_clip:
+        for i in issues:
+            if i.get("code") == "CLIP_VISUAL_PENDING":
+                i["severity"] = "error"
 
     hard = [i for i in issues if i.get("severity") != "warning"]
     warnings = [i for i in issues if i.get("severity") == "warning"]
@@ -268,6 +306,7 @@ def run_episode_qa(
         "issues": hard,
         "warnings": warnings,
         "require_lip": require_lip,
+        "require_clip": require_clip,
         "created_at": utc_now_iso(),
     }
     return report
@@ -294,6 +333,11 @@ def main(argv=None) -> int:
         action="store_true",
         help="Treat unapproved SI2V lip_status as hard failure (hero ship gate)",
     )
+    p.add_argument(
+        "--require-clip",
+        action="store_true",
+        help="Treat unapproved clip_status as hard failure (assemble-ready gate)",
+    )
     p.add_argument("--json", action="store_true", help="Print full JSON report")
     args = p.parse_args(argv)
 
@@ -306,6 +350,7 @@ def main(argv=None) -> int:
             strict=args.strict,
             check_final=not args.no_final,
             require_lip=args.require_lip,
+            require_clip=args.require_clip,
         )
     except FileNotFoundError:
         print(f"[ERROR] code=11 episode missing: {args.episode}", file=sys.stderr)

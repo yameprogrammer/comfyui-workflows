@@ -1,3 +1,5 @@
+> **ARCHIVED (2026-07-14)** — 운영 SSOT 아님. 인덱스: [../../README.md](../../README.md). 활성 백로그: [../../agent_video_tooling_todo.md](../../agent_video_tooling_todo.md).
+
 # 저장본 분석: `ltx23AllInOneWorkflowForRTX_v44_IA2V.json`
 
 - **경로 (Comfy)**: `ComfyUI/user/default/workflows/ltx23AllInOneWorkflowForRTX_v44_IA2V.json`  
@@ -106,3 +108,4 @@ AIO 데모 음원용으로 보이는 값입니다.
 **저장본은 Image+Audio(IA2V)로 올바르게 켜진 상태**입니다.  
 특히 Audio 포트·서브그래프 Audio 인코드/마스크가 ALWAYS.  
 다만 **Trim 220/10** 과 **15s·1920** 은 쇼츠 TTS용으로 반드시 재설정해야 합니다.
+

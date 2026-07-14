@@ -299,7 +299,7 @@ python scripts/episode_i2v.py --episode mina_cafe_ep01 --shots all_approved
 python scripts/episode_upscale.py --episode mina_cafe_ep01 --preset deliver_1080
 ```
 
-커뮤니티 리서치 SSOT: [storyboard_keyframe_community_research.md](storyboard_keyframe_community_research.md)
+커뮤니티 리서치 (아카이브): [archive/research/storyboard_keyframe_community_research.md](archive/research/storyboard_keyframe_community_research.md)
 
 ---
 

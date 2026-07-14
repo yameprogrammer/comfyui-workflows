@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Approve episode keyframe and/or SI2V lip visual gate."""
+"""Approve episode keyframe and/or work-clip / SI2V lip visual gates."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ import argparse
 import os
 import sys
 
+from lib.audio_package import shot_motion_driver
+from lib.episode_status import CLIP_STATUS_VALUES
 from lib.story_package import StoryPackage, validate_episode_id
 
 EXIT_OK = 0
@@ -20,9 +22,38 @@ EXIT_CLIP = 21
 LIP_STATUSES = ("pending", "in_review", "approved", "rejected")
 
 
+def _work_clip_paths(story: StoryPackage, shot: dict, shot_id: str) -> list[str]:
+    rels = [
+        shot.get("clip_work_s2v"),
+        shot.get("clip_work"),
+        f"clips/work/{shot_id}_s2v.mp4",
+        f"clips/work/{shot_id}.mp4",
+    ]
+    paths: list[str] = []
+    seen: set[str] = set()
+    for rel in rels:
+        if not rel:
+            continue
+        p = story.path(*str(rel).replace("\\", "/").split("/"))
+        if p not in seen:
+            seen.add(p)
+            paths.append(p)
+    return paths
+
+
+def _find_work_clip(story: StoryPackage, shot: dict, shot_id: str) -> str | None:
+    for p in _work_clip_paths(story, shot, shot_id):
+        if os.path.isfile(p):
+            return p
+    return None
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
-        description="Approve keyframe (I2V gate) and/or lip_status (SI2V visual gate)"
+        description=(
+            "Approve keyframe (I2V gate), clip_status (assemble hard gate), "
+            "and/or lip_status (SI2V sub-gate)"
+        )
     )
     parser.add_argument("--episode", "-e", required=True)
     parser.add_argument("--shot", "-s", required=True)
@@ -30,7 +61,16 @@ def main(argv=None) -> int:
         "--status",
         choices=["draft", "in_review", "approved"],
         default=None,
-        help="Keyframe status (default: approved when not using --lip alone)",
+        help="Keyframe status (default: approved when not using --lip/--clip alone)",
+    )
+    parser.add_argument(
+        "--clip",
+        choices=list(CLIP_STATUS_VALUES),
+        default=None,
+        help=(
+            "Work-clip visual status after watching clips/work/* "
+            "(face/motion/lip). Assemble requires approved."
+        ),
     )
     parser.add_argument(
         "--lip",
@@ -50,6 +90,22 @@ def main(argv=None) -> int:
         action="store_true",
         help="When --lip approved, require SI2V work clip exists",
     )
+    parser.add_argument(
+        "--require-work-clip",
+        action="store_true",
+        default=True,
+        help="When --clip approved, require work clip exists (default true)",
+    )
+    parser.add_argument(
+        "--allow-missing-work-clip",
+        action="store_true",
+        help="Allow --clip approved without work file (debug)",
+    )
+    parser.add_argument(
+        "--no-sync-lip",
+        action="store_true",
+        help="Do not set lip_status=approved when --clip approved on si2v shots",
+    )
     args = parser.parse_args(argv)
 
     if not validate_episode_id(args.episode):
@@ -68,10 +124,10 @@ def main(argv=None) -> int:
         print(f"[ERROR] code=2 shot missing {args.shot}", file=sys.stderr)
         return EXIT_USAGE
 
-    # If only --lip: do not force keyframe status change
-    # If neither: default keyframe approved
+    # If only --lip / --clip: do not force keyframe status change
+    # If neither lip nor clip: default keyframe approved
     # If --status: update keyframe
-    do_kf = args.status is not None or args.lip is None
+    do_kf = args.status is not None or (args.lip is None and args.clip is None)
     if do_kf and args.status is None:
         args.status = "approved"
 
@@ -87,6 +143,43 @@ def main(argv=None) -> int:
         fields["keyframe"] = rel.replace("\\", "/")
         print(f"OK shot={args.shot} keyframe_status={args.status}")
         print(f"  file={path}")
+
+    if args.clip is not None:
+        work_path = _find_work_clip(story, shot, args.shot)
+        need_file = (
+            args.clip == "approved"
+            and args.require_work_clip
+            and not args.allow_missing_work_clip
+        )
+        if need_file and not work_path:
+            print(
+                f"[ERROR] code=21 work clip missing for clip approve: "
+                f"clips/work/{args.shot}[_s2v].mp4",
+                file=sys.stderr,
+            )
+            return EXIT_CLIP
+        fields["clip_status"] = args.clip
+        print(f"OK shot={args.shot} clip_status={args.clip}")
+        if work_path:
+            print(f"  clip={work_path}")
+        print(
+            "  contract: clip_status is a HUMAN/vision gate — "
+            "face/motion/(lip); tools do not auto-score"
+        )
+        # SI2V: clip approve implies lips were reviewed unless --no-sync-lip
+        driver = shot_motion_driver(shot, story.doc)
+        if (
+            args.clip == "approved"
+            and driver == "si2v"
+            and not args.no_sync_lip
+            and args.lip is None
+        ):
+            fields["lip_status"] = "approved"
+            print("  synced lip_status=approved (si2v; use --no-sync-lip to skip)")
+        elif args.clip in ("pending", "rejected", "in_review") and driver == "si2v":
+            # Keep lip in sync when reopening gate (regen path also resets)
+            if args.lip is None and args.clip in ("pending", "rejected"):
+                fields["lip_status"] = args.clip if args.clip != "in_review" else "in_review"
 
     if args.lip is not None:
         if args.lip == "approved" or args.require_s2v_clip:
@@ -112,7 +205,10 @@ def main(argv=None) -> int:
         )
 
     if not fields:
-        print("[ERROR] nothing to update; pass --status and/or --lip", file=sys.stderr)
+        print(
+            "[ERROR] nothing to update; pass --status and/or --clip and/or --lip",
+            file=sys.stderr,
+        )
         return EXIT_USAGE
 
     story.update_shot(args.shot, **fields)

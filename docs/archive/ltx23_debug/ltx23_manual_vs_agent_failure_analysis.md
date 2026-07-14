@@ -1,3 +1,5 @@
+> **ARCHIVED (2026-07-14)** — 운영 SSOT 아님. 인덱스: [../../README.md](../../README.md). 활성 백로그: [../../agent_video_tooling_todo.md](../../agent_video_tooling_todo.md).
+
 # 수동 IA2V 성공 vs 에이전트 실패 비교 분석
 
 - **작성일**: 2026-07-12  
@@ -125,3 +127,4 @@ LoadAudio → TrimAudioDuration(0, 3)
 | 날짜 | 내용 |
 |------|------|
 | 2026-07-12 | 수동 ltx2_00060 history 기준 대조 분석 초판 |
+

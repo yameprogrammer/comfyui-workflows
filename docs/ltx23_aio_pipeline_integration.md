@@ -3,7 +3,7 @@
 - **작성일**: 2026-07-12  
 - **상태**: **⚠️ approx only** — 축소 API 그래프 동작 / **AIO Orchestrator parity 미완**  
 - **소스 UI**: `workflows/human/ltx23AllInOneWorkflowForRTX_v44.json`  
-- **라우팅 분석 SSOT**: [ltx23_aio_workflow_routing_analysis.md](ltx23_aio_workflow_routing_analysis.md)  
+- **라우팅 분석 (아카이브)**: [archive/ltx23_debug/ltx23_aio_workflow_routing_analysis.md](archive/ltx23_debug/ltx23_aio_workflow_routing_analysis.md)  
 - **IA2V 사용법**: [ltx23_aio_ia2v_agent_usage.md](ltx23_aio_ia2v_agent_usage.md) (Trim·Clip·해상도 매 실행 조정)  
 - **관련**: `lib/ltx_s2v.py` · `scripts/generate_s2v.py` · `workflows/agent/ltx23_aio.manifest.json`
 
@@ -85,7 +85,7 @@ python scripts/chain_si2v_last_frame.py -e EP --backend ltx23_aio_flf_audio   # 
 ## 4. 아직 안 한 것 (우선순위)
 
 1. **AIO 라우팅 parity** — Orchestrator 옵션 → `[[P:]]` mute → 서브그래프 활성 컷 추출·실행  
-   ([routing analysis](ltx23_aio_workflow_routing_analysis.md) §8)  
+   ([routing analysis archive](archive/ltx23_debug/ltx23_aio_workflow_routing_analysis.md) §8)  
 2. Text to Video / Text+Audio pure T2V (테이블 `01 …`)  
 3. **풀 latent Video→Video ExtendSampler**  
 4. Spatial upscale · multi-IC-LoRA 스택  

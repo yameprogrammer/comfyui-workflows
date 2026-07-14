@@ -1,3 +1,5 @@
+> **ARCHIVED (2026-07-14)** — 운영 SSOT 아님. 인덱스: [../../README.md](../../README.md). 활성 백로그: [../../agent_video_tooling_todo.md](../../agent_video_tooling_todo.md).
+
 # 스토리보드 · 키프레임 실무 리서치 (캐릭터/로케 시트 이후)
 
 - **작성일**: 2026-07-12  
@@ -163,3 +165,4 @@ python scripts/episode_i2v.py -e demo_ep01 --shots all_approved
 - Wan FLF2V / ComfyUI first–last tutorials  
 
 (상세 URL은 검색 세션 로그 및 상위 웹 결과 참조.)
+

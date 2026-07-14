@@ -40,7 +40,7 @@ STAGES = [
 ]
 
 # Agent profiles — speed-aware highway (docs/agent_video_tooling_reliability.md §10–11)
-# IT hero: lightx2v + TeaCache + mild lips (1.35 / 10step).
+# IT hero (user QA 2026-07-13 lip bench C): 24fps / 12step / scale 1.5 / lightx2v / TeaCache off
 PROFILES = {
     "preview": {
         "s2v_backend": "ltx23_ia2v",
@@ -70,16 +70,19 @@ PROFILES = {
         "s2v_backend": "infinitetalk",
         "s2v_prepare_mode": "center_voicey",
         "s2v_square": False,
-        # mild lips (user QA 2026-07-12): scale 1.35 / 10step less exaggerated than 2.0/8
-        "s2v_audio_scale": 1.35,
-        "s2v_fps": 16.0,
-        "s2v_steps": 10,
+        # Lip winner S02_it_lip_24fps_s12_as1.5_notea (2026-07-13)
+        "s2v_audio_scale": 1.5,
+        "s2v_fps": 24.0,
+        "s2v_steps": 12,
         "s2v_long_edge": 832,
         "s2v_speed": True,
-        "s2v_teacache": True,
+        "s2v_teacache": False,
         "assemble_stage": "work",
         "qa_strict": True,
-        "notes": "InfiniteTalk mild: lightx2v+TeaCache, 832/16fps/10step, audio_scale 1.35. Hero CU only.",
+        "notes": (
+            "InfiniteTalk lip: lightx2v, 832/24fps/12step, audio_scale 1.5, "
+            "TeaCache off. Hero dialogue CU only."
+        ),
     },
 }
 
@@ -283,7 +286,13 @@ def main(argv=None) -> int:
                 argv2.append("--no-square")
             if not profile.get("s2v_speed", True) and profile.get("s2v_backend") == "infinitetalk":
                 argv2.append("--no-speed")
-            if not profile.get("s2v_teacache", True) and profile.get("s2v_backend") == "infinitetalk":
+            # TeaCache default off for IT; only pass --teacache when profile enables it
+            if profile.get("s2v_teacache") and profile.get("s2v_backend") == "infinitetalk":
+                argv2.append("--teacache")
+            elif (
+                profile.get("s2v_backend") == "infinitetalk"
+                and profile.get("s2v_teacache") is False
+            ):
                 argv2.append("--no-teacache")
             if args.dry_run:
                 argv2.append("--dry-run")
@@ -331,7 +340,9 @@ def main(argv=None) -> int:
                 argv2.append("--strict")
             else:
                 argv2.append("--no-strict")
-            # hero profile: lip visual gate is hard for ship
+            # ship gates: clip always; lip hard on hero
+            if args.profile in ("deliver", "hero"):
+                argv2.append("--require-clip")
             if args.profile == "hero":
                 argv2.append("--require-lip")
             if args.dry_run:
@@ -440,8 +451,10 @@ def _emit_pipeline_result(
             extra={
                 "profile": profile,
                 "agent_notes": [
-                    "SI2V/hero lip_status must be human-approved: "
-                    "shot_approve -e EP -s SHOT --lip approved",
+                    "Per-cut clip_status must be approved before assemble (Rule 7.2): "
+                    "shot_approve -e EP -s SHOT --clip approved",
+                    "SI2V/hero lip_status: shot_approve -e EP -s SHOT --lip approved "
+                    "(also synced by --clip approved on si2v)",
                     "Daily path: --profile deliver (LTX). Hero lips: --profile hero or --backend infinitetalk",
                     "See docs/agent_av_smoke_checklist.md",
                     "Copy episode to YOUR workspace: "

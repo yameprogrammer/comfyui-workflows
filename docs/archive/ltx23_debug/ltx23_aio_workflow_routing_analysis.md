@@ -1,3 +1,5 @@
+> **ARCHIVED (2026-07-14)** — 운영 SSOT 아님. 인덱스: [../../README.md](../../README.md). 활성 백로그: [../../agent_video_tooling_todo.md](../../agent_video_tooling_todo.md).
+
 # LTX 2.3 All-in-One v44 — 라우팅·스위치 분석 (기능별 이식 전제)
 
 - **작성일**: 2026-07-12  
@@ -224,3 +226,4 @@ python scripts/_analyze_ltx23_aio_routing.py
 | 날짜 | 내용 |
 |------|------|
 | 2026-07-12 | 초판: 루트 쉘 / 서브그래프 / Orchestrator 테이블 / Audio mute 노드 / 에이전트 부정합 기록 |
+

@@ -1,20 +1,24 @@
 # 에이전트용 영상 도구 — 신뢰성 평가 · 갭 · 계획
 
+> **2026-07-14:** 본 문서는 **안정화 PR / L1–L11 완료 이력** 중심.  
+> **앞으로 할 일** → [agent_video_tooling_todo.md](agent_video_tooling_todo.md) · 인덱스 → [README.md](README.md).
+
 - **작성일**: 2026-07-12  
 - **관점**: 에이전트(이 도구 세트를 호출하는 모델)가 **재현 가능하게** 영상을 끝낼 수 있는가  
-- **근거**: `sonagi_cafe_smoke_v1` E2E 프로세스 검증 + 립/믹스 사고 분석  
+- **근거**: `sonagi_cafe_smoke_v1` E2E + 립/믹스 사고 분석 (당시)  
 - **관련**: [video_delivery_and_backends.md](video_delivery_and_backends.md), [audio_motion_production_modes.md](audio_motion_production_modes.md), [video_pipeline_roadmap.md](video_pipeline_roadmap.md)
 
 ---
 
 ## 0. 한 줄 결론
 
-| 질문 | 답 |
-|------|----|
-| 기능 골격이 있나? | **예** — compose → I2V/SI2V → assemble 까지 CLI 존재 |
-| 지금 상태로 다수 에이전트에 열어도 되나? | **아니오** — 조용한 실패·기본값 함정·비율 점프·문서/코드 불일치 |
-| 에이전트 똑똑함으로 메울 수 있나? | **기대 금지** — 실패가 늦고, exit 0 + 이상한 mp4 가 흔함 |
-| 목표 | **좁은 고속도로 1개** + 가드레일 + 자동 QA. 자유도는 플래그/고급 모드 |
+| 질문 | 답 (2026-07-14) |
+|------|------------------|
+| 기능 골격이 있나? | **예** — compose → I2V/SI2V → clip gate → assemble |
+| 게이트·스모크가 있나? | **예** — clip_status hard gate, smoke checklist, episode_qa (L1–L11 다수 ✅) |
+| 남은 큰 갭? | **SI2V 길이 계약 · 감정 연동 모션 · auto-export** 등 → **tooling_todo** |
+| 에이전트 똑똑함으로 메울 수 있나? | **기대 금지** — 가드레일·검증 코드로 막는다 |
+| 목표 | **좁은 고속도로 1개** + 가드레일 + 자동 QA |
 
 ---
 
@@ -113,11 +117,18 @@ python scripts/shot_approve.py -e EP -s S01   # … 필요 샷
 # 2) 대사 컷: TTS + SI2V bind (한 샷)
 python scripts/episode_tts.py -e EP -s S02 --text "..." --bind-si2v
 
-# 3) 한 방 (정책 내장)
-python scripts/episode_pipeline.py -e EP --run --from i2v --to assemble --profile deliver
+# 3) 모션 생성 (샷 단위; 합본 전 끊기)
+python scripts/episode_pipeline.py -e EP --run --from i2v --to s2v --profile deliver
+
+# 4) 컷별 육안 → clip_status (assemble 하드 게이트)
+python scripts/shot_approve.py -e EP -s S02 --clip approved
+
+# 5) 전 샷 승인 후에만 조립
+python scripts/assemble_video.py -e EP --stage work
 ```
 
-에이전트는 **텍스트·샷 ID·approve** 만 결정. 엔진/해상도/믹스는 프로필.
+에이전트는 **텍스트·샷 ID·approve** 만 결정. 엔진/해상도/믹스는 프로필.  
+**합본으로 중간 컷 품질을 보지 말 것** — Rule 7.2 / `clip_status`.
 
 ### 4.2 샷 드라이버 규칙 (코드 강제)
 
@@ -243,7 +254,7 @@ PR-A (SI2V defaults + format canvas)
 | C | ✅ | `scripts/episode_qa.py` + pipeline `qa` stage |
 | D | ✅ | `episode_pipeline --profile preview\|deliver\|hero` |
 | E | ✅ | 본 문서 + backends notes |
-| Speed | 🔄 | §10 리서치 반영: **기본 SI2V=LTX**, IT는 hero. Comfy 그래프(lightx2v/TeaCache)는 보류 |
+| Speed | 🔄 | SI2V=LTX 기본·IT hero 가속 ✅. **Wan2.2 I2V 가속**: [wan22_i2v_speed_research.md](wan22_i2v_speed_research.md) (W0–W10) |
 
 ### 에이전트 기본 호출
 
@@ -262,7 +273,7 @@ python scripts/episode_pipeline.py -e EP --run --from s2v --to s2v --profile her
 |---------|------|------|------|
 | **preview** | LTX | ★★★★★ | 탐색·스모크 |
 | **deliver** (default) | **LTX** | ★★★★★ | 에이전트 실무 기본 (말하기 프롬프트 강제) |
-| **hero** | InfiniteTalk **mild** | ★★ | CU 립: 832/16fps/**10step**/scale **1.35** + lightx2v+TeaCache (~3분/컷) |
+| **hero** | InfiniteTalk **lip** | ★★ | CU 립: 832/**24fps**/**12step**/scale **1.5** + lightx2v, **TeaCache off** (~3–4분/컷, QA 2026-07-13) |
 
 ---
 
@@ -305,8 +316,8 @@ python scripts/episode_pipeline.py -e EP --run --from s2v --to s2v --profile her
    - format-consistent work aspect  
 2. **InfiniteTalk = `hero` 프로필 / 명시적 `--backend infinitetalk`**  
    - 히어로 CU 1–2컷  
-   - **mild 기본**: 832 / 16fps / **10step** / audio_scale **1.35** + lightx2v + TeaCache  
-3. **lightx2v + TeaCache** = IT 경로에 구현됨 (`--no-speed` / `--no-teacache`로 끌 수 있음)
+   - **lip 기본 (2026-07-13)**: 832 / **24fps** / **12step** / audio_scale **1.5** + lightx2v, **TeaCache off**  
+3. **lightx2v** = IT 기본 ON; **TeaCache** = 기본 OFF (`--teacache` opt-in)
 
 ### 10.5 다음에 안전하게 할 수 있는 작업 (Comfy 비침습)
 
@@ -322,10 +333,10 @@ python scripts/episode_pipeline.py -e EP --run --from s2v --to s2v --profile her
 
 | 플래그 | 기본 | 효과 |
 |--------|------|------|
-| lightx2v distill LoRA | **ON** | cfg=1, 저 step 가능 |
-| `WanVideoTeaCache` | **ON** | step 캐시 가속 |
-| hero mild: 832 / 16fps / **10step** / scale **1.35** | profile | 과장 입↓, ~3분/컷 (2026-07-12 QA) |
-| `--no-speed` / `--no-teacache` | off | 풀퀄 회귀용 |
+| lightx2v distill LoRA | **ON** | cfg=1, 12step 립 경로 |
+| `WanVideoTeaCache` | **OFF** (기본) | 립 타이밍 우선; `--teacache` opt-in |
+| hero lip: 832 / **24fps** / **12step** / scale **1.5** | profile | 차분·입 맞춤 (2026-07-13 QA C) |
+| `--no-speed` | off | 풀퀄 20step 등 |
 | 대사 길이·long_edge 강제 상한 | **규칙 아님** | 연출 자유 유지; 필요 시 플래그만 |
 
 ```
@@ -348,7 +359,7 @@ python scripts/episode_s2v.py -e EP --shots S03 --backend infinitetalk --no-spee
 
 | ID | 항목 | 상태 |
 |----|------|------|
-| L1 | IT hero 기본 = mild (1.35 / 10step / lightx2v+TeaCache) | ✅ |
+| L1 | IT hero 기본 = lip (1.5 / 12step / 24fps / lightx2v, Tea off) | ✅ 2026-07-13 갱신 |
 | L2 | SI2V 말하기 프롬프트 강제 (TTS bind + episode_s2v) | ✅ |
 | L3 | assemble bake (샷별 stem, spill trim, BGM under speech) | ✅ |
 | L4 | format-consistent SI2V 캔버스 (정사각 opt-in) | ✅ |
@@ -358,13 +369,15 @@ python scripts/episode_s2v.py -e EP --shots S03 --backend infinitetalk --no-spee
 | L8 | `smoke_agent_av.py` + [agent_av_smoke_checklist.md](agent_av_smoke_checklist.md) | ✅ |
 | L9 | pipeline **AGENT_RESULT** + 자동 QA append | ✅ |
 | L10 | `lip_status` human gate (`shot_approve --lip`) | ✅ |
+| L11 | **`clip_status` 컷 검수 + assemble/chain 하드 게이트** (합본 전) | ✅ |
 
 ### 11.0 목표 완수 선언 (2026-07-12)
 
-**에이전트 AV 신뢰 1차 목표: 완수.**
+**에이전트 AV 신뢰 1차 목표: 완수.** (L11 컷 게이트는 2026-07-13 추가)
 
 - Safe defaults + fail-loud + profiles + QA + unified result  
 - 립은 **자동 점수 없음** → `lip_status` 계약으로 명시  
+- 컷 품질은 **자동 점수 없음** → `clip_status` + assemble exit 22  
 - 고정 스모크: `python scripts/smoke_agent_av.py -e EP`  
 - 체크리스트: `docs/agent_av_smoke_checklist.md`  
 

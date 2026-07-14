@@ -27,18 +27,22 @@ python scripts/export_episode_to_workspace.py -e EP --dest "PATH/TO/YOUR/PROJECT
 |--------|------|------|
 | `deliver` (default) | LTX | 일상 생성·조립 |
 | `preview` | LTX | 빠른 탐색 |
-| `hero` | InfiniteTalk mild | 얼굴 CU 립 **1–2컷** |
+| `hero` | InfiniteTalk lip (24fps/12step/1.5) | 얼굴 CU 립 **1–2컷** |
 
 | 게이트 | 의미 |
 |--------|------|
 | `keyframe_status=approved` | 키프레임 육안 OK → I2V/SI2V 허용 |
-| `lip_status=approved` | **SI2V 립 육안 OK** (사람/에이전트 비전). 없으면 납품 경고 |
+| `clip_status=approved` | **워크 클립 육안 OK** (얼굴·모션·립 포함). **assemble 하드 게이트** |
+| `lip_status=approved` | SI2V 립 하위 신호 ( `--clip approved` 시 동기화 가능 ). 납품 경고/`--require-lip` |
 | `episode_qa --strict` | 기계 게이트 (파일·spill·무음 등) |
+| `episode_qa --require-clip` | 미승인 `clip_status` hard fail |
 
-**립 품질은 자동 점수가 없다.** hero/SI2V 컷은 반드시 클립을 보고 `lip_status`를 올려라.
+**클립/립 품질은 자동 점수가 없다.** 컷마다 `clips/work` 를 보고 승인한다. **합본으로 중간 컷을 대체 검수하지 말 것.**
 
 ```bash
-python scripts/shot_approve.py -e EP -s S03 --lip approved
+python scripts/shot_approve.py -e EP -s S03 --clip approved
+# SI2V only lip sub-gate (optional if clip already covers lips):
+# python scripts/shot_approve.py -e EP -s S03 --lip approved
 ```
 
 ---
@@ -56,7 +60,7 @@ python scripts/smoke_agent_av.py -e sonagi_cafe_smoke_v1
 - `default_backend_s2v` resolve → `ltx23_ia2v`
 - profiles `deliver|preview|hero` 존재
 - `episode_qa` 실행 가능
-- hero 기본: scale 1.35 / steps 10
+- hero 기본: scale 1.5 / steps 12 / fps 24 / TeaCache off
 
 ---
 
@@ -82,15 +86,17 @@ python scripts/episode_pipeline.py -e EP --run --from i2v --to qa --profile deli
 ```bash
 python scripts/episode_tts.py -e EP -s S03 --text "..." --bind-si2v --strict
 python scripts/episode_s2v.py -e EP --shots S03 --backend infinitetalk
-# 사람: clips/work/S03_s2v.mp4 확인
-python scripts/shot_approve.py -e EP -s S03 --lip approved
+# 사람: clips/work/S03_s2v.mp4 확인 (얼굴·립)
+python scripts/shot_approve.py -e EP -s S03 --clip approved
 python scripts/assemble_video.py -e EP --stage work --mix-policy layered
-python scripts/episode_qa.py -e EP --strict
+# 미승인 시: exit 22 CLIP_NOT_APPROVED (우회 --force-clip-gate 는 본선 금지)
+python scripts/episode_qa.py -e EP --strict --require-clip
 ```
 
 기대:
 
 - IT mild: ~3분/컷, 입 과장 심하지 않음
+- **assemble 전** 컷 승인 완료
 - assemble 후 대사 겹침·무음 없음
 - QA ok
 

@@ -115,8 +115,8 @@ DEFAULT_T5 = "umt5-xxl-enc-bf16.safetensors"
 DEFAULT_IT_SPEED_LORA = (
     r"Wan2.1\Wan21_I2V_14B_lightx2v_cfg_step_distill_lora_rank64.safetensors"
 )
-# With lightx2v: 8 is fastest; production mild default is 10 (episode_s2v / hero profile).
-DEFAULT_IT_SPEED_STEPS = 10
+# With lightx2v: 8 is fastest; hero lip default 12 (user QA 2026-07-13 C winner).
+DEFAULT_IT_SPEED_STEPS = 12
 
 
 def _snap_dim(n: int, multiple: int = 16) -> int:
@@ -526,13 +526,13 @@ def generate_s2v(
     timeout_sec: int = 3600,
     meta_out: str | None = None,
     dry_run: bool = False,
-    audio_scale: float = 1.35,  # mild IT default; LTX callers can pass 1.5
+    audio_scale: float = 1.5,  # hero lip default (QA 2026-07-13 C); was 1.35 mild
     audio_cfg_scale: float = 1.0,
     scheduler: str = "dpm++_sde",
     shift: float = 11.0,
     speed_lora: str | bool | None = True,
     speed_lora_strength: float = 1.0,
-    teacache: bool = True,
+    teacache: bool = False,  # default off — better lip timing
     teacache_thresh: float = 0.2,
     ltx_mode: str | None = None,
     last_image_path: str | None = None,
@@ -740,9 +740,29 @@ def generate_s2v(
         if edge < 512:
             edge = 1024
         aspect = "9:16" if int(height) >= int(width) else "16:9"
+        # Match runner default: audio+1.5 then ceil (S02 bench preferred for lip/prop).
+        # Tight: AGENT_LTX_CLIP_TIGHT=1 or AGENT_LTX_CLIP_PAD_SEC=0
         clip_sec = None
         if adur:
-            clip_sec = max(float(adur) + 1.5, float(adur))
+            tight = os.environ.get("AGENT_LTX_CLIP_TIGHT", "").strip().lower() in (
+                "1",
+                "true",
+                "yes",
+            )
+            default_pad = "0" if tight else "1.5"
+            try:
+                pad = float(
+                    os.environ.get("AGENT_LTX_CLIP_PAD_SEC", default_pad) or default_pad
+                )
+            except ValueError:
+                pad = 0.0 if tight else 1.5
+            try:
+                extra = int(float(os.environ.get("AGENT_LTX_CLIP_EXTRA_SEC", "0") or 0))
+            except ValueError:
+                extra = 0
+            import math as _math
+
+            clip_sec = float(int(_math.ceil(float(adur) + pad - 1e-9)) + max(0, extra))
         elif num_frames and fps:
             clip_sec = float(num_frames) / float(fps)
         if seed is None:
@@ -899,7 +919,8 @@ def generate_s2v(
             # Only auto-clamp when it looks like a legacy "full quality" default
             # Callers that want 20 steps WITH lora can pass steps=20 and we still use lora;
             # actually clamping always when lora and steps>12 is safer for agent speed.
-        if lora_path and steps > 12:
+        # Allow up to 16 steps with lightx2v; clamp only obvious full-quality defaults (20+)
+        if lora_path and steps > 16:
             print(f"[speed] steps {steps} → {DEFAULT_IT_SPEED_STEPS} with distill LoRA")
             steps = DEFAULT_IT_SPEED_STEPS
         if lora_path:
@@ -1197,14 +1218,14 @@ def main(argv=None) -> int:
         "--steps",
         type=int,
         default=None,
-        help="Sampler steps (IT default 8 with speed LoRA, 20 without)",
+        help="Sampler steps (IT default 12 with speed LoRA, 20 without)",
     )
     p.add_argument("--cfg", type=float, default=1.0)
     p.add_argument(
         "--audio-scale",
         type=float,
-        default=1.35,
-        help="IT lip intensity (mild default 1.35; raise to ~1.6 for bigger mouths)",
+        default=1.5,
+        help="IT lip intensity (hero default 1.5; lower ~1.35 milder, raise ~1.6 bigger mouths)",
     )
     p.add_argument("--audio-cfg-scale", type=float, default=1.0)
     p.add_argument("--scheduler", default="dpm++_sde")
@@ -1214,7 +1235,7 @@ def main(argv=None) -> int:
         dest="speed_lora",
         action="store_true",
         default=True,
-        help="Apply lightx2v distill LoRA for 4–8 step IT (default on)",
+        help="Apply lightx2v distill LoRA (default on; hero uses 12 steps)",
     )
     p.add_argument(
         "--no-speed-lora",
@@ -1231,14 +1252,14 @@ def main(argv=None) -> int:
         "--teacache",
         dest="teacache",
         action="store_true",
-        default=True,
-        help="WanVideoTeaCache on InfiniteTalk sampler (default on)",
+        default=False,
+        help="WanVideoTeaCache on InfiniteTalk (default off — better lip timing)",
     )
     p.add_argument(
         "--no-teacache",
         dest="teacache",
         action="store_false",
-        help="Disable TeaCache",
+        help="Disable TeaCache (default)",
     )
     p.add_argument("--teacache-thresh", type=float, default=0.2)
     p.add_argument("--seed", type=int, default=None)

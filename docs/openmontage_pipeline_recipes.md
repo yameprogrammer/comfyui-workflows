@@ -3,7 +3,7 @@
 - **작성일**: 2026-07-12  
 - **대상**: `OpenMontage_full/pipeline_defs/*.yaml`  
 - **상태**: **목록·설명 READY** · agent_custom **공식 연동 아님** (참고용)  
-- **관련**: [openmontage_capability_catalog.md](openmontage_capability_catalog.md) · [openmontage_eval_notes.md](openmontage_eval_notes.md)
+- **관련**: [openmontage_capability_catalog.md](openmontage_capability_catalog.md) · [archive/research/openmontage_eval_notes.md](archive/research/openmontage_eval_notes.md)
 
 ---
 

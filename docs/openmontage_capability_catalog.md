@@ -5,7 +5,7 @@
 - **위치**:
   - `OpenMontage/` — 얇은 클론 (마케팅/부분 lib)
   - **`OpenMontage_full/`** — 풀 소스 카탈로그 대상 ([calesthio/OpenMontage](https://github.com/calesthio/OpenMontage))
-- **관련**: [openmontage_eval_notes.md](openmontage_eval_notes.md) · [agent_rules.md](../agent_rules.md) Rule 7.1 · [assemble_video / episode_pipeline](../scripts/README.md)
+- **관련**: [archive/research/openmontage_eval_notes.md](archive/research/openmontage_eval_notes.md) · [agent_rules.md](../agent_rules.md) Rule 7.1 · [assemble_video / episode_pipeline](../scripts/README.md)
 
 ---
 

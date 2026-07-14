@@ -8,6 +8,9 @@ from typing import Any
 from lib.audio_package import resolve_driving_audio, shot_motion_driver
 from lib.story_package import StoryPackage
 
+CLIP_STATUS_VALUES = ("pending", "in_review", "approved", "rejected")
+CLIP_STATUS_OK = frozenset({"approved", "ok"})
+
 
 def _exists(story: StoryPackage, rel: str | None) -> bool:
     if not rel:
@@ -26,6 +29,61 @@ def _work_rel_for_shot(shot: dict) -> str:
     if driver == "si2v":
         return f"clips/work/{sid}_s2v.mp4"
     return f"clips/work/{sid}.mp4"
+
+
+def normalize_clip_status(shot: dict, *, work_ok: bool) -> str | None:
+    """Human gate for work clip quality. Missing + work file ⇒ pending."""
+    raw = str(shot.get("clip_status") or "").strip().lower() or None
+    if work_ok and not raw:
+        return "pending"
+    return raw
+
+
+def clip_visual_ok(shot: dict, *, work_ok: bool) -> bool:
+    if not work_ok:
+        return False
+    return normalize_clip_status(shot, work_ok=work_ok) in CLIP_STATUS_OK
+
+
+def check_clip_approve_blockers(
+    shots: list[dict],
+    *,
+    work_ok_by_id: dict[str, bool] | None = None,
+) -> list[dict[str, Any]]:
+    """Return [{shot_id, clip_status, reason}] for shots that need clip approve.
+
+    If work_ok_by_id is provided, only those with work_ok True are checked.
+    If None, infer work from clip_status pending convention via work file flags
+    already embedded: pass work_ok_by_id from caller for accuracy.
+    """
+    blockers: list[dict[str, Any]] = []
+    for shot in shots:
+        sid = str(shot.get("shot_id") or "?")
+        if work_ok_by_id is not None:
+            work_ok = bool(work_ok_by_id.get(sid))
+        else:
+            # Without path checks: treat explicit statuses only; skip unknown
+            work_ok = bool(shot.get("_work_ok")) or bool(
+                shot.get("clip_work") or shot.get("clip_work_s2v")
+            )
+            # Prefer explicit work_ok if status helper already set
+            if "work_clip" in shot and isinstance(shot.get("work_clip"), bool):
+                work_ok = bool(shot["work_clip"])
+        if not work_ok:
+            continue
+        st = normalize_clip_status(shot, work_ok=True)
+        if st not in CLIP_STATUS_OK:
+            blockers.append(
+                {
+                    "shot_id": sid,
+                    "clip_status": st or "pending",
+                    "reason": (
+                        f"clip_status={st or 'pending'!r} — watch work clip then: "
+                        f"shot_approve -e EP -s {sid} --clip approved"
+                    ),
+                }
+            )
+    return blockers
 
 
 def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
@@ -49,6 +107,15 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
                 work_ok = True
                 work_rel = str(alt)
                 break
+    if not work_ok and driver != "si2v":
+        for alt in (
+            shot.get("clip_work_s2v"),
+            f"clips/work/{sid}_s2v.mp4",
+        ):
+            if alt and _exists(story, str(alt)):
+                work_ok = True
+                work_rel = str(alt)
+                break
     deliver_ok = _exists(story, deliver_rel)
     kf_status = shot.get("keyframe_status") or ("draft" if kf_ok else "missing")
 
@@ -61,6 +128,9 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         lip_status = "pending"
     lip_ok = lip_status in ("approved", "ok") if driver == "si2v" else True
 
+    clip_status = normalize_clip_status(shot, work_ok=work_ok)
+    clip_ok = clip_visual_ok(shot, work_ok=work_ok)
+
     blockers: list[str] = []
     if not kf_ok:
         blockers.append("keyframe_file")
@@ -70,6 +140,8 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         blockers.append("si2v_driving_audio")
     if not work_ok:
         blockers.append("work_clip")
+    if work_ok and not clip_ok:
+        blockers.append(f"clip_status={clip_status or 'pending'}")
     if driver == "si2v" and work_ok and not lip_ok:
         blockers.append(f"lip_status={lip_status or 'pending'}")
 
@@ -82,6 +154,8 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         next_action = "audio_bind_driving"
     elif not work_ok:
         next_action = "episode_s2v" if driver == "si2v" else "episode_i2v"
+    elif work_ok and not clip_ok:
+        next_action = "shot_approve_clip"
     elif driver == "si2v" and work_ok and not lip_ok:
         next_action = "shot_approve_lip"
     elif work_ok:
@@ -100,6 +174,8 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         "work_rel": work_rel,
         "deliver_clip": deliver_ok,
         "driving_audio": driving_ok,
+        "clip_status": clip_status,
+        "clip_visual_ok": clip_ok,
         "lip_status": lip_status,
         "lip_visual_ok": lip_ok,
         "character_ids": shot.get("character_ids") or [],
@@ -112,7 +188,7 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
             kf_ok and kf_status == "approved" and driver == "si2v" and driving_ok
         ),
         "upscale_ready": work_ok,
-        "assemble_ready": deliver_ok or work_ok,
+        "assemble_ready": (deliver_ok or work_ok) and clip_ok,
     }
 
 
@@ -159,6 +235,10 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
         and s.get("work_clip")
         and not s.get("lip_visual_ok")
     )
+    n_need_clip = sum(
+        1 for s in per if s.get("work_clip") and not s.get("clip_visual_ok")
+    )
+    n_clip_approved = sum(1 for s in per if s.get("clip_visual_ok"))
 
     final_path = story.path("exports", "final", f"{episode_id}_final.mp4")
     # also accept smoke naming
@@ -194,6 +274,8 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
         overall = "episode_i2v"
     elif n_need_motion > 0:
         overall = "episode_i2v"
+    elif n_need_clip > 0:
+        overall = "shot_approve_clip"
     elif n_need_lip > 0:
         overall = "shot_approve_lip"
     elif n_deliver < n_work and n_work > 0:
@@ -238,6 +320,8 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
             "need_s2v": n_need_s2v,
             "need_i2v": n_need_i2v,
             "need_driving": n_need_driving,
+            "need_clip_approve": n_need_clip,
+            "clip_approved": n_clip_approved,
             "need_lip_approve": n_need_lip,
         },
         "final_export": final_ok,
@@ -249,7 +333,7 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
             "episode_i2v": n_i2v_ready > 0,
             "episode_s2v": n_s2v_ready > 0,
             "episode_upscale": n_work > 0,
-            "assemble_video": n_deliver > 0 or n_work > 0,
+            "assemble_video": n_need_clip == 0 and (n_deliver > 0 or n_work > 0),
             "package_delivery": final_ok or n_work > 0 or n_kf > 0,
         },
     }
@@ -268,14 +352,17 @@ def format_status_text(report: dict[str, Any]) -> str:
         f"i2v_ready={report['counts']['i2v_ready']}  "
         f"s2v_ready={report['counts'].get('s2v_ready', 0)}  "
         f"work={report['counts']['work_clips']}  "
+        f"clip_ok={report['counts'].get('clip_approved', 0)}  "
+        f"need_clip={report['counts'].get('need_clip_approve', 0)}  "
         f"deliver={report['counts']['deliver_clips']}",
         f"final_export={'yes' if report['final_export'] else 'no'}  "
         f"last_delivery={report.get('last_delivery') or 'none'}",
         f"overall_next={report['overall_next']}",
         "",
-        f"{'SHOT':<6} {'DRV':<6} {'KF':<8} {'FILE':<5} {'WORK':<5} {'LIP':<8} NEXT",
+        f"{'SHOT':<6} {'DRV':<6} {'KF':<8} {'FILE':<5} {'WORK':<5} {'CLIP':<8} {'LIP':<8} NEXT",
     ]
     for s in report["shots"]:
+        clip = s.get("clip_status") or ("-" if not s.get("work_clip") else "?")
         lip = s.get("lip_status") or ("-" if s.get("motion_driver") != "si2v" else "?")
         lines.append(
             f"{str(s['shot_id']):<6} "
@@ -283,6 +370,7 @@ def format_status_text(report: dict[str, Any]) -> str:
             f"{str(s['keyframe_status']):<8} "
             f"{'Y' if s['keyframe_file'] else 'N':<5} "
             f"{'Y' if s['work_clip'] else 'N':<5} "
+            f"{str(clip):<8} "
             f"{str(lip):<8} "
             f"{s['next_action']}"
         )

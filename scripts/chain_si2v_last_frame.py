@@ -79,7 +79,31 @@ def main(argv=None) -> int:
     p.add_argument("--timeout", type=int, default=2400)
     p.add_argument("--start-from", default=None, help="Skip until this shot id (inclusive)")
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument(
+        "--force-clip-gate",
+        action="store_true",
+        help=(
+            "Allow chaining from previous shot without clip_status=approved "
+            "(debug only; Rule 7.2)"
+        ),
+    )
+    p.add_argument(
+        "--pause-for-clip-approve",
+        action="store_true",
+        default=True,
+        help=(
+            "After each generated clip, stop so you can approve before next shot "
+            "(default true). Use --no-pause-for-clip-approve for batch+force."
+        ),
+    )
+    p.add_argument(
+        "--no-pause-for-clip-approve",
+        action="store_true",
+        help="Generate entire chain without stopping (still checks prev clip_status unless --force-clip-gate)",
+    )
     args = p.parse_args(argv)
+    if args.no_pause_for_clip_approve:
+        args.pause_for_clip_approve = False
 
     try:
         story = StoryPackage.load(args.episode)
@@ -138,6 +162,32 @@ def main(argv=None) -> int:
 
         # Chain keyframe from previous last frame (except first in chain)
         if i > 0 and prev_clip and os.path.isfile(prev_clip):
+            prev_sid = chain[i - 1]
+            # Rule 7.2: do not propagate a rejected/unreviewed last frame
+            if not args.force_clip_gate:
+                from lib.episode_status import CLIP_STATUS_OK, normalize_clip_status
+
+                try:
+                    prev_shot = story.get_shot(prev_sid)
+                except KeyError:
+                    prev_shot = {}
+                pst = normalize_clip_status(prev_shot, work_ok=True)
+                if pst not in CLIP_STATUS_OK:
+                    print(
+                        f"[ERROR] code=22 CLIP_NOT_APPROVED — cannot chain {prev_sid} → {sid}",
+                        file=sys.stderr,
+                    )
+                    print(
+                        f"  prev clip_status={pst or 'pending'!r}. Watch {prev_clip} then:\n"
+                        f"    python scripts/shot_approve.py -e {args.episode} "
+                        f"-s {prev_sid} --clip approved\n"
+                        f"  Resume: python scripts/chain_si2v_last_frame.py -e {args.episode} "
+                        f"--start-from {sid} ...\n"
+                        f"  Debug-only: --force-clip-gate",
+                        file=sys.stderr,
+                    )
+                    return EXIT_FAIL
+
             kf_path = story.path("keyframes", f"{sid}.png")
             print(f"\n>>> extract last frame {prev_clip} → {kf_path}")
             if args.dry_run:
@@ -246,12 +296,27 @@ def main(argv=None) -> int:
             s2v_backend=args.backend,
             s2v_driving_audio=os.path.relpath(audio_path, story.root).replace("\\", "/"),
             lip_status="pending",
+            clip_status="pending",
             keyframe_status="approved",
         )
         prev_clip = clip_path
+        print(
+            f"  clip_status=pending — review then:\n"
+            f"    python scripts/shot_approve.py -e {args.episode} -s {sid} --clip approved"
+        )
+        if args.pause_for_clip_approve and i < len(chain) - 1:
+            print(
+                f"\n[PAUSE] Approve {sid} before chaining next shot "
+                f"(Rule 7.2). Then re-run with --start-from {chain[i + 1]}"
+            )
+            print("Done partial chain through", sid)
+            return EXIT_OK
 
     print("\nDone chain:", " → ".join(chain))
-    print("Next: hard-cut assemble (no crossfade) + yuv420p playable export")
+    print(
+        "Next: shot_approve --clip each shot (if pending), then hard-cut assemble "
+        "(no crossfade) + yuv420p playable export"
+    )
     return EXIT_OK
 
 

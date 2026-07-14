@@ -7,7 +7,7 @@
   (소비자 피드백: 하드컷 + 독립 키프레임/모션만으로는 연속감·립 이질감이 큼)  
 - **관련**:  
   [storyboard_pipeline_design.md](storyboard_pipeline_design.md) ·  
-  [storyboard_keyframe_community_research.md](storyboard_keyframe_community_research.md) ·  
+  [archive/research/storyboard_keyframe_community_research.md](archive/research/storyboard_keyframe_community_research.md) ·  
   [audio_motion_production_modes.md](audio_motion_production_modes.md) ·  
   [production_asset_pipeline.md](production_asset_pipeline.md)
 

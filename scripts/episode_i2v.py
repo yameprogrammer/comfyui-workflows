@@ -199,8 +199,14 @@ def main(argv=None) -> int:
                 i2v_at=utc_now_iso(),
                 i2v_backend=backend,
                 i2v_frames=frames,
+                # Human/vision gate — assemble requires clip_status=approved
+                clip_status="pending",
             )
             print(f"  OK {clip_path}")
+            print(
+                f"  clip_status=pending → review clip then: "
+                f"python scripts/shot_approve.py -e {args.episode} -s {sid} --clip approved"
+            )
         else:
             fail += 1
             story.update_shot(

@@ -1,3 +1,5 @@
+> **ARCHIVED (2026-07-14)** — 운영 SSOT 아님. 인덱스: [../../README.md](../../README.md). 활성 백로그: [../../agent_video_tooling_todo.md](../../agent_video_tooling_todo.md).
+
 # OpenMontage 로컬 클론 평가 메모
 
 - **날짜**: 2026-07-12 · **갱신**: 2026-07-12 (카탈로그 분리)  
@@ -35,3 +37,4 @@
 4. **공식 연동 SOP** 작성 (어느 에피소드 단계에서 OM을 쓸지) — 미착수  
 
 **지금은 클론·지도·카탈로그.** 제품 코드 커밋에 monorepo 포함하지 않음 (`.gitignore`).
+

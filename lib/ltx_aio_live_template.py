@@ -64,9 +64,26 @@ def build_ia2v_live_api(
     # --- derive lengths (same rules as human IA2V usage) ---
     if audio_duration_sec is None or audio_duration_sec <= 0:
         audio_duration_sec = 3.0
-    # clip slightly longer than audio is OK (user: trim later); default +1.5s
+    # Whole-second Clip Length. Default audio+1.5 (S02 bench: better lip/prop than tight).
+    # AGENT_LTX_CLIP_TIGHT=1 or PAD_SEC=0 for ceil(audio) experiments.
     if clip_length_sec is None or clip_length_sec <= 0:
-        clip_length_sec = max(audio_duration_sec + 1.5, audio_duration_sec)
+        tight = os.environ.get("AGENT_LTX_CLIP_TIGHT", "").strip().lower() in (
+            "1",
+            "true",
+            "yes",
+        )
+        default_pad = "0" if tight else "1.5"
+        try:
+            pad = float(os.environ.get("AGENT_LTX_CLIP_PAD_SEC", default_pad) or default_pad)
+        except ValueError:
+            pad = 0.0 if tight else 1.5
+        try:
+            extra = int(float(os.environ.get("AGENT_LTX_CLIP_EXTRA_SEC", "0") or 0))
+        except ValueError:
+            extra = 0
+        clip_length_sec = float(
+            int(math.ceil(float(audio_duration_sec) + pad - 1e-9)) + max(0, extra)
+        )
     # trim to full usable speech (not demo 220/10)
     trim_dur = float(audio_duration_sec)
     clip_sec_i = int(math.ceil(float(clip_length_sec) - 1e-9))

@@ -4,7 +4,7 @@
 - **정본 스냅샷 (스위치 상태)**:  
   - Comfy: `user/default/workflows/ltx23AllInOneWorkflowForRTX_v44_IA2V.json`  
   - agent: `workflows/human/ltx23AllInOneWorkflowForRTX_v44_IA2V.json`  
-- **관련**: [ltx23_aio_IA2V_saved_snapshot.md](ltx23_aio_IA2V_saved_snapshot.md) · [ltx23_aio_workflow_routing_analysis.md](ltx23_aio_workflow_routing_analysis.md) · [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md)
+- **관련**: [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md) · 아카이브 분석: [archive/ltx23_debug/](archive/ltx23_debug/)
 
 ---
 
