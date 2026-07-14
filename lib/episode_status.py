@@ -5,11 +5,20 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from lib.audio_package import resolve_driving_audio, shot_motion_driver
+from lib.audio_package import (
+    probe_audio_duration,
+    resolve_driving_audio,
+    resolve_path,
+    shot_motion_driver,
+)
 from lib.story_package import StoryPackage
 
 CLIP_STATUS_VALUES = ("pending", "in_review", "approved", "rejected")
 CLIP_STATUS_OK = frozenset({"approved", "ok"})
+
+# Length health slacks (seconds)
+_LENGTH_SHORT_SLACK = 0.35
+_DRIVE_TTS_SLACK = 0.35
 
 
 def _exists(story: StoryPackage, rel: str | None) -> bool:
@@ -29,6 +38,111 @@ def _work_rel_for_shot(shot: dict) -> str:
     if driver == "si2v":
         return f"clips/work/{sid}_s2v.mp4"
     return f"clips/work/{sid}.mp4"
+
+
+def _rel_duration(story: StoryPackage, rel: str | None) -> float | None:
+    if not rel:
+        return None
+    path = story.path(*str(rel).replace("\\", "/").split("/"))
+    if not os.path.isfile(path):
+        return None
+    return probe_audio_duration(path)  # ffprobe format=duration works for video too
+
+
+def _tts_path(story: StoryPackage, shot: dict) -> str | None:
+    refs = shot.get("audio_refs") or {}
+    if not isinstance(refs, dict):
+        return None
+    for key in ("tts", "dialogue"):
+        raw = refs.get(key)
+        if isinstance(raw, str):
+            p = resolve_path(story.root, raw)
+            if p:
+                return p
+        if isinstance(raw, dict):
+            p = resolve_path(story.root, raw.get("path") or raw.get("file"))
+            if p:
+                return p
+    return None
+
+
+def _drive_path(story: StoryPackage, shot: dict) -> str | None:
+    # Prefer materialized s2v_driving_audio, then audio_refs.driving
+    rel = shot.get("s2v_driving_audio")
+    if rel:
+        p = resolve_path(story.root, str(rel))
+        if p:
+            return p
+    ref = resolve_driving_audio(story.root, shot)
+    return ref["path"] if ref else None
+
+
+def length_health(
+    story: StoryPackage,
+    shot: dict,
+    *,
+    work_rel: str | None,
+    work_ok: bool,
+    driver: str,
+) -> dict[str, Any]:
+    """
+    P1-1: per-shot duration health.
+
+    Flags:
+      SHORT — work clip shorter than drive/tts (dialogue cut risk)
+      DRIVE_MISMATCH — prepared drive shorter than TTS stem
+      DURATION_SHORT — declared duration_sec shorter than media (spill risk)
+    """
+    tts_sec = None
+    drive_sec = None
+    clip_sec = None
+    tts_p = _tts_path(story, shot)
+    if tts_p:
+        tts_sec = probe_audio_duration(tts_p)
+    if driver == "si2v":
+        dp = _drive_path(story, shot)
+        if dp:
+            drive_sec = probe_audio_duration(dp)
+    if work_ok and work_rel:
+        clip_sec = _rel_duration(story, work_rel)
+
+    try:
+        duration_sec = float(shot["duration_sec"]) if shot.get("duration_sec") is not None else None
+    except (TypeError, ValueError):
+        duration_sec = None
+
+    flags: list[str] = []
+    # drive vs tts
+    if drive_sec is not None and tts_sec is not None:
+        if tts_sec - drive_sec > _DRIVE_TTS_SLACK:
+            flags.append("DRIVE_MISMATCH")
+    # clip vs longest audio source
+    audio_need = None
+    for v in (drive_sec, tts_sec):
+        if v is not None:
+            audio_need = v if audio_need is None else max(audio_need, v)
+    if clip_sec is not None and audio_need is not None:
+        if audio_need - clip_sec > _LENGTH_SHORT_SLACK:
+            flags.append("SHORT")
+    # declared shot duration vs audio (spill into next cut)
+    if duration_sec is not None and audio_need is not None:
+        if audio_need - duration_sec > _LENGTH_SHORT_SLACK:
+            flags.append("DURATION_SHORT")
+
+    # optional frames estimate @24
+    frames = None
+    if clip_sec is not None:
+        frames = int(round(clip_sec * 24.0))
+
+    return {
+        "tts_sec": round(tts_sec, 3) if tts_sec is not None else None,
+        "drive_sec": round(drive_sec, 3) if drive_sec is not None else None,
+        "clip_sec": round(clip_sec, 3) if clip_sec is not None else None,
+        "duration_sec": round(duration_sec, 3) if duration_sec is not None else None,
+        "frames_est_24": frames,
+        "flags": flags,
+        "length_ok": len(flags) == 0,
+    }
 
 
 def normalize_clip_status(shot: dict, *, work_ok: bool) -> str | None:
@@ -131,6 +245,15 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
     clip_status = normalize_clip_status(shot, work_ok=work_ok)
     clip_ok = clip_visual_ok(shot, work_ok=work_ok)
 
+    # P1-1 length health (tts / drive / clip)
+    lh = length_health(
+        story,
+        shot,
+        work_rel=work_rel,
+        work_ok=work_ok,
+        driver=driver,
+    )
+
     blockers: list[str] = []
     if not kf_ok:
         blockers.append("keyframe_file")
@@ -144,6 +267,8 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         blockers.append(f"clip_status={clip_status or 'pending'}")
     if driver == "si2v" and work_ok and not lip_ok:
         blockers.append(f"lip_status={lip_status or 'pending'}")
+    for fl in lh.get("flags") or []:
+        blockers.append(f"length:{fl}")
 
     next_action = "done"
     if not kf_ok:
@@ -154,6 +279,10 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         next_action = "audio_bind_driving"
     elif not work_ok:
         next_action = "episode_s2v" if driver == "si2v" else "episode_i2v"
+    elif "DRIVE_MISMATCH" in (lh.get("flags") or []):
+        next_action = "fix_driving_length"
+    elif "SHORT" in (lh.get("flags") or []):
+        next_action = "regen_s2v_longer"
     elif work_ok and not clip_ok:
         next_action = "shot_approve_clip"
     elif driver == "si2v" and work_ok and not lip_ok:
@@ -181,14 +310,24 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         "character_ids": shot.get("character_ids") or [],
         "location_id": shot.get("location_id"),
         "motion_prompt": bool((shot.get("motion_prompt") or "").strip()),
+        "performance": shot.get("performance") or shot.get("s2v_performance"),
+        "length": lh,
+        "tts_sec": lh.get("tts_sec"),
+        "drive_sec": lh.get("drive_sec"),
+        "clip_sec": lh.get("clip_sec"),
+        "length_flags": list(lh.get("flags") or []),
         "blockers": blockers,
         "next_action": next_action,
         "i2v_ready": kf_ok and kf_status == "approved" and driver in ("i2v",),
         "s2v_ready": (
-            kf_ok and kf_status == "approved" and driver == "si2v" and driving_ok
+            kf_ok
+            and kf_status == "approved"
+            and driver == "si2v"
+            and driving_ok
+            and "DRIVE_MISMATCH" not in (lh.get("flags") or [])
         ),
         "upscale_ready": work_ok,
-        "assemble_ready": (deliver_ok or work_ok) and clip_ok,
+        "assemble_ready": (deliver_ok or work_ok) and clip_ok and lh.get("length_ok", True),
     }
 
 
@@ -239,6 +378,11 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
         1 for s in per if s.get("work_clip") and not s.get("clip_visual_ok")
     )
     n_clip_approved = sum(1 for s in per if s.get("clip_visual_ok"))
+    n_length_warn = sum(1 for s in per if s.get("length_flags"))
+    n_short = sum(1 for s in per if "SHORT" in (s.get("length_flags") or []))
+    n_drive_mismatch = sum(
+        1 for s in per if "DRIVE_MISMATCH" in (s.get("length_flags") or [])
+    )
 
     final_path = story.path("exports", "final", f"{episode_id}_final.mp4")
     # also accept smoke naming
@@ -274,6 +418,10 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
         overall = "episode_i2v"
     elif n_need_motion > 0:
         overall = "episode_i2v"
+    elif n_drive_mismatch > 0:
+        overall = "fix_driving_length"
+    elif n_short > 0:
+        overall = "regen_s2v_longer"
     elif n_need_clip > 0:
         overall = "shot_approve_clip"
     elif n_need_lip > 0:
@@ -323,6 +471,9 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
             "need_clip_approve": n_need_clip,
             "clip_approved": n_clip_approved,
             "need_lip_approve": n_need_lip,
+            "length_warn": n_length_warn,
+            "length_short": n_short,
+            "drive_mismatch": n_drive_mismatch,
         },
         "final_export": final_ok,
         "final_path": final_path if final_ok else None,
@@ -354,24 +505,31 @@ def format_status_text(report: dict[str, Any]) -> str:
         f"work={report['counts']['work_clips']}  "
         f"clip_ok={report['counts'].get('clip_approved', 0)}  "
         f"need_clip={report['counts'].get('need_clip_approve', 0)}  "
-        f"deliver={report['counts']['deliver_clips']}",
+        f"deliver={report['counts']['deliver_clips']}  "
+        f"len_warn={report['counts'].get('length_warn', 0)} "
+        f"(short={report['counts'].get('length_short', 0)} "
+        f"drive={report['counts'].get('drive_mismatch', 0)})",
         f"final_export={'yes' if report['final_export'] else 'no'}  "
         f"last_delivery={report.get('last_delivery') or 'none'}",
         f"overall_next={report['overall_next']}",
         "",
-        f"{'SHOT':<6} {'DRV':<6} {'KF':<8} {'FILE':<5} {'WORK':<5} {'CLIP':<8} {'LIP':<8} NEXT",
+        f"{'SHOT':<6} {'DRV':<6} {'TTS':>6} {'DRIVE':>6} {'CLIP':>6} {'FLAGS':<16} {'WORK':<5} NEXT",
     ]
     for s in report["shots"]:
-        clip = s.get("clip_status") or ("-" if not s.get("work_clip") else "?")
-        lip = s.get("lip_status") or ("-" if s.get("motion_driver") != "si2v" else "?")
+        def _f(v):
+            if isinstance(v, (int, float)):
+                return f"{v:6.2f}"
+            return f"{'—':>6}"
+
+        flags = ",".join(s.get("length_flags") or []) or "-"
         lines.append(
             f"{str(s['shot_id']):<6} "
             f"{str(s.get('motion_driver') or '?'):<6} "
-            f"{str(s['keyframe_status']):<8} "
-            f"{'Y' if s['keyframe_file'] else 'N':<5} "
+            f"{_f(s.get('tts_sec'))} "
+            f"{_f(s.get('drive_sec'))} "
+            f"{_f(s.get('clip_sec'))} "
+            f"{flags:<16} "
             f"{'Y' if s['work_clip'] else 'N':<5} "
-            f"{str(clip):<8} "
-            f"{str(lip):<8} "
             f"{s['next_action']}"
         )
     return "\n".join(lines)

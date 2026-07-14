@@ -64,10 +64,11 @@
 
 ## P1 — 효율·연속성·검수
 
-### P1-1. `episode_status` 길이 헬스체크
+### P1-1. `episode_status` 길이 헬스체크 — ✅ 2026-07-14
 
-- 샷별: `tts_sec / drive_sec / clip_sec / frames` 한 줄  
-- `SHORT` / `DRIVE_MISMATCH` 플래그  
+- 샷별: `tts_sec / drive_sec / clip_sec / frames_est_24` + `length_flags`  
+- 플래그: `SHORT` (클립 < 오디오) · `DRIVE_MISMATCH` (drive < TTS) · `DURATION_SHORT`  
+- `episode_status` 텍스트/JSON · overall_next `fix_driving_length` / `regen_s2v_longer`
 
 ### P1-2. 원 테이크 체인 CLI
 
@@ -163,7 +164,7 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 - [x] Ideogram4 타이포 1차 (`generate_ideogram4.py` + schema fix)
 - [x] P0-2 performance/emotion 모션 테이블 + still-override 수정  
 - [x] P0-3 auto-export workspace
-- [ ] P1-1 episode_status duration health  
+- [x] P1-1 episode_status duration health
 - [ ] P1-2 from-prev / last-frame chain  
 - [ ] P1-3 surgical keyframe edit path  
 - [ ] P1-4 clip review contact soft  

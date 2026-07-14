@@ -867,3 +867,7 @@
 - `lib/workspace_export.py`; episode_i2v/s2v/tts end with export when AGENT_WORKSPACE set or --export-workspace
 - CLI: --export-workspace / --export-dest / --no-export-workspace; AGENT_EXPORT_WORKSPACE=0|1
 - Sprint A (P0-1..3 + Ideogram) complete; next P1 status health
+
+### [2026-07-14] P1-1 episode_status length health
+- shot rows: tts_sec / drive_sec / clip_sec + SHORT|DRIVE_MISMATCH|DURATION_SHORT
+- overall_next: fix_driving_length / regen_s2v_longer
