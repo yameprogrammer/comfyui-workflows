@@ -6,10 +6,11 @@ import json
 import urllib.request
 from typing import Any
 
-from lib.comfy_client import DEFAULT_SERVER
+from lib.comfy_client import DEFAULT_SERVER, ensure_comfy_running
 
 
 def fetch_object_info(server_address: str = DEFAULT_SERVER) -> dict:
+    ensure_comfy_running(server_address)
     with urllib.request.urlopen(f"http://{server_address}/object_info", timeout=60) as resp:
         return json.loads(resp.read().decode("utf-8"))
 

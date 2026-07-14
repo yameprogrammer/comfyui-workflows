@@ -29,6 +29,7 @@ Default: **agent picks tools** until the user names a tool; factory remains SSOT
 ## Video highway (short)
 
 ```bash
+# ComfyUI :8188 — CLI auto-starts if down (python scripts/comfy_ensure.py [--status])
 python scripts/smoke_agent_av.py -e EP
 python scripts/episode_pipeline.py -e EP --run --from i2v --to s2v --profile deliver
 # Per-cut review BEFORE assemble (hard gate — do not skip on deliver path)

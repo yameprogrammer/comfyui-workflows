@@ -86,6 +86,10 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
 
 ### Rule 4. 경로 무결성 보존
 * ComfyUI 경로(`F:\ComfyUI_windows_portable\ComfyUI\`) 등 드라이브 하드코딩이 있다. 이전 시 주의.
+* **Comfy 미기동 시**: `lib/comfy_client.ensure_comfy_running` 이 기본 런처 bat으로 자동 기동한다.
+  - 기본 bat: `F:\ComfyUI_windows_portable\run_nvidia_gpu_fast_fp16_accumulation.bat`
+  - 중복 기동 방지: API probe + launch lock + launch_state cooldown
+  - 끄기: `AGENT_COMFY_AUTOSTART=0` · 사전 점검: `python scripts/comfy_ensure.py`
 
 ### Rule 5. 인수인계 핸드훅
 * 작업 종료 시 **[안정성 상태], [물리 법칙/임계치], [다음 추천 작업]** 을 남긴다.

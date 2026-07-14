@@ -66,7 +66,7 @@ python scripts/smoke_agent_av.py -e sonagi_cafe_smoke_v1
 
 ## 2. 납품 경로 스모크 (Comfy 필요, 시간 중간)
 
-전제: 키프레임 approved, Comfy `:8188` up.
+전제: 키프레임 approved. Comfy `:8188` 은 CLI auto-ensure (또는 `python scripts/comfy_ensure.py`).
 
 ```bash
 python scripts/episode_pipeline.py -e EP --run --from i2v --to qa --profile deliver

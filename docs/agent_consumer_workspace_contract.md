@@ -35,7 +35,10 @@
 
 1. **내 작업대 경로**를 정한다: `AGENT_WORKSPACE` 또는 브리프의 `project_dir`.  
 2. **에피소드 id**를 정한다 (영문 소문자·숫자·`_`).  
-3. ComfyUI `127.0.0.1:8188` 동작 확인.  
+3. ComfyUI `127.0.0.1:8188` — **CLI가 자동 ensure** 한다 (`lib/comfy_client.ensure_comfy_running`).  
+   - 꺼져 있으면 기본 런처 bat으로 기동 후 ready 대기 (중복 기동 방지 포함).  
+   - 사전 점검만: `python scripts/comfy_ensure.py` 또는 `--status`.  
+   - 끄기: `AGENT_COMFY_AUTOSTART=0` (fail-fast).  
 4. 이 레포 루트에서 CLI 실행:
    ```bash
    cd F:/ComfyUI_workflows/agent_custom
@@ -101,6 +104,9 @@ lip_status: pending|approved (SI2V)
 | `AGENT_EXPORT_WORKSPACE` | `1` 강제 on / `0` 강제 off (미설정 시 WORKSPACE 유무로 판단) |
 | `--export-workspace` / `--export-dest` / `--no-export-workspace` | CLI 오버라이드 |
 | `AGENT_CUSTOM_ROOT` | 도구 레포 루트 (드물게 필요) |
+| `AGENT_COMFY_AUTOSTART` | 기본 on. `0`/`false`/`off` 이면 Comfy 다운 시 기동하지 않고 실패 |
+| `AGENT_COMFY_LAUNCH_BAT` | Comfy 기동 bat (기본 `F:\ComfyUI_windows_portable\run_nvidia_gpu_fast_fp16_accumulation.bat`) |
+| `AGENT_COMFY_READY_TIMEOUT_SEC` | 기동 후 API ready 대기 초 (기본 180) |
 
 ```bash
 set AGENT_WORKSPACE=D:\projects\client_film

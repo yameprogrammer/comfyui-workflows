@@ -1,3 +1,10 @@
+## 2026-07-15 — ComfyUI auto-ensure (autostart)
+- `lib/comfy_client.ensure_comfy_running`: probe → lock → bat spawn → ready wait
+- Default bat: `F:\ComfyUI_windows_portable\run_nvidia_gpu_fast_fp16_accumulation.bat`
+- Duplicate guards: API probe + `.agent_cache/comfy_launch.lock` + launch_state cooldown
+- Wired into `queue_prompt` / `get_queue` / `get_system_stats` / `free_comfy_memory` / `fetch_object_info`
+- CLI: `python scripts/comfy_ensure.py` (`--status`, `--json`, env opt-out `AGENT_COMFY_AUTOSTART=0`)
+- Docs: agent_consumer_workspace_contract · scripts/README · smoke checklist
 ## 2026-07-14 — creative brief autonomy (doc rail)
 - docs/creative_brief_autonomy_design.md: keyword/music-only planning SOP, no mandatory new CLI
 - tooling_todo P3-2 checked for doc; README + agent_rules + AGENTS links
