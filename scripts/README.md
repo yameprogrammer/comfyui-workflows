@@ -78,6 +78,8 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `export_episode_to_workspace.py` | 공장→작업대 복사 | `AGENT_WORKSPACE` · `--dest` |
 | `chain_one_take.py` | 원테이크 체인 (i2v+si2v) | last-frame · clip gate · performance |
 | `shot_compose.py --from-prev-shot` | 이전 클립 끝 프레임→키프레임 | Rule 7.2 clip approve |
+| `shot_keyframe_edit.py` | 키프레임 국소 I2I 수술 | draft 재승인 · no global blur |
+| `clip_review_sheet.py` | 컷 검수 first/last + contact | 자동 승인 아님 |
 | `generate_bgm.py` | BGM 생성 | ACE-Step 1.5 turbo (or Sonilo) |
 | `episode_bgm.py` | 에피소드 music stem | `audio/music/` + shots.json audio.bgm |
 | `generate_moody_i2i_ipadapter.py` | I2I + IP-Adapter face | C identity |

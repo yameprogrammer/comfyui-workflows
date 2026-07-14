@@ -77,20 +77,20 @@
 - 이전 컷 `clip_status=approved` 전 체인 금지 (exit 22; `--force-clip-gate` 디버그)  
 - 참고: [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) · SI2V 전용 `chain_si2v_last_frame.py` 유지
 
-### P1-3. 키프레임 국소 수술 슬롯
+### P1-3. 키프레임 국소 수술 슬롯 — ✅ 2026-07-14
 
-- `shot_edit` / inpaint WF 또는 Grok `image_edit` → `keyframes/S0x.png`  
-- 메타 `source=surgical_edit`, status draft 재승인  
-- 전 샷 픽셀 블러 금지 (실사 붕괴 사고 2026-07-13)
+- `scripts/shot_keyframe_edit.py` — Moody I2I surgical (denoise default 0.35)  
+- 메타 `keyframe_source=surgical_edit`, `keyframe_status=draft` 재승인  
+- 전 샷 글로벌 블러 프롬프트 거부 · `_history/` 백업  
 
-### P1-4. 컷 검수 보조 (자동 승인 아님)
+### P1-4. 컷 검수 보조 (자동 승인 아님) — ✅ 2026-07-14
 
-- work 클립 첫/끝 프레임 + 소형 contact  
-- (선택) 비전 soft warn: 입 움직임·잘림 의심·얼굴 붕괴  
+- `scripts/clip_review_sheet.py` — work 클립 first/last + contact grid  
+- 자동 승인 없음 · `shot_approve --clip` 는 사람이  
 
-### P1-5. TTS ↔ performance 원샷 CLI
+### P1-5. TTS ↔ performance 원샷 CLI — ✅ (P0-2)
 
-- `episode_tts ... --performance warm_greeting` 이 instruct + 다음 s2v 프로필을 같이 세팅  
+- `episode_tts ... --performance warm_greeting`
 
 ---
 
@@ -165,8 +165,8 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 - [x] P0-3 auto-export workspace
 - [x] P1-1 episode_status duration health
 - [x] P1-2 from-prev / last-frame chain
-- [ ] P1-3 surgical keyframe edit path  
-- [ ] P1-4 clip review contact soft  
+- [x] P1-3 surgical keyframe edit path  
+- [x] P1-4 clip review contact soft  
 - [x] P1-5 TTS–performance 원샷 (`episode_tts --performance`, thin)
 - [ ] P2-* 선택  
 - [ ] **P3-1 댄스 챌린지 파이프** — [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md)  

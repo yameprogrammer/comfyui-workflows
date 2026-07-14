@@ -874,3 +874,7 @@
 
 ### [2026-07-14] P1-2 one-take chain polish
 - `lib/one_take.py`; `shot_compose --from-prev-shot`; `chain_one_take` uses performance + length contract + fresh clip gate + export
+
+### [2026-07-14] P1-3 surgical keyframe edit + P1-4 clip review sheet
+- `shot_keyframe_edit.py` Moody I2I local edit → draft; history backup; refuse global blur
+- `clip_review_sheet.py` first/last frames + contact grid under board/clip_review/
