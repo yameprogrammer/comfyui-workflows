@@ -101,7 +101,7 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         description="Run SI2V for episode shots with motion_driver=si2v"
     )
-    parser.add_argument("--episode", "-e", required=True)
+    parser.add_argument("--episode", "-e", required=False, help="Episode id (required unless --list-performances)")
     parser.add_argument(
         "--shots",
         default="all_approved",
@@ -207,10 +207,36 @@ def main(argv=None) -> int:
         default=None,
         help="SI2V backend: infinitetalk | ltx23_ia2v | ltx23_aio (AIO-aligned LTX)",
     )
+    parser.add_argument(
+        "--performance",
+        default=None,
+        help=(
+            "Performance profile (warm_greeting|neutral_calm|mild_unsatisfied|"
+            "thoughtful|cute_ask|sip_business). Overrides shot.performance/emotion."
+        ),
+    )
+    parser.add_argument(
+        "--force-performance-prompt",
+        action="store_true",
+        help="Replace shot.motion_prompt with profile template even if it already has speak markers",
+    )
+    parser.add_argument(
+        "--list-performances",
+        action="store_true",
+        help="Print performance profile ids and exit",
+    )
     args = parser.parse_args(argv)
 
-    if not validate_episode_id(args.episode):
-        print("[ERROR] code=2 invalid episode id", file=sys.stderr)
+    if args.list_performances:
+        from lib.performance_profiles import PROFILES, list_profiles
+
+        for pid in list_profiles():
+            p = PROFILES[pid]
+            print(f"{pid:20} scale={p.get('audio_scale')}  {p.get('label')}  | {p.get('body')}")
+        return EXIT_OK
+
+    if not args.episode or not validate_episode_id(args.episode):
+        print("[ERROR] code=2 invalid or missing episode id", file=sys.stderr)
         return EXIT_USAGE
 
     try:
@@ -258,11 +284,11 @@ def main(argv=None) -> int:
         print(f"[ERROR] code=2 s2v backend: {e}", file=sys.stderr)
         return EXIT_USAGE
 
-    # Backend-aware defaults. IT lip (2026-07-13 QA C): 24fps / 12step / scale 1.5 / no TeaCache.
+    # Backend-aware defaults. IT lip (2026-07-13 QA C): 24fps / 12step / no TeaCache.
+    # audio_scale default is per-shot from performance profile unless --audio-scale set.
     if backend == "infinitetalk":
         fps = float(args.fps if args.fps is not None else 24.0)
         steps = int(args.steps if args.steps is not None else 12)
-        audio_scale = float(args.audio_scale if args.audio_scale is not None else 1.5)
         long_edge = int(args.long_edge if args.long_edge is not None else 832)
         it_speed = not getattr(args, "no_speed", False)
         # TeaCache default OFF for lip timing; opt-in --teacache
@@ -272,7 +298,6 @@ def main(argv=None) -> int:
     else:
         fps = float(args.fps if args.fps is not None else 25.0)
         steps = int(args.steps if args.steps is not None else 20)
-        audio_scale = float(args.audio_scale if args.audio_scale is not None else 1.5)
         long_edge = int(args.long_edge if args.long_edge is not None else 960)
         it_speed = False
         it_teacache = False
@@ -281,7 +306,7 @@ def main(argv=None) -> int:
         f"episode_s2v episode={args.episode} backend={backend} "
         f"shots={len(selected)} skipped={len(skipped)} "
         f"prepare={args.prepare_mode} fps={fps} steps={steps} "
-        f"long_edge={long_edge} audio_scale={audio_scale}"
+        f"long_edge={long_edge} performance={args.performance or 'per-shot'}"
     )
 
     ok = 0
@@ -295,26 +320,30 @@ def main(argv=None) -> int:
         clip_path = story.path(*str(clip_rel).replace("\\", "/").split("/"))
         os.makedirs(os.path.dirname(clip_path), exist_ok=True)
 
-        motion = (shot.get("motion_prompt") or "").strip()
-        # I2V-style still prompts suppress mouths; force speaking language for SI2V.
-        low = motion.lower()
-        anti_talk = any(
-            k in low
-            for k in (
-                "micro facial",
-                "natural blink",
-                "do not change",
-                "static",
-                "still",
-                "no new",
-            )
+        # P0-2: performance profile → motion + audio_scale; speak markers never clobbered by "still"
+        from lib.performance_profiles import resolve_si2v_motion_prompt
+
+        perf = resolve_si2v_motion_prompt(
+            shot,
+            performance=args.performance,
+            force_profile=bool(args.force_performance_prompt),
         )
-        if (not motion) or anti_talk or ("speak" not in low and "lip" not in low and "talk" not in low and "mouth" not in low):
-            motion = (
-                "person speaking clearly with natural lip sync, mouth opens and closes "
-                "with the dialogue, jaw movement, subtle head motion, keep identity fixed, cinematic"
+        motion = perf["motion_prompt"]
+        shot_audio_scale = float(perf["audio_scale"])
+        # CLI --audio-scale still wins when explicitly set
+        if args.audio_scale is not None:
+            shot_audio_scale = float(args.audio_scale)
+        if perf.get("overridden"):
+            print(
+                f"  [si2v] performance={perf['performance']} "
+                f"replaced non-talk prompt ({perf['source']})"
             )
-            print(f"  [si2v] using speaking motion prompt (overrode non-talk I2V prompt)")
+        else:
+            print(
+                f"  [si2v] performance={perf['performance']} "
+                f"motion={perf['source']} audio_scale={shot_audio_scale}"
+            )
+
         width, height = _work_size(
             story, shot, long_edge, square=bool(args.square)
         )
@@ -423,27 +452,27 @@ def main(argv=None) -> int:
         import time as _time
 
         t0 = _time.time()
-        result = generate_s2v(
-            kf_path,
-            audio_path,
-            clip_path,
-            backend=backend,
-            prompt=motion,
-            width=width,
-            height=height,
-            fps=fps,
-            steps=steps,
-            cfg=args.cfg,
-            audio_scale=audio_scale,
-            seed=args.seed,
-            timeout_sec=args.timeout,
-            meta_out=meta_path,
-            dry_run=False,
-            speed_lora=it_speed,
-            teacache=it_teacache if backend == "infinitetalk" else False,
-            allow_clamp=True if args.allow_clamp else None,
-            num_frames=int(pre["num_frames"]) if pre.get("num_frames") else None,
-        )
+        s2v_kw: dict = {
+            "backend": backend,
+            "prompt": motion,
+            "width": width,
+            "height": height,
+            "fps": fps,
+            "steps": steps,
+            "cfg": args.cfg,
+            "audio_scale": shot_audio_scale,
+            "seed": args.seed,
+            "timeout_sec": args.timeout,
+            "meta_out": meta_path,
+            "dry_run": False,
+            "speed_lora": it_speed,
+            "teacache": it_teacache if backend == "infinitetalk" else False,
+            "allow_clamp": True if args.allow_clamp else None,
+            "num_frames": int(pre["num_frames"]) if pre.get("num_frames") else None,
+        }
+        if perf.get("negative_motion"):
+            s2v_kw["negative"] = perf["negative_motion"]
+        result = generate_s2v(kf_path, audio_path, clip_path, **s2v_kw)
         elapsed = _time.time() - t0
 
         if result.get("ok"):
@@ -461,6 +490,9 @@ def main(argv=None) -> int:
                 s2v_size=f"{width}x{height}",
                 s2v_fps=fps,
                 s2v_steps=steps,
+                s2v_performance=perf.get("performance"),
+                s2v_audio_scale=shot_audio_scale,
+                performance=perf.get("performance"),
                 # Human/vision gate — tools never auto-approve clips/lips
                 clip_status="pending",
                 lip_status="pending",

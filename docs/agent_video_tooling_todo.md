@@ -1,7 +1,7 @@
 # 에이전트 영상 툴링 TODO (근시일 작업 백로그)
 
 - **작성**: 2026-07-14  
-- **상태**: 진행 중 (Ideogram 1차 ✅ · P0-1 길이 계약 ✅ 2026-07-14)  
+- **상태**: 진행 중 (Ideogram ✅ · P0-1 ✅ · P0-2 performance ✅ 2026-07-14)  
 - **맥락**: `cafe_gomin_ep01` 실전에서 드러난 병목 + 공장 로드맵 정합  
 - **관련**: [agent_video_tooling_reliability.md](agent_video_tooling_reliability.md) · [video_pipeline_roadmap.md](video_pipeline_roadmap.md) · [grok_build_hybrid_tooling.md](grok_build_hybrid_tooling.md) · [agent_rules.md](../agent_rules.md) Rule 7.x / Rule 8  
 
@@ -32,14 +32,14 @@
 | **건드릴 곳** | `generate_s2v.py`, `episode_s2v.py`, `lib/ffmpeg_util.resolve_driving_prep_mode` |
 | **완료 기준** | 조용히 잘리지 않음 — 초과 시 실패 또는 명시적 clamp |
 
-### P0-2. 감정 연동 모션 프로파일 (립·바디)  ← “잔잔” 재정의
+### P0-2. 감정 연동 모션 프로파일 (립·바디)  ← “잔잔” 재정의 — ✅ 2026-07-14
 
 | 항목 | 내용 |
 |------|------|
 | **문제** | 단일 aggressive 디폴트 / 또는 “무조건 잔잔”만으로는 톤이 안 맞음. 유저 피드백: **음성 감정·느낌에 적절한 행동** |
-| **할 일** | (1) `motion_profile` 또는 `performance` 필드 도입 예:<br>`neutral_calm` · `warm_greeting` · `mild_unsatisfied` · `thoughtful` · `cute_ask` · `sip_business`<br>(2) 프로필마다: `motion_prompt` 템플릿, 권장 `audio_scale`, 허용 제스처 강도<br>(3) TTS `instruct` / shot `emotion` / dialogue 톤과 **같은 키로 매핑** (에이전트가 TTS와 SI2V를 한 세트로 고름)<br>(4) `episode_s2v`의 `still` 키워드가 speaking 프롬프트를 **통째 덮어쓰는** 버그 수정 — lip/speak 있으면 override 금지<br>(5) 문서: “calm = 기본 바닥, 감정 피크만 키운다” |
-| **건드릴 곳** | `shots.json` 스키마/관례, `episode_s2v.py` prompt 조립, (선택) `episode_tts.py` instruct 프리셋 공유 테이블, `docs/audio_motion_production_modes.md` |
-| **완료 기준** | 같은 파이프에서 인사/불만/질문이 **다른 바디 강도**로 나오고, 전체가 과잉 액션으로 통일되지 않음 |
+| **구현** | (1) `lib/performance_profiles.py` — `neutral_calm` · `warm_greeting` · `mild_unsatisfied` · `thoughtful` · `cute_ask` · `sip_business`<br>(2) 프로필: `motion_prompt` · `tts_instruct` · `audio_scale` · `negative_motion`<br>(3) `episode_tts --performance` + `episode_s2v --performance` 동일 키; shot.performance / emotion 별칭<br>(4) speak/lip 마커 있으면 **still 오탐으로 덮어쓰기 금지**<br>(5) calm = 바닥, 피크만 키움 (문서) |
+| **건드릴 곳** | `lib/performance_profiles.py`, `episode_s2v.py`, `episode_tts.py`, `docs/audio_motion_production_modes.md` |
+| **완료 기준** | 프로필별 motion/scale/instruct 분리; lip-aware 프롬프트 보존 |
 
 **감정 매핑 초안 (구현 시 테이블로 코드화)**
 
@@ -161,13 +161,13 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 
 - [x] P0-1 SI2V 길이 계약 + drive 정책  
 - [x] Ideogram4 타이포 1차 (`generate_ideogram4.py` + schema fix)
-- [ ] P0-2 performance/emotion 모션 테이블 + still-override 수정  
+- [x] P0-2 performance/emotion 모션 테이블 + still-override 수정  
 - [ ] P0-3 auto-export workspace  
 - [ ] P1-1 episode_status duration health  
 - [ ] P1-2 from-prev / last-frame chain  
 - [ ] P1-3 surgical keyframe edit path  
 - [ ] P1-4 clip review contact soft  
-- [ ] P1-5 TTS–performance 원샷  
+- [x] P1-5 TTS–performance 원샷 (`episode_tts --performance`, thin)
 - [ ] P2-* 선택  
 - [ ] **P3-1 댄스 챌린지 파이프** — [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md)  
 - [x] **P3-2 기획 자율** — 문서 레일 [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) (기능 코드 비필수)  
@@ -180,4 +180,6 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 |------|------|
 | 2026-07-14 | 초안. P0–P2 백로그. “잔잔” → **음성 감정 연동 퍼포먼스** 로 정정 반영 |
 | 2026-07-14 | **P3-1 댄스 챌린지** 백로그 + 설계 초안 링크. 토킹 에피와 별 트랙 명시 |
+| 2026-07-14 | **P0-2 performance** 테이블 + episode_tts/s2v 연동 + still 오탐 수정 |
+| 2026-07-14 | **P0-1** 길이 계약 · **Ideogram4** 타이포 1차 |
 | 2026-07-14 | **P3-2 기획 자율** 문서 레일. 기능 필수 아님·가드레일 SOP 합의 반영 |

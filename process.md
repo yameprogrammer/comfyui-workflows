@@ -850,3 +850,15 @@
 - Ideogram4: `scripts/generate_ideogram4.py`, `lib/ideogram4_prompt.py` (official text/bbox schema), docs/ideogram4_typography_tool.md
 - P0-1: `lib/s2v_length_contract.py`; IT default max frames 257; hard-fail over cap; prep auto=center_voicey; episode_s2v preflight + duration_sec sync
 - Next: P0-2 performance profiles, P0-3 auto-export workspace
+
+### [2026-07-14] P0-2 performance profiles (TTS + SI2V)
+- `lib/performance_profiles.py` — warm_greeting / neutral_calm / mild_unsatisfied / thoughtful / cute_ask / sip_business
+- `episode_tts --performance` sets instruct + shot.performance + bind motion/audio_scale
+- `episode_s2v --performance`; speak markers never clobbered by bare still/static
+- Next: P0-3 auto-export workspace
+
+### [2026-07-14] P0-2 performance profiles (TTS + SI2V)
+- `lib/performance_profiles.py` — warm_greeting / neutral_calm / mild_unsatisfied / thoughtful / cute_ask / sip_business
+- `episode_tts --performance` sets instruct + shot.performance + bind motion/audio_scale
+- `episode_s2v --performance`; speak markers never clobbered by bare still/static mouth false positives
+- Next: P0-3 auto-export workspace

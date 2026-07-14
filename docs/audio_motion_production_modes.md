@@ -184,9 +184,31 @@ python scripts/generate_s2v.py --backend infinitetalk -i face.png -a drive.wav -
       { "path": "audio/sfx/cup_clink.wav", "at_sec": 1.2, "gain": 0.8 }
     ]
   },
+  "performance": "thoughtful",
   "motion_prompt": "natural speech, subtle head motion, eye contact",
-  "negative_motion": "warp, identity morph, desync mouth"
+  "negative_motion": "warp, identity morph, desync mouth",
+  "audio_scale": 1.25
 }
+```
+
+**performance (P0-2)** — TTS instruct + SI2V motion/audio_scale 공유 키.  
+`lib/performance_profiles.py` · `episode_tts --performance` · `episode_s2v --performance`.
+
+| id | 용도 | audio_scale 가이드 |
+|----|------|-------------------|
+| `neutral_calm` | 담담 정보 (기본 바닥) | ~1.25 |
+| `warm_greeting` | 밝은 인사 | ~1.35 |
+| `mild_unsatisfied` | 가벼운 불만·당황 | ~1.3 |
+| `thoughtful` | 차분 사고 | ~1.25 |
+| `cute_ask` | 귀여운 질문 | ~1.35 |
+| `sip_business` | 무대사 소품 (주로 i2v) | ~1.2 |
+
+원칙: **calm = 바닥**, 감정 피크만 키운다. lip/speak 마커가 있는 `motion_prompt`는 still 오탐으로 덮어쓰지 않음.
+
+```bash
+python scripts/episode_tts.py -e EP -s S02 -t "안녕하세요" --performance warm_greeting --bind-si2v
+python scripts/episode_s2v.py -e EP --shots S02   # shot.performance 사용
+python scripts/episode_s2v.py --list-performances
 ```
 
 ### 2.4 샷 필드 — **music_video 보컬 퍼포** 예

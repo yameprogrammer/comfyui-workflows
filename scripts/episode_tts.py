@@ -36,8 +36,8 @@ EXIT_SPILL = 41
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="Shot dialogue TTS + optional SI2V bind")
-    p.add_argument("--episode", "-e", required=True)
-    p.add_argument("--shot", "-s", required=True)
+    p.add_argument("--episode", "-e", required=False, help="Episode id (required unless --list-performances)")
+    p.add_argument("--shot", "-s", required=False, help="Shot id (required unless --list-performances)")
     p.add_argument("--text", "-t", default=None, help="Override shot.dialogue / vo")
     p.add_argument(
         "--role",
@@ -49,6 +49,19 @@ def main(argv=None) -> int:
     p.add_argument("--speaker", default="Sohee", help=f"custom speakers: {CUSTOM_SPEAKERS}")
     p.add_argument("--language", default="Korean", choices=list(LANGUAGES))
     p.add_argument("--instruct", default="", help="Emotion / voice design instruct")
+    p.add_argument(
+        "--performance",
+        default=None,
+        help=(
+            "Performance profile (warm_greeting|neutral_calm|mild_unsatisfied|"
+            "thoughtful|cute_ask). Sets shot.performance, default instruct, and SI2V motion on --bind-si2v"
+        ),
+    )
+    p.add_argument(
+        "--list-performances",
+        action="store_true",
+        help="Print performance profiles and exit",
+    )
     p.add_argument("--ref-audio", default=None, help="Clone sample (or use --voice-id)")
     p.add_argument("--ref-text", default="", help="Transcript of ref audio")
     p.add_argument(
@@ -85,6 +98,17 @@ def main(argv=None) -> int:
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args(argv)
 
+    if args.list_performances:
+        from lib.performance_profiles import PROFILES, list_profiles
+
+        for pid in list_profiles():
+            p0 = PROFILES[pid]
+            print(f"{pid:20} {p0.get('label')}")
+            ins = (p0.get("tts_instruct") or "")[:90]
+            if ins:
+                print(f"  instruct: {ins}...")
+        return EXIT_OK
+
     if not validate_episode_id(args.episode):
         print("[ERROR] bad episode id", file=sys.stderr)
         return EXIT_USAGE
@@ -98,6 +122,15 @@ def main(argv=None) -> int:
     except KeyError:
         print(f"[ERROR] shot missing {args.shot}", file=sys.stderr)
         return EXIT_USAGE
+
+    from lib.performance_profiles import (
+        resolve_performance,
+        resolve_si2v_motion_prompt,
+        tts_instruct_for,
+    )
+
+    perf_id = resolve_performance(shot, cli=args.performance)
+    instruct = tts_instruct_for(perf_id, override=args.instruct)
 
     text = (args.text or shot.get("dialogue") or shot.get("vo") or "").strip()
     if not text:
@@ -113,9 +146,10 @@ def main(argv=None) -> int:
 
     print(
         f"episode_tts episode={args.episode} shot={args.shot} "
-        f"mode={args.mode} role={args.role}"
+        f"mode={args.mode} role={args.role} performance={perf_id}"
     )
     print(f"  text={text[:100]!r}")
+    print(f"  instruct={instruct[:100]!r}" if instruct else "  instruct=(none)")
     print(f"  out={out_path}")
 
     if args.dry_run:
@@ -127,7 +161,7 @@ def main(argv=None) -> int:
         mode=args.mode,
         speaker=args.speaker,
         language=args.language,
-        instruct=args.instruct,
+        instruct=instruct,
         ref_audio=args.ref_audio,
         ref_text=args.ref_text,
         voice_id=args.voice_id,
@@ -165,6 +199,7 @@ def main(argv=None) -> int:
 
     fields: dict = {
         args.role if args.role in ("dialogue", "vo") else "dialogue": text,
+        "performance": perf_id,
     }
     # store raw tts path in audio_refs
     audio_refs = dict(shot.get("audio_refs") or {})
@@ -172,7 +207,8 @@ def main(argv=None) -> int:
         "path": out_rel.replace("\\", "/"),
         "mode": args.mode,
         "speaker": args.speaker if args.mode == "custom" else None,
-        "instruct": args.instruct or None,
+        "instruct": instruct or None,
+        "performance": perf_id,
         "engine": "qwen3_tts",
     }
 
@@ -206,25 +242,17 @@ def main(argv=None) -> int:
             "prepare_mode": None if args.no_prepare else args.prepare_mode,
         }
         fields["motion_driver"] = "si2v"
-        # Always write a speaking motion template (I2V still prompts kill lips).
-        speak = (
-            "character speaking dialogue clearly with natural lip sync, "
-            "mouth opens and closes with the words, jaw movement, subtle head motion, "
-            "soft blinks, keep identity wardrobe and set fixed"
+        # P0-2: performance-linked speaking motion (do not clobber lip-aware prompts)
+        merged = dict(shot)
+        merged["performance"] = perf_id
+        sm = resolve_si2v_motion_prompt(merged, performance=perf_id)
+        fields["motion_prompt"] = sm["motion_prompt"]
+        fields["negative_motion"] = sm["negative_motion"]
+        fields["audio_scale"] = sm["audio_scale"]
+        print(
+            f"  bound SI2V driving={driving_rel} "
+            f"performance={perf_id} audio_scale={sm['audio_scale']}"
         )
-        prev = (shot.get("motion_prompt") or "").strip().lower()
-        has_speak = any(k in prev for k in ("speak", "lip", "mouth", "talk", "dialogue"))
-        anti_talk = any(
-            k in prev
-            for k in ("micro facial", "natural blink", "do not change", "static mouth")
-        )
-        if (not prev) or anti_talk or (not has_speak):
-            fields["motion_prompt"] = speak
-        fields["negative_motion"] = (
-            shot.get("negative_motion")
-            or "static mouth, closed lips, frozen face, no lip movement, still image, identity morph"
-        )
-        print(f"  bound SI2V driving={driving_rel}")
 
     fields["audio_refs"] = audio_refs
     story.update_shot(args.shot, **fields)
