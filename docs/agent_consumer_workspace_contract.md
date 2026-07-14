@@ -97,7 +97,9 @@ lip_status: pending|approved (SI2V)
 
 | 변수 | 의미 |
 |------|------|
-| `AGENT_WORKSPACE` | 기본 export 목적지 루트 |
+| `AGENT_WORKSPACE` | 기본 export 목적지 루트 — 설정 시 `episode_i2v`/`s2v`/`tts` **자동 export (P0-3)** |
+| `AGENT_EXPORT_WORKSPACE` | `1` 강제 on / `0` 강제 off (미설정 시 WORKSPACE 유무로 판단) |
+| `--export-workspace` / `--export-dest` / `--no-export-workspace` | CLI 오버라이드 |
 | `AGENT_CUSTOM_ROOT` | 도구 레포 루트 (드물게 필요) |
 
 ```bash

@@ -74,7 +74,8 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `generate_qwen3_tts.py` | 대사/VO TTS | custom/design/clone + temp/top-p 튜닝 |
 | `voice_register.py` | 클론 보이스 등록 | `voices/<id>/` (본인·타인 샘플) |
 | `episode_tts.py` | 샷 dialogue TTS + SI2V bind | `--performance` + `--bind-si2v` → episode_s2v |
-| `episode_s2v.py` | SI2V 배치 | `--performance` · 길이 계약 P0-1 · prep center_voicey |
+| `episode_s2v.py` | SI2V 배치 | `--performance` · 길이 계약 · **auto export** workspace |
+| `export_episode_to_workspace.py` | 공장→작업대 복사 | `AGENT_WORKSPACE` · `--dest` |
 | `generate_bgm.py` | BGM 생성 | ACE-Step 1.5 turbo (or Sonilo) |
 | `episode_bgm.py` | 에피소드 music stem | `audio/music/` + shots.json audio.bgm |
 | `generate_moody_i2i_ipadapter.py` | I2I + IP-Adapter face | C identity |

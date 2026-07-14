@@ -225,6 +225,9 @@ def main(argv=None) -> int:
         action="store_true",
         help="Print performance profile ids and exit",
     )
+    from lib.workspace_export import add_export_workspace_args
+
+    add_export_workspace_args(parser)
     args = parser.parse_args(argv)
 
     if args.list_performances:
@@ -532,6 +535,23 @@ def main(argv=None) -> int:
                 break
 
     print(f"\nDone ok={ok} fail={fail} total={len(selected)}")
+
+    if ok > 0 and not args.dry_run:
+        from lib.workspace_export import (
+            CLIP_PARTS,
+            export_flag_from_args,
+            maybe_export_episode,
+        )
+
+        ex = maybe_export_episode(
+            args.episode,
+            export_flag=export_flag_from_args(args),
+            dest=getattr(args, "export_dest", None),
+            parts=list(CLIP_PARTS),
+        )
+        if not ex.get("skipped") and not ex.get("ok"):
+            print(f"[WARN] export-workspace: {ex.get('error')}: {ex.get('message')}")
+
     if ok == 0:
         return EXIT_PARTIAL if fail else EXIT_NONE
     if fail:

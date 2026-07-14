@@ -862,3 +862,8 @@
 - `episode_tts --performance` sets instruct + shot.performance + bind motion/audio_scale
 - `episode_s2v --performance`; speak markers never clobbered by bare still/static mouth false positives
 - Next: P0-3 auto-export workspace
+
+### [2026-07-14] P0-3 auto-export workspace
+- `lib/workspace_export.py`; episode_i2v/s2v/tts end with export when AGENT_WORKSPACE set or --export-workspace
+- CLI: --export-workspace / --export-dest / --no-export-workspace; AGENT_EXPORT_WORKSPACE=0|1
+- Sprint A (P0-1..3 + Ideogram) complete; next P1 status health

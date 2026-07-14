@@ -1,7 +1,7 @@
 # 에이전트 영상 툴링 TODO (근시일 작업 백로그)
 
 - **작성**: 2026-07-14  
-- **상태**: 진행 중 (Ideogram ✅ · P0-1 ✅ · P0-2 performance ✅ 2026-07-14)  
+- **상태**: Sprint A 완료 (Ideogram · P0-1 · P0-2 · P0-3 ✅ 2026-07-14) · 다음 P1
 - **맥락**: `cafe_gomin_ep01` 실전에서 드러난 병목 + 공장 로드맵 정합  
 - **관련**: [agent_video_tooling_reliability.md](agent_video_tooling_reliability.md) · [video_pipeline_roadmap.md](video_pipeline_roadmap.md) · [grok_build_hybrid_tooling.md](grok_build_hybrid_tooling.md) · [agent_rules.md](../agent_rules.md) Rule 7.x / Rule 8  
 
@@ -52,13 +52,13 @@
 | 귀여운 질문 | `cute_ask` | 약한 미소, lean은 micro만 | 1.3–1.4 |
 | 무대사 비지니스(sip 등) | `sip_business` / i2v | 소품 동작 명확, 얼굴 과잉 금지 | (I2V) |
 
-### P0-3. 생성 후 자동 export (작업대)
+### P0-3. 생성 후 자동 export (작업대) — ✅ 2026-07-14
 
 | 항목 | 내용 |
 |------|------|
 | **문제** | 클립이 `stories/` 에만 있어 작업대에서 못 찾음 |
-| **할 일** | `episode_i2v` / `episode_s2v` / (선택) `episode_tts` 종료 시 `--export-workspace` 또는 `AGENT_WORKSPACE` 자동 복사 |
-| **완료 기준** | 생성 직후 유저 워크스페이스 `episodes/<ep>/clips/work` 에 본선 파일이 있음 |
+| **구현** | `lib/workspace_export.py` · `episode_i2v` / `episode_s2v` / `episode_tts` 종료 시<br>`AGENT_WORKSPACE` 설정 시 **자동** 복사, 또는 `--export-workspace` / `--export-dest`<br>`--no-export-workspace` 로 끄기 · `AGENT_EXPORT_WORKSPACE=0` |
+| **완료 기준** | 생성 직후 유저 워크스페이스 `episodes/<ep>/clips/work` (또는 audio) 에 본선 파일 |
 
 ---
 
@@ -162,7 +162,7 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 - [x] P0-1 SI2V 길이 계약 + drive 정책  
 - [x] Ideogram4 타이포 1차 (`generate_ideogram4.py` + schema fix)
 - [x] P0-2 performance/emotion 모션 테이블 + still-override 수정  
-- [ ] P0-3 auto-export workspace  
+- [x] P0-3 auto-export workspace
 - [ ] P1-1 episode_status duration health  
 - [ ] P1-2 from-prev / last-frame chain  
 - [ ] P1-3 surgical keyframe edit path  

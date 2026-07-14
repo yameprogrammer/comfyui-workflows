@@ -96,6 +96,9 @@ def main(argv=None) -> int:
         help="Allow VO/dialogue longer than shot (not recommended)",
     )
     p.add_argument("--dry-run", action="store_true")
+    from lib.workspace_export import add_export_workspace_args
+
+    add_export_workspace_args(p)
     args = p.parse_args(argv)
 
     if args.list_performances:
@@ -263,6 +266,24 @@ def main(argv=None) -> int:
             f"  next: python scripts/episode_s2v.py -e {args.episode} "
             f"--shots {args.shot}"
         )
+
+    # P0-3: export audio (+ shots) to workspace when configured
+    if not args.dry_run:
+        from lib.workspace_export import (
+            AUDIO_PARTS,
+            export_flag_from_args,
+            maybe_export_episode,
+        )
+
+        ex = maybe_export_episode(
+            args.episode,
+            export_flag=export_flag_from_args(args),
+            dest=getattr(args, "export_dest", None),
+            parts=list(AUDIO_PARTS),
+        )
+        if not ex.get("skipped") and not ex.get("ok"):
+            print(f"[WARN] export-workspace: {ex.get('error')}: {ex.get('message')}")
+
     return EXIT_OK
 
 
