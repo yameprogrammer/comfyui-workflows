@@ -27,6 +27,7 @@ agent_custom/
 * 영상 납품: [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md)
 * **근시일 영상 툴 TODO**: [docs/agent_video_tooling_todo.md](docs/agent_video_tooling_todo.md) (길이 계약 · 감정 연동 모션 · auto-export 등)
 * **docs 인덱스**: [docs/README.md](docs/README.md) · 만료·세션·디버그: [docs/archive/](docs/archive/)
+* **기획 자율 (키워드/음악만)**: [docs/creative_brief_autonomy_design.md](docs/creative_brief_autonomy_design.md) — 기능 필수 아님, 에이전트 SOP·가드레일
 * **프로덕션 자산 통합**: [docs/production_asset_pipeline.md](docs/production_asset_pipeline.md)
 * 로케이션 설계: [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md)
 * 룩/스타일: [docs/look_style_system.md](docs/look_style_system.md) · `looks/cinematic_moody_v1`

@@ -115,7 +115,20 @@ def main(argv=None) -> int:
     parser.add_argument(
         "--prepare-mode",
         default="auto",
-        help="Driving prep: auto(demucs→center_voicey)|copy|voicey|center|vocal_band|center_voicey|demucs",
+        help=(
+            "Driving prep: auto→center_voicey (P0-1 length-stable); "
+            "or copy|voicey|center|vocal_band|center_voicey|demucs"
+        ),
+    )
+    parser.add_argument(
+        "--allow-clamp",
+        action="store_true",
+        help="Allow frame clamp that cuts audio (not recommended; default hard-fail)",
+    )
+    parser.add_argument(
+        "--no-sync-duration",
+        action="store_true",
+        help="Do not write shots[].duration_sec from TTS/drive+tail",
     )
     parser.add_argument(
         "--square",
@@ -340,6 +353,68 @@ def main(argv=None) -> int:
         audio_path = audio_info["path"]
         print(f"  audio={audio_path} prep={audio_info.get('prepare_mode')} cached={audio_info.get('cached')}")
 
+        # P0-1: length contract — drive vs TTS, frames vs max (fail before queue)
+        from lib.audio_package import resolve_path
+        from lib.ltx_s2v import is_ltx_backend, snap_ltx_frames
+        from lib.s2v_length_contract import validate_pre_generate
+        from generate_s2v import _snap_frames
+
+        tts_path = None
+        refs = shot.get("audio_refs") or {}
+        if isinstance(refs, dict):
+            raw_dlg = refs.get("dialogue") or refs.get("tts")
+            if isinstance(raw_dlg, str):
+                tts_path = resolve_path(story.root, raw_dlg)
+            elif isinstance(raw_dlg, dict):
+                tts_path = resolve_path(
+                    story.root, raw_dlg.get("path") or raw_dlg.get("file")
+                )
+        # Only compare when dialogue stem is distinct from prepared drive
+        if tts_path and os.path.normcase(os.path.abspath(tts_path)) == os.path.normcase(
+            os.path.abspath(audio_path)
+        ):
+            tts_path = None
+
+        snap = snap_ltx_frames if is_ltx_backend(backend) else _snap_frames
+        pre = validate_pre_generate(
+            backend=backend,
+            fps=fps,
+            drive_path=audio_path,
+            tts_path=tts_path,
+            allow_clamp_override=True if args.allow_clamp else None,
+            snap_fn=snap,
+        )
+        if not pre.get("ok"):
+            print(f"  FAIL length {pre.get('error')}: {pre.get('message')}")
+            if pre.get("suggest_max_dialogue_sec") is not None:
+                print(f"  hint: keep dialogue under ~{pre['suggest_max_dialogue_sec']}s or split shot")
+            fail += 1
+            story.update_shot(
+                sid,
+                s2v_status="failed",
+                s2v_error=pre.get("error"),
+                s2v_at=utc_now_iso(),
+            )
+            if args.stop_on_error:
+                break
+            continue
+
+        print(
+            f"  length drive={pre.get('drive_sec')}s tts={pre.get('tts_sec')}s "
+            f"frames={pre.get('num_frames')} clip~{pre.get('clip_sec')}s "
+            f"max={pre.get('max_frames')}"
+            + (" CLAMPED" if pre.get("clamped") else "")
+        )
+        if pre.get("warning"):
+            print(f"  [WARN] {pre['warning']}")
+
+        if not args.no_sync_duration and pre.get("duration_sec"):
+            old_d = shot.get("duration_sec")
+            new_d = float(pre["duration_sec"])
+            if old_d is None or abs(float(old_d) - new_d) > 0.05:
+                story.update_shot(sid, duration_sec=new_d)
+                print(f"  duration_sec {old_d} -> {new_d}")
+
         if args.dry_run:
             print("  [dry-run] skip generate_s2v")
             ok += 1
@@ -366,6 +441,8 @@ def main(argv=None) -> int:
             dry_run=False,
             speed_lora=it_speed,
             teacache=it_teacache if backend == "infinitetalk" else False,
+            allow_clamp=True if args.allow_clamp else None,
+            num_frames=int(pre["num_frames"]) if pre.get("num_frames") else None,
         )
         elapsed = _time.time() - t0
 

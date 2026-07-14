@@ -20,6 +20,7 @@
 | 0 | [agent_consumer_workspace_contract.md](agent_consumer_workspace_contract.md) | 공장 vs 작업대 · export 의무 | ✅ 계약 |
 | 1 | [production_asset_pipeline.md](production_asset_pipeline.md) | 캐릭·로케·룩·스토리·I2V 통합 지도 | ✅ |
 | 2 | [agent_video_tooling_todo.md](agent_video_tooling_todo.md) | **근시일 구현 백로그** (길이·감정 모션·export) | 📋 TODO |
+| 2b | [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) | **기획 자율** — 키워드/음악만 있을 때 SOP·가드레일 (기능 비필수) | ✅ 문서 레일 |
 | 3 | [agent_av_smoke_checklist.md](agent_av_smoke_checklist.md) | AV 스모크·컷 승인 체크 | ✅ |
 | 4 | [audio_motion_production_modes.md](audio_motion_production_modes.md) | production_mode · SI2V · mix | ✅ 구현 진행 |
 | 5 | [video_delivery_and_backends.md](video_delivery_and_backends.md) | format / work·deliver / 백엔드 | ✅ |
@@ -51,11 +52,13 @@
 | [wan22_i2v_speed_research.md](wan22_i2v_speed_research.md) | Wan2.2 속도·캐시·BlockSwap | ✅ 참고+정책 |
 | [qwen3_tts_ltx_audio_pipeline.md](qwen3_tts_ltx_audio_pipeline.md) | TTS 운용 | ✅ |
 | [ace_step_bgm_pipeline.md](ace_step_bgm_pipeline.md) | ACE-Step BGM | ✅ |
+| [ideogram4_typography_tool.md](ideogram4_typography_tool.md) | Ideogram 4 타이포/간판/타이틀 카드 (전 구간 T2I 아님) | ✅ 1차 |
 | [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md) | LTX AIO 백엔드 매핑 | ✅ |
 | [ltx23_aio_ia2v_agent_usage.md](ltx23_aio_ia2v_agent_usage.md) | LTX IA2V 에이전트 사용법 | ✅ |
 | [comfy_memory_and_model_switching.md](comfy_memory_and_model_switching.md) | VRAM·모델 패밀리 전환 | ✅ |
 | [upscale_research_and_design.md](upscale_research_and_design.md) | ≤4K 업스케일 | ✅ |
 | [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) | FLF/원테이크 이음 | 📋 예정 (CLI 미완) |
+| [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md) | **댄스 챌린지 쇼츠 공정** (레퍼 안무·별 장르) | 📋 설계 초안 · 미착수 |
 | [delivery_handoff.md](delivery_handoff.md) | `deliveries/` 패키징 | ✅ |
 
 ---

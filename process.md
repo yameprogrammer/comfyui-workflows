@@ -1,3 +1,10 @@
+## 2026-07-14 — creative brief autonomy (doc rail)
+- docs/creative_brief_autonomy_design.md: keyword/music-only planning SOP, no mandatory new CLI
+- tooling_todo P3-2 checked for doc; README + agent_rules + AGENTS links
+## 2026-07-14 — dance_challenge pipeline backlog
+- docs/dance_challenge_pipeline_design.md (design stub)
+- agent_video_tooling_todo P3-1 + Sprint E; docs/README link
+- Separate track from cafe talking shorts
 ## 2026-07-14 — docs cleanup
 - docs/README.md 재작성: 활성 / 참고 / archive
 - archive/: sessions, ltx23_debug, research (세션노트·LTX 일회성 분석·원문 리서치)
@@ -836,3 +843,10 @@
 
 
 
+
+
+
+### [2026-07-14] Tooling: Ideogram4 typography + P0-1 SI2V length contract
+- Ideogram4: `scripts/generate_ideogram4.py`, `lib/ideogram4_prompt.py` (official text/bbox schema), docs/ideogram4_typography_tool.md
+- P0-1: `lib/s2v_length_contract.py`; IT default max frames 257; hard-fail over cap; prep auto=center_voicey; episode_s2v preflight + duration_sec sync
+- Next: P0-2 performance profiles, P0-3 auto-export workspace

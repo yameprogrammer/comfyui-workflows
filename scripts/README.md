@@ -49,6 +49,7 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `shot_compose.py --all` | 미생성 키프레임 배치 컴포즈 | format work size |
 | `assets_list.py` | char/loc/look 목록·에피소드 자산 점검 | `--episode` |
 | `generate_krea.py` | Krea T2I | `t2i_krea` |
+| `generate_ideogram4.py` | **타이포 전용** Ideogram 4 T2I (title/signage/menu) | API 그래프 · docs/ideogram4_typography_tool.md |
 | `character_cast_pool.py` | **A** 다엔진 캐스팅 풀 (Moody/Krea) | 탐색 T2I |
 | `character_shortlist.py` | A shortlist 찜 | cast |
 | `character_status.py` | cast / 패키지 진행 상태 | ops |

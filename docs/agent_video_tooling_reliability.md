@@ -383,15 +383,16 @@ python scripts/episode_s2v.py -e EP --shots S03 --backend infinitetalk --no-spee
 
 **의도적으로 안 하는 것:** 대사 길이 hard-cap, long_edge 강제, 립 자동 점수, Ideogram(백로그).
 
-### 11.2 후보 (나중): Ideogram 4 타이포 도구
+### 11.2 Ideogram 4 타이포 도구 — ✅ 1차 (2026-07-14)
 
 | 항목 | 내용 |
 |------|------|
 | 왜 | 이미지 내 글자/간판/포스터 타이포 강점 (로케 사이니지, 타이틀 카드, 썸네일) |
-| 형태 | `generate_ideogram4.py` + agent WF; **전 구간 T2I 기본 교체 아님** |
-| 슬롯 | location signage ref, title_card, menu_board, end card |
-| 전제 | 로컬 가중치/VRAM, 라이선스(Non-Commercial 등), JSON/bbox 캡션 헬퍼 |
-| 우선순위 | **립/조립 안정화 이후** |
+| 형태 | `scripts/generate_ideogram4.py` + `lib/ideogram4_prompt.py` (API 그래프; **전 구간 T2I 기본 교체 아님**) |
+| 슬롯 | `title_card` · `end_card` · `menu_board` · `signage` · `thumbnail` · `free` |
+| 문서 | [ideogram4_typography_tool.md](ideogram4_typography_tool.md) |
+| 전제 | unets + `qwen3vl_8b_fp8_scaled` + `flux2-vae`; Non-Commercial 라이선스 확인 |
+| 검사 | `python scripts/generate_ideogram4.py --check-models` |
 
 ### 11.3 기타 후보 (낮음)
 

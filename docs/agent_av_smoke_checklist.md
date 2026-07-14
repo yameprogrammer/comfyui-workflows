@@ -123,4 +123,5 @@ python scripts/episode_qa.py -e EP --strict --require-clip
 - [x] Smoke checklist (본 문서) + `smoke_agent_av.py`
 - [x] Lip visual gate 계약 (`lip_status`)
 
-**비목표 (의도적):** 립 자동 점수, 대사 초 hard-cap, Ideogram (백로그).
+**비목표 (의도적):** 립 자동 점수, 대사 초 hard-cap.  
+Ideogram 4 타이포는 **별도 도구** (`generate_ideogram4.py`) — AV smoke 게이트 밖.

@@ -64,6 +64,11 @@ from lib.ltx_s2v import (
     snap_ltx_dim,
     snap_ltx_frames,
 )
+from lib.s2v_length_contract import (
+    apply_frame_cap,
+    default_tail_sec,
+    frames_from_duration,
+)
 
 
 def _api_for_comfy(api: dict) -> dict:
@@ -538,6 +543,8 @@ def generate_s2v(
     last_image_path: str | None = None,
     mid_image_path: str | None = None,
     guide_strength: float = 0.9,
+    allow_clamp: bool | None = None,
+    tail_sec: float | None = None,
 ) -> dict:
     if not os.path.isfile(input_image_path):
         return fail_result(error="SOURCE_MISSING", message=input_image_path)
@@ -598,48 +605,44 @@ def generate_s2v(
         width = _snap_dim(width, 16)
         height = _snap_dim(height, 16)
 
+    # P0-1: frames from audio length; hard-fail if over max (no silent cut).
+    snap = snap_ltx_frames if is_ltx_backend(backend) else _snap_frames
+    adur = _probe_audio_duration(audio_path) if audio_path else None
     if num_frames is None:
-        import math
-
-        dur = _probe_audio_duration(audio_path) if audio_path else None
-        if not dur or dur > 30:
+        dur = adur
+        if not dur or dur > 120:
             if audio_path:
                 print(f"[WARN] audio duration probe={dur}; using 5.0s for frame count")
             dur = 5.0
-        # ceil so video never ends before audio (round() was chopping last syllables)
-        raw_frames = int(math.ceil(float(dur) * float(fps) - 1e-9))
-        # optional extra tail frames (silence already in wav is preferred; this is safety)
-        try:
-            tail = float(os.environ.get("AGENT_S2V_TAIL_SEC", "0") or 0)
-        except ValueError:
-            tail = 0.0
-        if tail > 0:
-            raw_frames += int(math.ceil(tail * float(fps)))
-        if is_ltx_backend(backend):
-            num_frames = snap_ltx_frames(raw_frames)
-        else:
-            num_frames = _snap_frames(raw_frames)
+        tail = default_tail_sec() if tail_sec is None else float(tail_sec)
+        num_frames = frames_from_duration(dur, fps, tail_sec=tail, snap_fn=snap)
     else:
-        if is_ltx_backend(backend):
-            num_frames = snap_ltx_frames(num_frames)
-        else:
-            num_frames = _snap_frames(num_frames)
+        num_frames = snap(int(num_frames))
 
-    # MultiTalk window often prefers values like 81; clamp smoke length
-    # LTX: default was 121 (~4.8s@25fps) for smoke VRAM; production dialogue
-    # often needs longer — override with AGENT_LTX_MAX_FRAMES / AGENT_IT_MAX_FRAMES.
-    if backend == "infinitetalk":
-        if num_frames < 17:
-            num_frames = 17
-        it_max = int(os.environ.get("AGENT_IT_MAX_FRAMES", "129"))
-        if num_frames > it_max:
-            print(f"[WARN] clamping frames {num_frames} -> {it_max} (AGENT_IT_MAX_FRAMES)")
-            num_frames = it_max
-    elif is_ltx_backend(backend):
-        ltx_max = int(os.environ.get("AGENT_LTX_MAX_FRAMES", "361"))
-        if num_frames > ltx_max:
-            print(f"[WARN] clamping LTX frames {num_frames} -> {ltx_max} (AGENT_LTX_MAX_FRAMES)")
-            num_frames = ltx_max
+    cap = apply_frame_cap(
+        int(num_frames),
+        backend=backend,
+        fps=float(fps),
+        audio_duration_sec=adur,
+        allow_clamp_override=allow_clamp,
+    )
+    if not cap.get("ok"):
+        return fail_result(
+            error=cap.get("error") or "FRAMES_EXCEED_MAX",
+            message=cap.get("message") or "frame cap",
+            max_frames=cap.get("max_frames"),
+            needed_frames=cap.get("num_frames"),
+            suggest_split=cap.get("suggest_split"),
+            suggest_max_dialogue_sec=cap.get("suggest_max_dialogue_sec"),
+        )
+    num_frames = int(cap["num_frames"])
+    if cap.get("clamped"):
+        print(f"[WARN] {cap.get('warning')}")
+    elif adur:
+        print(
+            f"[length] audio={float(adur):.2f}s frames={num_frames} "
+            f"clip~{cap.get('clip_sec'):.2f}s max={cap.get('max_frames')}"
+        )
 
     seed = seed if seed is not None else random.randint(1, 2**31 - 1)
     if steps is None:
@@ -1213,6 +1216,17 @@ def main(argv=None) -> int:
     p.add_argument("--width", type=int, default=640)
     p.add_argument("--height", type=int, default=640)
     p.add_argument("--frames", type=int, default=None)
+    p.add_argument(
+        "--allow-clamp",
+        action="store_true",
+        help="Allow truncating frames to AGENT_*_MAX_FRAMES (cuts audio — not recommended)",
+    )
+    p.add_argument(
+        "--tail-sec",
+        type=float,
+        default=None,
+        help="Extra seconds after audio for frame count (default AGENT_S2V_TAIL_SEC=0.15)",
+    )
     p.add_argument("--fps", type=float, default=25.0, help="Default 25 (IT examples / LTX often 24)")
     p.add_argument(
         "--steps",
@@ -1311,6 +1325,8 @@ def main(argv=None) -> int:
         last_image_path=args.last_image,
         mid_image_path=args.mid_image,
         guide_strength=args.guide_strength,
+        allow_clamp=True if args.allow_clamp else None,
+        tail_sec=args.tail_sec,
     )
     if r.get("ok"):
         print(f"OK {r.get('output_path') or '(dry-run)'}")

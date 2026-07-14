@@ -752,11 +752,20 @@ def demucs_available() -> bool:
 
 def resolve_driving_prep_mode(mode: str | None = None) -> str:
     """
-    Resolve prep mode. `auto` → demucs if installed else center_voicey.
+    Resolve prep mode.
+
+    P0-1 (2026-07-14): `auto` → **center_voicey** (length-stable for SI2V).
+    demucs can shrink/desync vs TTS and caused dialogue cuts; opt-in with
+    mode=demucs or AGENT_DRIVE_PREP_AUTO=demucs.
     """
     m = (mode or "auto").strip().lower()
     if m in ("", "auto", "default"):
-        return "demucs" if demucs_available() else "center_voicey"
+        prefer = (os.environ.get("AGENT_DRIVE_PREP_AUTO") or "center_voicey").strip().lower()
+        if prefer == "demucs":
+            return "demucs" if demucs_available() else "center_voicey"
+        if prefer in DRIVING_PREP_MODES and prefer != "auto":
+            return prefer
+        return "center_voicey"
     if m not in DRIVING_PREP_MODES or m == "auto":
         raise ValueError(f"unknown driving prep mode {mode!r}")
     return m

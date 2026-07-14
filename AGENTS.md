@@ -21,6 +21,7 @@ python scripts/export_episode_to_workspace.py -e YOUR_EP
 Full contract: [docs/agent_consumer_workspace_contract.md](docs/agent_consumer_workspace_contract.md)  
 AV reliability: [docs/agent_av_smoke_checklist.md](docs/agent_av_smoke_checklist.md)  
 Near-term tooling backlog: [docs/agent_video_tooling_todo.md](docs/agent_video_tooling_todo.md)  
+Creative autonomy (keywords/music-only briefs): [docs/creative_brief_autonomy_design.md](docs/creative_brief_autonomy_design.md)  
 Tooling rules for **maintainers**: [agent_rules.md](agent_rules.md)  
 **Grok Build only** — hybrid native image/video + factory CLI: [docs/grok_build_hybrid_tooling.md](docs/grok_build_hybrid_tooling.md) · [agent_rules.md](agent_rules.md) Rule 8.  
 Default: **agent picks tools** until the user names a tool; factory remains SSOT for lips/assemble/gates.

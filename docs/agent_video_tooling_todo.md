@@ -1,7 +1,7 @@
 # 에이전트 영상 툴링 TODO (근시일 작업 백로그)
 
 - **작성**: 2026-07-14  
-- **상태**: 백로그 (아직 미착수 항목 다수)  
+- **상태**: 진행 중 (Ideogram 1차 ✅ · P0-1 길이 계약 ✅ 2026-07-14)  
 - **맥락**: `cafe_gomin_ep01` 실전에서 드러난 병목 + 공장 로드맵 정합  
 - **관련**: [agent_video_tooling_reliability.md](agent_video_tooling_reliability.md) · [video_pipeline_roadmap.md](video_pipeline_roadmap.md) · [grok_build_hybrid_tooling.md](grok_build_hybrid_tooling.md) · [agent_rules.md](../agent_rules.md) Rule 7.x / Rule 8  
 
@@ -23,14 +23,14 @@
 
 ## P0 — 근시일 (실전 사고 직결)
 
-### P0-1. SI2V 오디오–길이 계약 (자동)
+### P0-1. SI2V 오디오–길이 계약 (자동) — ✅ 2026-07-14
 
 | 항목 | 내용 |
 |------|------|
 | **문제** | IT `AGENT_IT_MAX_FRAMES` 기본 129(~5.4s@24)로 긴 대사 잘림; demucs drive 길이 이상 |
-| **할 일** | (1) 생성 전 `tts_sec ≈ drive_sec`, frames≥ceil(tts×fps)+tail 검증, 실패 시 hard fail<br>(2) 쇼츠 기본 prepare **`center_voicey`** (demucs 자동 경로 재검토)<br>(3) `shots[].duration_sec` 를 TTS+tail 로 자동 동기<br>(4) max frames 상한 정책: 올리거나 초과 시 **샷 분할 제안** |
-| **건드릴 곳** | `generate_s2v.py`, `episode_s2v.py`, `audio_prepare_driving` / `materialize_driving_audio`, `episode_status` |
-| **완료 기준** | S05급 8s+ 대사가 잘리지 않거나, 잘릴 경우 사전 경고·분할 없이 조용히 잘리지 않음 |
+| **구현** | (1) `lib/s2v_length_contract.py` — frames=ceil(audio×fps)+tail, **초과 시 hard fail** (`FRAMES_EXCEED_MAX`, 분할 힌트)<br>(2) IT 기본 max **257** (`AGENT_IT_MAX_FRAMES`)<br>(3) prep `auto` → **`center_voicey`** (demucs는 opt-in / `AGENT_DRIVE_PREP_AUTO=demucs`)<br>(4) `episode_s2v` 생성 전 drive vs TTS 비교 + `duration_sec` 동기<br>(5) `--allow-clamp` / `AGENT_S2V_ALLOW_CLAMP=1` 만 조용한 클램프 허용 |
+| **건드릴 곳** | `generate_s2v.py`, `episode_s2v.py`, `lib/ffmpeg_util.resolve_driving_prep_mode` |
+| **완료 기준** | 조용히 잘리지 않음 — 초과 시 실패 또는 명시적 clamp |
 
 ### P0-2. 감정 연동 모션 프로파일 (립·바디)  ← “잔잔” 재정의
 
@@ -73,7 +73,9 @@
 
 - `shot_compose --from-prev-shot` / last-frame SI2V 체인 자동화  
 - 이전 컷 `clip_status=approved` 전 체인 금지 (Rule 7.2와 정합)  
-- 참고: [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md)
+- 참고: [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md)  
+- **2026-07-14 부분 착수**: `scripts/chain_one_take.py` — 에피 전체 샷 순서,  
+  `prev last frame → keyframe → i2v|si2v` 혼합 체인 (SI2V 전용 `chain_si2v_last_frame.py` 보완)
 
 ### P1-3. 키프레임 국소 수술 슬롯
 
@@ -99,8 +101,38 @@
 | P2-1 | Face restore 옵션 (모션 후, 약하게) | 과하면 smeary |
 | P2-2 | 쇼츠 자막 SRT + soft burn | TTS 타이밍 연동 |
 | P2-3 | SFX 큐 라이브러리 배치 | `shots.json` sfx |
-| P2-4 | ControlNet 포즈 락 레시피 | 팔짱·잔 들기 |
+| P2-4 | ControlNet 포즈 락 레시피 | 팔짱·잔 들기 · **댄스 모드와 공유 가능** |
 | P2-5 | OpenMontage 검수/리포트 조각만 이식 | 전체 오케스트레이션 대체 금지 |
+
+---
+
+## P3 — 장르 파이프 (토킹 에피와 별 트랙)
+
+### P3-1. 댄스 챌린지 쇼츠 공정 (`dance_challenge`)
+
+| 항목 | 내용 |
+|------|------|
+| **의도** | 특정 댄스 **레퍼런스** → 채널 캐릭으로 정교한 9:16 챌린지 쇼츠. **지금 cafe 토킹 에피와 분리** |
+| **합의** | 파이프를 설계·구현하면 그 장르를 **체계적으로·더 정교하게** 제작 가능 (1:1 완벽 복제 보장은 모델 한계) |
+| **설계 문서** | **[dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md)** |
+| **핵심 스테이지** | 레퍼 ingest → 키 포즈/구간 → 캐릭 키프레임 → I2V(포즈 가이드) → 음악 락 assemble → 1080 |
+| **모드** | `production_mode=dance_challenge` · mix `music_locked` · SI2V 립 비주력 |
+| **착수 시기** | 토킹 파이프 P0–P1 안정화 **이후** 권장 |
+| **하위 티켓** | D0–D6 — 설계 문서 §4 |
+
+### P3-2. 기획 자율 모드 (키워드 / 음악만 입력)
+
+| 항목 | 내용 |
+|------|------|
+| **의도** | 풀 시놉 없이 키워드·음악 정보만으로 에이전트가 기획→시놉→보드→공장 진행 |
+| **필수 구현** | **없음** — 문서 가드레일·SOP면 운용 가능 |
+| **SSOT 문서** | **[creative_brief_autonomy_design.md](creative_brief_autonomy_design.md)** |
+| **선택 이후** | Brief 템플릿 자동 생성, `episode_init_from_brief` 등 얇은 CLI (반복 실수 시) |
+| **상태** | ✅ 문서 레일 기록 완료 · 기능 코드 미착수(불필요 시 유지) |
+
+### P3-3. (예약) 기타 장르 템플릿
+
+- 예: pure_mv_hook, product_ugc — 필요 시 동일 패턴으로 문서화  
 
 ---
 
@@ -120,13 +152,15 @@ Sprint A (P0):  P0-1 길이 계약 → P0-2 감정 모션 프로파일 → P0-3 
 Sprint B (P1):  P1-1 status 헬스 → P1-5 TTS-performance 연동 → P1-2 원테이크 체인
 Sprint C (P1):  P1-3 국소 수술 → P1-4 검수 보조
 Sprint D (P2):  필요 시 자막/SFX/face restore
+Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 ```
 
 ---
 
 ## 체크리스트 (착수 시 복사)
 
-- [ ] P0-1 SI2V 길이 계약 + drive 정책  
+- [x] P0-1 SI2V 길이 계약 + drive 정책  
+- [x] Ideogram4 타이포 1차 (`generate_ideogram4.py` + schema fix)
 - [ ] P0-2 performance/emotion 모션 테이블 + still-override 수정  
 - [ ] P0-3 auto-export workspace  
 - [ ] P1-1 episode_status duration health  
@@ -135,6 +169,8 @@ Sprint D (P2):  필요 시 자막/SFX/face restore
 - [ ] P1-4 clip review contact soft  
 - [ ] P1-5 TTS–performance 원샷  
 - [ ] P2-* 선택  
+- [ ] **P3-1 댄스 챌린지 파이프** — [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md)  
+- [x] **P3-2 기획 자율** — 문서 레일 [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) (기능 코드 비필수)  
 
 ---
 
@@ -143,3 +179,5 @@ Sprint D (P2):  필요 시 자막/SFX/face restore
 | 날짜 | 내용 |
 |------|------|
 | 2026-07-14 | 초안. P0–P2 백로그. “잔잔” → **음성 감정 연동 퍼포먼스** 로 정정 반영 |
+| 2026-07-14 | **P3-1 댄스 챌린지** 백로그 + 설계 초안 링크. 토킹 에피와 별 트랙 명시 |
+| 2026-07-14 | **P3-2 기획 자율** 문서 레일. 기능 필수 아님·가드레일 SOP 합의 반영 |
