@@ -878,3 +878,7 @@
 ### [2026-07-14] P1-3 surgical keyframe edit + P1-4 clip review sheet
 - `shot_keyframe_edit.py` Moody I2I local edit → draft; history backup; refuse global blur
 - `clip_review_sheet.py` first/last frames + contact grid under board/clip_review/
+
+### [2026-07-14] P2-2 episode subtitles SRT + soft burn
+- `lib/subtitles.py`, `scripts/episode_subtitles.py`
+- Timeline from work clips; soft-burn via ffmpeg subtitles filter

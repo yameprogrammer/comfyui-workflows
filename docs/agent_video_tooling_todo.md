@@ -1,7 +1,7 @@
 # 에이전트 영상 툴링 TODO (근시일 작업 백로그)
 
 - **작성**: 2026-07-14  
-- **상태**: Sprint A 완료 (Ideogram · P0-1 · P0-2 · P0-3 ✅ 2026-07-14) · 다음 P1
+- **상태**: Sprint A–C + P2-2 자막 ✅ 2026-07-14
 - **맥락**: `cafe_gomin_ep01` 실전에서 드러난 병목 + 공장 로드맵 정합  
 - **관련**: [agent_video_tooling_reliability.md](agent_video_tooling_reliability.md) · [video_pipeline_roadmap.md](video_pipeline_roadmap.md) · [grok_build_hybrid_tooling.md](grok_build_hybrid_tooling.md) · [agent_rules.md](../agent_rules.md) Rule 7.x / Rule 8  
 
@@ -99,7 +99,7 @@
 | ID | 항목 | 메모 |
 |----|------|------|
 | P2-1 | Face restore 옵션 (모션 후, 약하게) | 과하면 smeary |
-| P2-2 | 쇼츠 자막 SRT + soft burn | TTS 타이밍 연동 |
+| P2-2 | 쇼츠 자막 SRT + soft burn | ✅ episode_subtitles.py · lib/subtitles.py |
 | P2-3 | SFX 큐 라이브러리 배치 | `shots.json` sfx |
 | P2-4 | ControlNet 포즈 락 레시피 | 팔짱·잔 들기 · **댄스 모드와 공유 가능** |
 | P2-5 | OpenMontage 검수/리포트 조각만 이식 | 전체 오케스트레이션 대체 금지 |
@@ -168,7 +168,7 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 - [x] P1-3 surgical keyframe edit path  
 - [x] P1-4 clip review contact soft  
 - [x] P1-5 TTS–performance 원샷 (`episode_tts --performance`, thin)
-- [ ] P2-* 선택  
+- [x] P2-2 subtitles SRT+burn\n- [ ] P2-1/3/4/5 선택  
 - [ ] **P3-1 댄스 챌린지 파이프** — [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md)  
 - [x] **P3-2 기획 자율** — 문서 레일 [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) (기능 코드 비필수)  
 
