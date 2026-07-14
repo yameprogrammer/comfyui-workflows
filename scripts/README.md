@@ -76,6 +76,8 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `episode_tts.py` | 샷 dialogue TTS + SI2V bind | `--performance` + `--bind-si2v` → episode_s2v |
 | `episode_s2v.py` | SI2V 배치 | `--performance` · 길이 계약 · **auto export** workspace |
 | `export_episode_to_workspace.py` | 공장→작업대 복사 | `AGENT_WORKSPACE` · `--dest` |
+| `chain_one_take.py` | 원테이크 체인 (i2v+si2v) | last-frame · clip gate · performance |
+| `shot_compose.py --from-prev-shot` | 이전 클립 끝 프레임→키프레임 | Rule 7.2 clip approve |
 | `generate_bgm.py` | BGM 생성 | ACE-Step 1.5 turbo (or Sonilo) |
 | `episode_bgm.py` | 에피소드 music stem | `audio/music/` + shots.json audio.bgm |
 | `generate_moody_i2i_ipadapter.py` | I2I + IP-Adapter face | C identity |

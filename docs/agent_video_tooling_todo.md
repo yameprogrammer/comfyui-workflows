@@ -70,13 +70,12 @@
 - 플래그: `SHORT` (클립 < 오디오) · `DRIVE_MISMATCH` (drive < TTS) · `DURATION_SHORT`  
 - `episode_status` 텍스트/JSON · overall_next `fix_driving_length` / `regen_s2v_longer`
 
-### P1-2. 원 테이크 체인 CLI
+### P1-2. 원 테이크 체인 CLI — ✅ 2026-07-14
 
-- `shot_compose --from-prev-shot` / last-frame SI2V 체인 자동화  
-- 이전 컷 `clip_status=approved` 전 체인 금지 (Rule 7.2와 정합)  
-- 참고: [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md)  
-- **2026-07-14 부분 착수**: `scripts/chain_one_take.py` — 에피 전체 샷 순서,  
-  `prev last frame → keyframe → i2v|si2v` 혼합 체인 (SI2V 전용 `chain_si2v_last_frame.py` 보완)
+- `lib/one_take.py` 공유 헬퍼 + `shot_compose --from-prev-shot`  
+- `chain_one_take.py`: performance 프로필 · 길이 계약 · clip_status 게이트(재조회) · workspace export  
+- 이전 컷 `clip_status=approved` 전 체인 금지 (exit 22; `--force-clip-gate` 디버그)  
+- 참고: [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) · SI2V 전용 `chain_si2v_last_frame.py` 유지
 
 ### P1-3. 키프레임 국소 수술 슬롯
 
@@ -165,7 +164,7 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 - [x] P0-2 performance/emotion 모션 테이블 + still-override 수정  
 - [x] P0-3 auto-export workspace
 - [x] P1-1 episode_status duration health
-- [ ] P1-2 from-prev / last-frame chain  
+- [x] P1-2 from-prev / last-frame chain
 - [ ] P1-3 surgical keyframe edit path  
 - [ ] P1-4 clip review contact soft  
 - [x] P1-5 TTS–performance 원샷 (`episode_tts --performance`, thin)

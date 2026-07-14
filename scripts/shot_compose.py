@@ -298,6 +298,24 @@ def main(argv=None) -> int:
     parser.add_argument("--source", default=None, help="Force I2I source image path")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--timeout", type=int, default=600)
+    parser.add_argument(
+        "--from-prev-shot",
+        action="store_true",
+        help=(
+            "One-take: write keyframe from previous shot's last work-clip frame "
+            "(requires prev clip_status=approved unless --force-clip-gate)"
+        ),
+    )
+    parser.add_argument(
+        "--force-clip-gate",
+        action="store_true",
+        help="With --from-prev-shot, allow unapproved previous clip (debug)",
+    )
+    parser.add_argument(
+        "--prev-shot",
+        default=None,
+        help="With --from-prev-shot, explicit previous shot id (default: order-1)",
+    )
     args = parser.parse_args(argv)
 
     if not validate_episode_id(args.episode):
@@ -307,6 +325,9 @@ def main(argv=None) -> int:
     if args.all:
         if args.shot:
             print("[ERROR] code=2 use either --shot or --all, not both", file=sys.stderr)
+            return EXIT_USAGE
+        if args.from_prev_shot:
+            print("[ERROR] code=2 --from-prev-shot is single-shot only", file=sys.stderr)
             return EXIT_USAGE
         return _compose_all(args)
 
@@ -319,6 +340,54 @@ def main(argv=None) -> int:
     except FileNotFoundError:
         print(f"[ERROR] code=11 episode missing: {args.episode}", file=sys.stderr)
         return EXIT_MISSING
+
+    # P1-2: last-frame keyframe from previous work clip (no Moody gen)
+    if args.from_prev_shot:
+        from lib.one_take import keyframe_from_prev_clip
+
+        format_id = story.format_id()
+        work_preset = story.doc.get("default_work_preset")
+        try:
+            width, height, _, _ = resolve_work_size(format_id, work_preset)
+        except Exception:
+            width, height = 544, 960
+        width = int(round(width / 16) * 16)
+        height = int(round(height / 16) * 16)
+        if args.dry_run:
+            print(f"[dry-run] from-prev-shot {args.shot} canvas={width}x{height}")
+            return EXIT_OK
+        kr = keyframe_from_prev_clip(
+            story,
+            args.shot,
+            width=width,
+            height=height,
+            force_clip_gate=bool(args.force_clip_gate),
+            prev_shot_id=args.prev_shot,
+        )
+        if not kr.get("ok"):
+            code = int(kr.get("exit_code") or EXIT_SOURCE)
+            print(f"[ERROR] code={code} {kr.get('error')}: {kr.get('message')}", file=sys.stderr)
+            return code if code in (EXIT_USAGE, EXIT_MISSING, EXIT_SOURCE, 22) else EXIT_GEN
+        story.update_shot(
+            args.shot,
+            keyframe=kr["keyframe_rel"],
+            keyframe_status="draft",
+            continuity={
+                "style": "one_take",
+                "chain": "last_frame",
+                "match_from": kr.get("prev_sid"),
+                "from_clip": os.path.relpath(kr["prev_clip"], story.root).replace(
+                    "\\", "/"
+                ),
+            },
+            composed_at=utc_now_iso(),
+            source="from_prev_shot",
+        )
+        print(
+            f"OK keyframe from prev {kr.get('prev_sid')} → {kr['keyframe_path']} "
+            f"(status=draft — shot_approve when ready)"
+        )
+        return EXIT_OK
 
     try:
         shot = story.get_shot(args.shot)

@@ -871,3 +871,6 @@
 ### [2026-07-14] P1-1 episode_status length health
 - shot rows: tts_sec / drive_sec / clip_sec + SHORT|DRIVE_MISMATCH|DURATION_SHORT
 - overall_next: fix_driving_length / regen_s2v_longer
+
+### [2026-07-14] P1-2 one-take chain polish
+- `lib/one_take.py`; `shot_compose --from-prev-shot`; `chain_one_take` uses performance + length contract + fresh clip gate + export

@@ -4,9 +4,11 @@
 Supports mixed motion drivers in shot order (i2v + si2v).
   S_n last frame → keyframes/S_{n+1}.png → generate I2V or SI2V
 
+Rule 7.2: previous clip_status=approved required (use --force-clip-gate only for debug).
+
 Example:
   python scripts/chain_one_take.py -e cafe_gomin_ep01 --backend-s2v infinitetalk \\
-    --prepare-mode center_voicey --no-pause --force-clip-gate
+    --prepare-mode center_voicey --no-pause
 """
 
 from __future__ import annotations
@@ -19,62 +21,15 @@ import os
 import sys
 
 from lib.comfy_client import utc_now_iso
-from lib.ffmpeg_util import probe_duration, run_ffmpeg
+from lib.ffmpeg_util import probe_duration
+from lib.one_take import check_prev_clip_gate, keyframe_from_prev_clip, work_clip_path
 from lib.story_package import StoryPackage, resolve_work_size
 
 EXIT_OK = 0
 EXIT_USAGE = 2
 EXIT_MISSING = 11
+EXIT_CLIP_GATE = 22
 EXIT_FAIL = 30
-
-
-def extract_last_frame(video: str, png: str) -> dict:
-    os.makedirs(os.path.dirname(png) or ".", exist_ok=True)
-    r = run_ffmpeg(
-        ["-y", "-sseof", "-0.08", "-i", video, "-frames:v", "1", "-q:v", "2", png],
-        timeout_sec=120,
-    )
-    if r.get("ok") and os.path.isfile(png) and os.path.getsize(png) > 1000:
-        return r
-    return run_ffmpeg(
-        [
-            "-y",
-            "-i",
-            video,
-            "-vf",
-            "select=eq(n\\,N-1)",
-            "-vsync",
-            "vfr",
-            "-frames:v",
-            "1",
-            "-q:v",
-            "2",
-            png,
-        ],
-        timeout_sec=180,
-    )
-
-
-def fit_png(src: str, dst: str, w: int, h: int) -> None:
-    """Cover-crop resize last frame to episode work canvas."""
-    from PIL import Image
-
-    im = Image.open(src).convert("RGB")
-    sw, sh = im.size
-    scale = max(w / sw, h / sh)
-    nw, nh = max(1, int(round(sw * scale))), max(1, int(round(sh * scale)))
-    im = im.resize((nw, nh), Image.Resampling.LANCZOS)
-    left, top = (nw - w) // 2, (nh - h) // 2
-    im.crop((left, top, left + w, top + h)).save(dst)
-
-
-def work_clip_path(story: StoryPackage, shot: dict, sid: str) -> str:
-    drv = (shot.get("motion_driver") or "i2v").lower()
-    if drv in ("si2v", "s2v"):
-        rel = shot.get("clip_work_s2v") or f"clips/work/{sid}_s2v.mp4"
-    else:
-        rel = shot.get("clip_work") or f"clips/work/{sid}.mp4"
-    return story.path(*str(rel).replace("\\", "/").split("/"))
 
 
 def main(argv=None) -> int:
@@ -85,15 +40,25 @@ def main(argv=None) -> int:
     p.add_argument("--backend-i2v", default="wan22")
     p.add_argument("--prepare-mode", default="center_voicey")
     p.add_argument("--fps", type=float, default=24.0)
-    p.add_argument("--audio-scale", type=float, default=1.25)
+    p.add_argument(
+        "--audio-scale",
+        type=float,
+        default=None,
+        help="Override SI2V audio_scale (default: performance profile)",
+    )
     p.add_argument("--s2v-steps", type=int, default=12)
     p.add_argument("--timeout", type=int, default=2400)
     p.add_argument("--start-from", default=None)
     p.add_argument("--dry-run", action="store_true")
     p.add_argument(
+        "--performance",
+        default=None,
+        help="Default performance profile for SI2V shots (or per-shot.performance)",
+    )
+    p.add_argument(
         "--force-clip-gate",
         action="store_true",
-        help="Allow chain without prev clip_status=approved",
+        help="Allow chain without prev clip_status=approved (debug only)",
     )
     p.add_argument(
         "--no-pause",
@@ -105,6 +70,9 @@ def main(argv=None) -> int:
         action="store_true",
         help="If first shot work clip exists, do not regenerate it",
     )
+    from lib.workspace_export import add_export_workspace_args
+
+    add_export_workspace_args(p)
     args = p.parse_args(argv)
 
     os.environ.setdefault("AGENT_IT_MAX_FRAMES", "257")
@@ -118,9 +86,6 @@ def main(argv=None) -> int:
 
     shots = sorted(story.shots(), key=lambda s: s.get("order", 0))
     if args.shots:
-        want = {s.strip() for s in args.shots.split(",") if s.strip()}
-        chain = [s for s in shots if s.get("shot_id") in want]
-        # preserve user order if given
         order = [x.strip() for x in args.shots.split(",") if x.strip()]
         by_id = {s.get("shot_id"): s for s in shots}
         chain = [by_id[i] for i in order if i in by_id]
@@ -138,14 +103,16 @@ def main(argv=None) -> int:
     except Exception:
         width, height = 544, 960
 
-    # IT dims %16
     width = int(round(width / 16) * 16)
     height = int(round(height / 16) * 16)
 
     from generate_i2v import generate_i2v
     from generate_s2v import generate_s2v
     from lib.audio_package import materialize_driving_audio
-    from lib.episode_status import CLIP_STATUS_OK, normalize_clip_status
+    from lib.ltx_s2v import is_ltx_backend, snap_ltx_frames
+    from lib.performance_profiles import resolve_si2v_motion_prompt
+    from lib.s2v_length_contract import validate_pre_generate
+    from generate_s2v import _snap_frames
 
     started = args.start_from is None
     prev_clip: str | None = None
@@ -157,6 +124,12 @@ def main(argv=None) -> int:
 
     for i, shot in enumerate(chain):
         sid = shot.get("shot_id")
+        # re-load shot for fresh status
+        try:
+            shot = story.get_shot(sid)
+        except KeyError:
+            pass
+
         if not started:
             if sid == args.start_from:
                 started = True
@@ -168,7 +141,6 @@ def main(argv=None) -> int:
 
         drv = (shot.get("motion_driver") or "i2v").lower()
         is_s2v = drv in ("si2v", "s2v")
-        kf_path = story.path("keyframes", f"{sid}.png")
         clip_path = work_clip_path(story, shot, sid)
         os.makedirs(os.path.dirname(clip_path), exist_ok=True)
 
@@ -178,55 +150,63 @@ def main(argv=None) -> int:
             prev_clip = clip_path
             story.update_shot(sid, keyframe_status="approved", clip_status="pending")
             if not args.no_pause and i < len(chain) - 1:
-                print(f"[PAUSE] approve {sid} then --start-from {chain[i+1].get('shot_id')}")
+                print(
+                    f"[PAUSE] approve {sid} then:\n"
+                    f"  python scripts/shot_approve.py -e {args.episode} -s {sid} --clip approved\n"
+                    f"  python scripts/chain_one_take.py -e {args.episode} "
+                    f"--start-from {chain[i+1].get('shot_id')} --keep-first-clip ..."
+                )
                 return EXIT_OK
             continue
 
         if i > 0:
-            if not prev_clip or not os.path.isfile(prev_clip):
-                print(f"[ERROR] no previous clip for {sid}", file=sys.stderr)
-                return EXIT_FAIL
             prev_sid = chain[i - 1].get("shot_id")
-            if not args.force_clip_gate:
+            try:
+                prev_shot = story.get_shot(prev_sid)
+            except KeyError:
                 prev_shot = chain[i - 1]
-                pst = normalize_clip_status(prev_shot, work_ok=True)
-                if pst not in CLIP_STATUS_OK:
-                    print(
-                        f"[ERROR] code=22 cannot chain {prev_sid}→{sid} "
-                        f"clip_status={pst!r}",
-                        file=sys.stderr,
-                    )
-                    print(
-                        f"  python scripts/shot_approve.py -e {args.episode} "
-                        f"-s {prev_sid} --clip approved"
-                    )
-                    return EXIT_FAIL
-            print(f"\n>>> {sid} last_frame of {prev_sid} → {kf_path}")
+            if prev_clip is None:
+                prev_clip = work_clip_path(story, prev_shot, prev_sid)
+
+            gate = check_prev_clip_gate(
+                story, prev_shot, force=bool(args.force_clip_gate)
+            )
+            if not gate.get("ok"):
+                print(f"[ERROR] code={gate.get('exit_code') or 30} {gate.get('message')}", file=sys.stderr)
+                return int(gate.get("exit_code") or EXIT_FAIL)
+
+            prev_clip = gate["prev_clip"]
+            print(f"\n>>> {sid} last_frame of {prev_sid} → keyframes/{sid}.png")
             if not args.dry_run:
-                tmp = kf_path + ".tmp.png"
-                r = extract_last_frame(prev_clip, tmp)
-                if not r.get("ok"):
-                    print(f"[ERROR] extract failed {r}", file=sys.stderr)
+                kr = keyframe_from_prev_clip(
+                    story,
+                    sid,
+                    width=width,
+                    height=height,
+                    force_clip_gate=True,  # already gated above
+                    prev_shot_id=prev_sid,
+                )
+                if not kr.get("ok"):
+                    print(f"[ERROR] keyframe {kr}", file=sys.stderr)
                     return EXIT_FAIL
-                fit_png(tmp, kf_path, width, height)
-                try:
-                    os.remove(tmp)
-                except OSError:
-                    pass
+                kf_path = kr["keyframe_path"]
                 story.update_shot(
                     sid,
-                    keyframe=f"keyframes/{sid}.png",
+                    keyframe=kr["keyframe_rel"],
                     keyframe_status="approved",
                     continuity={
                         "style": "one_take",
                         "chain": "last_frame",
                         "match_from": prev_sid,
-                        "from_clip": os.path.relpath(prev_clip, story.root).replace("\\", "/"),
+                        "from_clip": os.path.relpath(prev_clip, story.root).replace(
+                            "\\", "/"
+                        ),
                     },
                     composed_at=utc_now_iso(),
                 )
+            else:
+                kf_path = story.path("keyframes", f"{sid}.png")
         else:
-            # first shot: use existing keyframe
             krel = shot.get("keyframe") or f"keyframes/{sid}.png"
             kf_path = story.path(*str(krel).replace("\\", "/").split("/"))
             if not os.path.isfile(kf_path):
@@ -235,44 +215,73 @@ def main(argv=None) -> int:
             print(f"\n>>> {sid} first keyframe {kf_path}")
             story.update_shot(sid, keyframe_status="approved")
 
-        motion = (shot.get("motion_prompt") or "").strip()
         if is_s2v:
-            low = motion.lower()
-            if "lip" not in low and "speak" not in low and "talk" not in low:
-                motion = (
-                    "same person continuing in the same seat, natural lip sync with dialogue, "
-                    "minimal upper body motion matching speech tone, locked camera, "
-                    "keep identity wardrobe background fixed, one-take continuity"
-                )
+            perf = resolve_si2v_motion_prompt(shot, performance=args.performance)
+            motion = perf["motion_prompt"]
+            # one-take continuity suffix
+            if "one-take" not in motion.lower() and "one take" not in motion.lower():
+                motion = motion.rstrip(".") + ", one-take continuity, locked camera"
+            scale = (
+                float(args.audio_scale)
+                if args.audio_scale is not None
+                else float(perf["audio_scale"])
+            )
+            print(
+                f"  performance={perf['performance']} "
+                f"motion_src={perf['source']} audio_scale={scale}"
+            )
+
             audio_info = materialize_driving_audio(
-                story.root, shot, prepare_mode=args.prepare_mode, force=True
+                story.root, shot, prepare_mode=args.prepare_mode, force=False
             )
             if not audio_info.get("ok"):
                 print(f"[ERROR] audio {sid}: {audio_info}", file=sys.stderr)
                 return EXIT_FAIL
             audio_path = audio_info["path"]
-            adur = probe_duration(audio_path)
-            print(f"  SI2V audio={audio_path} dur={adur}")
+
+            snap = (
+                snap_ltx_frames
+                if is_ltx_backend(args.backend_s2v)
+                else _snap_frames
+            )
+            pre = validate_pre_generate(
+                backend=args.backend_s2v,
+                fps=float(args.fps),
+                drive_path=audio_path,
+                snap_fn=snap,
+            )
+            if not pre.get("ok"):
+                print(
+                    f"[ERROR] length {pre.get('error')}: {pre.get('message')}",
+                    file=sys.stderr,
+                )
+                return EXIT_FAIL
+            print(
+                f"  SI2V audio={audio_path} drive={pre.get('drive_sec')}s "
+                f"frames={pre.get('num_frames')}"
+            )
             if args.dry_run:
                 print("  [dry-run] skip s2v")
                 prev_clip = clip_path if os.path.isfile(clip_path) else prev_clip
                 continue
-            result = generate_s2v(
-                kf_path,
-                audio_path,
-                clip_path,
+
+            s2v_kw = dict(
                 backend=args.backend_s2v,
                 prompt=motion,
                 width=width,
                 height=height,
                 fps=float(args.fps),
                 steps=int(args.s2v_steps),
-                audio_scale=float(args.audio_scale),
+                audio_scale=scale,
+                num_frames=int(pre["num_frames"]) if pre.get("num_frames") else None,
                 timeout_sec=args.timeout,
                 meta_out=story.path("meta", f"{sid}_s2v.json"),
                 speed_lora=True,
                 teacache=False,
             )
+            if perf.get("negative_motion"):
+                s2v_kw["negative"] = perf["negative_motion"]
+            result = generate_s2v(kf_path, audio_path, clip_path, **s2v_kw)
             if not result.get("ok"):
                 print(f"[ERROR] s2v {sid}: {result}", file=sys.stderr)
                 return EXIT_FAIL
@@ -281,11 +290,16 @@ def main(argv=None) -> int:
                 clip_work_s2v=f"clips/work/{sid}_s2v.mp4",
                 s2v_status="ok",
                 s2v_backend=args.backend_s2v,
+                s2v_performance=perf.get("performance"),
+                performance=perf.get("performance"),
+                s2v_driving_audio=os.path.relpath(audio_path, story.root).replace(
+                    "\\", "/"
+                ),
                 clip_status="pending",
                 lip_status="pending",
             )
         else:
-            # I2V
+            motion = (shot.get("motion_prompt") or "").strip()
             if not motion:
                 motion = (
                     "subtle natural motion, locked camera or very slow push-in, "
@@ -293,7 +307,6 @@ def main(argv=None) -> int:
                 )
             dur = float(shot.get("duration_sec") or 3.5)
             frames = int(math.ceil(dur * float(args.fps) - 1e-9))
-            # wan often wants 4n+1 style — generate_i2v may snap
             print(f"  I2V backend={args.backend_i2v} frames~{frames} motion={motion[:80]}")
             if args.dry_run:
                 print("  [dry-run] skip i2v")
@@ -333,12 +346,29 @@ def main(argv=None) -> int:
             print(
                 f"\n[PAUSE] Review {sid}, then:\n"
                 f"  python scripts/shot_approve.py -e {args.episode} -s {sid} --clip approved\n"
-                f"  python scripts/chain_one_take.py -e {args.episode} --start-from {nxt} --no-pause ..."
+                f"  python scripts/chain_one_take.py -e {args.episode} --start-from {nxt} ..."
             )
             return EXIT_OK
 
     print("\nDone one-take chain:", " → ".join(s.get("shot_id") for s in chain))
-    print("Next: approve clips, hard-cut assemble (no xfade preferred for true one-take)")
+    print("Next: hard-cut assemble (no xfade preferred for true one-take)")
+
+    if not args.dry_run:
+        from lib.workspace_export import (
+            CLIP_PARTS,
+            export_flag_from_args,
+            maybe_export_episode,
+        )
+
+        ex = maybe_export_episode(
+            args.episode,
+            export_flag=export_flag_from_args(args),
+            dest=getattr(args, "export_dest", None),
+            parts=list(CLIP_PARTS),
+        )
+        if not ex.get("skipped") and not ex.get("ok"):
+            print(f"[WARN] export-workspace: {ex.get('error')}: {ex.get('message')}")
+
     return EXIT_OK
 
 
