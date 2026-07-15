@@ -28,6 +28,14 @@ agent_custom/
 * **근시일 영상 툴 TODO**: [docs/agent_video_tooling_todo.md](docs/agent_video_tooling_todo.md) (길이 계약 · 감정 연동 모션 · auto-export 등)
 * **docs 인덱스**: [docs/README.md](docs/README.md) · 만료·세션·디버그: [docs/archive/](docs/archive/)
 * **기획 자율 (키워드/음악만)**: [docs/creative_brief_autonomy_design.md](docs/creative_brief_autonomy_design.md) — 기능 필수 아님, 에이전트 SOP·가드레일
+* **공장 스킬 SSOT**: [skills/](skills/) · `python scripts/skill_equip.py` — 미탑재 시 설치/로드 (**Rule 7.0**)  
+* **영상 연출 스킬**: [skills/video-direction/SKILL.md](skills/video-direction/SKILL.md)  
+* **생성 프롬프트 스킬**: [skills/generation-prompt/SKILL.md](skills/generation-prompt/SKILL.md) — 이미지/영상 프롬프트 팩 · 생성 직전 필수  
+* 장문 연출 SSOT: [docs/video_director_master_persona.md](docs/video_director_master_persona.md) · 프롬프트 SSOT: [docs/generation_prompt_craft.md](docs/generation_prompt_craft.md)
+* **영상 창작 감성 레이어**: [docs/video_creative_director_persona.md](docs/video_creative_director_persona.md) — Creative Pack
+* **이미지 컷 육안 검증 (QA SSOT)**: [docs/image_cut_verification_gate.md](docs/image_cut_verification_gate.md) — 키프레임·클립 approve 전 **필수** (Rule 7.3)
+* **실패 노트 공유**: [failures/](failures/) · [docs/failure_notes_system.md](docs/failure_notes_system.md) · `scripts/failure_note.py` — Rule **7.4**
+* **생성 프롬프트 크래프트**: [docs/generation_prompt_craft.md](docs/generation_prompt_craft.md) — T2I/I2I/I2V/SI2V 고품질 프롬프트 · Rule **7.5**
 * **프로덕션 자산 통합**: [docs/production_asset_pipeline.md](docs/production_asset_pipeline.md)
 * 로케이션 설계: [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md)
 * 룩/스타일: [docs/look_style_system.md](docs/look_style_system.md) · `looks/cinematic_moody_v1`
@@ -88,6 +96,10 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
 * ComfyUI 경로(`F:\ComfyUI_windows_portable\ComfyUI\`) 등 드라이브 하드코딩이 있다. 이전 시 주의.
 * **Comfy 미기동 시**: `lib/comfy_client.ensure_comfy_running` 이 기본 런처 bat으로 자동 기동한다.
   - 기본 bat: `F:\ComfyUI_windows_portable\run_nvidia_gpu_fast_fp16_accumulation.bat`
+  - **기동 SSOT**: `_launch_comfy_process` 만 사용  
+    `cmd /c start "ComfyUI-Agent" /D "<portable>" cmd /c call "<bat>"`  
+    에이전트가 ProcessStartInfo·직접 `python main.py`·환경변수 끼워 넣은 `call bat` 등 **임의 래퍼로 재기동 금지**.
+  - 생성 스크립트는 **`queue_prompt` / `comfy_ensure.py`** 경로만 (예: `generate_krea.py`도 동일). raw `/prompt` POST 금지.
   - 중복 기동 방지: API probe + launch lock + launch_state cooldown
   - 끄기: `AGENT_COMFY_AUTOSTART=0` · 사전 점검: `python scripts/comfy_ensure.py`
 
@@ -150,6 +162,34 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
   - `shot_type`이 approved ref 우선순위 결정 (`stories/shot_type_presets.json`).  
 * 스토리 설계: [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md).
 
+### Rule 7.0 영상 디렉터 페르소나 · 컷 문법 · **스킬 탑재** (hard)
+* **문제**: 감성 한 줄만 있거나 Brief 표만 채우면 **기획력·컷 설계력이 붕괴**한다.  
+  face CU 남발, 가사 슬라이드쇼, 커버리지 없는 샷리스트, freeze pad 가 반복된다.
+* **스킬 탑재 (에이전트 공통)**  
+  1. [skills/README.md](skills/README.md) equip contract  
+  2. 세션에 `video-direction` 없으면:  
+     `python scripts/skill_equip.py install video-direction`  
+     또는 **`skills/video-direction/SKILL.md` 전문 로드** (최소 의무)  
+  3. 미탑재 상태로 `shot_compose` 대량 / I2V 배치 **금지**
+* **필수 로드 (순서 고정)**  
+  1. **[skills/video-direction/SKILL.md](skills/video-direction/SKILL.md)** — 이식 가능한 연출 스킬 (게이트·레시피)  
+  2. **[docs/video_director_master_persona.md](docs/video_director_master_persona.md)** — 장문 컷 문법 SSOT  
+  3. [docs/video_creative_director_persona.md](docs/video_creative_director_persona.md) — Creative Pack  
+  4. [docs/image_cut_verification_gate.md](docs/image_cut_verification_gate.md) — 승인 전 육안  
+* **의무 산출 (공장 본선 전)**  
+  - `CREATIVE.md` (pitch · paradox · motifs×3 · anti-list · thumbnail)  
+  - `SHOT_DESIGN.md` (**size rhythm 한 줄** + 샷별 type/angle/move/intent/risk)  
+  - 이후 `shots.json` 은 SHOT_DESIGN의 기계 번역 (intent 유지)  
+* **컷 문법 하드 규칙 (master §5)**  
+  - 동일 shot_type **3연속 금지**  
+  - 인접 샷 size 또는 angle 변경  
+  - 12컷+ 작품: wide · medium · CU/ECU · insert 각 ≥1  
+  - 후렴 = 시각 **사건** (size/motion/motif jump)  
+* **금지**: master persona 미로드 · SHOT_DESIGN 없이 `shot_compose --all` · 가사 직역 타임라인 · freeze pad  
+* **순서**: Persona 주입 → Creative Pack → SHOT_DESIGN → 자산 → keyframe QA → full motion QA → assemble → export  
+* **범위**: 소비자·공장 에이전트 공통. 순수 툴 버그픽스·스모크만 예외.  
+* 연결: [creative_brief_autonomy_design.md](docs/creative_brief_autonomy_design.md) 역할 0 = Director (master persona).
+
 ### Rule 7. 영상 해상도·백엔드 규약
 * **format** = 종횡비 (`cinematic_16x9` …). 16:9 고정 아님. SSOT: `video_backends.json`.
 * **work 프리셋** = format별 픽셀 (`work_16x9_540` …). I2V 생성용.
@@ -196,17 +236,17 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
 * **문제**: 합본(final)만 보고 중간 컷을 고치면 재생성·체인 재작업 비용이 폭증한다.  
   last-frame SI2V 체인은 붕괴 컷의 끝 프레임이 **다음 seed**가 되어 피해가 전파된다.
 * **의무 순서**  
-  1. `keyframe_status=approved` → 모션 생성 허용  
-  2. 샷별 work clip 생성 (`episode_i2v` / `episode_s2v` / `chain_si2v_last_frame`)  
-  3. **컷 검수** → `clip_status=approved` (`shot_approve -e EP -s S0x --clip approved`)  
+  1. **키프레임 육안** (Rule **7.3**) 통과 → `keyframe_status=approved` → 모션 생성 허용  
+  2. 샷별 work clip 생성 (`episode_i2v` / `episode_s2v` / `chain_si2v_last_frame` / 하이브리드 본선 클립)  
+  3. **클립 육안** (Rule **7.3**) 통과 → `clip_status=approved` (`shot_approve -e EP -s S0x --clip approved`)  
   4. (체인) **이전 컷 `clip_status=approved` 전** 다음 샷 last-frame 생성 금지  
   5. **전 조립 대상 샷 `clip_status=approved`** 후에만 `assemble_video`  
   6. 합본 검수 = 컷 간 이음·길이·BGM/믹스만 (컷 품질 재검수가 아님)
 * **`clip_status` 계약**  
   - 값: `pending` | `in_review` | `approved` | `rejected`  
   - 워크 클립이 있는데 필드 없음 → `pending`  
-  - 육안 체크: 얼굴 유지, 모션/소품 이상, (SI2V) 립·대사 타이밍, (체인) 끝 프레임이 다음 seed로 쓸 만한지  
-  - **자동 점수 없음** — 사람 또는 비전 에이전트가 클립을 보고 올린다  
+  - 육안 내용 SSOT: [docs/image_cut_verification_gate.md](docs/image_cut_verification_gate.md)  
+  - **자동 점수 없음** — 사람 또는 비전 에이전트가 **파일을 열고** 올린다  
   - SI2V의 `lip_status`는 하위 신호로 유지. `--clip approved` 시 립도 함께 본 것으로 보고 `lip_status=approved` 동기화 가능  
   - 클립 **재생성** 시 `clip_status`·`lip_status` → `pending` 으로 리셋
 * **하드 게이트 (코드)**  
@@ -220,35 +260,101 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
   - 불합격 컷만 재생성 → 재승인 → 그 샷부터 체인 재개 → 그 다음에 assemble.
 * CLI:
   ```bash
-  # 컷 생성 후 (SI2V/I2V 공통)
+  # 컷 생성 후 (SI2V/I2V 공통) — 육안 후에만
   python scripts/shot_approve.py -e EP -s S02 --clip approved
   python scripts/episode_status.py -e EP   # CLIP 열 / need_clip_approve
   python scripts/assemble_video.py -e EP --stage work   # 미승인이면 code=22
   ```
 
-### Rule 8. Grok Build 하이브리드 툴링 (그록 에이전트 전용)
-* **적용:** Grok Build / Grok CLI 처럼 **네이티브 이미지·영상 생성 툴**이 있는 에이전트.  
-  Claude·Codex 등 공장 CLI만 쓰는 에이전트는 이 Rule을 무시해도 된다.
-* **도구 선택 주체 (기본 = 에이전트 자율)**  
-  * 사용자가 **특정 도구를 쓰라고 명시하기 전**에는, 에이전트가 목표·품질·속도·게이트를 보고  
-    **공장 CLI / 그록 네이티브 중 적절한 것을 스스로 고른다.**  
-  * “어떤 툴로 할까요?”를 매번 묻지 않는다. 결과와 트레이드오프만 필요할 때 짧게 보고.  
-  * 사용자가 “Comfy로만 / 그록 image_edit로 / IT로 다시” 등 **도구를 지정하면 그 지시를 우선**한다.
-* **원칙:** 공장(`agent_custom` CLI·approve 게이트·assemble)이 **SSOT·본선**.  
-  그록 툴은 **가속·프리뷰·국소 수술**이다. 게이트를 우회하지 않는다.
-* **그록 쪽을 에이전트가 고르기 좋은 경우**
-  * 컨셉/무드보드 → `image_gen`
-  * 키프레임 **국소 수정**(물방울·소품 등, 구도·정체성 OK) → `image_edit` 후 `keyframes/S0x.png` 교체 → **draft 재승인**
-  * 무대사 모션 **의도 프리뷰** → `image_to_video` / `reference_to_video` → 확정 후 `episode_i2v` 본선
-* **공장 쪽을 에이전트가 고르기 좋은 경우 (그록으로 대체 금지에 가까움)**
-  * 캐릭/룩/로케 pack, `shot_compose` 본선 키프레임 배치  
-  * TTS + **SI2V 립** (`episode_s2v` / InfiniteTalk)  
-  * BGM, assemble, 1080 upscale, `export_episode_to_workspace`
-* **금지**
-  * 그록 영상으로 립 컷 대체  
-  * 그록 프리뷰를 `clip_status=approved` 또는 assemble 입력  
-  * 전 샷 픽셀 블러 “물방울 제거” 후 본선 확정 (실사 붕괴)
-* **핸드오프:** 그록 산출물은 디스크 경로로 공장에 넣고, 메타/process에 툴 출처 한 줄.  
+### Rule 7.3 이미지 컷 · 키프레임 · 클립 **육안 검증** (내용 SSOT · **기계 게이트**)
+* **문제**: `approved` 플래그만 일괄 세팅하고 이미지를 열지 않으면, 구도 복붙·사지 붕괴·차량 파손·**후반 프리즈 패드**·**컷 간 인물 붕괴**가 본편에 그대로 들어간다.
+* **SSOT**: [docs/image_cut_verification_gate.md](docs/image_cut_verification_gate.md) §8 기계 계약
+* **의무**
+  1. `shot_qa_pack` → **파일을 연 뒤** 체크리스트(K*/C*) Pass/Fail  
+  2. `shot_qa_record` 로 `meta/visual_qa/<shot>_<stage>.json` 기록 (verdict=pass + notes + 필수 체크)  
+  3. 그 다음에만 `shot_approve` — **QA 없으면 exit 23** (파일 존재만으로 approve 불가)  
+  4. Fail → 재생성/수정 → **재검증** 후에만 approve  
+  5. `QA_LOG.md` 자동 append — 로그 없는 mass approve **금지**  
+  6. 3+ 키프레임: `episode_identity_sheet` + identity QA pass (컷 간 동일 인물)  
+  7. 보드: 동일 `shot_type` **3컷 연속 금지** · **프리즈 패드 금지**  
+  8. **Freeze**: 생성 후 기본 감지 fail (`FREEZE_PAD_SUSPECT`); tpad로 길이 채우기 금지. 의도 still만 `--allow-freeze` / `motion_driver=still`
+* **CLI**
+  ```bash
+  python scripts/shot_qa_pack.py -e EP -s S03
+  python scripts/shot_qa_record.py -e EP -s S03 --stage keyframe --verdict pass \
+    --pass-required --notes "opened pack; anatomy OK; matches master"
+  python scripts/shot_approve.py -e EP -s S03 --status approved
+  python scripts/episode_identity_sheet.py -e EP
+  python scripts/episode_qa.py -e EP --require-visual-qa
+  # clip: freeze check is default on
+  python scripts/shot_qa_record.py -e EP -s S03 --stage clip --verdict pass \
+    --pass-required --notes "full motion end-to-end"
+  ```
+* **우회**: `--force-approve` / `AGENT_REQUIRE_VISUAL_QA=0` / `AGENT_FREEZE_GATE=0` 는 디버그 전용 (감사 시 위반).
+* **키프레임 최소 탈락 사유 (즉시 rejected)**  
+  사지·손발 기형 · 지정 insert가 전신/얼굴로 대체 · 차량·유리·거울 구조 붕괴 · 필수 모티프 누락 · 직전 컷과 동일 구도 남발
+* **클립 최소 탈락 사유**  
+  후반 정지 구간 · 워프/모핑 · 아이덴티티 붕괴 · music_locked 인데 클립 오디오 정책 위반
+* Grok 네이티브 산출물도 공장 경로에 넣기 **전** 동일 게이트. 프리뷰 경로(`_preview_grok/`)는 approve·assemble 입력 금지 (Rule 8).
+
+### Rule 7.4 실패 노트 공유 (learn from failure · hard 습관)
+* **문제**: 에이전트가 같은 실패(프리즈 패드, face CU 남발, 발/차량 붕괴, mass approve)를 **에피소드마다 리셋**한다.
+* **저장소**: `failures/notes/*.json` · `failures/INDEX.md` · SSOT 문서 [docs/failure_notes_system.md](docs/failure_notes_system.md)
+* **CLI**
+  ```bash
+  # 생성·보드 전 (관련 키워드/태그)
+  python scripts/failure_note.py search "freeze OR feet OR car"
+  python scripts/failure_note.py search --tag freeze_pad
+  python scripts/failure_note.py list --limit 15
+
+  # QA FAIL / 유저 리젝 직후 (같은 세션)
+  python scripts/failure_note.py add --stage keyframe --tags anatomy_feet,insert_failed \
+    --symptom "..." --cause "..." --fix "..." --prevention "..." \
+    --severity high --agent grok -e EP -s S03
+  ```
+* **의무**
+  1. **본선 생성 전** `search` 또는 INDEX 확인 (영상·캐릭 시트·로케 본선)  
+  2. **FAIL/리젝** 시 `add` — symptom · root_cause · fix · **prevention** 필수  
+  3. 침묵하고 넘어가기 금지 (severity medium 이상)  
+* **QA_LOG 와의 구분**: QA_LOG=작품 컷 판정 / failures=전 에이전트 교훈. FAIL은 가능하면 둘 다.
+* 태그 권장 목록: `failures/tags.json`.
+
+### Rule 7.5 생성 프롬프트 품질 (T2I / I2I / I2V / SI2V · hard 습관)
+* **문제**: 기획·샷 설계가 좋아도 **프롬프트가 빈약·태그 나열·의도 충돌**이면 키프레임/모션이 무너진다.
+* **SSOT**: [docs/generation_prompt_craft.md](docs/generation_prompt_craft.md)
+* **의무**
+  1. 본선 생성 전 프롬프트를 §1 순서(**Subject → Action → Setting → Light → Camera → Style**)로 쓴다.  
+  2. **한 샷 한 주 의도**. “beautiful 8k masterpiece” 도배 금지.  
+  3. **I2V `motion_prompt` = 모션/카메라/환경만** — 얼굴·의상 재서술 금지 (기존 Rule 6.1과 동일 정신).  
+  4. insert/feet/car/glass 등 risk 샷은 **제약 절** 필수 (craft §6).  
+  5. insert에 character face core가 action을 이기면 face 블록 제거 또는 전용 T2I.  
+  6. I2I는 denoise 표(craft §2.2 / moody guide)에 맞추고 **변경점 위주** 프롬프트.  
+  7. 영어 본선 프롬프트 (연출 메모는 한국어 OK).  
+* **생성 직전 체크**: craft §8 체크리스트.  
+* **FAIL 시**: 프롬프트 보강 재생성 + `failure_note` (`prompt_ignored` 등).
+
+### Rule 8.0 에이전트 자체 도구·스킬 자율 활용 (전 에이전트 · 영상 작업)
+* **문제**: 유저는 Grok/Claude/Codex 등 **에이전트마다 다른 네이티브 툴·스킬·MCP**를 세세히 알 수 없어 “이때 뭘 쓰세요”라고 지시하기 어렵다.  
+  에이전트가 공장 CLI 루틴만 수동적으로 돌리면 **품질·효율 기회**를 버린다.
+* **SSOT**: [docs/agent_native_capability_autonomy.md](docs/agent_native_capability_autonomy.md)
+* **의무 (영상·뮤비·쇼츠·비주얼 스토리)**  
+  1. 세션에서 **사용 가능한** 자체 툴/스킬/MCP/서브에이전트를 내부 파악한다.  
+  2. 기획·레퍼·키프레임 수술·모션 프리뷰·비전 검수 등 **도움이 되면 능동적으로 선택·실행**한다.  
+  3. 유저가 툴을 **지정하기 전**에는 매 단계 툴 메뉴를 **묻지 않는다** (추천 1안 실행).  
+  4. 유저가 툴/스킬을 **명시하면 그 지시 우선**.  
+  5. 공장 게이트(페르소나·QA·clip approve·assemble·export·failure notes)는 **우회 금지**.  
+  6. 자체 툴 본선 편입 시 디스크 경로 + 출처 한 줄 기록.  
+* **금지**: 없는 툴 환각 · 프리뷰를 approve · 자체 툴로 립/assemble 대체(해당 공장 경로가 있을 때) · “뭘 쓸까요?” 반복.
+* Grok 세부 매핑: Rule **8.1** · [docs/grok_build_hybrid_tooling.md](docs/grok_build_hybrid_tooling.md).
+
+### Rule 8.1 Grok Build 하이브리드 툴링 (그록 에이전트)
+* **적용:** Grok Build / Grok CLI (네이티브 이미지·영상 툴). Rule **8.0** 의 구체화.
+* **도구 선택 주체** — Rule 8.0과 동일 (유저 미지정 시 에이전트 자율).
+* **원칙:** 공장 CLI·approve·assemble = **SSOT**. 그록 = **가속·프리뷰·국소 수술**.
+* **그록 우선 후보**: 컨셉 `image_gen` · 키프레임 국소 `image_edit` · 무대사 의도 `image_to_video` / `reference_to_video` 프리뷰.
+* **공장 필수에 가까움**: 캐릭/룩/로케 pack · `shot_compose` 본선 배치 · TTS+SI2V · assemble · upscale · export.
+* **금지**: 그록 영상으로 립 대체 · 프리뷰를 `clip_status=approved`/assemble · 전 샷 블러 “수정”.
+* **핸드오프:** 경로로 `stories/<ep>/` 편입 · 메타에 `source=grok_*`.
   상세: [docs/grok_build_hybrid_tooling.md](docs/grok_build_hybrid_tooling.md).
 
 ### Rule 10. 외부 워크스페이스로의 작업물 내보내기(Export) 의무

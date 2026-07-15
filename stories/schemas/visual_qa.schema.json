@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent_custom/visual_qa.schema.json",
+  "title": "Agent Visual QA Report v1",
+  "description": "Structured visual QA for shot_approve hard gate (Rule 7.3)",
+  "type": "object",
+  "required": [
+    "schema",
+    "episode_id",
+    "stage",
+    "verdict",
+    "checks",
+    "checked_at"
+  ],
+  "properties": {
+    "schema": { "const": "agent_visual_qa_v1" },
+    "episode_id": { "type": "string" },
+    "shot_id": { "type": ["string", "null"] },
+    "stage": { "enum": ["keyframe", "clip", "identity"] },
+    "verdict": { "enum": ["pass", "fail", "pending"] },
+    "method": {
+      "enum": ["vision_open", "human", "heuristic", "hybrid", "skipped"]
+    },
+    "agent": { "type": "string" },
+    "notes": { "type": "string" },
+    "checks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["pass"],
+        "properties": {
+          "pass": { "type": "boolean" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "artifact": { "type": ["string", "null"] },
+    "artifact_sha256": { "type": ["string", "null"] },
+    "evidence_paths": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "required_checks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "shot_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "checked_at": { "type": "string" },
+    "extra": { "type": "object" }
+  }
+}

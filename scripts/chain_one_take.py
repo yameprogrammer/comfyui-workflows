@@ -70,6 +70,16 @@ def main(argv=None) -> int:
         action="store_true",
         help="If first shot work clip exists, do not regenerate it",
     )
+    p.add_argument(
+        "--allow-freeze",
+        action="store_true",
+        help="Allow static/freeze-tailed work clips (intentional still only)",
+    )
+    p.add_argument(
+        "--no-freeze-gate",
+        action="store_true",
+        help="Skip post-gen freeze detection (debug)",
+    )
     from lib.workspace_export import add_export_workspace_args
 
     add_export_workspace_args(p)
@@ -336,6 +346,35 @@ def main(argv=None) -> int:
                 i2v_status="ok",
                 clip_status="pending",
             )
+
+        # Post-gen freeze gate (default ON)
+        if (
+            not args.no_freeze_gate
+            and not args.dry_run
+            and clip_path
+            and os.path.isfile(clip_path)
+        ):
+            from lib.visual_qa import gate_work_clip_no_freeze, shot_allows_still_freeze
+
+            allow_still = args.allow_freeze or shot_allows_still_freeze(shot, story.doc)
+            sample = story.path("boards", "qa", f"{sid}_clip_frames")
+            gate = gate_work_clip_no_freeze(
+                clip_path, sample_dir=sample, allow_still=allow_still
+            )
+            if not gate.get("ok") and gate.get("error") == "FREEZE_PAD_SUSPECT":
+                story.update_shot(
+                    sid,
+                    clip_status="rejected",
+                    freeze_suspect=True,
+                    freeze_kind=gate.get("kind"),
+                    i2v_status="failed_freeze",
+                )
+                print(
+                    f"[ERROR] FREEZE_PAD_SUSPECT {sid} kind={gate.get('kind')}: "
+                    f"{gate.get('message')}",
+                    file=sys.stderr,
+                )
+                return EXIT_FAIL
 
         cdur = probe_duration(clip_path) if os.path.isfile(clip_path) else None
         print(f"  OK {sid} → {clip_path} dur={cdur}")

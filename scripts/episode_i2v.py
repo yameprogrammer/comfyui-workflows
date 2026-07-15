@@ -92,6 +92,16 @@ def main(argv=None) -> int:
         action="store_true",
         help="Abort on first failed shot (default: continue)",
     )
+    parser.add_argument(
+        "--allow-freeze",
+        action="store_true",
+        help="Do not fail shots that look static/freeze-tailed (intentional still only)",
+    )
+    parser.add_argument(
+        "--no-freeze-gate",
+        action="store_true",
+        help="Skip post-I2V freeze detection (debug; same as AGENT_FREEZE_GATE=0)",
+    )
     from lib.workspace_export import add_export_workspace_args
 
     add_export_workspace_args(parser)
@@ -201,22 +211,81 @@ def main(argv=None) -> int:
         )
 
         if result.get("ok"):
-            ok += 1
-            story.update_shot(
-                sid,
-                clip_work=clip_rel.replace("\\", "/"),
-                i2v_status="ok",
-                i2v_at=utc_now_iso(),
-                i2v_backend=backend,
-                i2v_frames=frames,
-                # Human/vision gate — assemble requires clip_status=approved
-                clip_status="pending",
-            )
-            print(f"  OK {clip_path}")
-            print(
-                f"  clip_status=pending → review clip then: "
-                f"python scripts/shot_approve.py -e {args.episode} -s {sid} --clip approved"
-            )
+            # Post-gen freeze gate (default ON) — ban tpad/dead-tail work clips
+            freeze_fail = False
+            if not args.no_freeze_gate and os.path.isfile(clip_path):
+                from lib.visual_qa import (
+                    gate_work_clip_no_freeze,
+                    shot_allows_still_freeze,
+                )
+
+                allow_still = args.allow_freeze or shot_allows_still_freeze(
+                    shot, story.doc
+                )
+                sample = story.path("boards", "qa", f"{sid}_clip_frames")
+                gate = gate_work_clip_no_freeze(
+                    clip_path,
+                    sample_dir=sample,
+                    allow_still=allow_still,
+                )
+                if not gate.get("ok") and gate.get("error") == "FREEZE_PAD_SUSPECT":
+                    freeze_fail = True
+                    fail += 1
+                    story.update_shot(
+                        sid,
+                        clip_work=clip_rel.replace("\\", "/"),
+                        i2v_status="failed_freeze",
+                        i2v_error="FREEZE_PAD_SUSPECT",
+                        i2v_at=utc_now_iso(),
+                        i2v_backend=backend,
+                        i2v_frames=frames,
+                        clip_status="rejected",
+                        freeze_suspect=True,
+                        freeze_kind=gate.get("kind"),
+                    )
+                    print(f"  FAIL FREEZE_PAD_SUSPECT kind={gate.get('kind')}")
+                    print(f"  {gate.get('message')}")
+                    print(
+                        "  fix: match duration_sec to full I2V length / split shot; "
+                        "never tpad clone. intentional still: --allow-freeze"
+                    )
+                    if args.stop_on_error:
+                        break
+                    continue
+                if gate.get("report"):
+                    try:
+                        write_meta(
+                            story.path("meta", f"{sid}_freeze_gate.json"),
+                            {
+                                "shot_id": sid,
+                                "stage": "i2v_post",
+                                **{k: v for k, v in gate.items() if k != "report"},
+                                "report": gate.get("report"),
+                            },
+                        )
+                    except Exception:
+                        pass
+
+            if not freeze_fail:
+                ok += 1
+                story.update_shot(
+                    sid,
+                    clip_work=clip_rel.replace("\\", "/"),
+                    i2v_status="ok",
+                    i2v_at=utc_now_iso(),
+                    i2v_backend=backend,
+                    i2v_frames=frames,
+                    freeze_suspect=False,
+                    # Human/vision gate — assemble requires clip_status=approved
+                    clip_status="pending",
+                )
+                print(f"  OK {clip_path}")
+                print(
+                    f"  clip_status=pending → review clip then: "
+                    f"python scripts/shot_qa_record.py -e {args.episode} -s {sid} "
+                    f"--stage clip --verdict pass --pass-required --notes \"...\" "
+                    f"&& python scripts/shot_approve.py -e {args.episode} -s {sid} --clip approved"
+                )
         else:
             fail += 1
             story.update_shot(

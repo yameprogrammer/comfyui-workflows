@@ -89,18 +89,43 @@ def _normalize_clip(
     ensure_audio: bool,
     min_duration: float | None,
     outro_hold: float,
+    allow_freeze_pad: bool = False,
 ) -> dict:
-    """Scale to canvas, force fps, pad AV so audio is never cut short, optional freeze hold."""
+    """Scale to canvas, force fps. Length-fill via tpad clone is BANNED by default.
+
+    Rule 7.3: do not freeze-pad work clips to match audio — regen longer motion.
+    Optional outro_hold (editorial breath) is allowed as explicit short freeze only.
+    min_duration > video requires --allow-freeze-pad (debug/emergency).
+    """
     has_a = probe_has_audio(src)
     vd = probe_duration(src) or 0.0
-    # If min_duration (e.g. TTS length) > video, freeze-pad video and silence-pad audio
+
+    # Audio longer than video → must not silently tpad (freeze pad ban)
+    audio_gap = 0.0
+    if min_duration and min_duration > vd + 0.05:
+        audio_gap = float(min_duration) - vd
+        if not allow_freeze_pad:
+            return {
+                "ok": False,
+                "error": "FREEZE_PAD_BANNED",
+                "message": (
+                    f"video {vd:.2f}s < min_duration/audio {min_duration:.2f}s "
+                    f"(gap {audio_gap:.2f}s). Refusing tpad=clone freeze pad. "
+                    "Regen longer SI2V/I2V or split dialogue. "
+                    "Emergency only: --allow-freeze-pad"
+                ),
+                "video_sec": vd,
+                "min_duration": min_duration,
+            }
+
     target = vd
-    if min_duration and min_duration > target + 0.05:
+    if allow_freeze_pad and min_duration and min_duration > target + 0.05:
         target = min_duration
+    # Intentional editorial outro hold (last shot breath) — not duration faking mid-cut
     if outro_hold > 0:
         target = target + outro_hold
 
-    # video: scale+pad to exact size, tpad freeze to target if needed
+    # video: scale+pad to exact size; tpad only for allowed outro / emergency pad
     v_filters = [
         f"scale={width}:{height}:force_original_aspect_ratio=decrease",
         f"pad={width}:{height}:(ow-iw)/2:(oh-ih)/2:color=black",
@@ -110,6 +135,7 @@ def _normalize_clip(
     ]
     pad_v = max(0.0, target - vd)
     if pad_v > 0.05:
+        # Only outro_hold (and emergency allow_freeze_pad) should reach here for length
         v_filters.append(f"tpad=stop_mode=clone:stop_duration={pad_v:.3f}")
 
     vf = ",".join(v_filters)
@@ -301,6 +327,14 @@ def main(argv=None) -> int:
         default=0.12,
         help="Tiny freeze at end of non-final dialogue clips before xfade (reduces pop)",
     )
+    p.add_argument(
+        "--allow-freeze-pad",
+        action="store_true",
+        help=(
+            "Emergency: allow tpad=clone when video shorter than TTS/audio. "
+            "Default refuses (regen longer clip instead — Rule 7.3)"
+        ),
+    )
     p.add_argument("--fps", type=float, default=24.0)
     p.add_argument(
         "--output",
@@ -387,9 +421,13 @@ def main(argv=None) -> int:
             ensure_audio=True,
             min_duration=min_dur,
             outro_hold=outro,
+            allow_freeze_pad=bool(args.allow_freeze_pad),
         )
         if not r.get("ok"):
-            print(f"[ERROR] normalize {sid}: {r.get('error')} {r.get('message')}", file=sys.stderr)
+            print(
+                f"[ERROR] normalize {sid}: {r.get('error')} {r.get('message')}",
+                file=sys.stderr,
+            )
             return EXIT_FFMPEG
         print(f"  OK dur={r.get('duration')}")
         norm_paths.append(dest)

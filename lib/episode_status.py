@@ -254,9 +254,27 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         driver=driver,
     )
 
+    # Visual QA (Rule 7.3) — structured JSON, not flag-only approve
+    try:
+        from lib.visual_qa import shot_qa_status
+
+        vqa = shot_qa_status(story, shot)
+    except Exception:
+        vqa = {
+            "keyframe_qa": None,
+            "keyframe_qa_ok": False,
+            "keyframe_qa_stale": False,
+            "clip_qa": None,
+            "clip_qa_ok": False,
+            "clip_qa_stale": False,
+            "qa_pack_exists": False,
+        }
+
     blockers: list[str] = []
     if not kf_ok:
         blockers.append("keyframe_file")
+    if kf_ok and kf_status != "approved" and not vqa.get("keyframe_qa_ok"):
+        blockers.append("keyframe_visual_qa")
     if kf_status != "approved":
         blockers.append(f"keyframe_status={kf_status}")
     if driver == "si2v" and not driving_ok:
@@ -265,6 +283,8 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         blockers.append("work_clip")
     if work_ok and not clip_ok:
         blockers.append(f"clip_status={clip_status or 'pending'}")
+    if work_ok and not clip_ok and not vqa.get("clip_qa_ok"):
+        blockers.append("clip_visual_qa")
     if driver == "si2v" and work_ok and not lip_ok:
         blockers.append(f"lip_status={lip_status or 'pending'}")
     for fl in lh.get("flags") or []:
@@ -273,6 +293,8 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
     next_action = "done"
     if not kf_ok:
         next_action = "shot_compose"
+    elif kf_status != "approved" and not vqa.get("keyframe_qa_ok"):
+        next_action = "shot_qa_record"  # pack → open → record → approve
     elif kf_status != "approved":
         next_action = "shot_approve"
     elif driver == "si2v" and not driving_ok:
@@ -283,6 +305,8 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         next_action = "fix_driving_length"
     elif "SHORT" in (lh.get("flags") or []):
         next_action = "regen_s2v_longer"
+    elif work_ok and not clip_ok and not vqa.get("clip_qa_ok"):
+        next_action = "shot_qa_record_clip"
     elif work_ok and not clip_ok:
         next_action = "shot_approve_clip"
     elif driver == "si2v" and work_ok and not lip_ok:
@@ -307,6 +331,11 @@ def shot_status(story: StoryPackage, shot: dict) -> dict[str, Any]:
         "clip_visual_ok": clip_ok,
         "lip_status": lip_status,
         "lip_visual_ok": lip_ok,
+        "keyframe_qa": vqa.get("keyframe_qa"),
+        "keyframe_qa_ok": bool(vqa.get("keyframe_qa_ok")),
+        "clip_qa": vqa.get("clip_qa"),
+        "clip_qa_ok": bool(vqa.get("clip_qa_ok")),
+        "qa_pack_exists": bool(vqa.get("qa_pack_exists")),
         "character_ids": shot.get("character_ids") or [],
         "location_id": shot.get("location_id"),
         "motion_prompt": bool((shot.get("motion_prompt") or "").strip()),
@@ -383,6 +412,35 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
     n_drive_mismatch = sum(
         1 for s in per if "DRIVE_MISMATCH" in (s.get("length_flags") or [])
     )
+    n_need_kf_qa = sum(
+        1
+        for s in per
+        if s.get("keyframe_file")
+        and s.get("keyframe_status") != "approved"
+        and not s.get("keyframe_qa_ok")
+    )
+    n_need_clip_qa = sum(
+        1
+        for s in per
+        if s.get("work_clip")
+        and not s.get("clip_visual_ok")
+        and not s.get("clip_qa_ok")
+    )
+    n_kf_qa_ok = sum(1 for s in per if s.get("keyframe_qa_ok"))
+    n_clip_qa_ok = sum(1 for s in per if s.get("clip_qa_ok"))
+
+    identity_qa = None
+    identity_qa_ok = False
+    try:
+        from lib.visual_qa import load_identity_qa, identity_sheet_path
+
+        identity_qa = load_identity_qa(story)
+        identity_qa_ok = bool(
+            identity_qa and str(identity_qa.get("verdict") or "").lower() == "pass"
+        )
+        identity_sheet_ok = os.path.isfile(identity_sheet_path(story))
+    except Exception:
+        identity_sheet_ok = False
 
     final_path = story.path("exports", "final", f"{episode_id}_final.mp4")
     # also accept smoke naming
@@ -408,8 +466,13 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
         overall = "add_shots"
     elif n_kf < n:
         overall = "shot_compose"
+    elif n_need_kf_qa > 0:
+        overall = "shot_qa_record"
     elif n_approved < n:
         overall = "shot_approve"
+    elif n_kf >= 3 and not identity_qa_ok and n_approved >= min(3, n_kf):
+        # Cross-shot cast check after a few keyframes approved
+        overall = "episode_identity_sheet"
     elif n_need_driving > 0:
         overall = "audio_bind_driving"
     elif n_need_s2v > 0:
@@ -422,6 +485,8 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
         overall = "fix_driving_length"
     elif n_short > 0:
         overall = "regen_s2v_longer"
+    elif n_need_clip_qa > 0:
+        overall = "shot_qa_record_clip"
     elif n_need_clip > 0:
         overall = "shot_approve_clip"
     elif n_need_lip > 0:
@@ -471,10 +536,16 @@ def episode_status_report(episode_id: str) -> dict[str, Any]:
             "need_clip_approve": n_need_clip,
             "clip_approved": n_clip_approved,
             "need_lip_approve": n_need_lip,
+            "need_keyframe_qa": n_need_kf_qa,
+            "need_clip_qa": n_need_clip_qa,
+            "keyframe_qa_ok": n_kf_qa_ok,
+            "clip_qa_ok": n_clip_qa_ok,
             "length_warn": n_length_warn,
             "length_short": n_short,
             "drive_mismatch": n_drive_mismatch,
         },
+        "identity_qa_ok": identity_qa_ok,
+        "identity_sheet_ok": identity_sheet_ok,
         "final_export": final_ok,
         "final_path": final_path if final_ok else None,
         "last_delivery": last_delivery,
@@ -509,26 +580,27 @@ def format_status_text(report: dict[str, Any]) -> str:
         f"len_warn={report['counts'].get('length_warn', 0)} "
         f"(short={report['counts'].get('length_short', 0)} "
         f"drive={report['counts'].get('drive_mismatch', 0)})",
+        f"visual_qa kf_ok={report['counts'].get('keyframe_qa_ok', 0)} "
+        f"need_kf_qa={report['counts'].get('need_keyframe_qa', 0)} "
+        f"clip_qa_ok={report['counts'].get('clip_qa_ok', 0)} "
+        f"need_clip_qa={report['counts'].get('need_clip_qa', 0)} "
+        f"identity={'yes' if report.get('identity_qa_ok') else 'no'}",
         f"final_export={'yes' if report['final_export'] else 'no'}  "
         f"last_delivery={report.get('last_delivery') or 'none'}",
         f"overall_next={report['overall_next']}",
         "",
-        f"{'SHOT':<6} {'DRV':<6} {'TTS':>6} {'DRIVE':>6} {'CLIP':>6} {'FLAGS':<16} {'WORK':<5} NEXT",
+        f"{'SHOT':<6} {'DRV':<6} {'KFQA':<5} {'CQA':<5} {'FLAGS':<14} {'WORK':<5} NEXT",
     ]
     for s in report["shots"]:
-        def _f(v):
-            if isinstance(v, (int, float)):
-                return f"{v:6.2f}"
-            return f"{'—':>6}"
-
         flags = ",".join(s.get("length_flags") or []) or "-"
+        kfqa = "P" if s.get("keyframe_qa_ok") else (str(s.get("keyframe_qa") or "-")[:4])
+        cqa = "P" if s.get("clip_qa_ok") else (str(s.get("clip_qa") or "-")[:4])
         lines.append(
             f"{str(s['shot_id']):<6} "
             f"{str(s.get('motion_driver') or '?'):<6} "
-            f"{_f(s.get('tts_sec'))} "
-            f"{_f(s.get('drive_sec'))} "
-            f"{_f(s.get('clip_sec'))} "
-            f"{flags:<16} "
+            f"{kfqa:<5} "
+            f"{cqa:<5} "
+            f"{flags:<14} "
             f"{'Y' if s['work_clip'] else 'N':<5} "
             f"{s['next_action']}"
         )

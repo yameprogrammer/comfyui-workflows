@@ -1,0 +1,22 @@
+{
+  "id": "FN-20260715-004",
+  "created_at": "2026-07-15T14:49:16+00:00",
+  "agent": "grok",
+  "episode_id": "sonagi_mv_v1",
+  "shot_id": null,
+  "stage": "storyboard",
+  "tags": [
+    "same_framing",
+    "face_cu_spam",
+    "shot_grammar",
+    "planning_weak"
+  ],
+  "symptom": "S05 S06 S08 S09 S13 S15-S18 nearly identical face/upper framings; user rejected entire cut design.",
+  "root_cause": "No shot size rhythm; shot_compose portrait bias; Creative pack without SHOT_DESIGN grammar; persona too thin.",
+  "fix": "video_director_master_persona with R1-R6; SHOT_DESIGN required; size ladder.",
+  "prevention": "Load master persona; write size rhythm line; forbid triple same shot_type; search tag same_framing before board.",
+  "related_paths": [],
+  "severity": "critical",
+  "user_visible": true,
+  "refs": []
+}

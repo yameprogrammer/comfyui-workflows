@@ -2,7 +2,7 @@
 
 - **목적**: 영상 도구를 **에이전트 신뢰 수준**으로 닫기 위한 고정 검증  
 - **에피소드 예**: `sonagi_cafe_smoke_v1` (로컬; stories/ 는 gitignore일 수 있음)  
-- **관련**: [agent_video_tooling_reliability.md](agent_video_tooling_reliability.md)
+- **관련**: [agent_video_tooling_reliability.md](agent_video_tooling_reliability.md) · **육안 체크리스트 SSOT**: [image_cut_verification_gate.md](image_cut_verification_gate.md) (Rule 7.3)
 
 ---
 
@@ -31,8 +31,8 @@ python scripts/export_episode_to_workspace.py -e EP --dest "PATH/TO/YOUR/PROJECT
 
 | 게이트 | 의미 |
 |--------|------|
-| `keyframe_status=approved` | 키프레임 육안 OK → I2V/SI2V 허용 |
-| `clip_status=approved` | **워크 클립 육안 OK** (얼굴·모션·립 포함). **assemble 하드 게이트** |
+| `keyframe_status=approved` | 키프레임 **파일을 연 뒤** K* 체크리스트 OK → I2V/SI2V 허용 ([image_cut_verification_gate.md](image_cut_verification_gate.md)) |
+| `clip_status=approved` | **워크 클립 육안 OK** (C* · **프리즈 패드 금지**). **assemble 하드 게이트** |
 | `lip_status=approved` | SI2V 립 하위 신호 ( `--clip approved` 시 동기화 가능 ). 납품 경고/`--require-lip` |
 | `episode_qa --strict` | 기계 게이트 (파일·spill·무음 등) |
 | `episode_qa --require-clip` | 미승인 `clip_status` hard fail |

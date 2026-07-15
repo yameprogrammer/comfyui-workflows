@@ -1,3 +1,111 @@
+## 2026-07-16 — generation-prompt skill v1.0 (image + video)
+- New skills/generation-prompt: SHOT→still/I2I/I2V/SI2V prompts, gates, lexicon, banned fluff
+- Research: structured image layers, Runway I2V motion-first, Kling camera language, visual-skills ban filler
+- Ties docs/generation_prompt_craft.md Rule 7.5; equip after video-direction before generate
+- skills/README dual-skill contract; AGENTS load order; skill_equip install both
+## 2026-07-16 — Sound → picture (video-direction v1.11)
+- Research: phrase cuts, silence, MV section events, factory mode×driver×mix + SI2V/performance
+- New: `references/sound_to_picture.md` + research; craft map layer 10; SHOT audio_role/performance
+- skill_equip reinstall recommended
+## 2026-07-16 — VFX / on-image graphics policy (video-direction v1.10)
+- Research: effect restraint, post captions vs AI type, particle/glass risks, subtitles+Ideogram handoff
+- New: `references/vfx_graphics_on_image.md` + research; craft map layer 9; CREATIVE vfx/subtitle policy
+- skill_equip reinstall recommended
+## 2026-07-16 — Visual pacing / time rhythm (video-direction v1.9)
+- Research: shot-length emotion, peak-end, short-form hook, MV section density, freeze-pad ban
+- New: `references/visual_pacing.md` + research; craft map layer 8; Gate 2–3 PACING header
+- skill_equip reinstall recommended
+## 2026-07-16 — Texture / material / optical feel (video-direction v1.8)
+- Research: surface response, grain/optical codes, DOF/bokeh feel, AI material nouns vs tag-soup
+- New: `references/texture_material_optical.md` + research; craft map layer 7; Theme materials_hero + optical_feel
+- skill_equip reinstall recommended
+## 2026-07-16 — Costume / hair / makeup (video-direction v1.7)
+- Research: mise-en-scène costume+MU character, HMU continuity (wet/match), video matte vs shimmer, silhouette vs set, factory wardrobe_lock
+- New: `references/costume_hair_makeup.md` + research; visual craft map 6 layers; CREATIVE 5c; SHOT chm column
+- skill_equip reinstall recommended
+## 2026-07-16 — Production design & motif staging (video-direction v1.6)
+- Research: mise-en-scène setting/props/costume, PD dress vs prop, MV motif design, density, location packs, graphics/weather
+- New: `references/production_design.md` + research; CREATIVE 5b world lock; SHOT world/prop column
+- Full visual stack complete: camera|composition|light|blocking|world
+- skill_equip reinstall recommended
+## 2026-07-16 — Blocking reference (video-direction v1.5)
+- Research: stance/status/proxemics, 180°/OTS, eyeline, prop anchors, gesture×size, SI2V micro, anatomy/scale QA
+- New: `skills/video-direction/references/blocking.md` + `blocking_research.md`
+- SKILL Gate 3 blocking field; SHOT_DESIGN template; full visual stack camera|comp|light|block
+- skill_equip reinstall recommended
+## 2026-07-16 — Lighting & look reference (video-direction v1.4)
+- Research: 3-point, motivated/practical, neg fill, high/low key, mixed temp, talking-head pro, grade/palette/skin, looks/ pack
+- New: `skills/video-direction/references/lighting_and_look.md` + research notes
+- SKILL Gate 3 lighting field + look_id; CREATIVE/SHOT_DESIGN templates; equip reinstall
+## 2026-07-16 — Composition reference (video-direction v1.3)
+- Research: StudioBinder composition, FA negative space/balance, thirds/lines/depth teaching, sym/asym power, vertical framing creators, AI prompt placement
+- New: `skills/video-direction/references/composition.md` + `composition_research.md`
+- SKILL Gate 3: composition + emotion_feel fields; camera↔composition link; templates updated
+- skill_equip reinstall recommended
+## 2026-07-16 — Camera direction reference (video-direction v1.2)
+- Research: StudioBinder/B&H/Boords shot language, Master Shots lens intent, continuity axis, 35/50/85 storytelling, vertical 9:16 practice, MV events, AI one-move limits
+- New: `skills/video-direction/references/camera_direction.md` + `camera_direction_research.md`
+- SKILL Gate 3: camera design order, coverage package A–E, focus/axis fields; shot_grammar links deep guide
+- skill_equip reinstall recommended
+## 2026-07-16 — Format coverage recipes R01–R12 (genre research)
+- Research: academic genre (narrative/doc/experimental, hybridization, Screenwriters Taxonomy super-genres) + short-form practitioner buckets
+- `skills/video-direction/references/genre_research.md` + rewritten `genre_recipes.md` L0/L1/L2
+- Minimal L1 = 12 recipes (talking, drama, MV, dance, hook, UGC, vlog, mood, comedy, thriller, edu, one-take)
+- Super-genres → L2 modules; Gate 0 recipe lock in SKILL v1.1 + CREATIVE/SHOT_DESIGN templates
+- skill_equip reinstall recommended after pull
+## 2026-07-16 — Factory skills + video-direction skill v1
+- New `skills/` SSOT + equip contract (agents without skill must install/load before video work)
+- `skills/video-direction/`: SKILL.md + RESEARCH + references (grammar, story craft, genre, anti-patterns, handoff) + templates
+- Research synthesis: hoodini director gates, ai-video-storyboard consistency, remotion-video-director brief, StudioBinder coverage, marketing video skill routing — composed with factory QA/freeze
+- `scripts/skill_equip.py` list|install|check|show → `.grok/skills` / `~/.claude/skills`
+- AGENTS.md §0 + Rule 7.0 skill equip mandatory
+## 2026-07-16 — Freeze pad ban + detect default ON (VQ-2)
+- Policy: work clips must not be length-filled with tpad/clone; detect freeze_tail/static by default
+- `lib/visual_qa.freeze_pad_heuristic` multi-point (p20–p92); `gate_work_clip_no_freeze`
+- Post-gen fail: `episode_i2v` / `episode_s2v` / `chain_one_take` → FREEZE_PAD_SUSPECT, clip_status=rejected
+- QA: `shot_qa_record --stage clip` freeze check default ON; approve re-checks; `episode_qa` hard issue
+- `assemble_single_take`: refuse tpad when video < TTS (`--allow-freeze-pad` emergency only); outro_hold still allowed on last shot
+- Env: `AGENT_FREEZE_GATE=0` · `AGENT_FREEZE_DIFF_THRESHOLD` · CLI `--allow-freeze` / `--no-freeze-gate`
+## 2026-07-16 — Visual QA hard gate (VQ-1 / VQ-1.5)
+- Problem: agents mass-approved on file existence; deformed anatomy & cast drift shipped
+- `lib/visual_qa.py` — QA JSON schema, required checks K2/K4/K5 · C1/C3/C4, sha freshness, freeze heuristic
+- CLI: `shot_qa_pack.py` (ref|current|prev) · `shot_qa_record.py` · `episode_identity_sheet.py`
+- `shot_approve` requires visual QA pass for keyframe/clip approved (exit **23**); `--force-approve` debug only
+- `episode_status` next=shot_qa_record / episode_identity_sheet; `episode_qa --require-visual-qa`
+- Docs: image_cut_verification_gate §8 machine contract · tooling_todo VQ-1
+- Env: `AGENT_REQUIRE_VISUAL_QA=0` bypass
+## 2026-07-15 — Generation prompt craft (Rule 7.5)
+- docs/generation_prompt_craft.md: Subject→Action→Setting→Light→Camera; Moody/I2V/SI2V; risk clauses; anti tag-soup
+- Research: photoreal prompt order, motion-only I2V, denoise table align moody guide
+- Rule 7.5 · AGENTS load order 4 · master persona SYSTEM · moody guide link
+## 2026-07-15 — Agent-native capability autonomy (Rule 8.0)
+- docs/agent_native_capability_autonomy.md: all agents proactively use own tools/skills/MCP for video quality/speed
+- User cannot micromanage per-agent toolkits; no per-step "which tool?" menus
+- Rule 8.0 (common) + Rule 8.1 (Grok hybrid rename); AGENTS.md · master persona SYSTEM line
+## 2026-07-15 — Failure notes system (agent shared learning)
+- `failures/` notes JSON + INDEX + tags + schema
+- `lib/failure_notes.py` · `scripts/failure_note.py` (add|search|list|tags|reindex)
+- Rule 7.4 · AGENTS · image_cut gate · master persona before-gen search
+- Seeded sonagi_mv_v1 lessons: freeze_pad, anatomy_feet, car_geometry, same_framing, mass_approve
+## 2026-07-15 — Video Director Master Persona (cut grammar · hard inject)
+- 신규: `docs/video_director_master_persona.md` — SYSTEM 주입, size ladder, coverage R1–R6, MV 구간 직무, SHOT_DESIGN, 실패 카탈로그
+- 리서치 반영: shot list/storyboard 실무, coverage, 뮤비 chorus=event, visual complexity 변주
+- Rule 7.0 강화 · AGENTS.md §0 MANDATORY · creative_brief 역할 0 · creative persona는 하위 레이어로 정리
+- 목적: 기획 부실·face CU 남발·컷 문법 무시 방지; 도구 접근 시 페르소나 필수 주입
+## 2026-07-15 — Image cut visual QA gate (Rule 7.3)
+- 신규: `docs/image_cut_verification_gate.md` — 키프레임/클립 육안 체크리스트, 프리즈 패드 금지, mass approve 금지
+- Rule 7.3 + Rule 7.2 연동 · AGENTS.md · docs/README 2c · creative persona §8 · creative_brief 체크리스트
+- 배경: 플래그만 approved → 구도 복붙·기형·후반 정지가 본편 유입
+## 2026-07-15 — Video Creative Director persona (감성 SSOT)
+- 신규: `docs/video_creative_director_persona.md` — MV/쇼츠 기획 시 Creative Pack 의무
+- Rule 7.0 (`agent_rules.md`) · `AGENTS.md` 상단 · `creative_brief_autonomy` 역할 0 · `docs/README` 2a
+- 문제: 공장 Brief 표만 채우면 무미건조·가사 직역 MV → 디렉터 페르소나를 문서 레일로 고정
+## 2026-07-15 — Comfy launch + generate_krea SSOT fix
+- `_launch_comfy_process`: Windows `start "ComfyUI-Agent" /D "…" cmd /c call "bat"` 인용 고정 (임의 래퍼 금지 문서화)
+- `generate_krea.py`: 로컬 convert/raw `/prompt` 제거 → `queue_prompt` + `wait_for_history` + `extract_first_image` (moody와 동일 ensure 경로)
+- `convert_ui_to_api`: `EmptyLatentImage` + `SaveImage` 위젯 지원
+- `wait_for_history` / `extract_first_image`: execution_error 시 fail-loud (빈 outputs를 성공으로 오인 금지)
+- agent_rules Rule 4: 기동·생성 SSOT 명시
 ## 2026-07-15 — V2V intent pipeline (camera/motion/style) P0
 - docs/v2v_intent_pipeline_design.md SSOT (separate from FLF + SI2V)
 - lib/v2v_contract.py · generate_v2v.py · episode_v2v.py

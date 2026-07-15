@@ -1,0 +1,23 @@
+{
+  "id": "FN-20260715-001",
+  "created_at": "2026-07-15T14:49:16+00:00",
+  "agent": "grok",
+  "episode_id": "sonagi_mv_v1",
+  "shot_id": null,
+  "stage": "clip",
+  "tags": [
+    "freeze_pad",
+    "duration_mismatch",
+    "qa_skipped"
+  ],
+  "symptom": "All cuts freeze for last 30-50 percent of duration (e.g. S01 freezes 5s-8s). Hard cuts feel stuck.",
+  "root_cause": "I2V generated ~5s then tpad clone extended to target duration without continuous motion. Mass clip approve without opening files.",
+  "fix": "Ban freeze pad in Rule 7.3; v2 duration=10s full frame I2V; document intentional still only on outro.",
+  "prevention": "Before assemble: probe that motion exists near end of each clip; never tpad=clone to fill duration; match duration_sec to generated length or split shots.",
+  "related_paths": [
+    "stories/sonagi_mv_v1/clips/work/S01.mp4"
+  ],
+  "severity": "critical",
+  "user_visible": true,
+  "refs": []
+}

@@ -1,0 +1,21 @@
+{
+  "id": "FN-20260715-006",
+  "created_at": "2026-07-15T15:11:42+00:00",
+  "agent": "grok",
+  "episode_id": "sonagi_mv_v1",
+  "shot_id": null,
+  "stage": "keyframe",
+  "tags": [
+    "prompt_ignored",
+    "face_cu_spam",
+    "insert_failed"
+  ],
+  "symptom": "Weak or conflicted prompts: character face core overrode insert/action; tag-soup style lost shot size and constraints.",
+  "root_cause": "No factory prompt-craft SSOT; agents wrote short adjective lists; shot_compose stacked cores burying action.",
+  "fix": "Added docs/generation_prompt_craft.md + Rule 7.5 with ordered blocks, motion-only I2V, risk clauses, insert face-core omit.",
+  "prevention": "Before every gen: Subject-Action-Light-Camera order; open generation_prompt_craft; insert risks without portrait core; failure_note on prompt FAIL.",
+  "related_paths": [],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

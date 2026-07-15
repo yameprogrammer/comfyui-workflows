@@ -273,10 +273,18 @@ class _LaunchLock:
 
 
 def _launch_comfy_process(bat_path: str) -> int:
-    """Spawn launcher in a separate console; return a best-effort launcher pid.
+    """Spawn the portable launcher bat in a **separate console**.
 
-    On Windows we use ``start`` so Comfy logs do not flood the agent terminal and
-    so the child is not tied to the calling process lifetime.
+    SSOT launch (Windows) — do **not** invent alternate wrappers (ProcessStartInfo,
+    env-injected call, minimized UseShellExecute, direct python main.py, etc.):
+
+        cmd.exe /c start "ComfyUI-Agent" /D "<bat_dir>" cmd.exe /c call "<bat>"
+
+    - Quoted window title is required so ``start`` never treats paths as the title.
+    - ``/D`` sets the portable root as cwd (bat expects to run from there).
+    - ``call "<bat>"`` runs the official launcher
+      (default: ``run_nvidia_gpu_fast_fp16_accumulation.bat``).
+    - ``start`` detaches from the agent shell so Comfy outlives the CLI.
     """
     bat_path = os.path.abspath(bat_path)
     if not os.path.isfile(bat_path):
@@ -286,20 +294,12 @@ def _launch_comfy_process(bat_path: str) -> int:
         )
     cwd = os.path.dirname(bat_path) or os.getcwd()
     if sys.platform == "win32":
-        # start "title" /D cwd cmd /c call bat  → new window, returns immediately
+        # One cmdline string so quoting of title / paths is unambiguous on Windows.
+        # Equivalent argv form without proper quotes is how agents accidentally
+        # spawn weird minimized / non-detached processes.
+        inner = f'start "ComfyUI-Agent" /D "{cwd}" cmd.exe /c call "{bat_path}"'
         proc = subprocess.Popen(
-            [
-                "cmd.exe",
-                "/c",
-                "start",
-                "ComfyUI-Agent",
-                "/D",
-                cwd,
-                "cmd.exe",
-                "/c",
-                "call",
-                bat_path,
-            ],
+            ["cmd.exe", "/c", inner],
             cwd=cwd,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
@@ -580,11 +580,14 @@ def convert_ui_to_api(ui_data: dict) -> dict:
                 inputs["sampler_name"] = widgets_values[4]
                 inputs["scheduler"] = widgets_values[5]
                 inputs["denoise"] = widgets_values[6]
-        elif class_type == "EmptySD3LatentImage":
+        elif class_type in ("EmptySD3LatentImage", "EmptyLatentImage"):
             if len(widgets_values) >= 3:
                 inputs["width"] = widgets_values[0]
                 inputs["height"] = widgets_values[1]
                 inputs["batch_size"] = widgets_values[2]
+        elif class_type == "SaveImage":
+            if len(widgets_values) >= 1:
+                inputs["filename_prefix"] = widgets_values[0]
         elif class_type == "Prompt (LoraManager)":
             if len(widgets_values) >= 2:
                 inputs["text"] = widgets_values[1]
@@ -787,6 +790,30 @@ def queue_prompt(server_address: str, api_prompt: dict) -> str:
         raise ConnectionError(f"ComfyUI unreachable at {server_address}: {e}") from e
 
 
+def history_execution_error(history_entry: dict) -> str | None:
+    """Return a short error string if history entry is a failed execution."""
+    status = history_entry.get("status") or {}
+    messages = status.get("messages") or []
+    for item in messages:
+        if not isinstance(item, (list, tuple)) or not item:
+            continue
+        if item[0] != "execution_error":
+            continue
+        payload = item[1] if len(item) > 1 and isinstance(item[1], dict) else {}
+        node = payload.get("node_type") or payload.get("node_id") or "?"
+        msg = (payload.get("exception_message") or "").strip() or payload.get(
+            "exception_type"
+        ) or "execution_error"
+        # Keep one line for agent logs
+        msg = " ".join(str(msg).split())
+        if len(msg) > 400:
+            msg = msg[:400] + "…"
+        return f"node={node}: {msg}"
+    if status.get("status_str") == "error":
+        return status.get("status_str") or "error"
+    return None
+
+
 def wait_for_history(
     server_address: str,
     prompt_id: str,
@@ -801,7 +828,15 @@ def wait_for_history(
             ) as response:
                 history = json.loads(response.read().decode("utf-8"))
                 if prompt_id in history:
-                    return history[prompt_id]
+                    entry = history[prompt_id]
+                    err = history_execution_error(entry)
+                    if err:
+                        raise RuntimeError(
+                            f"ComfyUI execution failed (prompt_id={prompt_id}): {err}"
+                        )
+                    return entry
+        except RuntimeError:
+            raise
         except Exception:
             pass
         time.sleep(poll_interval)
@@ -809,6 +844,9 @@ def wait_for_history(
 
 
 def extract_first_image(history_entry: dict) -> tuple[str, str, str]:
+    err = history_execution_error(history_entry)
+    if err:
+        raise FileNotFoundError(f"Output image missing (execution failed): {err}")
     outputs = history_entry.get("outputs", {})
     for _node_id, node_output in outputs.items():
         if "images" in node_output:

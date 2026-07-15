@@ -2,6 +2,9 @@
 
 이 문서는 **Z-Image-Turbo (Flow Matching)** 아키텍처 기반의 Moody 모델 3종(`RealMix`, `ProMix`, `WildMix`)을 연동하여, **신규 텍스트 이미지 생성(T2I)** 및 **일관성 유지 이미지 편집/상황 변환(I2I)**을 자동으로 실행하는 에이전트 스크립트 가이드입니다.
 
+**프롬프트 작성 품질 (필수):** [generation_prompt_craft.md](generation_prompt_craft.md) · Rule **7.5**  
+(Subject→Action→Setting→Light→Camera · insert/risk 제약 · 태그 수프 금지)
+
 ---
 
 ## 📁 파일 구조 및 위치

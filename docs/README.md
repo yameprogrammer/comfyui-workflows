@@ -20,12 +20,19 @@
 | 0 | [agent_consumer_workspace_contract.md](agent_consumer_workspace_contract.md) | 공장 vs 작업대 · export 의무 | ✅ 계약 |
 | 1 | [production_asset_pipeline.md](production_asset_pipeline.md) | 캐릭·로케·룩·스토리·I2V 통합 지도 | ✅ |
 | 2 | [agent_video_tooling_todo.md](agent_video_tooling_todo.md) | **근시일 구현 백로그** (길이·감정 모션·export) | 📋 TODO |
-| 2b | [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) | **기획 자율** — 키워드/음악만 있을 때 SOP·가드레일 (기능 비필수) | ✅ 문서 레일 |
+| **0★** | [../skills/video-direction/SKILL.md](../skills/video-direction/SKILL.md) | **연출 스킬 (이식)** — 게이트·레시피·공장 핸드오프 · `skill_equip.py` | ✅ **영상 필수** |
+| **1★** | [video_director_master_persona.md](video_director_master_persona.md) | **디렉터 마스터 페르소나** — 장문 컷 문법 SSOT (Rule 7.0) | ✅ **영상 필수** |
+| 2a | [video_creative_director_persona.md](video_creative_director_persona.md) | 감성 Creative Pack 레이어 (master 하위) | ✅ 감성 |
+| 2b | [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) | **기획 자율** — 키워드/음악만 있을 때 SOP·가드레일 | ✅ 문서 레일 |
+| 2c | [image_cut_verification_gate.md](image_cut_verification_gate.md) | **이미지 컷 육안 검증** — 키프레임·클립 + **기계 QA JSON 게이트** (Rule 7.3) | ✅ QA SSOT |
+| 2d | [failure_notes_system.md](failure_notes_system.md) | **실패 노트 공유** — `failures/` · 에이전트 간 교훈 (Rule 7.4) | ✅ 학습 |
+| 2e | [generation_prompt_craft.md](generation_prompt_craft.md) | **생성 프롬프트 크래프트** — Moody/I2V/SI2V 고품질 작성 (Rule 7.5) | ✅ 품질 |
 | 3 | [agent_av_smoke_checklist.md](agent_av_smoke_checklist.md) | AV 스모크·컷 승인 체크 | ✅ |
 | 4 | [audio_motion_production_modes.md](audio_motion_production_modes.md) | production_mode · SI2V · mix | ✅ 구현 진행 |
 | 5 | [video_delivery_and_backends.md](video_delivery_and_backends.md) | format / work·deliver / 백엔드 | ✅ |
 | 6 | [commission_workflow.md](commission_workflow.md) | 수주 → 납품 순서 | ✅ |
-| — | [grok_build_hybrid_tooling.md](grok_build_hybrid_tooling.md) | Grok 전용: 네이티브+공장 (Rule 8) | ✅ |
+| — | [agent_native_capability_autonomy.md](agent_native_capability_autonomy.md) | **전 에이전트** 자체 툴·스킬 능동 활용 (Rule 8.0) | ✅ |
+| — | [grok_build_hybrid_tooling.md](grok_build_hybrid_tooling.md) | Grok 전용: 네이티브+공장 (Rule 8.1) | ✅ |
 
 ---
 

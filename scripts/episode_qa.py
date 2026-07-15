@@ -74,11 +74,19 @@ def run_episode_qa(
     check_final: bool = True,
     require_lip: bool = False,
     require_clip: bool = False,
+    require_visual_qa: bool = False,
 ) -> dict:
     story = StoryPackage.load(episode_id)
     exp_w, exp_h = _expected_work_size(story)
     issues: list[dict] = []
     shots_out: list[dict] = []
+
+    try:
+        from lib.visual_qa import load_identity_qa, shot_qa_status, identity_sheet_path
+    except Exception:
+        load_identity_qa = None  # type: ignore
+        shot_qa_status = None  # type: ignore
+        identity_sheet_path = None  # type: ignore
 
     try:
         s2v_default = resolve_s2v_backend(None, episode_doc=story.doc)
@@ -93,6 +101,33 @@ def run_episode_qa(
             "driver": driver,
             "keyframe_status": shot.get("keyframe_status"),
         }
+        # Visual QA status (always soft-report; hard when --require-visual-qa)
+        if shot_qa_status is not None:
+            try:
+                vqa = shot_qa_status(story, shot)
+                entry["keyframe_qa"] = vqa.get("keyframe_qa")
+                entry["keyframe_qa_ok"] = vqa.get("keyframe_qa_ok")
+                entry["clip_qa"] = vqa.get("clip_qa")
+                entry["clip_qa_ok"] = vqa.get("clip_qa_ok")
+            except Exception:
+                vqa = {}
+        else:
+            vqa = {}
+
+        if shot.get("keyframe_status") == "approved" and not vqa.get("keyframe_qa_ok"):
+            issues.append(
+                {
+                    "code": "KEYFRAME_QA_MISSING",
+                    "shot_id": sid,
+                    "message": (
+                        f"keyframe approved without visual QA pass — "
+                        f"legacy or --force-approve? Prefer shot_qa_record. "
+                        f"python scripts/shot_qa_pack.py -e {episode_id} -s {sid}"
+                    ),
+                    "severity": "error" if require_visual_qa else "warning",
+                }
+            )
+
         if shot.get("keyframe_status") != "approved":
             entry["skip"] = "not_approved"
             shots_out.append(entry)
@@ -202,6 +237,56 @@ def run_episode_qa(
                         "severity": "warning",
                     }
                 )
+            elif clip_st in CLIP_STATUS_OK and not vqa.get("clip_qa_ok"):
+                issues.append(
+                    {
+                        "code": "CLIP_QA_MISSING",
+                        "shot_id": sid,
+                        "message": (
+                            f"clip approved without visual QA pass — "
+                            f"python scripts/shot_qa_record.py -e {episode_id} "
+                            f"-s {sid} --stage clip --verdict pass --pass-required "
+                            f"--notes \"...\""
+                        ),
+                        "severity": "error" if require_visual_qa else "warning",
+                    }
+                )
+
+        # Live freeze probe on existing work clips (default ON via AGENT_FREEZE_GATE)
+        if entry.get("work_exists") and work_path:
+            try:
+                from lib.visual_qa import (
+                    freeze_gate_enabled,
+                    gate_work_clip_no_freeze,
+                    shot_allows_still_freeze,
+                )
+
+                if freeze_gate_enabled():
+                    sample = story.path("boards", "qa", f"{sid}_clip_frames")
+                    allow_still = shot_allows_still_freeze(shot, story.doc)
+                    fr_gate = gate_work_clip_no_freeze(
+                        work_path,
+                        sample_dir=sample,
+                        allow_still=allow_still,
+                    )
+                    entry["freeze_gate"] = {
+                        k: v for k, v in fr_gate.items() if k != "report"
+                    }
+                    if (
+                        not fr_gate.get("ok")
+                        and fr_gate.get("error") == "FREEZE_PAD_SUSPECT"
+                    ):
+                        issues.append(
+                            {
+                                "code": "FREEZE_PAD_SUSPECT",
+                                "shot_id": sid,
+                                "message": fr_gate.get("message"),
+                                "kind": fr_gate.get("kind"),
+                                "severity": "error",
+                            }
+                        )
+            except Exception as e:
+                entry["freeze_gate_error"] = str(e)
 
         if driver == "si2v":
             if resolve_driving_audio(story.root, shot) is None:
@@ -282,6 +367,33 @@ def run_episode_qa(
                 }
             )
 
+    # Episode identity contact (soft unless require_visual_qa and ≥3 approved kf)
+    n_kf_approved = sum(
+        1 for s in story.shots() if s.get("keyframe_status") == "approved"
+    )
+    if load_identity_qa is not None and n_kf_approved >= 3:
+        idq = load_identity_qa(story)
+        id_ok = bool(idq and str(idq.get("verdict") or "").lower() == "pass")
+        sheet_ok = False
+        if identity_sheet_path is not None:
+            try:
+                sheet_ok = os.path.isfile(identity_sheet_path(story))
+            except Exception:
+                sheet_ok = False
+        if not id_ok:
+            issues.append(
+                {
+                    "code": "IDENTITY_QA_MISSING",
+                    "message": (
+                        f"{n_kf_approved} keyframes approved but episode identity QA "
+                        f"not pass. python scripts/episode_identity_sheet.py -e {episode_id} "
+                        f"then shot_qa_record --stage identity --verdict pass"
+                    ),
+                    "severity": "error" if require_visual_qa else "warning",
+                    "identity_sheet": sheet_ok,
+                }
+            )
+
     if require_lip:
         for i in issues:
             if i.get("code") == "LIP_VISUAL_PENDING":
@@ -307,6 +419,7 @@ def run_episode_qa(
         "warnings": warnings,
         "require_lip": require_lip,
         "require_clip": require_clip,
+        "require_visual_qa": require_visual_qa,
         "created_at": utc_now_iso(),
     }
     return report
@@ -338,6 +451,14 @@ def main(argv=None) -> int:
         action="store_true",
         help="Treat unapproved clip_status as hard failure (assemble-ready gate)",
     )
+    p.add_argument(
+        "--require-visual-qa",
+        action="store_true",
+        help=(
+            "Treat missing keyframe/clip/identity visual QA JSON as hard failure "
+            "(Rule 7.3 audit)"
+        ),
+    )
     p.add_argument("--json", action="store_true", help="Print full JSON report")
     args = p.parse_args(argv)
 
@@ -351,6 +472,7 @@ def main(argv=None) -> int:
             check_final=not args.no_final,
             require_lip=args.require_lip,
             require_clip=args.require_clip,
+            require_visual_qa=args.require_visual_qa,
         )
     except FileNotFoundError:
         print(f"[ERROR] code=11 episode missing: {args.episode}", file=sys.stderr)

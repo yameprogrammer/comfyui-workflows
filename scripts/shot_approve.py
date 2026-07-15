@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
-"""Approve episode keyframe and/or work-clip / SI2V lip visual gates."""
+"""Approve episode keyframe and/or work-clip / SI2V lip visual gates.
+
+Hard gate (Rule 7.3): keyframe/clip *approved* requires a prior visual QA
+JSON with verdict=pass (see shot_qa_pack + shot_qa_record). File existence
+alone is not enough.
+
+  python scripts/shot_qa_pack.py -e EP -s S03
+  # open boards/qa/S03_keyframe_pack.png
+  python scripts/shot_qa_record.py -e EP -s S03 --stage keyframe --verdict pass \\
+    --pass-required --notes "anatomy OK; matches master_front"
+  python scripts/shot_approve.py -e EP -s S03 --status approved
+"""
 
 from __future__ import annotations
 
@@ -12,12 +23,18 @@ import sys
 from lib.audio_package import shot_motion_driver
 from lib.episode_status import CLIP_STATUS_VALUES
 from lib.story_package import StoryPackage, validate_episode_id
+from lib.visual_qa import (
+    EXIT_VISUAL_QA,
+    require_visual_qa_enabled,
+    validate_qa_for_approve,
+)
 
 EXIT_OK = 0
 EXIT_USAGE = 2
 EXIT_MISSING = 11
 EXIT_KEYFRAME = 20
 EXIT_CLIP = 21
+EXIT_QA = EXIT_VISUAL_QA  # 23
 
 LIP_STATUSES = ("pending", "in_review", "approved", "rejected")
 
@@ -52,7 +69,8 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Approve keyframe (I2V gate), clip_status (assemble hard gate), "
-            "and/or lip_status (SI2V sub-gate)"
+            "and/or lip_status (SI2V sub-gate). "
+            "approved requires visual QA JSON pass unless --force-approve."
         )
     )
     parser.add_argument("--episode", "-e", required=True)
@@ -106,6 +124,26 @@ def main(argv=None) -> int:
         action="store_true",
         help="Do not set lip_status=approved when --clip approved on si2v shots",
     )
+    parser.add_argument(
+        "--require-qa",
+        action="store_true",
+        help="Force visual QA gate on (default already on)",
+    )
+    parser.add_argument(
+        "--no-require-qa",
+        action="store_true",
+        help="Skip visual QA hard gate (debug only)",
+    )
+    parser.add_argument(
+        "--force-approve",
+        action="store_true",
+        help="Alias for --no-require-qa (debug/emergency only)",
+    )
+    parser.add_argument(
+        "--require-qa-pack",
+        action="store_true",
+        help="Also require boards/qa/<shot>_*_pack.png exists",
+    )
     args = parser.parse_args(argv)
 
     if not validate_episode_id(args.episode):
@@ -124,6 +162,12 @@ def main(argv=None) -> int:
         print(f"[ERROR] code=2 shot missing {args.shot}", file=sys.stderr)
         return EXIT_USAGE
 
+    require_qa = require_visual_qa_enabled()
+    if args.no_require_qa or args.force_approve:
+        require_qa = False
+    elif args.require_qa:
+        require_qa = True
+
     # If only --lip / --clip: do not force keyframe status change
     # If neither lip nor clip: default keyframe approved
     # If --status: update keyframe
@@ -139,6 +183,26 @@ def main(argv=None) -> int:
         if require and not os.path.isfile(path):
             print(f"[ERROR] code=20 keyframe file missing: {path}", file=sys.stderr)
             return EXIT_KEYFRAME
+        if args.status == "approved" and require_qa:
+            gate = validate_qa_for_approve(
+                story,
+                shot,
+                "keyframe",
+                require_pack=args.require_qa_pack,
+            )
+            if not gate.get("ok"):
+                print(
+                    f"[ERROR] code={EXIT_QA} {gate.get('error')}: {gate.get('message')}",
+                    file=sys.stderr,
+                )
+                return EXIT_QA
+            print(f"  visual_qa=pass path={gate.get('path')}")
+        elif args.status == "approved" and not require_qa:
+            print(
+                "  [WARN] visual QA gate bypassed "
+                "(--force-approve / --no-require-qa / AGENT_REQUIRE_VISUAL_QA=0)",
+                file=sys.stderr,
+            )
         fields["keyframe_status"] = args.status
         fields["keyframe"] = rel.replace("\\", "/")
         print(f"OK shot={args.shot} keyframe_status={args.status}")
@@ -158,13 +222,33 @@ def main(argv=None) -> int:
                 file=sys.stderr,
             )
             return EXIT_CLIP
+        if args.clip == "approved" and require_qa:
+            gate = validate_qa_for_approve(
+                story,
+                shot,
+                "clip",
+                require_pack=args.require_qa_pack,
+            )
+            if not gate.get("ok"):
+                print(
+                    f"[ERROR] code={EXIT_QA} {gate.get('error')}: {gate.get('message')}",
+                    file=sys.stderr,
+                )
+                return EXIT_QA
+            print(f"  visual_qa=pass path={gate.get('path')}")
+        elif args.clip == "approved" and not require_qa:
+            print(
+                "  [WARN] visual QA gate bypassed "
+                "(--force-approve / --no-require-qa / AGENT_REQUIRE_VISUAL_QA=0)",
+                file=sys.stderr,
+            )
         fields["clip_status"] = args.clip
         print(f"OK shot={args.shot} clip_status={args.clip}")
         if work_path:
             print(f"  clip={work_path}")
         print(
             "  contract: clip_status is a HUMAN/vision gate — "
-            "face/motion/(lip); tools do not auto-score"
+            "face/motion/lip; tools do not auto-score"
         )
         # SI2V: clip approve implies lips were reviewed unless --no-sync-lip
         driver = shot_motion_driver(shot, story.doc)
@@ -177,9 +261,10 @@ def main(argv=None) -> int:
             fields["lip_status"] = "approved"
             print("  synced lip_status=approved (si2v; use --no-sync-lip to skip)")
         elif args.clip in ("pending", "rejected", "in_review") and driver == "si2v":
-            # Keep lip in sync when reopening gate (regen path also resets)
             if args.lip is None and args.clip in ("pending", "rejected"):
-                fields["lip_status"] = args.clip if args.clip != "in_review" else "in_review"
+                fields["lip_status"] = (
+                    args.clip if args.clip != "in_review" else "in_review"
+                )
 
     if args.lip is not None:
         if args.lip == "approved" or args.require_s2v_clip:

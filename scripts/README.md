@@ -18,7 +18,13 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 
 | 스크립트 | 역할 | 워크플로우 (catalog) |
 |----------|------|----------------------|
-| `comfy_ensure.py` | ComfyUI 기동 확인/자동 기동 (중복 방지) | `127.0.0.1:8188` · bat autostart |
+| `failure_note.py` | **실패 노트** 공유 add/search/list (Rule 7.4 · `failures/`) | docs/failure_notes_system.md |
+| `skill_equip.py` | **공장 스킬** list/install/check (`skills/` → agent skill dirs) | skills/README.md · video-direction |
+| `shot_qa_pack.py` | **Visual QA pack** identity_ref\|keyframe\|prev (or clip first/mid/last) | Rule 7.3 · boards/qa/ |
+| `shot_qa_record.py` | **Visual QA JSON** pass/fail + required checks → approve gate | meta/visual_qa/ · clip freeze detect **default ON** |
+| `episode_identity_sheet.py` | **Cross-shot cast** contact + optional identity QA | boards/identity_contact.png |
+| `comfy_ensure.py` | ComfyUI 기동 확인/자동 기동 (중복 방지) | `127.0.0.1:8188` · **only** `run_nvidia_gpu_fast_fp16_accumulation.bat` via `_launch_comfy_process` (`start "ComfyUI-Agent" /D … call bat`) |
+| `generate_krea.py` | Krea 2 Turbo T2I | `queue_prompt` 경로 (ensure 포함). raw `/prompt` 금지 |
 | `generate_v2v.py` | V2V 의도 (camera/motion/style) | LTX AIO true `-v` · docs/v2v_intent… |
 | `episode_v2v.py` | 에피소드 `motion_driver=v2v_*` 배치 | `refs/video` + approved keyframe |
 | `generate_moody.py` | T2I | `t2i_moody` |
@@ -72,7 +78,7 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `story_init.py` | 에피소드 패키지 | shots.json + format/look |
 | `shot_compose.py` | 프로덕션 키프레임 | look+char+loc @ format; shot_type ref 바인딩 |
 | `storyboard_export.py` | 보드 contact + inventory | 사람 게이트용 패키지 |
-| `shot_approve.py` | keyframe / clip_status / lip_status | draft→approved; assemble needs `--clip approved` |
+| `shot_approve.py` | keyframe / clip_status / lip_status | **approved needs visual QA JSON** (exit 23); `--force-approve` debug |
 | `episode_i2v.py` | approved 키프레임→영상 | motion-only 프롬프트 |
 | `generate_qwen3_tts.py` | 대사/VO TTS | custom/design/clone + temp/top-p 튜닝 |
 | `voice_register.py` | 클론 보이스 등록 | `voices/<id>/` (본인·타인 샘플) |

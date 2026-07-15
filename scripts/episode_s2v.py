@@ -197,6 +197,16 @@ def main(argv=None) -> int:
         help="Abort on first failed shot (default: continue)",
     )
     parser.add_argument(
+        "--allow-freeze",
+        action="store_true",
+        help="Do not fail static/freeze-tailed SI2V clips (intentional still only)",
+    )
+    parser.add_argument(
+        "--no-freeze-gate",
+        action="store_true",
+        help="Skip post-SI2V freeze detection (debug)",
+    )
+    parser.add_argument(
         "--seed",
         type=int,
         default=None,
@@ -479,48 +489,93 @@ def main(argv=None) -> int:
         elapsed = _time.time() - t0
 
         if result.get("ok"):
-            ok += 1
-            story.update_shot(
-                sid,
-                clip_work=str(clip_rel).replace("\\", "/"),
-                clip_work_s2v=str(clip_rel).replace("\\", "/"),
-                s2v_status="ok",
-                s2v_at=utc_now_iso(),
-                s2v_backend=backend,
-                s2v_prepare_mode=args.prepare_mode,
-                s2v_driving_audio=os.path.relpath(audio_path, story.root).replace("\\", "/"),
-                s2v_elapsed_sec=round(elapsed, 2),
-                s2v_size=f"{width}x{height}",
-                s2v_fps=fps,
-                s2v_steps=steps,
-                s2v_performance=perf.get("performance"),
-                s2v_audio_scale=shot_audio_scale,
-                performance=perf.get("performance"),
-                # Human/vision gate — tools never auto-approve clips/lips
-                clip_status="pending",
-                lip_status="pending",
-            )
-            print(f"  OK {clip_path} elapsed={elapsed:.1f}s")
-            print(
-                f"  clip_status=pending → review clip then: "
-                f"python scripts/shot_approve.py -e {args.episode} -s {sid} --clip approved"
-            )
-            # Patch meta with timing if present
-            try:
-                if meta_path and os.path.isfile(meta_path):
-                    import json as _json
+            freeze_fail = False
+            if not args.no_freeze_gate and os.path.isfile(clip_path):
+                from lib.visual_qa import (
+                    gate_work_clip_no_freeze,
+                    shot_allows_still_freeze,
+                )
 
-                    with open(meta_path, encoding="utf-8") as f:
-                        meta = _json.load(f)
-                    meta["elapsed_sec"] = round(elapsed, 2)
-                    meta["width"] = width
-                    meta["height"] = height
-                    meta["fps"] = fps
-                    meta["steps"] = steps
-                    with open(meta_path, "w", encoding="utf-8") as f:
-                        _json.dump(meta, f, ensure_ascii=False, indent=2)
-            except Exception:
-                pass
+                allow_still = args.allow_freeze or shot_allows_still_freeze(
+                    shot, story.doc
+                )
+                sample = story.path("boards", "qa", f"{sid}_clip_frames")
+                gate = gate_work_clip_no_freeze(
+                    clip_path,
+                    sample_dir=sample,
+                    allow_still=allow_still,
+                )
+                if not gate.get("ok") and gate.get("error") == "FREEZE_PAD_SUSPECT":
+                    freeze_fail = True
+                    fail += 1
+                    story.update_shot(
+                        sid,
+                        clip_work=str(clip_rel).replace("\\", "/"),
+                        clip_work_s2v=str(clip_rel).replace("\\", "/"),
+                        s2v_status="failed_freeze",
+                        s2v_error="FREEZE_PAD_SUSPECT",
+                        s2v_at=utc_now_iso(),
+                        s2v_backend=backend,
+                        s2v_elapsed_sec=round(elapsed, 2),
+                        clip_status="rejected",
+                        lip_status="rejected",
+                        freeze_suspect=True,
+                        freeze_kind=gate.get("kind"),
+                    )
+                    print(f"  FAIL FREEZE_PAD_SUSPECT kind={gate.get('kind')}")
+                    print(f"  {gate.get('message')}")
+                    if args.stop_on_error:
+                        break
+                    continue
+
+            if not freeze_fail:
+                ok += 1
+                story.update_shot(
+                    sid,
+                    clip_work=str(clip_rel).replace("\\", "/"),
+                    clip_work_s2v=str(clip_rel).replace("\\", "/"),
+                    s2v_status="ok",
+                    s2v_at=utc_now_iso(),
+                    s2v_backend=backend,
+                    s2v_prepare_mode=args.prepare_mode,
+                    s2v_driving_audio=os.path.relpath(audio_path, story.root).replace(
+                        "\\", "/"
+                    ),
+                    s2v_elapsed_sec=round(elapsed, 2),
+                    s2v_size=f"{width}x{height}",
+                    s2v_fps=fps,
+                    s2v_steps=steps,
+                    s2v_performance=perf.get("performance"),
+                    s2v_audio_scale=shot_audio_scale,
+                    performance=perf.get("performance"),
+                    freeze_suspect=False,
+                    # Human/vision gate — tools never auto-approve clips/lips
+                    clip_status="pending",
+                    lip_status="pending",
+                )
+                print(f"  OK {clip_path} elapsed={elapsed:.1f}s")
+                print(
+                    f"  clip_status=pending → review clip then: "
+                    f"python scripts/shot_qa_record.py -e {args.episode} -s {sid} "
+                    f"--stage clip --verdict pass --pass-required --notes \"...\" "
+                    f"&& python scripts/shot_approve.py -e {args.episode} -s {sid} --clip approved"
+                )
+                # Patch meta with timing if present
+                try:
+                    if meta_path and os.path.isfile(meta_path):
+                        import json as _json
+
+                        with open(meta_path, encoding="utf-8") as f:
+                            meta = _json.load(f)
+                        meta["elapsed_sec"] = round(elapsed, 2)
+                        meta["width"] = width
+                        meta["height"] = height
+                        meta["fps"] = fps
+                        meta["steps"] = steps
+                        with open(meta_path, "w", encoding="utf-8") as f:
+                            _json.dump(meta, f, ensure_ascii=False, indent=2)
+                except Exception:
+                    pass
         else:
             fail += 1
             story.update_shot(

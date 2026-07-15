@@ -1,7 +1,8 @@
 # Grok Build 하이브리드 툴링 (공장 + 그록 네이티브)
 
 **대상 에이전트:** Grok Build / Grok CLI (이미지·영상 네이티브 툴 보유)  
-**비대상:** Claude/Codex 등 공장 CLI만 쓰는 에이전트 — 이 문서를 강제하지 않음.
+**상위 공통 규칙:** 모든 에이전트 — [agent_native_capability_autonomy.md](agent_native_capability_autonomy.md) · Rule **8.0**  
+**이 문서:** Grok 전용 매핑 · Rule **8.1**
 
 공장 SSOT는 그대로 `agent_custom` 이다. 그록 네이티브 툴은 **가속·실험·수술 편집** 레이어다.
 

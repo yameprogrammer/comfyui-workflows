@@ -98,6 +98,10 @@
 
 | ID | 항목 | 메모 |
 |----|------|------|
+| **VQ-1** | **Visual QA hard gate** | ✅ 2026-07-16 — `lib/visual_qa.py` · `shot_qa_pack` · `shot_qa_record` · `shot_approve` exit 23 · QA_LOG |
+| **VQ-1.5** | **Episode identity sheet** | ✅ `episode_identity_sheet.py` · identity QA JSON · status/episode_qa |
+| VQ-2 | Clip freeze **detect** default ON + ban tpad length-fill | ✅ 2026-07-16 multi-point gate post-gen + QA + assemble ban |
+| VQ-3 | Face embedding identity score (보조) | 선택 · 자동 승인 금지 |
 | P2-1 | Face restore 옵션 (모션 후, 약하게) | 과하면 smeary |
 | P2-2 | 쇼츠 자막 SRT + soft burn | ✅ episode_subtitles.py · lib/subtitles.py |
 | P2-3 | SFX 큐 라이브러리 배치 | `shots.json` sfx |
@@ -179,6 +183,9 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 - [x] P1-4 clip review contact soft  
 - [x] P1-5 TTS–performance 원샷 (`episode_tts --performance`, thin)
 - [x] P2-2 subtitles SRT+burn  
+- [x] **VQ-1 / VQ-1.5 Visual QA hard gate + identity sheet** (2026-07-16)
+- [x] **VQ-2 freeze detect default ON + tpad length-fill ban** (2026-07-16)
+- [ ] VQ-3 face embedding (선택)
 - [ ] P2-1 face restore / P2-3 SFX lib / P2-4 pose lock / P2-5 OM 이식 (선택)
 - [ ] **P3-1 댄스 챌린지 파이프** — [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md)  
 - [x] **P3-2 기획 자율** — 문서 레일 [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) (기능 코드 비필수)  
@@ -191,6 +198,8 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 
 | 날짜 | 내용 |
 |------|------|
+| 2026-07-16 | **VQ-2 freeze gate** — post-gen detect default ON · assemble tpad ban · multi-point heuristic |
+| 2026-07-16 | **VQ-1 Visual QA hard gate** — pack/record/approve exit 23 · identity sheet · episode_status/qa |
 | 2026-07-15 | **P3-4 V2V intent** 설계 + P0 CLI (camera/motion/style) |
 | 2026-07-14 | 초안. P0–P2 백로그. “잔잔” → **음성 감정 연동 퍼포먼스** 로 정정 반영 |
 | 2026-07-14 | **P3-1 댄스 챌린지** 백로그 + 설계 초안 링크. 토킹 에피와 별 트랙 명시 |

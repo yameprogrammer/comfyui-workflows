@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AgentFailureNote",
+  "type": "object",
+  "required": [
+    "id",
+    "created_at",
+    "stage",
+    "tags",
+    "symptom",
+    "root_cause",
+    "fix",
+    "prevention",
+    "severity"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^FN-" },
+    "created_at": { "type": "string", "description": "ISO-8601 UTC" },
+    "agent": { "type": "string", "description": "grok|claude|codex|human|unknown" },
+    "episode_id": { "type": ["string", "null"] },
+    "shot_id": { "type": ["string", "null"] },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "planning",
+        "storyboard",
+        "keyframe",
+        "i2v",
+        "s2v",
+        "clip",
+        "assemble",
+        "upscale",
+        "export",
+        "character",
+        "location",
+        "audio",
+        "other"
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "symptom": { "type": "string", "minLength": 8 },
+    "root_cause": { "type": "string", "minLength": 8 },
+    "fix": { "type": "string", "minLength": 8 },
+    "prevention": { "type": "string", "minLength": 8 },
+    "related_paths": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "severity": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+    "user_visible": {
+      "type": "boolean",
+      "description": "Whether end user saw the bad output"
+    },
+    "refs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Related FN-ids or doc anchors"
+    }
+  }
+}

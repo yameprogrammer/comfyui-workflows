@@ -1,0 +1,22 @@
+{
+  "id": "FN-20260715-002",
+  "created_at": "2026-07-15T14:49:16+00:00",
+  "agent": "grok",
+  "episode_id": "sonagi_mv_v1",
+  "shot_id": "S03",
+  "stage": "keyframe",
+  "tags": [
+    "anatomy_feet",
+    "insert_failed",
+    "face_cu_spam",
+    "prompt_ignored"
+  ],
+  "symptom": "Shoe insert requested but result was face close-up with deformed raised leg/foot.",
+  "root_cause": "character_ids on insert pulled portrait priors; action text not enforced; no visual QA before approve.",
+  "fix": "Regenerate with shoe-only T2I without character face core; hybrid Grok/moody; Rule 7.3.",
+  "prevention": "Tag risk=feet/insert; for insert feet omit character positive face block; open keyframe before approve; search failure notes anatomy_feet.",
+  "related_paths": [],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

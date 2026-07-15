@@ -4,7 +4,7 @@
 - **상태**: ✅ **문서 레일 (기능 구현 필수 아님)**  
 - **합의**: 키워드만 / 음악+정보만 등 **풀 시놉 없이도** 에이전트가 기획→시놉→보드→공장 공정을 진행할 수 있다.  
   **필수 작업 = 이 문서 수준의 가드레일·절차**이며, 별도 멀티에이전트 제품·신규 CLI는 **필수가 아니다**.  
-- **관련**: [agent_video_tooling_todo.md](agent_video_tooling_todo.md) · [commission_workflow.md](commission_workflow.md) · [commission_brief.schema.json](commission_brief.schema.json) · [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md) · [audio_motion_production_modes.md](audio_motion_production_modes.md) · [agent_rules.md](../agent_rules.md) Rule 8
+- **관련**: **[video_director_master_persona.md](video_director_master_persona.md)** (필수) · [video_creative_director_persona.md](video_creative_director_persona.md) · [image_cut_verification_gate.md](image_cut_verification_gate.md) · [agent_video_tooling_todo.md](agent_video_tooling_todo.md) · [commission_workflow.md](commission_workflow.md) · [dance_challenge_pipeline_design.md](dance_challenge_pipeline_design.md) · [audio_motion_production_modes.md](audio_motion_production_modes.md) · [agent_rules.md](../agent_rules.md) Rule 7.0 · Rule 8
 
 ---
 
@@ -12,10 +12,12 @@
 
 ```text
 유저 입력 (시놉 풀 / 키워드 / 음악…) 
-  → 에이전트가 이 SOP로 Brief·시놉·샷리스트 작성 
+  → ★ Creative Director 페르소나로 CREATIVE pack (감성) 
+  → Brief·시놉·샷리스트 (intent 포함) 
   → 기존 공장 (자산 → 보드 → 키프레임 → 모션 → 승인 → assemble → export)
 ```
 
+**감성 SSOT:** [video_creative_director_persona.md](video_creative_director_persona.md) — 표 형식 Brief만 채우고 시놉을 건조하게 쓰면 **이 SOP 위반**.  
 **기능 개발 없이도** 에이전트 참고 문서만으로 운용 가능.  
 안정화가 필요해지면 (선택) 브리프 템플릿 강제·초안 JSON 생성 CLI를 나중에 추가.
 
@@ -37,18 +39,20 @@
 
 ## 2. 에이전트 페르소나 (문서상 역할)
 
-별도 봇 프로세스 없이, **한 에이전트가 역할을 순서대로 수행**한다.
+별도 봇 프로세스 없이, **한 에이전트가 역할을 순서대로 수행**한다.  
+**역할 0 (Creative Director) 감성 규칙 전문:** [video_creative_director_persona.md](video_creative_director_persona.md).
 
-| 순서 | 역할 이름 | 출력물 |
-|------|-----------|--------|
-| 1 | **쇼츠 PD** | Brief 카드 (아래 §3) |
-| 2 | **작가** | 시놉 / 훅 구조 / 대사(필요 시) |
-| 3 | **콘티** | 샷 리스트 · 보드 요지 (S01…) |
-| 4 | **프로듀서** | 자산 ID (캐릭·룩·로케) · production_mode · mix_policy |
-| 5 | **공장 오퍼레이터** | 기존 CLI 공정 + 게이트 |
+| 순서 | 역할 이름 | 출력물 | 비고 |
+|------|-----------|--------|------|
+| **0** | **Director (master persona)** | SYSTEM 주입 · Creative Pack · **SHOT_DESIGN + size rhythm** | **[video_director_master_persona.md](video_director_master_persona.md) 필수** |
+| 1 | **쇼츠/뮤비 PD** | Brief 카드 — Creative·SHOT_DESIGN에 **복종** | 표만 단독 금지 |
+| 2 | **작가** | 시놉 / 훅 구조 / 대사(필요 시) | 직역 삽화 금지 |
+| 3 | **콘티 / DP** | 샷 문법 · type/angle/move · intent · risk | **3연속 동일 size 금지** |
+| 4 | **프로듀서** | 자산 ID (캐릭·룩·로케) · production_mode · mix_policy | 실무 |
+| 5 | **공장 오퍼레이터** | 기존 CLI 공정 + 게이트 + export | 정밀 · 취향 평탄화 금지 |
 
-유저가 “확인 후 진행”을 원하면 2–3 뒤에 **짧은 확인 게이트** 1회.  
-“알아서 끝까지”면 확인 없이 공장까지 (리스크는 보고에 한 줄).
+유저가 “확인 후 진행”을 원하면 **역할 0–2** 뒤에 **짧은 확인 게이트** 1회.  
+“알아서 끝까지”면 확인 없이 공장까지 가되, **역할 0 Creative Pack 생략은 불가** (리스크 보고로 대체 금지).
 
 ---
 
@@ -93,12 +97,13 @@ refs: 음악 경로, 레퍼 영상, 키워드 원문
 
 ### 4C. 음악 + 정보 (C)
 
-1. Brief + 훅 길이·코러스 위치 추정  
-2. **대사는 기본 없음** 또는 훅 1–2소절만  
-3. `mix_policy=music_locked` 또는 layered(보컬 under)  
-4. 비주얼: 비트 구간별 샷 (와이드/디테일/루프)  
-5. I2V 중심, SI2V는 필요할 때만  
-6. 음원 저작권·사용 가능 여부 유저 확인 한 줄  
+1. **Creative Pack 먼저** (persona §3) — 한 장 피치·후렴 시각 사건·안티리스트  
+2. Brief + 훅 길이·코러스 위치 추정 (음원 구간)  
+3. **대사는 기본 없음** 또는 훅 1–2소절만  
+4. `mix_policy=music_locked` 또는 layered(보컬 under)  
+5. 비주얼: 가사 직역 타임라인이 아니라 **후렴=사건 / 버스=질감·모티프 회수**  
+6. I2V 중심, SI2V는 히어로 보컬 소절만  
+7. 음원 사용 가능 여부는 유저 제공 전제로 진행 (불명확 시 한 줄 메모)  
 
 ### 4D. 댄스 레퍼 (D)
 
@@ -109,14 +114,17 @@ refs: 음악 경로, 레퍼 영상, 키워드 원문
 
 ## 5. 공장 진입 전 체크리스트
 
-- [ ] Brief 카드 완성  
+- [ ] **Creative Pack** 완성 (persona §3 · 자기 게이트 §3.2)  
+- [ ] Brief 카드 완성 (Creative에 종속)  
 - [ ] production_mode / mix_policy 결정  
-- [ ] 자산 ID 결정 (없으 생성 일정)  
-- [ ] 샷 리스트에 motion_driver (i2v/si2v) 표시  
+- [ ] 자산 ID 결정 (없으면 생성 일정)  
+- [ ] 샷 리스트에 intent + motion_driver (i2v/si2v) 표시  
+- [ ] **보드 구도 게이트**: 동일 shot_type 3연속 없음 · wide/medium/CU/insert 변주 ([image_cut_verification_gate.md](image_cut_verification_gate.md) §5)  
 - [ ] 원 테이크면 **last-frame 체인** 사용 (`chain_one_take` 등) — 독립 키프레임만으로 합본하지 않기  
 - [ ] 유저 확인 게이트 여부 결정  
 
-그 다음: look/char/loc → storyboard → keyframe → (TTS) → motion → clip approve → BGM → assemble → 1080 → **export_to_workspace**.
+그 다음: look/char/loc → storyboard → **키프레임 육안(QA_LOG)** → (TTS) → motion → **클립 육안** → clip approve → BGM → assemble → 1080 → **export_to_workspace**.  
+키프레임/클립 승인 내용: Rule 7.3 · [image_cut_verification_gate.md](image_cut_verification_gate.md).
 
 ---
 
@@ -130,7 +138,7 @@ refs: 음악 경로, 레퍼 영상, 키워드 원문
 | 길이 | 쇼츠 기본 15–60s. 긴 요청은 파트 분할 제안 |
 | 오디오 | 대사 컷은 TTS 길이 계약 (tooling_todo P0-1). 음악 모드는 훅 루프 |
 | export | 공장만 두고 끝내지 말 것 (AGENTS.md) |
-| 도구 선택 | 유저가 툴을 지정하기 전 **에이전트 자율** (Rule 8) |
+| 도구 선택 | 유저가 툴을 지정하기 전 **에이전트 자율** — 공장 + **자체 툴/스킬 능동 활용** (Rule **8.0** · [agent_native_capability_autonomy.md](agent_native_capability_autonomy.md)) |
 
 ---
 
