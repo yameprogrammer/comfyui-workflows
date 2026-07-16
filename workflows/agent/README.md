@@ -13,8 +13,20 @@
 | `i2v_wan22_a14b` | `I2V-wan22-a14b.json` | `scripts/generate_i2v.py` (default) |
 | `t2i_krea` | `T2I-krea.json` | `scripts/generate_krea.py` |
 | `t2i_z_image_turbo` | `T2I-z-image-turbo.json` | (베이스/참고) |
+| `qwen_edit_2511` | **JSON 없음 — API inject** | `generate_qwen_edit.py` (기본 GGUF=angle과 동일 모델) · `shot_keyframe_edit --engine qwen` |
+| `qwen_angle_2511` | **JSON 없음 — API inject** | `generate_qwen_angle.py` · `character_qwen_turns` (Angles LoRA 턴) |
 | *(SI2V InfiniteTalk)* | **JSON 없음 — API inject** | `generate_s2v.py --backend infinitetalk` |
 | *(SI2V LTX custom-audio)* | **JSON 없음 — API inject** | `generate_s2v.py --backend ltx23_ia2v` |
+
+### Still-edit engine coexistence
+
+| 엔진 | 스크립트 | 가중치 | 언제 |
+|------|----------|--------|------|
+| Moody I2I | `generate_moody_i2i` / `shot_keyframe_edit --engine moody` | Moody/ZImage | 약한 표정·톤 denoise |
+| Qwen Edit | `generate_qwen_edit` / `shot_keyframe_edit --engine qwen` | **2509 Q5 GGUF** + 지시 인코더 (Angles 없음) | 물체 교체·제거 |
+| Qwen Angle | `generate_qwen_angle` / `character_qwen_turns` | **2511 GGUF** + Lightning + **Angles LoRA** | 헤드/바디 멀티뷰 (`<sks>`) |
+
+편집 기본 백엔드 `gguf_2509`. **Lightning 기본 ON** → 결과 부족 시만 `--no-lightning --steps 20 --cfg 4`.
 
 별칭·파일 매핑은 [catalog.json](catalog.json) 이 코드와 공유하는 SSOT입니다.
 

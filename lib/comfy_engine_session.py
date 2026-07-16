@@ -32,6 +32,8 @@ FAMILY_LTX = "ltx"  # LTX 2.3 GGUF + Gemma TE + dual VAE
 FAMILY_INFINITETALK = "infinitetalk"
 FAMILY_WAN = "wan"  # Wan2.2 I2V
 FAMILY_ACE = "ace_step"  # BGM
+FAMILY_QWEN_EDIT = "qwen_edit_2509"  # Qwen-Image-Edit-2509 instruction edit (fp8 + VL)
+FAMILY_QWEN_ANGLE = "qwen_edit_2511_angle"  # Qwen-Image-Edit-2511 multi-angle (GGUF + Angles LoRA)
 FAMILY_OTHER = "other"
 
 # Optional minimum free memory after switch free (env overrides)

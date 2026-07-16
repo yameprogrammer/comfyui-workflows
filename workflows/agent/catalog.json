@@ -42,6 +42,24 @@
       "file": "T2I-z-image-turbo.json",
       "role": "text_to_image_base",
       "scripts": []
+    },
+    "qwen_edit_2509": {
+      "file": null,
+      "role": "instruction_image_edit",
+      "note": "API inject generate_qwen_edit.py default backend=gguf_2509: Qwen-Image-Edit-2509-Q5_K_M.gguf + TextEncodeQwenImageEditPlus. gguf_2511/fp8_2509 opt-in.",
+      "scripts": [
+        "scripts/generate_qwen_edit.py",
+        "scripts/shot_keyframe_edit.py"
+      ]
+    },
+    "qwen_angle_2511": {
+      "file": null,
+      "role": "character_multi_angle",
+      "note": "API inject generate_qwen_angle.py: same GGUF+Lightning + Multiple-Angles LoRA. Not for general object edit.",
+      "scripts": [
+        "scripts/generate_qwen_angle.py",
+        "scripts/character_qwen_turns.py"
+      ]
     }
   }
 }

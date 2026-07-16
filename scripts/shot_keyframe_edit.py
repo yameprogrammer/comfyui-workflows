@@ -1,13 +1,23 @@
 #!/usr/bin/env python3
-"""Surgical keyframe edit (P1-3): local I2I on existing keyframe, never full-frame blur.
+"""Surgical keyframe edit: local edit on existing keyframe, never full-frame blur.
 
-Uses Moody I2I with moderate denoise for instruction-based edits
-(face fix, prop remove, wardrobe tweak). Replaces keyframes/<shot>.png,
-backs up prior file, sets keyframe_status=draft for re-approval.
+Engines (coexist — pick by task):
+
+  moody (default)  Moody I2I denoise remix — soft expression/tone, low denoise
+  qwen             Qwen-Image-Edit-2509 instruction edit — object replace/remove,
+                   prop fix, multi-ref identity (see generate_qwen_edit.py)
+
+Not for character multi-view turns — use character_qwen_turns / generate_qwen_angle.
+
+Replaces keyframes/<shot>.png, backs up prior file, sets keyframe_status=draft
+for re-approval.
 
   python scripts/shot_keyframe_edit.py -e cafe_gomin_ep01 -s S03 \\
     -p "remove water droplets from face, keep photoreal skin, same identity" \\
     --denoise 0.35
+
+  python scripts/shot_keyframe_edit.py -e EP -s S03 --engine qwen \\
+    -p "remove the straw from the cup, keep the same person and table"
 
 Do NOT use global Gaussian blur / pixelize on the whole frame (2026-07-13 accident).
 """
@@ -22,6 +32,7 @@ import shutil
 import sys
 
 from generate_moody_i2i import generate_i2i_image
+from generate_qwen_edit import generate_qwen_edit
 from lib.comfy_client import utc_now_iso, write_meta
 from lib.story_package import StoryPackage, validate_episode_id
 
@@ -43,10 +54,22 @@ _FORBIDDEN = (
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(
-        description="Surgical I2I edit of episode keyframe → draft for re-approve"
+        description=(
+            "Surgical edit of episode keyframe → draft for re-approve "
+            "(--engine moody|qwen)"
+        )
     )
     p.add_argument("--episode", "-e", required=True)
     p.add_argument("--shot", "-s", required=True)
+    p.add_argument(
+        "--engine",
+        choices=["moody", "qwen"],
+        default="moody",
+        help=(
+            "moody = Moody I2I soft remix (default); "
+            "qwen = Qwen-Image-Edit-2509 instruction edit"
+        ),
+    )
     p.add_argument(
         "--prompt",
         "-p",
@@ -57,11 +80,41 @@ def main(argv=None) -> int:
         "--denoise",
         "-d",
         type=float,
-        default=0.35,
-        help="I2I denoise (default 0.35 surgical; raise carefully ≤0.55)",
+        default=None,
+        help=(
+            "moody: I2I denoise (default 0.35, max 0.65). "
+            "qwen: KSampler denoise (default 1.0)"
+        ),
     )
-    p.add_argument("--cfg", type=float, default=1.0)
+    p.add_argument(
+        "--cfg",
+        type=float,
+        default=None,
+        help="Sampler CFG (moody default 1.0; qwen uses engine defaults if omitted)",
+    )
     p.add_argument("--model", "-m", choices=["real", "pro", "wild"], default="real")
+    p.add_argument(
+        "--lightning",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "qwen only: Lightning ON by default (fast first pass). "
+            "If result overshoots, re-run with --no-lightning (and prefer "
+            "steps 20 / cfg 4 via generate_qwen_edit quality escalate)"
+        ),
+    )
+    p.add_argument(
+        "--input2",
+        "-i2",
+        default=None,
+        help="qwen only: optional ref image2 (identity / product)",
+    )
+    p.add_argument(
+        "--input3",
+        "-i3",
+        default=None,
+        help="qwen only: optional ref image3",
+    )
     p.add_argument("--seed", type=int, default=None)
     p.add_argument("--timeout", type=int, default=600)
     p.add_argument(
@@ -96,13 +149,21 @@ def main(argv=None) -> int:
             )
             return EXIT_USAGE
 
-    if args.denoise > 0.65:
-        print(
-            f"[ERROR] denoise={args.denoise} too high for surgical edit (max 0.65). "
-            "Use shot_compose for full regen.",
-            file=sys.stderr,
-        )
-        return EXIT_USAGE
+    engine = args.engine
+    if engine == "moody":
+        denoise = 0.35 if args.denoise is None else float(args.denoise)
+        if denoise > 0.65:
+            print(
+                f"[ERROR] denoise={denoise} too high for surgical Moody edit "
+                "(max 0.65). Use shot_compose for full regen, or --engine qwen "
+                "for instruction-level changes.",
+                file=sys.stderr,
+            )
+            return EXIT_USAGE
+        cfg = 1.0 if args.cfg is None else float(args.cfg)
+    else:
+        denoise = 1.0 if args.denoise is None else float(args.denoise)
+        cfg = args.cfg  # None → generate_qwen_edit defaults
 
     try:
         story = StoryPackage.load(args.episode)
@@ -121,7 +182,7 @@ def main(argv=None) -> int:
         print(f"[ERROR] source keyframe missing: {src}", file=sys.stderr)
         return EXIT_MISSING
 
-    # Strengthen identity lock in prompt
+    # Strengthen identity lock in prompt (both engines; qwen may append again)
     edit_prompt = (
         f"{args.prompt.strip()}. "
         "Keep the same person identity, face structure, wardrobe, and camera framing. "
@@ -130,7 +191,8 @@ def main(argv=None) -> int:
 
     print(
         f"shot_keyframe_edit episode={args.episode} shot={args.shot} "
-        f"denoise={args.denoise} model={args.model}"
+        f"engine={engine} denoise={denoise}"
+        + (f" model={args.model}" if engine == "moody" else f" lightning={args.lightning}")
     )
     print(f"  src={src}")
     print(f"  prompt={edit_prompt[:160]!r}")
@@ -150,17 +212,35 @@ def main(argv=None) -> int:
 
     tmp_out = kf_path + ".edit_tmp.png"
     meta_path = story.path("meta", f"{args.shot}_keyframe_edit.json")
-    r = generate_i2i_image(
-        input_image_path=src,
-        prompt_text=edit_prompt,
-        denoise_val=float(args.denoise),
-        cfg_val=float(args.cfg),
-        model_type=args.model,
-        output_filename=tmp_out,
-        seed=args.seed,
-        meta_out=meta_path,
-        timeout_sec=args.timeout,
-    )
+
+    if engine == "moody":
+        r = generate_i2i_image(
+            input_image_path=src,
+            prompt_text=edit_prompt,
+            denoise_val=float(denoise),
+            cfg_val=float(cfg),
+            model_type=args.model,
+            output_filename=tmp_out,
+            seed=args.seed,
+            meta_out=meta_path,
+            timeout_sec=args.timeout,
+        )
+    else:
+        r = generate_qwen_edit(
+            src,
+            edit_prompt,
+            input_image2_path=args.input2,
+            input_image3_path=args.input3,
+            output_filename=tmp_out,
+            seed=args.seed,
+            lightning=bool(args.lightning),
+            denoise=float(denoise),
+            cfg=cfg,
+            raw_prompt=True,  # already locked above
+            meta_out=meta_path,
+            timeout_sec=args.timeout,
+        )
+
     if not r.get("ok"):
         print(f"[ERROR] {r.get('error')}: {r.get('message')}", file=sys.stderr)
         return EXIT_GEN
@@ -181,10 +261,11 @@ def main(argv=None) -> int:
 
     fields = {
         "keyframe": str(kf_rel).replace("\\", "/"),
-        "keyframe_source": "surgical_edit",
+        "keyframe_source": f"surgical_edit_{engine}",
         "keyframe_edited_at": utc_now_iso(),
         "keyframe_edit_prompt": args.prompt.strip(),
-        "keyframe_edit_denoise": float(args.denoise),
+        "keyframe_edit_engine": engine,
+        "keyframe_edit_denoise": float(denoise),
     }
     if not args.keep_approved:
         fields["keyframe_status"] = "draft"
@@ -206,12 +287,13 @@ def main(argv=None) -> int:
         meta.update(
             {
                 "mode": "surgical_keyframe_edit",
+                "engine": engine,
                 "episode_id": args.episode,
                 "shot_id": args.shot,
-                "source": "surgical_edit",
+                "source": f"surgical_edit_{engine}",
                 "keyframe_status": fields.get("keyframe_status", "kept"),
                 "edit_prompt": args.prompt.strip(),
-                "denoise": float(args.denoise),
+                "denoise": float(denoise),
                 "output_path": os.path.abspath(kf_path),
                 "created_at": utc_now_iso(),
             }

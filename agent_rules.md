@@ -96,9 +96,9 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
 * ComfyUI 경로(`F:\ComfyUI_windows_portable\ComfyUI\`) 등 드라이브 하드코딩이 있다. 이전 시 주의.
 * **Comfy 미기동 시**: `lib/comfy_client.ensure_comfy_running` 이 기본 런처 bat으로 자동 기동한다.
   - 기본 bat: `F:\ComfyUI_windows_portable\run_nvidia_gpu_fast_fp16_accumulation.bat`
-  - **기동 SSOT**: `_launch_comfy_process` 만 사용  
-    `cmd /c start "ComfyUI-Agent" /D "<portable>" cmd /c call "<bat>"`  
-    에이전트가 ProcessStartInfo·직접 `python main.py`·환경변수 끼워 넣은 `call bat` 등 **임의 래퍼로 재기동 금지**.
+  - **기동 SSOT**: `_launch_comfy_process` 만 사용 — bat과 **동일한 명령**을 portable 루트 cwd로 실행:  
+    `python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build --fast fp16_accumulation --disable-smart-memory`  
+    (`run_nvidia_gpu_fast_fp16_accumulation.bat` 내용). `start`/`startfile`/중첩 cmd **금지**.
   - 생성 스크립트는 **`queue_prompt` / `comfy_ensure.py`** 경로만 (예: `generate_krea.py`도 동일). raw `/prompt` POST 금지.
   - 중복 기동 방지: API probe + launch lock + launch_state cooldown
   - 끄기: `AGENT_COMFY_AUTOSTART=0` · 사전 점검: `python scripts/comfy_ensure.py`
@@ -132,6 +132,11 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
   - body 소스 우선순위: `approved/costume_default` → `master_full`.
   - 턴만: `character_qwen_turns.py --mode both --approve`
   - OpenPose 턴 / **ipadapter**: 레거시·실험, 공정 SOP 기본 아님.
+  - **스틸 편집 엔진 공존** (역할 합치지 말 것):
+    - Moody I2I (`generate_moody_i2i` / `shot_keyframe_edit --engine moody`) — 약한 표정·톤 denoise 리믹스
+    - Qwen Edit (`generate_qwen_edit` / `shot_keyframe_edit --engine qwen`) — 기본 **2509 Q5 GGUF** + 지시 편집 (Angles LoRA 없음)
+    - Qwen Angle (`generate_qwen_angle` / `character_qwen_turns`) — **2511 GGUF** + Lightning + **Angles LoRA**, 멀티뷰 턴
+    - **Qwen Edit Lightning 정책**: 기본 **ON** (4step). 결과 부족(국소 실패·소품 과삭제) 시에만 `--no-lightning --steps 20 --cfg 4` 승격.
 * 확정 전 LoRA 학습은 기본 경로 아님. SSOT: [docs/character_casting_pipeline.md](docs/character_casting_pipeline.md).
 
 ### Rule 6.3 Look / Style Core

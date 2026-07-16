@@ -23,7 +23,7 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `shot_qa_pack.py` | **Visual QA pack** identity_ref\|keyframe\|prev (or clip first/mid/last) | Rule 7.3 · boards/qa/ |
 | `shot_qa_record.py` | **Visual QA JSON** pass/fail + required checks → approve gate | meta/visual_qa/ · clip freeze detect **default ON** |
 | `episode_identity_sheet.py` | **Cross-shot cast** contact + optional identity QA | boards/identity_contact.png |
-| `comfy_ensure.py` | ComfyUI 기동 확인/자동 기동 (중복 방지) | `127.0.0.1:8188` · **only** `run_nvidia_gpu_fast_fp16_accumulation.bat` via `_launch_comfy_process` (`start "ComfyUI-Agent" /D … call bat`) |
+| `comfy_ensure.py` | ComfyUI 기동 확인/자동 기동 (중복 방지) | `127.0.0.1:8188` · bat과 동일 명령 (`python_embeded\python.exe -s ComfyUI\main.py …`) |
 | `generate_krea.py` | Krea 2 Turbo T2I | `queue_prompt` 경로 (ensure 포함). raw `/prompt` 금지 |
 | `generate_v2v.py` | V2V 의도 (camera/motion/style) | LTX AIO true `-v` · docs/v2v_intent… |
 | `episode_v2v.py` | 에피소드 `motion_driver=v2v_*` 배치 | `refs/video` + approved keyframe |
@@ -69,7 +69,8 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `character_set_wardrobe.py` | **B2** 의상·소품 잠금 | bible wardrobe/props + lock 게이트 |
 | `character_expand_sheets.py` | **C** 시트 expand | t2i design / qwen / i2i / controlnet |
 | `character_qwen_turns.py` | **C** head/body 턴 | Qwen multi-angles (body=costume 우선) |
-| `generate_qwen_angle.py` | Qwen 각도 1장 | Multiple-Angles LoRA `<sks> …` |
+| `generate_qwen_angle.py` | Qwen **각도 턴** 1장 | **동일** 2511 GGUF + Lightning + **Angles LoRA** `<sks>` |
+| `generate_qwen_edit.py` | Qwen **지시형 편집** | **동일** 2511 GGUF + Lightning, Angles **OFF** · `--backend fp8_2509` opt-in |
 | `character_full_sheet.py` | **C** full_sheet 원샷 | design→costume→turns→rest + wardrobe 게이트 |
 | `location_create.py` | 로케 패키지 + master T2I | architecture lock |
 | `location_expand_sheets.py` | 로케 angles/lighting/landmarks | I2I from master_wide |
@@ -87,7 +88,7 @@ python scripts/generate_i2v.py -i keyframe.png -o out.mp4
 | `export_episode_to_workspace.py` | 공장→작업대 복사 | `AGENT_WORKSPACE` · `--dest` |
 | `chain_one_take.py` | 원테이크 체인 (i2v+si2v) | last-frame · clip gate · performance |
 | `shot_compose.py --from-prev-shot` | 이전 클립 끝 프레임→키프레임 | Rule 7.2 clip approve |
-| `shot_keyframe_edit.py` | 키프레임 국소 I2I 수술 | draft 재승인 · no global blur |
+| `shot_keyframe_edit.py` | 키프레임 국소 수술 | `--engine moody\|qwen` · draft 재승인 · no global blur |
 | `clip_review_sheet.py` | 컷 검수 first/last + contact | 자동 승인 아님 |
 | `episode_subtitles.py` | 쇼츠 SRT + soft burn | dialogue 타임라인 |
 | `generate_bgm.py` | BGM 생성 | ACE-Step 1.5 turbo (or Sonilo) |

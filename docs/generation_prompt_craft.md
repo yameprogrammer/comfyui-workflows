@@ -106,6 +106,43 @@ yellow parasol color in puddle reflection bokeh, NO face NO torso NO raised leg,
 
 I2I: **“what changes”** 를 앞에. “same person, keep face” 한 절이면 충분.
 
+### 2.2b Qwen 지시 편집 (`generate_qwen_edit` / `shot_keyframe_edit --engine qwen`)
+
+Moody I2I와 **공존**. 의미 단위 편집(물체 제거·교체, 소품 수정)에 쓴다.  
+**가중치:** 멀티앵글과 **같은** `qwen-image-edit-2511` GGUF + Lightning (Angles LoRA 없음).  
+각도 턴은 **`generate_qwen_angle` / `character_qwen_turns`** (같은 모델 + Angles LoRA + `<sks>`).
+
+**프롬프트 패턴**
+
+```text
+[CHANGE: what to add/remove/replace], [KEEP: identity, framing, wardrobe, lighting unless asked]
+```
+
+| 할 것 | 하지 말 것 |
+|------|------------|
+| 한 번에 한 주 편집 의도 | 전체 재연출 + 의상 + 포즈 동시 요구 |
+| 구체 명사 (plastic straw, left hand) | “make it better / fix anatomy” 만 |
+| keep identity/framing 한 절 | 긴 스타일 태그 도배 |
+| multi-ref 시 “image2 is face reference” 명시 | 참조 역할 모호 |
+
+**예**
+
+```text
+Remove the plastic straw from the iced drink on the table, keep the same cup,
+same woman identity and cafe framing, photoreal.
+```
+
+CLI는 기본적으로 identity keep 절을 붙인다 (`--raw-prompt` 로 끔).
+
+**Lightning 운용 (공장 기본 정책)**
+
+| 단계 | 설정 | 언제 |
+|------|------|------|
+| **기본** | Lightning **ON** (4step / CFG1) | 첫 패스·후보·빠른 확인 |
+| **승격** | `--no-lightning --steps 20 --cfg 4` | 컵 날아감·국소 실패·approve 직전 재시도 |
+
+속도 우선이 기본이고, **결과 보고 부족할 때만** 품질 패스로 올린다.
+
 ### 2.3 Look / Char / Loc 조립 규칙
 
 `shot_compose` 가 core를 붙일 때:

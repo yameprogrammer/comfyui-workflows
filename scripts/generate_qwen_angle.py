@@ -2,6 +2,11 @@
 """
 Qwen-Image-Edit-2511 multi-angle camera edit (local MultiGen stack).
 
+Role (coexists — do not replace general instruction edit):
+  - Character head/body turns only (`character_qwen_turns`, expand engine=qwen)
+  - General object/prop/scene instruction edit → `generate_qwen_edit.py` (2509)
+  - Soft tone/expression remix → Moody I2I
+
 Uses:
   - LoaderGGUF: qwen-image-edit-2511-Q4_K_M.gguf
   - Lightning 4step LoRA
@@ -37,6 +42,7 @@ from lib.comfy_client import (
     wait_for_history,
     write_meta,
 )
+from lib.comfy_engine_session import FAMILY_QWEN_ANGLE, ensure_engine
 
 DEFAULT_INSTRUCTION = (
     "Describe the key features of the input image (color, shape, size, texture, objects, background), "
@@ -218,6 +224,16 @@ def generate_qwen_angle(
 ) -> dict:
     if not os.path.isfile(input_image_path):
         return fail_result(error="SOURCE_MISSING", message=input_image_path)
+
+    eng = ensure_engine(
+        FAMILY_QWEN_ANGLE, server_address, caller="generate_qwen_angle"
+    )
+    if not eng.get("ok"):
+        return fail_result(
+            error=eng.get("error") or "ENGINE_SESSION",
+            message=eng.get("message") or "comfy engine free/gate failed",
+            engine_session=eng,
+        )
 
     prompt = build_angle_prompt(view_key, extra_prompt)
     seed = seed if seed is not None else random.randint(1, 2**31 - 1)

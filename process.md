@@ -1,3 +1,29 @@
+## 2026-07-16 — Qwen Edit Lightning policy
+- Default: Lightning **ON** (4step/CFG1) first pass
+- Escalate only if result fails intent: `--no-lightning --steps 20 --cfg 4` (smoke v2 cup+straw OK)
+- Documented in generation_prompt_craft §2.2b · agent_rules still-edit · CLI help
+## 2026-07-16 — Qwen Edit 2509 Q5_K_M GGUF default
+- Download: QuantStack `Qwen-Image-Edit-2509-Q5_K_M.gguf` → `models/diffusion_models/QwenImage/`
+- `generate_qwen_edit` default backend=`gguf_2509` (native TextEncodeQwenImageEditPlus + LoaderGGUF)
+- Fallbacks: `gguf_2511` (angle stack), `fp8_2509` (heavy); multi-angle CLI unchanged
+## 2026-07-16 — Comfy launch = bat command only (no wrappers)
+- User pushback: stop inventing start/startfile/nested cmd; just run what the bat runs
+- `_launch_comfy_process`: cwd=portable root + exact  
+  `python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build --fast fp16_accumulation --disable-smart-memory`
+- Earlier failures: wrong wrappers + stale launch_state + broken inherited stdout (GGUF print Errno 22)
+## 2026-07-16 — Comfy launch fix + Qwen edit GGUF smoke OK
+- Smoke: `generate_qwen_edit --backend gguf_2511` → `F:\generated_images\qwen_edit_gguf_smoke.png` (after manual/healthy Comfy)
+## 2026-07-16 — Qwen instruction edit shares multi-angle GGUF
+- Default `generate_qwen_edit --backend gguf_2511`: **same** `qwen-image-edit-2511-Q4_K_M.gguf` + Lightning as multi-angle
+- Difference: **no** Multiple-Angles LoRA; natural-language instruction (not `<sks>`)
+- `generate_qwen_angle` unchanged (Angles LoRA + view presets)
+- fp8 2509 UNet (~19GB) demoted to `--backend fp8_2509` opt-in (VRAM thrash on 4090)
+- Edit engine family for gguf path = `FAMILY_QWEN_ANGLE` (shared weights, less free thrash)
+## 2026-07-16 — Qwen-Image-Edit-2509 instruction edit (coexist)
+- New `scripts/generate_qwen_edit.py`: instruction edit CLI + `shot_keyframe_edit --engine qwen`
+- Engine families: `FAMILY_QWEN_EDIT` / `FAMILY_QWEN_ANGLE`; angle CLI free-on-switch
+- Catalog aliases `qwen_edit_2509` / `qwen_angle_2511` (API inject)
+- Coexistence: Moody I2I · Qwen edit · Qwen angle — do not collapse roles
 ## 2026-07-16 — generation-prompt skill v1.0 (image + video)
 - New skills/generation-prompt: SHOT→still/I2I/I2V/SI2V prompts, gates, lexicon, banned fluff
 - Research: structured image layers, Runway I2V motion-first, Kling camera language, visual-skills ban filler

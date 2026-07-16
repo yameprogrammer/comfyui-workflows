@@ -175,7 +175,12 @@ def _recent_launch_in_progress(
     *,
     cooldown_sec: float = DEFAULT_LAUNCH_COOLDOWN_SEC,
 ) -> dict[str, Any] | None:
-    """Return launch state if another agent likely already spawned Comfy recently."""
+    """Return launch state only if a spawn is *likely still booting*.
+
+    Important: do **not** block re-spawn for the full ready-timeout when the
+    launcher PID is already dead and the API is still down — that made agents
+    wait forever after a failed/killed start (state age < 180s → never re-run bat).
+    """
     state = _load_launch_state()
     if not state:
         return None
@@ -194,9 +199,15 @@ def _recent_launch_in_progress(
         pid_i = int(pid) if pid is not None else None
     except (TypeError, ValueError):
         pid_i = None
-    # Trust cooldown window even if PID reaped (cmd may exit; grandchild may still boot).
-    if pid_i is None or _pid_alive(pid_i) or age < cooldown_sec:
+
+    # Short grace: cmd/start returns quickly; grandchild may still be starting.
+    boot_grace_sec = min(45.0, float(cooldown_sec))
+    if age <= boot_grace_sec:
         return state
+    # After grace: only block if launcher process still alive.
+    if pid_i is not None and _pid_alive(pid_i):
+        return state
+    # Stale state (API still down, launcher gone) → allow re-spawn.
     return None
 
 
@@ -273,18 +284,14 @@ class _LaunchLock:
 
 
 def _launch_comfy_process(bat_path: str) -> int:
-    """Spawn the portable launcher bat in a **separate console**.
+    """Start Comfy exactly like the portable bat — no start/startfile wrappers.
 
-    SSOT launch (Windows) — do **not** invent alternate wrappers (ProcessStartInfo,
-    env-injected call, minimized UseShellExecute, direct python main.py, etc.):
+    Default bat (``run_nvidia_gpu_fast_fp16_accumulation.bat``) is literally:
 
-        cmd.exe /c start "ComfyUI-Agent" /D "<bat_dir>" cmd.exe /c call "<bat>"
+        .\\python_embeded\\python.exe -s ComfyUI\\main.py ^
+            --windows-standalone-build --fast fp16_accumulation --disable-smart-memory
 
-    - Quoted window title is required so ``start`` never treats paths as the title.
-    - ``/D`` sets the portable root as cwd (bat expects to run from there).
-    - ``call "<bat>"`` runs the official launcher
-      (default: ``run_nvidia_gpu_fast_fp16_accumulation.bat``).
-    - ``start`` detaches from the agent shell so Comfy outlives the CLI.
+    We run that same command with cwd = portable root (the bat's folder).
     """
     bat_path = os.path.abspath(bat_path)
     if not os.path.isfile(bat_path):
@@ -293,32 +300,38 @@ def _launch_comfy_process(bat_path: str) -> int:
             f"(set AGENT_COMFY_LAUNCH_BAT to override)"
         )
     cwd = os.path.dirname(bat_path) or os.getcwd()
+
+    # Same command line as the bat (absolute paths so cwd is unambiguous).
+    py = os.path.join(cwd, "python_embeded", "python.exe")
+    main_py = os.path.join(cwd, "ComfyUI", "main.py")
+    if os.path.isfile(py) and os.path.isfile(main_py):
+        args = [
+            py,
+            "-s",
+            main_py,
+            "--windows-standalone-build",
+            "--fast",
+            "fp16_accumulation",
+            "--disable-smart-memory",
+        ]
+    else:
+        # Unknown bat layout: still just "run the bat from its directory".
+        args = ["cmd.exe", "/c", bat_path] if sys.platform == "win32" else [bat_path]
+
     if sys.platform == "win32":
-        # One cmdline string so quoting of title / paths is unambiguous on Windows.
-        # Equivalent argv form without proper quotes is how agents accidentally
-        # spawn weird minimized / non-detached processes.
-        inner = f'start "ComfyUI-Agent" /D "{cwd}" cmd.exe /c call "{bat_path}"'
+        # New console window; do not pass stdin/stdout/stderr (avoids broken agent pipes).
+        flags = int(getattr(subprocess, "CREATE_NEW_CONSOLE", 0x00000010))
         proc = subprocess.Popen(
-            ["cmd.exe", "/c", inner],
+            args,
             cwd=cwd,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            close_fds=True,
+            creationflags=flags,
         )
-        try:
-            proc.wait(timeout=8)
-        except subprocess.TimeoutExpired:
-            pass
         return int(proc.pid)
+
     proc = subprocess.Popen(
-        [bat_path] if os.access(bat_path, os.X_OK) else ["/bin/bash", bat_path],
+        args,
         cwd=cwd,
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
         start_new_session=True,
-        close_fds=True,
     )
     return int(proc.pid)
 
@@ -437,8 +450,11 @@ def ensure_comfy_running(
             result["waited_sec"] = time.time() - t0
             return result
 
+        if force:
+            _clear_launch_state()
+
         recent = _recent_launch_in_progress(
-            server_address, cooldown_sec=max(DEFAULT_LAUNCH_COOLDOWN_SEC, ready_timeout)
+            server_address, cooldown_sec=DEFAULT_LAUNCH_COOLDOWN_SEC
         )
         if recent and not force:
             if log:
@@ -462,7 +478,7 @@ def ensure_comfy_running(
                 return result
             recent2 = _recent_launch_in_progress(
                 server_address,
-                cooldown_sec=max(DEFAULT_LAUNCH_COOLDOWN_SEC, ready_timeout * 0.5),
+                cooldown_sec=DEFAULT_LAUNCH_COOLDOWN_SEC,
             )
             if recent2 and not force:
                 result["action"] = "wait_existing_launch"

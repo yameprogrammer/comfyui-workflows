@@ -79,8 +79,9 @@
 
 ### P1-3. 키프레임 국소 수술 슬롯 — ✅ 2026-07-14
 
-- `scripts/shot_keyframe_edit.py` — Moody I2I surgical (denoise default 0.35)  
-- 메타 `keyframe_source=surgical_edit`, `keyframe_status=draft` 재승인  
+- `scripts/shot_keyframe_edit.py` — surgical edit `--engine moody|qwen` (moody denoise default 0.35; qwen = Edit-2509)  
+- `scripts/generate_qwen_edit.py` — Qwen-Image-Edit-2509 instruction edit (multi-image; coexists with Moody I2I + angle)  
+- 메타 `keyframe_source=surgical_edit_<engine>`, `keyframe_status=draft` 재승인  
 - 전 샷 글로벌 블러 프롬프트 거부 · `_history/` 백업  
 
 ### P1-4. 컷 검수 보조 (자동 승인 아님) — ✅ 2026-07-14
