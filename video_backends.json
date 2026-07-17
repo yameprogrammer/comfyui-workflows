@@ -1,8 +1,8 @@
 {
   "version": 3,
   "description": "I2V backend + format SSOT. Deliver pixel tiers (deliver_1080/2160…) live in upscale_backends.json; format only picks aspect. See docs/video_delivery_and_backends.md",
-  "default_backend": "wan22",
-  "default_backend_s2v": "ltx23_ia2v",
+  "default_backend": "ltx23_aio_i2v",
+  "default_backend_s2v": "ltx23_aio",
   "default_format": "cinematic_16x9",
   "default_work_preset": "work_16x9_540",
   "default_deliver_tier": "deliver_1080",
@@ -10,7 +10,11 @@
     "cinematic_16x9": {
       "aspect": "16:9",
       "orientation": "landscape",
-      "use_cases": ["youtube", "cinema", "web_horizontal"],
+      "use_cases": [
+        "youtube",
+        "cinema",
+        "web_horizontal"
+      ],
       "default_work_preset": "work_16x9_540",
       "default_deliver_tier": "deliver_1080",
       "notes": "Wide landscape; common default when no format specified"
@@ -18,7 +22,12 @@
     "shorts_9x16": {
       "aspect": "9:16",
       "orientation": "portrait",
-      "use_cases": ["shorts", "reels", "tiktok", "stories"],
+      "use_cases": [
+        "shorts",
+        "reels",
+        "tiktok",
+        "stories"
+      ],
       "default_work_preset": "work_9x16_540",
       "default_deliver_tier": "deliver_1080",
       "notes": "Vertical short-form"
@@ -26,7 +35,11 @@
     "classic_4x3": {
       "aspect": "4:3",
       "orientation": "landscape",
-      "use_cases": ["classic_tv", "presentation", "retro"],
+      "use_cases": [
+        "classic_tv",
+        "presentation",
+        "retro"
+      ],
       "default_work_preset": "work_4x3_540",
       "default_deliver_tier": "deliver_1080",
       "notes": "Traditional 4:3 landscape"
@@ -34,7 +47,11 @@
     "portrait_3x4": {
       "aspect": "3:4",
       "orientation": "portrait",
-      "use_cases": ["portrait_photo_style", "print_like", "app_vertical"],
+      "use_cases": [
+        "portrait_photo_style",
+        "print_like",
+        "app_vertical"
+      ],
       "default_work_preset": "work_3x4_540",
       "default_deliver_tier": "deliver_1080",
       "notes": "Soft vertical (less tall than 9:16)"
@@ -42,7 +59,10 @@
     "square_1x1": {
       "aspect": "1:1",
       "orientation": "square",
-      "use_cases": ["feed_square", "smoke_test"],
+      "use_cases": [
+        "feed_square",
+        "smoke_test"
+      ],
       "default_work_preset": "work_1x1_smoke",
       "default_deliver_tier": "deliver_1080",
       "notes": "Square; also used for legacy smoke tests"
@@ -158,22 +178,78 @@
       "status": "ready",
       "engine": "Wan2.2 I2V A14B GGUF",
       "workflow": "i2v_wan22_a14b",
-      "strengths": ["character_i2v", "general_cinematic"],
-      "notes": "GGUF dual high/low + lightx2v 4step; default backend"
+      "workflow_api": "presets/i2v_wan22_a14b.api.json",
+      "strengths": [
+        "character_i2v",
+        "general_cinematic"
+      ],
+      "notes": "GGUF dual high/low + lightx2v. A/B 2026-07-17 vs LTX: LTX preferred for motion/film quality. Use wan22 only as fallback or explicit --backend wan22. Default I2V = ltx23_aio_i2v.",
+      "quality_tier": "fallback"
+    },
+    "wan22_flf": {
+      "status": "ready",
+      "engine": "Wan2.2 I2V A14B FLF (start+end)",
+      "workflow": "i2v_wan22_a14b_flf",
+      "workflow_api": "presets/i2v_wan22_a14b_flf.api.json",
+      "strengths": [
+        "first_last_frame",
+        "one_take_bridge",
+        "flf2v"
+      ],
+      "notes": "Wan FLF API preset. Quality default FLF = ltx23_aio_flf. Keep wan22_flf as opt-in fallback.",
+      "quality_tier": "fallback"
+    },
+    "wan22_animate": {
+      "status": "planned",
+      "kind": "v2v_motion",
+      "engine": "WAN Animate 2.2",
+      "human_ui": "workflows/human/wan22/wan22_animate.json",
+      "strengths": [
+        "dance_challenge",
+        "pose_retarget"
+      ],
+      "notes": "Motion transfer (SAM2+pose). Wire with dance_challenge pipeline later."
     },
     "ltx23": {
-      "status": "planned",
-      "engine": "LTX 2.3",
-      "workflow": "i2v_ltx23",
-      "strengths": ["fast_iteration", "alt_motion"],
-      "notes": "General I2V (non-SI2V). Local GGUF ready; agent I2V runner not wired yet."
+      "status": "ready",
+      "engine": "LTX 2.3 AIO v44",
+      "workflow": "ltx23AllInOneWorkflowForRTX_v44",
+      "runner": "lib/ltx_aio_workflow_runner.py",
+      "strengths": [
+        "fast_iteration",
+        "alt_motion",
+        "agent_default_i2v"
+      ],
+      "notes": "Alias → generate_s2v/ltx_aio i2v mode on real AIO UI WF (not mini graph)."
+    },
+    "ltx23_aio_i2v": {
+      "status": "ready",
+      "kind": "s2v",
+      "engine": "LTX 2.3 AIO Image to Video (no audio)",
+      "workflow": "ltx23AllInOneWorkflowForRTX_v44",
+      "source_ui": "workflows/human/ltx23AllInOneWorkflowForRTX_v44.json",
+      "runner": "lib/ltx_aio_workflow_runner.py",
+      "strengths": [
+        "establishing",
+        "motion_only",
+        "agent_default_i2v",
+        "s2v"
+      ],
+      "notes": "DEFAULT I2V after A/B vs Wan2.2 (2026-07-17): better motion + film quality at work res. Real AIO UI WF via generate_s2v/generate_i2v.",
+      "quality_tier": "default"
     },
     "infinitetalk": {
       "status": "ready",
       "kind": "s2v",
       "engine": "Wan 2.1 I2V + InfiniteTalk (WanVideoWrapper)",
       "workflow": "scripts/generate_s2v.py --backend infinitetalk",
-      "strengths": ["lip_sync", "talking_head", "music_video_vocal_cut", "face_stability", "hero_cut"],
+      "strengths": [
+        "lip_sync",
+        "talking_head",
+        "music_video_vocal_cut",
+        "face_stability",
+        "hero_cut"
+      ],
       "notes": "HERO lips only (not agent default). Best lip lock; full 960@20step ~10–12min/5s on 4090. Use --profile hero (832/16fps/12step, still no lightx2v graph). lightx2v LoRA exists locally but graph wire deferred."
     },
     "ltx23_ia2v": {
@@ -181,7 +257,13 @@
       "kind": "s2v",
       "engine": "LTX 2.3 AIO real workflow (alias → i2v_audio mode switches)",
       "workflow": "scripts/generate_s2v.py --backend ltx23_ia2v",
-      "strengths": ["fast_iteration", "custom_audio_i2v", "agent_default", "preview", "deliver"],
+      "strengths": [
+        "fast_iteration",
+        "custom_audio_i2v",
+        "agent_default",
+        "preview",
+        "deliver"
+      ],
       "notes": "Alias of AIO i2v_audio. Uses [[P:]] switch on human AIO UI WF via ltx_aio_workflow_runner (not mini-graph)."
     },
     "ltx23_aio": {
@@ -193,29 +275,36 @@
       "source_ui": "workflows/human/ltx23AllInOneWorkflowForRTX_v44.json",
       "source_ui_ia2v": "workflows/human/ltx23AllInOneWorkflowForRTX_v44_IA2V.json",
       "runner": "lib/ltx_aio_workflow_runner.py",
-      "strengths": ["fast_iteration", "lip_sync", "custom_audio_i2v", "flf", "user_validated_aio"],
+      "strengths": [
+        "fast_iteration",
+        "lip_sync",
+        "custom_audio_i2v",
+        "flf",
+        "user_validated_aio"
+      ],
       "notes": "Modes: i2v, i2v_audio, flf, flf_audio, fml, fml_audio, v2v, v2v_audio, t2v, t2v_audio. Real WF switch/select — not mini graphs."
-    },
-    "ltx23_aio_i2v": {
-      "status": "ready",
-      "kind": "s2v",
-      "engine": "LTX AIO Image to Video (no audio) — switch select",
-      "workflow": "scripts/generate_s2v.py --backend ltx23_aio_i2v",
-      "strengths": ["establishing", "motion_only"]
     },
     "ltx23_aio_flf": {
       "status": "ready",
       "kind": "s2v",
       "engine": "LTX AIO First/Last Frame — switch select",
       "workflow": "scripts/generate_s2v.py --backend ltx23_aio_flf --last last.png",
-      "strengths": ["one_take_bridge", "flf2v"]
+      "strengths": [
+        "one_take_bridge",
+        "flf2v"
+      ],
+      "quality_tier": "default_flf"
     },
     "ltx23_aio_flf_audio": {
       "status": "ready",
       "kind": "s2v",
       "engine": "LTX AIO First/Last + Audio — switch select",
       "workflow": "scripts/generate_s2v.py --backend ltx23_aio_flf_audio --last last.png -a drive.wav",
-      "strengths": ["one_take_bridge", "lip_sync", "flf2v"]
+      "strengths": [
+        "one_take_bridge",
+        "lip_sync",
+        "flf2v"
+      ]
     },
     "ltx23_aio_fml": {
       "status": "ready",
@@ -247,8 +336,16 @@
       "kind": "v2v",
       "engine": "LTX AIO [[P:03 Video to Video]] + VHS_LoadVideo (true -v)",
       "workflow": "scripts/generate_v2v.py --intent camera|motion|style -v ref.mp4 -i key.png",
-      "intents": ["camera", "motion", "style"],
-      "strengths": ["camera_plate", "motion_retarget", "style_transfer"],
+      "intents": [
+        "camera",
+        "motion",
+        "style"
+      ],
+      "strengths": [
+        "camera_plate",
+        "motion_retarget",
+        "style_transfer"
+      ],
       "notes": "SSOT: docs/v2v_intent_pipeline_design.md. Requires driving video copy into Comfy input."
     },
     "ltx23_aio_v2v_true_audio": {
@@ -256,7 +353,11 @@
       "kind": "v2v",
       "engine": "LTX AIO V2V + Audio ports",
       "workflow": "scripts/generate_v2v.py --intent motion -v ref.mp4 -i key.png -a drive.wav",
-      "intents": ["camera", "motion", "style"],
+      "intents": [
+        "camera",
+        "motion",
+        "style"
+      ],
       "notes": "Optional audio track; not a substitute for SI2V lips."
     },
     "ltx23_aio_t2v": {
@@ -276,8 +377,58 @@
       "kind": "s2v",
       "engine": "WanVideo Add S2V Embeds",
       "workflow": null,
-      "strengths": ["audio_driven_motion"],
+      "strengths": [
+        "audio_driven_motion"
+      ],
       "notes": "WanVideoAddS2VEmbeds + s2v example jsons in custom_nodes/.../s2v/"
+    },
+    "flf2v": {
+      "status": "ready",
+      "engine": "Alias → ltx23_aio_flf (quality default after A/B 2026-07-17)",
+      "workflow": "ltx23AllInOneWorkflowForRTX_v44",
+      "alias_of": "ltx23_aio_flf",
+      "runner": "lib/ltx_aio_workflow_runner.py",
+      "notes": "motion_driver=flf2v maps to LTX first/last mode. Override with --backend wan22_flf if needed."
     }
+  },
+  "default_backend_flf": "ltx23_aio_flf",
+  "i2v_quality_policy": {
+    "ab_date": "2026-07-17",
+    "source": "stories/sonagi_mv_v3/keyframes/S01.png",
+    "target_work": "960x544 (work_16x9_540)",
+    "outputs": {
+      "wan22": "F:/generated_videos/ab_wan_vs_ltx/S01_wan22.mp4",
+      "ltx23_aio_i2v": "F:/generated_videos/ab_wan_vs_ltx/S01_ltx23.mp4",
+      "compare_sheets": [
+        "F:/generated_videos/ab_wan_vs_ltx/compare_f00_wan_vs_ltx.png",
+        "F:/generated_videos/ab_wan_vs_ltx/compare_f08_wan_vs_ltx.png"
+      ]
+    },
+    "measured": {
+      "wan22": {
+        "wh": "960x544",
+        "fps": 16,
+        "frames": 33,
+        "steps": 6,
+        "elapsed_sec": 78.3,
+        "bitrate": "~2.7Mbps"
+      },
+      "ltx23": {
+        "wh": "960x576",
+        "fps": 24,
+        "frames": 49,
+        "steps": 20,
+        "elapsed_sec": "~112",
+        "bitrate": "~6.6Mbps"
+      }
+    },
+    "verdict": "ltx23_aio_i2v",
+    "reasons": [
+      "More natural body/pose change mid-clip (not still-photo wobble)",
+      "Better film grain / practical light response",
+      "Higher encode bitrate and perceived detail in motion",
+      "WAN GGUF 4–6step lightx2v looks sharper freeze-frame but flatter motion"
+    ],
+    "wan22_role": "fallback / FLF experiment / low-VRAM only — not quality default"
   }
 }

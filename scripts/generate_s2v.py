@@ -7,9 +7,13 @@ Backends:
   - infinitetalk: Wan Multi/InfiniteTalk (WanVideoWrapper)
 
 LTX path (default):
-  workflows/human/ltx23AllInOneWorkflowForRTX_v44(_IA2V).json
-  → apply_aio_mode_to_ui_workflow (Orchestrator mute table)
+  workflows/human/ltx23AllInOneWorkflowForRTX_v44.json
+  → Select options via [[P:]] mute (same as Orchestrator black switch)
   → expand_ui_workflow_to_api → inject Trim/clip/edge/aspect/seed
+
+Feature catalog (agent):
+  python scripts/run_ltx_aio_features.py --list
+  workflows/human/LTX23_AIO_v44_AGENT_GUIDE.md
 
 Emergency only:
   AGENT_LTX_FORCE_MINI_GRAPH=1 → legacy homemade mini graphs (not preferred)
@@ -549,6 +553,8 @@ def generate_s2v(
     tail_sec: float | None = None,
     video_path: str | None = None,
     trim_start_sec: float = 0.0,
+    face_stability: bool | None = None,
+    detailer_strength: float | None = None,
 ) -> dict:
     # T2V / pure V2V may omit still; still required for classic I2V/SI2V paths.
     if input_image_path and not os.path.isfile(input_image_path):
@@ -830,10 +836,19 @@ def generate_s2v(
                     aspect=aspect,
                     fps=int(round(float(fps))),
                     filename_prefix="agent_ltx_aio",
+                    face_stability=face_stability,
+                    detailer_strength=detailer_strength,
                 )
                 ltx_runner = "ltx_aio_workflow_runner"
                 lora_use = "PowerLora(from_AIO_workflow)"
                 lora_str = 0.9
+                fl = (live_meta or {}).get("face_lora") or {}
+                det = fl.get("detailer") if isinstance(fl, dict) else None
+                if det:
+                    print(
+                        f"  face_stability detailer on={det.get('on')} "
+                        f"strength={det.get('strength')} lora={det.get('lora')}"
+                    )
                 print(
                     f"generate_s2v backend={backend} mode={mode} "
                     f"AIO_SWITCH edge={edge} aspect={aspect} "
@@ -1253,9 +1268,32 @@ def main(argv=None) -> int:
         "--ltx-mode",
         default=None,
         choices=list(AIO_MODES),
-        help="Override AIO mode (switch/select): i2v|i2v_audio|flf|flf_audio|fml|fml_audio|v2v|v2v_audio|t2v|t2v_audio",
+        help="Select options mode: i2v|i2v_audio|flf|flf_audio|fml|fml_audio|v2v|v2v_audio|t2v|t2v_audio",
+    )
+    p.add_argument(
+        "--ltx-feature",
+        default=None,
+        help=(
+            "Select-options feature_id (mode_i2v_audio, mode_flf, …). "
+            "Same as --ltx-mode after resolve. List: run_ltx_aio_features.py --list"
+        ),
     )
     p.add_argument("--guide-strength", type=float, default=0.9)
+    p.add_argument(
+        "--face-stability",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help=(
+            "LTX AIO: enable IC-LoRA detailer + face negative/prompt locks "
+            "(default ON for i2v/flf; OFF: --no-face-stability or AGENT_LTX_FACE_STABILITY=0)"
+        ),
+    )
+    p.add_argument(
+        "--detailer-strength",
+        type=float,
+        default=None,
+        help="LTX IC-LoRA detailer strength (default 0.55; env AGENT_LTX_DETAILER_STRENGTH)",
+    )
     p.add_argument("--output", "-o", default=None)
     p.add_argument(
         "--backend",
@@ -1346,11 +1384,30 @@ def main(argv=None) -> int:
     p.add_argument("--ltx-lora", default=DEFAULT_DISTILL_LORA)
     args = p.parse_args(argv)
 
+    backend = args.backend
+    ltx_mode = args.ltx_mode
+    if args.ltx_feature:
+        from lib.ltx_aio_mode_select import resolve_feature
+
+        try:
+            feat = resolve_feature(args.ltx_feature)
+        except ValueError as e:
+            print(f"[ERROR] {e}", file=sys.stderr)
+            return 2
+        ltx_mode = feat["mode"]
+        # Prefer feature's backend when user left default generic aio
+        if backend in ("ltx23_aio", "ltx23_ia2v") or not args.backend:
+            backend = feat["backend"]
+        print(
+            f"[ltx-feature] {feat['feature_id']} → mode={ltx_mode} "
+            f"backend={backend} select={feat['select_options']}"
+        )
+
     r = generate_s2v(
         args.input,
         args.audio,
         args.output,
-        backend=args.backend,
+        backend=backend,
         prompt=args.prompt,
         negative=args.negative,
         width=args.width,
@@ -1380,7 +1437,7 @@ def main(argv=None) -> int:
         speed_lora_strength=1.0,
         teacache=args.teacache,
         teacache_thresh=args.teacache_thresh,
-        ltx_mode=args.ltx_mode,
+        ltx_mode=ltx_mode,
         last_image_path=args.last_image,
         mid_image_path=args.mid_image,
         guide_strength=args.guide_strength,
@@ -1388,6 +1445,8 @@ def main(argv=None) -> int:
         tail_sec=args.tail_sec,
         video_path=args.video_path,
         trim_start_sec=float(args.trim_start or 0.0),
+        face_stability=args.face_stability,
+        detailer_strength=args.detailer_strength,
     )
     if r.get("ok"):
         print(f"OK {r.get('output_path') or '(dry-run)'}")

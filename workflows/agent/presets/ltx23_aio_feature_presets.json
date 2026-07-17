@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "description": "LTX 2.3 AIO v44 feature → backend/mode selection",
+  "source_ui": "workflows/human/ltx23AllInOneWorkflowForRTX_v44.json",
+  "runner": "lib/ltx_aio_workflow_runner.py",
+  "select_preset": {
+    "default_s2v": "i2v_audio",
+    "default_i2v": "i2v",
+    "by_mode": {
+      "t2v": "ltx23_aio_t2v",
+      "t2v_audio": "ltx23_aio_t2v_audio",
+      "i2v": "ltx23_aio_i2v",
+      "i2v_audio": "ltx23_aio",
+      "flf": "ltx23_aio_flf",
+      "flf_audio": "ltx23_aio_flf_audio",
+      "fml": "ltx23_aio_fml",
+      "fml_audio": "ltx23_aio_fml_audio",
+      "v2v": "ltx23_aio_v2v",
+      "v2v_audio": "ltx23_aio_v2v_audio"
+    }
+  },
+  "features": {
+    "mode_t2v": {
+      "mode": "t2v",
+      "backend": "ltx23_aio_t2v",
+      "select_options": [
+        "01 Text to Video"
+      ],
+      "status": "ready",
+      "cli": "python scripts/generate_s2v.py --backend ltx23_aio_t2v --ltx-mode t2v"
+    },
+    "mode_t2v_audio": {
+      "mode": "t2v_audio",
+      "backend": "ltx23_aio_t2v_audio",
+      "select_options": [
+        "01 Text to Video",
+        "Audio input"
+      ],
+      "status": "ready",
+      "cli": "python scripts/generate_s2v.py --backend ltx23_aio_t2v_audio --ltx-mode t2v_audio"
+    },
+    "mode_i2v": {
+      "mode": "i2v",
+      "backend": "ltx23_aio_i2v",
+      "select_options": [
+        "02 Image to Video"
+      ],
+      "status": "ready",
+      "cli": "python scripts/generate_s2v.py --backend ltx23_aio_i2v --ltx-mode i2v"
+    },
+    "mode_i2v_audio": {
+      "mode": "i2v_audio",
+      "backend": "ltx23_aio",
+      "select_options": [
+        "02 Image to Video",
+        "Audio input"
+      ],
+      "status": "ready",
+      "cli": "python scripts/generate_s2v.py --backend ltx23_aio --ltx-mode i2v_audio"
+    },
+    "mode_flf": {
+      "mode": "flf",
+      "backend": "ltx23_aio_flf",
+      "select_options": [
+        "02 Image to Video",
+        "Last Frame input"
+      ],
+      "status": "ready",
+      "cli": "python scripts/generate_s2v.py --backend ltx23_aio_flf --ltx-mode flf"
+    },
+    "mode_flf_audio": {
+      "mode": "flf_audio",
+      "backend": "ltx23_aio_flf_audio",
+      "select_options": [
+        "02 Image to Video",
+        "Audio input",
+        "Last Frame input"
+      ],
+      "status": "ready",
+      "cli": "python scripts/generate_s2v.py --backend ltx23_aio_flf_audio --ltx-mode flf_audio"
+    },
+    "mode_fml": {
+      "mode": "fml",
+      "backend": "ltx23_aio_fml",
+      "select_options": [
+        "02 Image to Video",
+        "Last Frame input",
+        "Mid Frame input"
+      ],
+      "status": "ready",
+      "cli": "python scripts/generate_s2v.py --backend ltx23_aio_fml --ltx-mode fml"
+    },
+    "mode_fml_audio": {
+      "mode": "fml_audio",
+      "backend": "ltx23_aio_fml_audio",
+      "select_options": [
+        "02 Image to Video",
+        "Audio input",
+        "Last Frame input",
+        "Mid Frame input"
+      ],
+      "status": "ready",
+      "cli": "python scripts/generate_s2v.py --backend ltx23_aio_fml_audio --ltx-mode fml_audio"
+    },
+    "mode_v2v": {
+      "mode": "v2v",
+      "backend": "ltx23_aio_v2v",
+      "select_options": [
+        "03 Video to Video"
+      ],
+      "status": "ready",
+      "cli": "python scripts/generate_s2v.py --backend ltx23_aio_v2v --ltx-mode v2v"
+    },
+    "mode_v2v_audio": {
+      "mode": "v2v_audio",
+      "backend": "ltx23_aio_v2v_audio",
+      "select_options": [
+        "03 Video to Video",
+        "Audio input"
+      ],
+      "status": "ready",
+      "cli": "python scripts/generate_s2v.py --backend ltx23_aio_v2v_audio --ltx-mode v2v_audio"
+    }
+  }
+}

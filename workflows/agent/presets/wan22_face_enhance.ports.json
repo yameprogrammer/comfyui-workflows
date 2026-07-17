@@ -1,0 +1,33 @@
+{
+  "preset": "wan22_face_enhance",
+  "workflow_api": "presets/wan22_face_enhance.api.json",
+  "description": "Exported from human wan22 pack via graphToPrompt (wan22_face_enhance)",
+  "ports": {
+    "input_video": {
+      "node": "530",
+      "key": "video",
+      "copy_to_input_dir": true
+    },
+    "filename_prefix": {
+      "node": "569",
+      "key": "filename_prefix",
+      "optional": true
+    },
+    "frame_load_cap": {
+      "node": "530",
+      "key": "frame_load_cap",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "filename_prefix": "wan22_face_enhance"
+  },
+  "notes": [
+    "Subgraph-expanded API export. Verify ports after first smoke.",
+    "Video loaders may need copy_to_input_dir + Comfy input folder."
+  ],
+  "local_model_map": {
+    "WanVideoModelLoader": "Wan2.2\\Wan2.2-T2V-A14B-LowNoise-Q4_K_M.gguf",
+    "note": "fp8 KJ weights missing; remapped to local GGUF"
+  }
+}

@@ -1,0 +1,532 @@
+{
+  "528": {
+    "inputs": {
+      "frame_rate": 16,
+      "loop_count": 0,
+      "filename_prefix": "Upscale",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 8,
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true,
+      "images": [
+        "526_28",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Upscale Output"
+    }
+  },
+  "530": {
+    "inputs": {
+      "video": "WAN 2.2 I2V_00895.mp4",
+      "force_rate": 0,
+      "custom_width": 0,
+      "custom_height": 0,
+      "frame_load_cap": 33,
+      "skip_first_frames": 0,
+      "select_every_nth": 1,
+      "format": "None"
+    },
+    "class_type": "VHS_LoadVideo",
+    "_meta": {
+      "title": "Load Video (Upload) 🎥🅥🅗🅢"
+    }
+  },
+  "571": {
+    "inputs": {
+      "direction": "right",
+      "match_image_size": true,
+      "image1": [
+        "597",
+        0
+      ],
+      "image2": [
+        "526_28",
+        0
+      ]
+    },
+    "class_type": "ImageConcanate",
+    "_meta": {
+      "title": "ImageConcanate"
+    }
+  },
+  "585": {
+    "inputs": {
+      "frame_rate": 16,
+      "loop_count": 0,
+      "filename_prefix": "Comparison",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 8,
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": false,
+      "images": [
+        "571",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "B/A"
+    }
+  },
+  "597": {
+    "inputs": {
+      "width": [
+        "598",
+        0
+      ],
+      "height": [
+        "598",
+        1
+      ],
+      "interpolation": "lanczos",
+      "method": "keep proportion",
+      "condition": "always",
+      "multiple_of": 0,
+      "image": [
+        "530",
+        0
+      ]
+    },
+    "class_type": "ImageResize+",
+    "_meta": {
+      "title": "🔧 Image Resize"
+    }
+  },
+  "598": {
+    "inputs": {
+      "image": [
+        "526_28",
+        0
+      ]
+    },
+    "class_type": "GetImageSize+",
+    "_meta": {
+      "title": "🔧 Get Image Size"
+    }
+  },
+  "538_531": {
+    "inputs": {
+      "model": [
+        "538_604",
+        0
+      ],
+      "block_swap_args": [
+        "538_535",
+        0
+      ]
+    },
+    "class_type": "WanVideoSetBlockSwap",
+    "_meta": {
+      "title": "WanVideo Set BlockSwap"
+    }
+  },
+  "538_604": {
+    "inputs": {
+      "model": "Wan2.2\\Wan2.2-T2V-A14B-LowNoise-Q4_K_M.gguf",
+      "base_precision": "bf16",
+      "quantization": "disabled",
+      "load_device": "offload_device",
+      "attention_mode": "sdpa",
+      "rms_norm_function": "default"
+    },
+    "class_type": "WanVideoModelLoader",
+    "_meta": {
+      "title": "WanVideo Model Loader"
+    }
+  },
+  "538_536": {
+    "inputs": {
+      "model_name": "wan_2.1_vae.safetensors",
+      "precision": "bf16",
+      "use_cpu_cache": false,
+      "verbose": false
+    },
+    "class_type": "WanVideoVAELoader",
+    "_meta": {
+      "title": "WanVideo VAE Loader"
+    }
+  },
+  "538_535": {
+    "inputs": {
+      "blocks_to_swap": 40,
+      "offload_img_emb": false,
+      "offload_txt_emb": false,
+      "use_non_blocking": false,
+      "vace_blocks_to_swap": 0,
+      "prefetch_blocks": 0,
+      "block_swap_debug": false
+    },
+    "class_type": "WanVideoBlockSwap",
+    "_meta": {
+      "title": "WanVideo Block Swap"
+    }
+  },
+  "538_532": {
+    "inputs": {
+      "model": [
+        "538_531",
+        0
+      ],
+      "lora": [
+        "538_605",
+        0
+      ]
+    },
+    "class_type": "WanVideoSetLoRAs",
+    "_meta": {
+      "title": "WanVideo Set LoRAs"
+    }
+  },
+  "538_605": {
+    "inputs": {
+      "lora": "none",
+      "strength": 0.7,
+      "low_mem_load": false,
+      "merge_loras": false
+    },
+    "class_type": "WanVideoLoraSelect",
+    "_meta": {
+      "title": "Lightning Lora"
+    }
+  },
+  "526_55": {
+    "inputs": {
+      "weight": 2.0000000000000004,
+      "start_percent": 0,
+      "end_percent": 1
+    },
+    "class_type": "WanVideoEnhanceAVideo",
+    "_meta": {
+      "title": "WanVideo Enhance-A-Video"
+    }
+  },
+  "526_28": {
+    "inputs": {
+      "enable_vae_tiling": true,
+      "tile_x": 512,
+      "tile_y": 512,
+      "tile_stride_x": 256,
+      "tile_stride_y": 256,
+      "normalization": "default",
+      "vae": [
+        "538_536",
+        0
+      ],
+      "samples": [
+        "526_392",
+        1
+      ]
+    },
+    "class_type": "WanVideoDecode",
+    "_meta": {
+      "title": "WanVideo Decode"
+    }
+  },
+  "526_603": {
+    "inputs": {
+      "value": 0
+    },
+    "class_type": "JWInteger",
+    "_meta": {
+      "title": "Integer"
+    }
+  },
+  "526_548": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_tau": 2.5,
+      "nag_alpha": 0.25,
+      "inplace": true,
+      "original_text_embeds": [
+        "526_550",
+        0
+      ],
+      "nag_text_embeds": [
+        "526_550",
+        1
+      ]
+    },
+    "class_type": "WanVideoApplyNAG",
+    "_meta": {
+      "title": "WanVideo Apply NAG"
+    }
+  },
+  "526_325": {
+    "inputs": {
+      "width": [
+        "526_546",
+        1
+      ],
+      "height": [
+        "526_546",
+        2
+      ],
+      "num_frames": [
+        "526_546",
+        3
+      ]
+    },
+    "class_type": "WanVideoEmptyEmbeds",
+    "_meta": {
+      "title": "Image Embeds"
+    }
+  },
+  "526_392": {
+    "inputs": {
+      "steps": [
+        "526_439",
+        0
+      ],
+      "cfg": 1.0000000000000002,
+      "shift": 5,
+      "seed": [
+        "526_603",
+        0
+      ],
+      "force_offload": false,
+      "scheduler": "lcm",
+      "riflex_freq_index": 0,
+      "denoise_strength": 1,
+      "batched_cfg": false,
+      "rope_function": "comfy",
+      "start_step": [
+        "526_439",
+        1
+      ],
+      "end_step": -1,
+      "add_noise_to_samples": true,
+      "model": [
+        "538_532",
+        0
+      ],
+      "image_embeds": [
+        "526_325",
+        0
+      ],
+      "text_embeds": [
+        "526_548",
+        0
+      ],
+      "samples": [
+        "526_445",
+        0
+      ],
+      "feta_args": [
+        "526_55",
+        0
+      ]
+    },
+    "class_type": "WanVideoSampler",
+    "_meta": {
+      "title": "WanVideo Sampler"
+    }
+  },
+  "526_546": {
+    "inputs": {
+      "image": [
+        "526_444",
+        0
+      ]
+    },
+    "class_type": "GetImageSizeAndCount",
+    "_meta": {
+      "title": "Get Image Size & Count"
+    }
+  },
+  "526_444": {
+    "inputs": {
+      "max_side_length": 1344,
+      "image": [
+        "526_551",
+        0
+      ]
+    },
+    "class_type": "CRT_QuantizeAndCropImage",
+    "_meta": {
+      "title": "Quantize and Crop Image (CRT)"
+    }
+  },
+  "526_527": {
+    "inputs": {
+      "value": 0
+    },
+    "class_type": "JWInteger",
+    "_meta": {
+      "title": "Integer"
+    }
+  },
+  "526_543": {
+    "inputs": {
+      "start": 0,
+      "length": 1,
+      "image": [
+        "530",
+        0
+      ]
+    },
+    "class_type": "ImageFromBatch+",
+    "_meta": {
+      "title": "🔧 Image From Batch"
+    }
+  },
+  "526_439": {
+    "inputs": {
+      "desired_steps": 5,
+      "strength_percent": 35
+    },
+    "class_type": "Strength To Steps",
+    "_meta": {
+      "title": "Strength to Steps (CRT)"
+    }
+  },
+  "526_445": {
+    "inputs": {
+      "enable_vae_tiling": true,
+      "tile_x": 512,
+      "tile_y": 512,
+      "tile_stride_x": 256,
+      "tile_stride_y": 256,
+      "noise_aug_strength": 0.05,
+      "latent_strength": 1,
+      "vae": [
+        "538_536",
+        0
+      ],
+      "image": [
+        "526_546",
+        0
+      ]
+    },
+    "class_type": "WanVideoEncode",
+    "_meta": {
+      "title": "WanVideo Encode"
+    }
+  },
+  "526_446": {
+    "inputs": {
+      "text_input": "",
+      "task": "caption",
+      "fill_mask": true,
+      "keep_model_loaded": false,
+      "max_new_tokens": 128,
+      "num_beams": 3,
+      "do_sample": true,
+      "output_mask_select": "",
+      "seed": [
+        "526_527",
+        0
+      ],
+      "image": [
+        "526_543",
+        0
+      ],
+      "florence2_model": [
+        "526_447",
+        0
+      ]
+    },
+    "class_type": "Florence2Run",
+    "_meta": {
+      "title": "Florence2Run"
+    }
+  },
+  "526_59": {
+    "inputs": {
+      "text": "High resolution, sharp details, soft, low contrast, natural, RAW, "
+    },
+    "class_type": "Textbox",
+    "_meta": {
+      "title": "Florence2 Prompt"
+    }
+  },
+  "526_550": {
+    "inputs": {
+      "model_name": "umt5-xxl-enc-bf16.safetensors",
+      "precision": "bf16",
+      "positive_prompt": [
+        "526_553",
+        0
+      ],
+      "negative_prompt": "bright, high contrast, glossy plastic skin, blurry, oversaturated",
+      "quantization": "disabled",
+      "use_disk_cache": true,
+      "device": "gpu"
+    },
+    "class_type": "WanVideoTextEncodeCached",
+    "_meta": {
+      "title": "WanVideo TextEncode Cached"
+    }
+  },
+  "526_552": {
+    "inputs": {
+      "delimiter": " ",
+      "string1": [
+        "526_59",
+        0
+      ],
+      "string2": [
+        "526_446",
+        2
+      ]
+    },
+    "class_type": "JoinStrings",
+    "_meta": {
+      "title": "Join Strings"
+    }
+  },
+  "526_553": {
+    "inputs": {
+      "text": "High resolution, sharp details, soft, low contrast, natural, RAW,  A woman taking a picture of a city with a camera.",
+      "passthrough": [
+        "526_552",
+        0
+      ]
+    },
+    "class_type": "Textbox",
+    "_meta": {
+      "title": "Florence2 Prompt"
+    }
+  },
+  "526_551": {
+    "inputs": {
+      "upscale_model_name": "4x_foolhardy_Remacri.pth",
+      "use_fixed_resolution": false,
+      "output_multiplier": 2,
+      "fixed_width": 1024,
+      "fixed_height": 1024,
+      "tile_count": "1",
+      "precision": "fp16",
+      "batch_size": 9,
+      "offload_model": true,
+      "disable_cache": false,
+      "image": [
+        "530",
+        0
+      ]
+    },
+    "class_type": "CRT_UpscaleModelAdv",
+    "_meta": {
+      "title": "Upscale using model adv (CRT)"
+    }
+  },
+  "526_447": {
+    "inputs": {
+      "model": "microsoft/Florence-2-base",
+      "precision": "fp16",
+      "convert_to_safetensors": "sdpa"
+    },
+    "class_type": "DownloadAndLoadFlorence2Model",
+    "_meta": {
+      "title": "DownloadAndLoadFlorence2Model"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "preset": "i2v_wan22_a14b",
+  "workflow_api": "presets/i2v_wan22_a14b.api.json",
+  "description": "Wan2.2 I2V A14B GGUF + lightx2v (agent flattened API)",
+  "ports": {
+    "input_image": {
+      "node": "67",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "seed": {
+      "node": "27",
+      "key": "seed",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "60",
+      "key": "filename_prefix",
+      "optional": true
+    },
+    "num_frames": {
+      "node": "89",
+      "key": "num_frames",
+      "optional": true
+    },
+    "width": {
+      "node": "68",
+      "key": "width",
+      "optional": true
+    },
+    "height": {
+      "node": "68",
+      "key": "height",
+      "optional": true
+    },
+    "positive": {
+      "node": "16",
+      "key": "positive_prompt"
+    },
+    "negative": {
+      "node": "16",
+      "key": "negative_prompt",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "filename_prefix": "agent_i2v"
+  }
+}

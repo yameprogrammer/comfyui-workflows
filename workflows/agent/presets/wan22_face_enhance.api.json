@@ -1,0 +1,668 @@
+{
+  "530": {
+    "inputs": {
+      "video": "output_947186624353738.mp4",
+      "force_rate": 0,
+      "custom_width": 0,
+      "custom_height": 0,
+      "frame_load_cap": 33,
+      "skip_first_frames": 0,
+      "select_every_nth": 1,
+      "format": "None"
+    },
+    "class_type": "VHS_LoadVideo",
+    "_meta": {
+      "title": "Load Video (Upload) 🎥🅥🅗🅢"
+    }
+  },
+  "569": {
+    "inputs": {
+      "frame_rate": 16,
+      "loop_count": 0,
+      "filename_prefix": "FaceEnhance",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 8,
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true,
+      "images": [
+        "567_564",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Upscale + FaceEnhance Output"
+    }
+  },
+  "602": {
+    "inputs": {
+      "lora_0": "none",
+      "strength_0": 0.7,
+      "lora_1": "none",
+      "strength_1": 1,
+      "lora_2": "none",
+      "strength_2": 1,
+      "lora_3": "none",
+      "strength_3": 1,
+      "lora_4": "none",
+      "strength_4": 1,
+      "low_mem_load": false,
+      "merge_loras": false
+    },
+    "class_type": "WanVideoLoraSelectMulti",
+    "_meta": {
+      "title": "WanVideo Lora Select Multi"
+    }
+  },
+  "538_531": {
+    "inputs": {
+      "model": [
+        "538_533",
+        0
+      ],
+      "block_swap_args": [
+        "538_535",
+        0
+      ]
+    },
+    "class_type": "WanVideoSetBlockSwap",
+    "_meta": {
+      "title": "WanVideo Set BlockSwap"
+    }
+  },
+  "538_533": {
+    "inputs": {
+      "model": "Wan2.2\\Wan2.2-T2V-A14B-LowNoise-Q4_K_M.gguf",
+      "base_precision": "bf16",
+      "quantization": "disabled",
+      "load_device": "offload_device",
+      "attention_mode": "sdpa",
+      "rms_norm_function": "default"
+    },
+    "class_type": "WanVideoModelLoader",
+    "_meta": {
+      "title": "WanVideo Model Loader"
+    }
+  },
+  "538_536": {
+    "inputs": {
+      "model_name": "wan_2.1_vae.safetensors",
+      "precision": "bf16",
+      "use_cpu_cache": false,
+      "verbose": false
+    },
+    "class_type": "WanVideoVAELoader",
+    "_meta": {
+      "title": "WanVideo VAE Loader"
+    }
+  },
+  "538_535": {
+    "inputs": {
+      "blocks_to_swap": 30,
+      "offload_img_emb": false,
+      "offload_txt_emb": false,
+      "use_non_blocking": false,
+      "vace_blocks_to_swap": 0,
+      "prefetch_blocks": 0,
+      "block_swap_debug": false
+    },
+    "class_type": "WanVideoBlockSwap",
+    "_meta": {
+      "title": "WanVideo Block Swap"
+    }
+  },
+  "538_532": {
+    "inputs": {
+      "model": [
+        "538_531",
+        0
+      ],
+      "lora": [
+        "602",
+        0
+      ]
+    },
+    "class_type": "WanVideoSetLoRAs",
+    "_meta": {
+      "title": "WanVideo Set LoRAs"
+    }
+  },
+  "567_539": {
+    "inputs": {
+      "anything": [
+        "567_540",
+        0
+      ]
+    },
+    "class_type": "Anything Everywhere",
+    "_meta": {
+      "title": "Anything Everywhere"
+    }
+  },
+  "567_540": {
+    "inputs": {
+      "model": "Kijai/clipseg-rd64-refined-fp16"
+    },
+    "class_type": "DownloadAndLoadCLIPSeg",
+    "_meta": {
+      "title": "(Down)load CLIPSeg"
+    }
+  },
+  "567_541": {
+    "inputs": {
+      "text": "face",
+      "threshold": 0.25000000000000006,
+      "binary_mask": true,
+      "combine_mask": true,
+      "use_cuda": true,
+      "blur_sigma": 10,
+      "image_bg_level": 0,
+      "invert": false,
+      "images": [
+        "567_558",
+        0
+      ],
+      "opt_model": [
+        "567_540",
+        0
+      ]
+    },
+    "class_type": "BatchCLIPSeg",
+    "_meta": {
+      "title": "Batch CLIPSeg"
+    }
+  },
+  "567_543": {
+    "inputs": {
+      "text": "face",
+      "threshold": 0.2,
+      "binary_mask": true,
+      "combine_mask": true,
+      "use_cuda": true,
+      "blur_sigma": 0,
+      "image_bg_level": 0,
+      "invert": false,
+      "images": [
+        "567_548",
+        0
+      ],
+      "opt_model": [
+        "567_540",
+        0
+      ]
+    },
+    "class_type": "BatchCLIPSeg",
+    "_meta": {
+      "title": "Batch CLIPSeg"
+    }
+  },
+  "567_545": {
+    "inputs": {
+      "enable_vae_tiling": false,
+      "tile_x": 512,
+      "tile_y": 512,
+      "tile_stride_x": 256,
+      "tile_stride_y": 256,
+      "normalization": "default",
+      "vae": [
+        "538_536",
+        0
+      ],
+      "samples": [
+        "567_559",
+        1
+      ]
+    },
+    "class_type": "WanVideoDecode",
+    "_meta": {
+      "title": "WanVideo Decode"
+    }
+  },
+  "567_556": {
+    "inputs": {
+      "value": 0
+    },
+    "class_type": "JWInteger",
+    "_meta": {
+      "title": "Integer"
+    }
+  },
+  "567_557": {
+    "inputs": {
+      "desired_steps": 4,
+      "strength_percent": 24.54541015625
+    },
+    "class_type": "Strength To Steps",
+    "_meta": {
+      "title": "Strength to Steps (CRT)"
+    }
+  },
+  "567_603": {
+    "inputs": {
+      "value": 2048
+    },
+    "class_type": "JWInteger",
+    "_meta": {
+      "title": "Max Output Res"
+    }
+  },
+  "567_566": {
+    "inputs": {
+      "weight": 2.0000000000000004,
+      "start_percent": 0,
+      "end_percent": 1
+    },
+    "class_type": "WanVideoEnhanceAVideo",
+    "_meta": {
+      "title": "WanVideo Enhance-A-Video"
+    }
+  },
+  "567_555": {
+    "inputs": {
+      "expand": 55,
+      "incremental_expandrate": 0,
+      "tapered_corners": true,
+      "flip_input": false,
+      "blur_radius": 30,
+      "lerp_alpha": 1,
+      "decay_factor": 1,
+      "fill_holes": false,
+      "mask": [
+        "567_543",
+        0
+      ]
+    },
+    "class_type": "GrowMaskWithBlur",
+    "_meta": {
+      "title": "Grow Mask With Blur"
+    }
+  },
+  "567_548": {
+    "inputs": {
+      "image": [
+        "567_568",
+        0
+      ]
+    },
+    "class_type": "ImageRemoveAlpha+",
+    "_meta": {
+      "title": "🔧 Image Remove Alpha"
+    }
+  },
+  "567_551": {
+    "inputs": {
+      "enable_vae_tiling": false,
+      "tile_x": 272,
+      "tile_y": 272,
+      "tile_stride_x": 144,
+      "tile_stride_y": 128,
+      "noise_aug_strength": 0.030000000000000006,
+      "latent_strength": 1,
+      "vae": [
+        "538_536",
+        0
+      ],
+      "image": [
+        "567_548",
+        0
+      ]
+    },
+    "class_type": "WanVideoEncode",
+    "_meta": {
+      "title": "WanVideo Encode"
+    }
+  },
+  "567_552": {
+    "inputs": {
+      "width": [
+        "567_553",
+        0
+      ],
+      "height": [
+        "567_553",
+        1
+      ],
+      "num_frames": [
+        "567_553",
+        2
+      ]
+    },
+    "class_type": "WanVideoEmptyEmbeds",
+    "_meta": {
+      "title": "WanVideo Empty Embeds"
+    }
+  },
+  "567_553": {
+    "inputs": {
+      "image": [
+        "567_548",
+        0
+      ]
+    },
+    "class_type": "GetImageSize+",
+    "_meta": {
+      "title": "🔧 Get Image Size"
+    }
+  },
+  "567_564": {
+    "inputs": {
+      "border_blending": 0.5,
+      "crop_rescale": 1,
+      "use_combined_mask": false,
+      "use_square_mask": true,
+      "original_images": [
+        "567_546",
+        0
+      ],
+      "cropped_images": [
+        "567_542",
+        0
+      ],
+      "cropped_masks": [
+        "567_546",
+        2
+      ],
+      "combined_crop_mask": [
+        "567_546",
+        4
+      ],
+      "bboxes": [
+        "567_546",
+        5
+      ]
+    },
+    "class_type": "BatchUncropAdvanced",
+    "_meta": {
+      "title": "Batch Uncrop Advanced"
+    }
+  },
+  "567_547": {
+    "inputs": {
+      "iterations": 2,
+      "kernel_size": 3,
+      "images": [
+        "567_546",
+        1
+      ]
+    },
+    "class_type": "Image Lucy Sharpen",
+    "_meta": {
+      "title": "Image Lucy Sharpen"
+    }
+  },
+  "567_568": {
+    "inputs": {
+      "width": 512,
+      "height": 512,
+      "interpolation": "nearest-exact",
+      "method": "keep proportion",
+      "condition": "always",
+      "multiple_of": 0,
+      "image": [
+        "567_547",
+        0
+      ]
+    },
+    "class_type": "ImageResize+",
+    "_meta": {
+      "title": "🔧 Image Resize"
+    }
+  },
+  "567_542": {
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "resize_source": true,
+      "destination": [
+        "567_548",
+        0
+      ],
+      "source": [
+        "567_545",
+        0
+      ],
+      "mask": [
+        "567_555",
+        0
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "마스크된 이미지 합성"
+    }
+  },
+  "567_546": {
+    "inputs": {
+      "crop_size_mult": 1,
+      "bbox_smooth_alpha": 1,
+      "original_images": [
+        "567_558",
+        0
+      ],
+      "masks": [
+        "567_541",
+        0
+      ]
+    },
+    "class_type": "BatchCropFromMaskAdvanced",
+    "_meta": {
+      "title": "Batch Crop From Mask Advanced"
+    }
+  },
+  "567_558": {
+    "inputs": {
+      "width": [
+        "567_603",
+        0
+      ],
+      "height": [
+        "567_603",
+        0
+      ],
+      "interpolation": "lanczos",
+      "method": "keep proportion",
+      "condition": "always",
+      "multiple_of": 0,
+      "image": [
+        "530",
+        0
+      ]
+    },
+    "class_type": "ImageResize+",
+    "_meta": {
+      "title": "🔧 Image Resize"
+    }
+  },
+  "567_571": {
+    "inputs": {
+      "value": 0
+    },
+    "class_type": "JWInteger",
+    "_meta": {
+      "title": "Integer"
+    }
+  },
+  "567_572": {
+    "inputs": {
+      "start": 0,
+      "length": 1,
+      "image": [
+        "530",
+        0
+      ]
+    },
+    "class_type": "ImageFromBatch+",
+    "_meta": {
+      "title": "🔧 Image From Batch"
+    }
+  },
+  "567_574": {
+    "inputs": {
+      "text": "High resolution, sharp details, soft, low contrast, natural, RAW, "
+    },
+    "class_type": "Textbox",
+    "_meta": {
+      "title": "Florence2 Prompt"
+    }
+  },
+  "567_575": {
+    "inputs": {
+      "delimiter": " ",
+      "string1": [
+        "567_574",
+        0
+      ],
+      "string2": [
+        "567_573",
+        2
+      ]
+    },
+    "class_type": "JoinStrings",
+    "_meta": {
+      "title": "Join Strings"
+    }
+  },
+  "567_604": {
+    "inputs": {
+      "text": "High resolution, sharp details, soft, low contrast, natural, RAW,  A woman in a beige hat smoking a cigarette.",
+      "passthrough": [
+        "567_575",
+        0
+      ]
+    },
+    "class_type": "Textbox",
+    "_meta": {
+      "title": "Florence2 Prompt"
+    }
+  },
+  "567_559": {
+    "inputs": {
+      "steps": [
+        "567_557",
+        0
+      ],
+      "cfg": 1,
+      "shift": 5,
+      "seed": [
+        "567_556",
+        0
+      ],
+      "force_offload": false,
+      "scheduler": "lcm",
+      "riflex_freq_index": 0,
+      "denoise_strength": 1,
+      "batched_cfg": false,
+      "rope_function": "comfy",
+      "start_step": [
+        "567_557",
+        1
+      ],
+      "end_step": -1,
+      "add_noise_to_samples": true,
+      "model": [
+        "538_532",
+        0
+      ],
+      "image_embeds": [
+        "567_552",
+        0
+      ],
+      "text_embeds": [
+        "567_605",
+        0
+      ],
+      "samples": [
+        "567_551",
+        0
+      ],
+      "feta_args": [
+        "567_566",
+        0
+      ]
+    },
+    "class_type": "WanVideoSampler",
+    "_meta": {
+      "title": "WanVideo Sampler"
+    }
+  },
+  "567_605": {
+    "inputs": {
+      "nag_scale": 11,
+      "nag_tau": 2.5,
+      "nag_alpha": 0.25,
+      "inplace": true,
+      "original_text_embeds": [
+        "567_577",
+        0
+      ],
+      "nag_text_embeds": [
+        "567_577",
+        1
+      ]
+    },
+    "class_type": "WanVideoApplyNAG",
+    "_meta": {
+      "title": "WanVideo Apply NAG"
+    }
+  },
+  "567_577": {
+    "inputs": {
+      "model_name": "umt5-xxl-enc-bf16.safetensors",
+      "precision": "bf16",
+      "positive_prompt": [
+        "567_604",
+        0
+      ],
+      "negative_prompt": "bright, high contrast, glossy plastic skin, blurry, oversaturated",
+      "quantization": "disabled",
+      "use_disk_cache": true,
+      "device": "gpu"
+    },
+    "class_type": "WanVideoTextEncodeCached",
+    "_meta": {
+      "title": "WanVideo TextEncode Cached"
+    }
+  },
+  "567_573": {
+    "inputs": {
+      "text_input": "",
+      "task": "caption",
+      "fill_mask": true,
+      "keep_model_loaded": false,
+      "max_new_tokens": 128,
+      "num_beams": 3,
+      "do_sample": true,
+      "output_mask_select": "",
+      "seed": [
+        "567_571",
+        0
+      ],
+      "image": [
+        "567_572",
+        0
+      ],
+      "florence2_model": [
+        "567_570",
+        0
+      ]
+    },
+    "class_type": "Florence2Run",
+    "_meta": {
+      "title": "Florence2Run"
+    }
+  },
+  "567_570": {
+    "inputs": {
+      "model": "microsoft/Florence-2-base",
+      "precision": "fp16",
+      "convert_to_safetensors": "sdpa"
+    },
+    "class_type": "DownloadAndLoadFlorence2Model",
+    "_meta": {
+      "title": "DownloadAndLoadFlorence2Model"
+    }
+  }
+}

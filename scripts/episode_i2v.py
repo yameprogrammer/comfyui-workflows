@@ -38,16 +38,15 @@ def _select_shots(story: StoryPackage, shots_arg: str, require_approved: bool) -
 
 
 def _filter_i2v_drivers(story: StoryPackage, selected: list[dict]) -> tuple[list[dict], list[dict]]:
-    """Keep i2v (default) shots; return (run, skipped_non_i2v)."""
+    """Keep i2v + flf2v shots; return (run, skipped_other)."""
     run, skip = [], []
     for s in selected:
         d = shot_motion_driver(s, story.doc)
-        if d in ("i2v",):
+        if d in ("i2v", "flf2v"):
             run.append(s)
         elif d in (
             "still",
             "si2v",
-            "flf2v",
             "v2v_camera",
             "v2v_motion",
             "v2v_style",
@@ -56,6 +55,24 @@ def _filter_i2v_drivers(story: StoryPackage, selected: list[dict]) -> tuple[list
         else:
             run.append(s)
     return run, skip
+
+
+def _resolve_end_keyframe(story: StoryPackage, shot: dict, sid: str) -> str | None:
+    """Return absolute path to keyframe_end / last still if present."""
+    import os
+
+    for key in ("keyframe_end", "keyframe_last", "end_keyframe"):
+        rel = shot.get(key)
+        if not rel:
+            continue
+        path = story.path(*str(rel).replace("\\", "/").split("/"))
+        if path and os.path.isfile(path):
+            return path
+    # convention: keyframes/Sxx_end.png
+    cand = story.path("keyframes", f"{sid}_end.png")
+    if os.path.isfile(cand):
+        return cand
+    return None
 
 
 def _frames_for_shot(duration_sec: float, fps: float) -> int:
@@ -145,15 +162,19 @@ def main(argv=None) -> int:
 
     if not selected:
         print(
-            "[ERROR] code=21 no i2v shots to run "
-            "(all selected use si2v/still/flf2v)",
+            "[ERROR] code=21 no i2v/flf2v shots to run "
+            "(all selected use si2v/still/v2v)",
             file=sys.stderr,
         )
         return EXIT_NONE
 
     format_id = story.format_id()
     work_preset = story.doc.get("default_work_preset")
-    backend = args.backend or story.doc.get("default_backend_i2v") or "wan22"
+    backend = (
+        args.backend
+        or story.doc.get("default_backend_i2v")
+        or "ltx23_aio_i2v"  # quality default (A/B 2026-07-17 vs Wan)
+    )
     fps = float(args.fps if args.fps is not None else 16)
 
     print(
@@ -176,14 +197,36 @@ def main(argv=None) -> int:
         duration = float(shot.get("duration_sec") or 4)
         frames = _frames_for_shot(duration, fps)
         meta_path = story.path("meta", f"{sid}_i2v.json")
+        driver = shot_motion_driver(shot, story.doc)
+        end_kf = _resolve_end_keyframe(story, shot, sid)
+        use_flf = driver == "flf2v" or bool(end_kf)
+        shot_backend = backend
+        # Quality default FLF = LTX (A/B 2026-07-17 vs Wan). Explicit wan* keeps Wan.
+        if use_flf:
+            be_l = str(backend or "").lower()
+            if not be_l or be_l in ("flf2v", "ltx23_aio_i2v", "ltx23", "ltx23_aio"):
+                shot_backend = "ltx23_aio_flf"
+            elif be_l in ("wan22", "wan22_flf2v"):
+                shot_backend = "wan22_flf"
 
-        print(f"\n=== {sid} status={shot.get('keyframe_status')} frames={frames} ===")
+        print(f"\n=== {sid} status={shot.get('keyframe_status')} frames={frames} driver={driver} ===")
         print(f"  keyframe={kf_path}")
+        if end_kf:
+            print(f"  keyframe_end={end_kf}")
+        elif use_flf:
+            print("  WARN flf2v without keyframe_end — will fail FLF unless end frame exists")
         print(f"  out={clip_path}")
         print(f"  motion={motion[:100]}")
 
         if not os.path.isfile(kf_path):
             print(f"  FAIL keyframe file missing")
+            fail += 1
+            if args.stop_on_error:
+                break
+            continue
+
+        if use_flf and not end_kf:
+            print("  FAIL FLF requires keyframe_end (or keyframes/Sxx_end.png)")
             fail += 1
             if args.stop_on_error:
                 break
@@ -196,6 +239,7 @@ def main(argv=None) -> int:
 
         result = generate_i2v(
             input_image_path=kf_path,
+            end_image_path=end_kf,
             prompt_text=motion,
             negative_text=neg or "",
             output_filename=clip_path,
@@ -203,7 +247,7 @@ def main(argv=None) -> int:
             frame_rate=int(fps) if fps == int(fps) else 16,
             steps=args.steps,
             cfg=args.cfg,
-            backend=backend,
+            backend=shot_backend,
             format_id=format_id,
             preset=work_preset,
             meta_out=meta_path,

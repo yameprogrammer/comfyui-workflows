@@ -1,7 +1,7 @@
 # FLF2V / F2F (First–Last / Frame-to-Frame) — 추가 기능 로드맵
 
 - **작성일**: 2026-07-12  
-- **상태**: **📋 PLANNED (미구현)** — 스키마·문서 예약만 있음, **실행 CLI/WF 없음**  
+- **상태**: **✅ P0 CLI ready (2026-07-17)** — `generate_flf2v` / `generate_i2v --last` + API preset `i2v_wan22_a14b_flf` · episode `motion_driver=flf2v`  
 - **티켓**: Storyboard **S6** (first–last continuity)  
 - **요청 배경**: 쇼츠 제작 시 컷이 나뉘어도 **싱글테이크처럼 이어지는 화면 연결** 필요  
   (소비자 피드백: 하드컷 + 독립 키프레임/모션만으로는 연속감·립 이질감이 큼)  
@@ -72,9 +72,11 @@ FLF는 **입 모양을 맞추는 도구가 아니다.**
 | commission brief enum | ✅ 예약 | `docs/commission_brief.schema.json` |
 | `keyframe_end` inventory | ✅ 부분 | `storyboard_export` inventory 필드 |
 | `episode_i2v` flf2v 스킵 | ✅ (미구현 드라이버로 스킵) | `scripts/episode_i2v.py` |
-| **`generate_flf2v.py` / `episode_flf2v.py`** | ⬜ 없음 | — |
-| **FLF 전용 agent workflow JSON** | ⬜ 없음 | `workflows/agent/` |
-| **video_backends `flf2v` preset** | ⬜ 없음 | `video_backends.json` |
+| **`generate_flf2v.py`** | ✅ | `scripts/generate_flf2v.py` |
+| **`generate_i2v --last`** | ✅ | same runner, backend `wan22_flf` |
+| **FLF agent API preset** | ✅ | `presets/i2v_wan22_a14b_flf.api.json` |
+| **video_backends `wan22_flf` / `flf2v`** | ✅ ready | `video_backends.json` |
+| **`episode_i2v` flf2v + keyframe_end** | ✅ | skips only if end still missing |
 | **연속 키프레임 I2I 체인 (수동 SOP)** | △ 운영 가능 | `shot_compose --source prev_keyframe.png` + 낮은 denoise |
 
 **DoD (구현 완료 조건)** 는 §6.

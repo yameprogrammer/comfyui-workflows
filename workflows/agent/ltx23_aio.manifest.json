@@ -10,9 +10,12 @@
     "workflows/agent/ltx23AllInOneWorkflowForRTX_v44.json",
     "workflows/agent/ltx23AllInOneWorkflowForRTX_v44_IA2V.json"
   ],
-  "routing_analysis": "docs/ltx23_aio_workflow_routing_analysis.md",
-  "routing_map_json": "docs/_ltx23_aio_v44_routing_map.json",
-  "analyze_script": "scripts/_analyze_ltx23_aio_routing.py",
+  "routing_analysis": "docs/archive/ltx23_debug/ltx23_aio_workflow_routing_analysis.md",
+  "agent_guide": "workflows/human/LTX23_AIO_v44_AGENT_GUIDE.md",
+  "capabilities": "workflows/human/LTX23_AIO_v44_CAPABILITIES.json",
+  "feature_presets": "workflows/agent/presets/ltx23_aio_feature_presets.json",
+  "analyze_script": "scripts/_analyze_ltx23_aio_features.py",
+  "cli_list_features": "python scripts/run_ltx_aio_features.py --list",
   "cli": "python scripts/generate_s2v.py --backend ltx23_aio* | --ltx-mode ...",
   "runner_primary": "lib.ltx_aio_workflow_runner.build_aio_switched_api",
   "runner_modules": {

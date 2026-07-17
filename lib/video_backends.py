@@ -91,7 +91,7 @@ def resolve_s2v_backend(
     elif episode_doc and episode_doc.get("default_backend_s2v"):
         bid = str(episode_doc["default_backend_s2v"]).strip()
     else:
-        bid = str(doc.get("default_backend_s2v") or "ltx23_ia2v").strip()
+        bid = str(doc.get("default_backend_s2v") or "ltx23_aio").strip()
 
     entry = get_backend(bid, doc)
     if (entry.get("kind") or "i2v") != "s2v":

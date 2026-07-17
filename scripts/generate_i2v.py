@@ -268,6 +268,38 @@ def _apply_wan22_steps_and_boundary(api_prompt: dict, steps: int) -> dict:
     }
 
 
+def _is_wan22_family(backend_id: str, wf_path: str = "") -> bool:
+    b = (backend_id or "").strip().lower()
+    if b in ("wan22", "wan22_flf", "wan22_flf2v", "flf2v") or b.startswith("wan22"):
+        return True
+    name = os.path.basename(wf_path or "").lower()
+    return "wan" in name
+
+
+def _pick_load_image_nodes(api_prompt: dict) -> tuple[str | None, str | None]:
+    """Return (start_load_id, end_load_id) for FLF-aware LoadImage assignment."""
+    loaders = _find_nodes(api_prompt, "LoadImage")
+    if not loaders:
+        return None, None
+    start_id = None
+    end_id = None
+    for nid in loaders:
+        title = str((api_prompt[nid].get("_meta") or {}).get("title") or "").lower()
+        if "end" in title and end_id is None:
+            end_id = nid
+        elif start_id is None:
+            start_id = nid
+    if start_id is None:
+        start_id = loaders[0]
+    if end_id is None and len(loaders) >= 2:
+        # Prefer fixed FLF preset ids, else second loader
+        if "167" in api_prompt and api_prompt["167"].get("class_type") == "LoadImage":
+            end_id = "167"
+        else:
+            end_id = next((n for n in loaders if n != start_id), None)
+    return start_id, end_id
+
+
 def generate_i2v(
     input_image_path: str,
     prompt_text: str,
@@ -296,10 +328,107 @@ def generate_i2v(
     magcache_k: int | None = None,
     block_swap: int | None = None,
     apply_profile_long_edge: bool = True,
+    end_image_path: str | None = None,
 ):
     if not os.path.exists(input_image_path):
         print(f"Error: input image not found: {input_image_path}")
         return fail_result(error="SOURCE_MISSING", message=input_image_path)
+
+    end_image_path = (end_image_path or "").strip() or None
+    if end_image_path and not os.path.isfile(end_image_path):
+        return fail_result(
+            error="END_IMAGE_MISSING",
+            message=f"end/last frame not found: {end_image_path}",
+        )
+
+    # FLF: quality default = LTX AIO flf (A/B 2026-07-17 preferred over Wan GGUF)
+    _be_hint = (backend or "").strip().lower()
+    if end_image_path and not workflow_path:
+        if not _be_hint or _be_hint in ("flf2v", "wan22_flf2v", ""):
+            backend = "ltx23_aio_flf"
+            print(f"FLF mode: end_image={end_image_path} → backend=ltx23_aio_flf (quality default)")
+        elif _be_hint in ("wan22",):
+            # bare wan22 + last frame → still Wan FLF graph
+            backend = "wan22_flf"
+            print(f"FLF mode: end_image={end_image_path} → backend=wan22_flf (explicit wan)")
+
+    # Early LTX AIO path (before resolve_i2v_job — no Wan workflow file required)
+    _be_early = (backend or "").strip().lower()
+    if not _be_early:
+        try:
+            from lib.video_backends import load_video_backends
+
+            _be_early = str(
+                load_video_backends().get("default_backend") or ""
+            ).strip().lower()
+        except Exception:
+            _be_early = ""
+    if _be_early in (
+        "ltx23",
+        "ltx23_aio",
+        "ltx23_aio_i2v",
+        "ltx23_ia2v",
+        "ltx23_aio_flf",
+        "ltx23_aio_flf_audio",
+        "flf2v",
+    ) or _be_early.startswith("ltx23_aio"):
+        from generate_s2v import generate_s2v
+        from lib.video_backends import resolve_i2v_job as _resolve_sizes
+
+        try:
+            job = _resolve_sizes(
+                backend="wan22",  # size/preset only; LTX does not use Wan graph
+                format_id=format_id,
+                preset=preset,
+                width=width,
+                height=height,
+            )
+            width = int(job["width"])
+            height = int(job["height"])
+        except Exception:
+            width = int(width or 960)
+            height = int(height or 544)
+
+        if _be_early in ("ltx23", "ltx23_aio", "ltx23_aio_i2v", ""):
+            s2v_backend = "ltx23_aio_i2v"
+        elif _be_early in ("flf2v",):
+            s2v_backend = "ltx23_aio_flf"
+        else:
+            s2v_backend = _be_early
+        if end_image_path and s2v_backend in ("ltx23_aio_i2v", "ltx23_aio"):
+            s2v_backend = "ltx23_aio_flf"
+        print(
+            f"I2V → LTX AIO real WF backend={s2v_backend} "
+            f"{width}x{height} (ltx23AllInOneWorkflowForRTX_v44)"
+            + (f" last={end_image_path}" if end_image_path else "")
+        )
+        if dry_run:
+            return ok_result(
+                dry_run=True,
+                backend=s2v_backend,
+                width=width,
+                height=height,
+                message="ltx_aio dry-run",
+            )
+        return generate_s2v(
+            input_image_path=input_image_path,
+            audio_path=None,
+            last_image_path=end_image_path,
+            output_filename=output_filename
+            or os.path.join(r"F:\generated_videos", "output_i2v_ltx.mp4"),
+            prompt=prompt_text,
+            negative=negative_text,
+            width=width,
+            height=height,
+            num_frames=num_frames,
+            fps=float(frame_rate or 24),
+            seed=seed,
+            cfg=cfg,
+            backend=s2v_backend,
+            server_address=server_address,
+            timeout_sec=timeout_sec,
+            meta_out=meta_out,
+        )
 
     try:
         speed_prof = resolve_i2v_speed_profile(profile)
@@ -345,7 +474,7 @@ def generate_i2v(
     aspect = job.get("aspect")
     width = int(job["width"])
     height = int(job["height"])
-    wf_path = job["workflow_path"]
+    wf_path = job.get("workflow_path") or ""
 
     if apply_profile_long_edge:
         mle = speed_prof.get("max_long_edge")
@@ -382,8 +511,8 @@ def generate_i2v(
             f"-> {width}x{height} f={num_frames} (dims %16, frames 4n+1)"
         )
 
-    if backend_id != "wan22" and not workflow_path:
-        # Only wan22 runner path is implemented in this module for now.
+    if not _is_wan22_family(backend_id, wf_path) and not workflow_path:
+        # Only Wan22 family inject path is implemented in this module for now.
         # Explicit --workflow can still force a graph for experiments.
         if job["status"] != "ready":
             return fail_result(
@@ -391,6 +520,13 @@ def generate_i2v(
                 message=f"Backend {backend_id} not implemented in generate_i2v runner",
                 backend=backend_id,
             )
+
+    if end_image_path and not _is_wan22_family(backend_id, wf_path):
+        return fail_result(
+            error="FLF_BACKEND",
+            message=f"end/last image requires wan22_flf (got backend={backend_id})",
+            backend=backend_id,
+        )
 
     if not os.path.exists(wf_path):
         print(f"Error: workflow not found: {wf_path}")
@@ -400,31 +536,49 @@ def generate_i2v(
         output_filename = os.path.join(r"F:\generated_videos", "output_i2v.mp4")
     ensure_parent_dir(output_filename)
 
-    # Copy image into Comfy input
+    # Copy start (+ optional end) into Comfy input
     temp_name = "temp_i2v_input.png"
+    temp_end_name = "temp_i2v_end.png"
     try:
         os.makedirs(COMFYUI_INPUT_DIR, exist_ok=True)
         shutil.copy2(input_image_path, os.path.join(COMFYUI_INPUT_DIR, temp_name))
-        print(f"Copied input to ComfyUI input: {temp_name}")
+        print(f"Copied start to ComfyUI input: {temp_name}")
+        if end_image_path:
+            shutil.copy2(end_image_path, os.path.join(COMFYUI_INPUT_DIR, temp_end_name))
+            print(f"Copied end to ComfyUI input: {temp_end_name}")
     except Exception as e:
         return fail_result(error="INPUT_COPY_FAILED", message=str(e))
 
+    flf_tag = " FLF" if end_image_path else ""
     print(
-        f"I2V job backend={backend_id} format={format_id or '-'} "
+        f"I2V{flf_tag} job backend={backend_id} format={format_id or '-'} "
         f"aspect={aspect or '-'} preset={preset_id} "
         f"{width}x{height} workflow={os.path.basename(wf_path)}"
     )
     print(f"Loading I2V workflow: {wf_path}")
     with open(wf_path, "r", encoding="utf-8") as f:
-        ui_data = json.load(f)
+        wf_data = json.load(f)
 
-    try:
-        object_info = fetch_object_info(server_address)
-    except Exception as e:
-        print(f"[WARN] object_info fetch failed: {e}; conversion may be incomplete")
-        object_info = {}
-
-    api_prompt = convert_ui_to_api(ui_data, object_info, server_address)
+    # Prefer API-format graph (presets/*.api.json). UI JSON only as legacy fallback.
+    is_api_format = (
+        isinstance(wf_data, dict)
+        and "nodes" not in wf_data
+        and any(
+            isinstance(v, dict) and "class_type" in v
+            for v in wf_data.values()
+        )
+    )
+    if is_api_format:
+        api_prompt = wf_data
+        print(f"  format=api nodes={len(api_prompt)} (no convert_ui_to_api)")
+    else:
+        try:
+            object_info = fetch_object_info(server_address)
+        except Exception as e:
+            print(f"[WARN] object_info fetch failed: {e}; conversion may be incomplete")
+            object_info = {}
+        print("  format=ui → convert_ui_to_api (legacy; prefer presets/*.api.json)")
+        api_prompt = convert_ui_to_api(wf_data, object_info, server_address)
 
     new_seed = seed if seed is not None else random.randint(1, 2**31 - 1)
 
@@ -434,19 +588,23 @@ def generate_i2v(
     wan_swap_info: dict = {}
     vhs_prefix = f"agent_i2v_{int(time.time())}"
 
-    # --- wan22-specific graph injection (default path) ---
-    if backend_id == "wan22" or "wan" in os.path.basename(wf_path).lower():
+    # --- wan22 / wan22_flf graph patch (API preset preferred) ---
+    if _is_wan22_family(backend_id, wf_path):
         model_high = r"Wan2.2\Wan2.2-I2V-A14B-HighNoise-Q4_K_M.gguf"
         model_low = r"Wan2.2\Wan2.2-I2V-A14B-LowNoise-Q4_K_M.gguf"
         lora_high = r"Wan2.2\Wan_2_2_I2V_A14B_HIGH_lightx2v_4step_lora_260412_rank_64_fp16.safetensors"
         lora_low = r"Wan2.2\Wan_2_2_I2V_A14B_LOW_lightx2v_4step_lora_260412_rank_64_fp16.safetensors"
         loaders = _find_nodes(api_prompt, "WanVideoModelLoader")
+        # Never use fp16_fast — needs torch nightly allow_fp16_accumulation
+        for lid in loaders:
+            li = api_prompt[lid].setdefault("inputs", {})
+            li["base_precision"] = "bf16"
+            li["quantization"] = "disabled"
+            li.pop("compile_args", None)
         if len(loaders) >= 2:
             api_prompt[loaders[0]]["inputs"]["model"] = model_high
-            api_prompt[loaders[0]]["inputs"]["quantization"] = "disabled"
             api_prompt[loaders[0]]["inputs"]["attention_mode"] = wan_attention
             api_prompt[loaders[1]]["inputs"]["model"] = model_low
-            api_prompt[loaders[1]]["inputs"]["quantization"] = "disabled"
             api_prompt[loaders[1]]["inputs"]["attention_mode"] = wan_attention
         elif len(loaders) == 1:
             api_prompt[loaders[0]]["inputs"]["attention_mode"] = wan_attention
@@ -463,22 +621,54 @@ def generate_i2v(
         for nid in _find_nodes(api_prompt, "LoadWanVideoT5TextEncoder"):
             api_prompt[nid]["inputs"]["model_name"] = "umt5-xxl-enc-bf16.safetensors"
 
-        for nid in _find_nodes(api_prompt, "LoadImage"):
-            api_prompt[nid]["inputs"]["image"] = temp_name
+        start_load, end_load = _pick_load_image_nodes(api_prompt)
+        if start_load:
+            api_prompt[start_load]["inputs"]["image"] = temp_name
+        if end_image_path:
+            if not end_load:
+                return fail_result(
+                    error="FLF_GRAPH_NO_END_LOAD",
+                    message=(
+                        "end/last image set but workflow has no end LoadImage. "
+                        "Use preset i2v_wan22_a14b_flf / backend wan22_flf."
+                    ),
+                    backend=backend_id,
+                    workflow=os.path.basename(wf_path),
+                )
+            api_prompt[end_load]["inputs"]["image"] = temp_end_name
+        elif end_load:
+            # Non-FLF run on FLF graph: mirror start into end to avoid missing file
+            api_prompt[end_load]["inputs"]["image"] = temp_name
 
         for nid in _find_nodes(api_prompt, "WanVideoTextEncode"):
             api_prompt[nid]["inputs"]["positive_prompt"] = prompt_text
             api_prompt[nid]["inputs"]["negative_prompt"] = negative_text or DEFAULT_NEGATIVE
 
         for nid in _find_nodes(api_prompt, "ImageResizeKJv2"):
-            api_prompt[nid]["inputs"]["width"] = width
-            api_prompt[nid]["inputs"]["height"] = height
+            # Only set absolute size on start resize; end resize may link width/height
+            inp = api_prompt[nid]["inputs"]
+            if not isinstance(inp.get("width"), list):
+                inp["width"] = width
+            if not isinstance(inp.get("height"), list):
+                inp["height"] = height
+        # Force start resize (node 68 when present) to target work size
+        if "68" in api_prompt and api_prompt["68"].get("class_type") == "ImageResizeKJv2":
+            api_prompt["68"]["inputs"]["width"] = width
+            api_prompt["68"]["inputs"]["height"] = height
 
         for nid in _find_nodes(api_prompt, "WanVideoImageToVideoEncode"):
             inp = api_prompt[nid]["inputs"]
-            inp["width"] = width
-            inp["height"] = height
+            # Prefer linked dims from resize when present; else absolute
+            if not isinstance(inp.get("width"), list):
+                inp["width"] = width
+            if not isinstance(inp.get("height"), list):
+                inp["height"] = height
             inp["num_frames"] = num_frames
+            if end_image_path:
+                inp["fun_or_fl2v_model"] = True
+                # ensure end_image wired if graph has end resize 168
+                if "168" in api_prompt and not inp.get("end_image"):
+                    inp["end_image"] = ["168", 0]
 
         for nid in _find_nodes(api_prompt, "WanVideoSampler"):
             inp = api_prompt[nid]["inputs"]
@@ -506,7 +696,8 @@ def generate_i2v(
 
         # Unique prefix avoids Comfy execution_cache returning empty outputs +
         # picking an older agent_i2v_*.mp4 by mtime (false "2s" successes).
-        vhs_prefix = f"agent_i2v_{int(new_seed)}_{int(time.time())}"
+        tag = "flf" if end_image_path else "i2v"
+        vhs_prefix = f"agent_{tag}_{int(new_seed)}_{int(time.time())}"
         for nid in _find_nodes(api_prompt, "VHS_VideoCombine"):
             inp = api_prompt[nid]["inputs"]
             inp["frame_rate"] = frame_rate
@@ -869,6 +1060,16 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override workflow path or catalog alias (skips backend workflow map)",
     )
+    parser.add_argument(
+        "--last",
+        "--end-image",
+        dest="end_image",
+        default=None,
+        help=(
+            "FLF end/last frame image path. Selects backend wan22_flf "
+            "(preset i2v_wan22_a14b_flf) unless --workflow overrides."
+        ),
+    )
     parser.add_argument("--meta-out", default=None)
     parser.add_argument("--timeout", type=int, default=1800)
     parser.add_argument(
@@ -982,5 +1183,6 @@ if __name__ == "__main__":
         magcache_k=args.magcache_k,
         block_swap=args.block_swap,
         apply_profile_long_edge=not args.no_profile_long_edge,
+        end_image_path=args.end_image,
     )
     sys.exit(0 if result.get("ok") else 1)

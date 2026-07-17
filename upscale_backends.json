@@ -32,7 +32,10 @@
   "backends": {
     "esrgan": {
       "status": "ready",
-      "media": ["image", "video"],
+      "media": [
+        "image",
+        "video"
+      ],
       "kind": "cnn",
       "speed": "fast",
       "quality": "good",
@@ -48,7 +51,10 @@
     },
     "rtx_vsr": {
       "status": "ready",
-      "media": ["image", "video"],
+      "media": [
+        "image",
+        "video"
+      ],
       "kind": "hardware",
       "speed": "very_fast",
       "quality": "good_on_clean",
@@ -58,7 +64,10 @@
     },
     "seedvr2": {
       "status": "ready",
-      "media": ["image", "video"],
+      "media": [
+        "image",
+        "video"
+      ],
       "kind": "diffusion_restore",
       "speed": "slow",
       "quality": "best_default",
@@ -75,7 +84,10 @@
     },
     "seedvr2_max": {
       "status": "ready",
-      "media": ["image", "video"],
+      "media": [
+        "image",
+        "video"
+      ],
       "kind": "diffusion_restore",
       "speed": "very_slow",
       "quality": "hero",
@@ -89,6 +101,44 @@
       "blocks_to_swap": 0,
       "force_vae_tiled": true,
       "notes": "Hero/4K master. FP16 7B + VAE tiling."
+    },
+    "wan22_upscale": {
+      "status": "ready_experimental",
+      "media": [
+        "video"
+      ],
+      "kind": "wan_diffusion_upscale",
+      "speed": "slow",
+      "quality": "good_detail",
+      "runner": "comfy_workflow_api",
+      "human_ui": "workflows/human/wan22/wan22_upscale.json",
+      "notes": "WAN 2.2 UPSCALE pack (Florence2+Wan sampler). Opt-in only — not default deliver. Export API before wiring CLI.",
+      "workflow": "wan22_upscale"
+    },
+    "wan22_upscale_face": {
+      "status": "planned",
+      "media": [
+        "video"
+      ],
+      "kind": "wan_diffusion_upscale_face",
+      "speed": "very_slow",
+      "quality": "hero_face",
+      "runner": "comfy_workflow_api",
+      "human_ui": "workflows/human/wan22/wan22_upscale_face_enhance.json",
+      "notes": "WAN 2.2 UPSCALE + FACE ENHANCE combined. Hero polish after motion approve."
+    },
+    "wan22_face_enhance": {
+      "status": "ready_experimental",
+      "media": [
+        "video"
+      ],
+      "kind": "wan_face_refine",
+      "speed": "medium",
+      "quality": "face_fix",
+      "runner": "comfy_workflow_api",
+      "human_ui": "workflows/human/wan22/wan22_face_enhance.json",
+      "notes": "Face-only refine (CLIPSeg+Wan). Use when lips/face smear after I2V; does not replace keyframe QA.",
+      "workflow": "wan22_face_enhance"
     }
   },
   "heuristics": {
@@ -99,7 +149,9 @@
     "hero_max_quality": "seedvr2_max",
     "blurry_source": "seedvr2",
     "clean_source_fast": "rtx_vsr",
-    "notes": "Pilot measured: SeedVR2 CLI ~10min+ for ~12s work@540→1080 (unusable as default). RTX VSR/ESRGAN via Comfy for normal delivery; SeedVR2 opt-in hero only."
+    "notes": "Legacy measured: SeedVR2 CLI ~10min+ for ~12s work@540→1080 (unusable as default). RTX VSR/ESRGAN via Comfy for normal delivery; SeedVR2 opt-in hero only. Wan22 upscale/face packs are planned Comfy workflows — not default.",
+    "face_smear_after_i2v": "wan22_face_enhance",
+    "wan_diffusion_upscale_optin": "wan22_upscale"
   },
   "two_pass_4k": {
     "enabled_default": true,

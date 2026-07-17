@@ -1,0 +1,61 @@
+{
+  "preset": "i2v_wan22_a14b_flf",
+  "workflow_api": "presets/i2v_wan22_a14b_flf.api.json",
+  "description": "Wan2.2 I2V A14B FLF: start_image + end_image via WanVideoImageToVideoEncode",
+  "source": "presets/i2v_wan22_a14b.api.json + end LoadImage/Resize",
+  "human_ref": "workflows/human/wan22/wan22_i2v_start_end.json",
+  "ports": {
+    "input_image": {
+      "node": "67",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "end_image": {
+      "node": "167",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "positive": {
+      "node": "16",
+      "key": "positive_prompt"
+    },
+    "negative": {
+      "node": "16",
+      "key": "negative_prompt",
+      "optional": true
+    },
+    "seed": {
+      "node": "27",
+      "key": "seed",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "60",
+      "key": "filename_prefix",
+      "optional": true
+    },
+    "num_frames": {
+      "node": "89",
+      "key": "num_frames",
+      "optional": true
+    },
+    "width": {
+      "node": "68",
+      "key": "width",
+      "optional": true
+    },
+    "height": {
+      "node": "68",
+      "key": "height",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "filename_prefix": "agent_i2v_flf",
+    "num_frames": 49
+  },
+  "notes": [
+    "Requires end_image; fun_or_fl2v_model=true on encode node 89",
+    "Same GGUF dual high/low + lightx2v stack as i2v_wan22_a14b"
+  ]
+}
