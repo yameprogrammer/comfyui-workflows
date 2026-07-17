@@ -43,7 +43,11 @@ def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="Register voice sample for TTS clone")
     p.add_argument("--id", default=None, help="voice_id snake_case")
     p.add_argument("--name", default=None, help="Display name")
-    p.add_argument("--ref", default=None, help="Reference wav/mp3 (5–15s ideal)")
+    p.add_argument(
+        "--ref",
+        default=None,
+        help="Reference wav/mp3 (ideal 5–15s, max ~30s for clone)",
+    )
     p.add_argument(
         "--ref-text",
         default="",
@@ -81,6 +85,22 @@ def main(argv=None) -> int:
     if not os.path.isfile(args.ref):
         print(f"[ERROR] ref missing: {args.ref}", file=sys.stderr)
         return EXIT_USAGE
+
+    # Duration guard (same policy as generate_qwen3_tts clone)
+    try:
+        from generate_qwen3_tts import validate_ref_audio, REF_MAX_SECONDS
+
+        chk = validate_ref_audio(args.ref, max_sec=REF_MAX_SECONDS)
+        for w in chk.get("warnings") or []:
+            print(f"[WARN] {w}")
+        if not chk.get("ok"):
+            print(f"[ERROR] {chk.get('error')}", file=sys.stderr)
+            print("  Trim ref to ≤30s (ideal 5–15s) then re-register.", file=sys.stderr)
+            return EXIT_USAGE
+        if chk.get("duration_sec") is not None:
+            print(f"  ref_duration_sec={chk['duration_sec']:.1f}")
+    except Exception as e:
+        print(f"[WARN] duration probe skipped: {e}")
 
     dest = os.path.join(VOICES_DIR, args.id)
     if os.path.isdir(dest) and not args.force:

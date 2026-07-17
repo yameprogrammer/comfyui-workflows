@@ -1,0 +1,35 @@
+{
+  "preset": "qwen_instantx_inpaint",
+  "description": "image_qwen_image_instantx_inpainting_controlnet — real UI expand. Ports document node ids after expand.",
+  "source_ui": "workflows/human/image_qwen_image_instantx_inpainting_controlnet.json",
+  "runner": "lib/qwen_instantx_inpaint_runner.py",
+  "agent_cli": "scripts/generate_qwen_inpaint.py",
+  "ports": {
+    "input_image": { "node": "71", "key": "image", "copy_to_input_dir": true },
+    "positive": { "node": "6", "key": "text" },
+    "negative": { "node": "7", "key": "text", "optional": true },
+    "seed": { "node": "3", "key": "seed" },
+    "steps": { "node": "3", "key": "steps", "optional": true },
+    "cfg": { "node": "3", "key": "cfg", "optional": true },
+    "denoise": { "node": "3", "key": "denoise", "optional": true },
+    "cn_strength": { "node": "108", "key": "strength", "optional": true },
+    "max_dim": { "node": "172", "key": "largest_size", "optional": true },
+    "grow_mask": { "node": "121:199", "key": "expand", "optional": true },
+    "blur_radius": { "node": "121:252", "key": "blur_radius", "optional": true },
+    "filename_prefix": { "node": "163", "key": "filename_prefix", "optional": true },
+    "unet_name": { "node": "37", "key": "unet_name", "optional": true }
+  },
+  "defaults": {
+    "steps": 20,
+    "cfg": 2.5,
+    "denoise": 1.0,
+    "cn_strength": 1.0,
+    "max_dim": 1536,
+    "filename_prefix": "QwenInstantX_Inpaint"
+  },
+  "notes": [
+    "Outpaint + Lightning branches are mode=4 in UI (bypassed); expand omits them.",
+    "Optional --mask rewires GrowMask to external ImageToMask (does not delete pack nodes).",
+    "Prefer composite SaveImage 163 (ImageCompositeMasked) for locked unmasked pixels."
+  ]
+}

@@ -20,10 +20,12 @@
 
 ComfyUI: [DarioFT/ComfyUI-Qwen3-TTS](https://github.com/DarioFT/ComfyUI-Qwen3-TTS) 및 로컬 `FB_Qwen3TTS*` / `comfyui-qwen3-tts`.
 
-실무 팁 (커뮤니티):
-- 클론 ref **5–15초** 클린 스피치 (너무 길면 hang)
+실무 팁 (커뮤니티 + 이 레포):
+- 클론 ref **5–15초** 이상적 · **최대 ~30초** (CLI 기본 상한; 그 이상 hang·품질 저하)
 - `ref_text` 전사 있으면 유사도 상승
 - CustomVoice `instruct`: `"soft sad whisper"`, `"angry short burst"` 등
+- Clone 감정: (1) 감정 연기 ref (2) `--instruct` → 타깃 대본 stage direction (노드에 instruct 소켓 없음)
+- UI SSOT: `workflows/human/qwen3_tts/voice_clone_qwen3_tts.json` 등 · 가이드 `…/qwen3_tts/AGENT_GUIDE.md`
 - 언어: KO/EN/JA/… 10개 지원
 
 **이 머신 상태 (프로브)**:

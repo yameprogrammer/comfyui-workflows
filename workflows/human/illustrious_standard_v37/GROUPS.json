@@ -1,0 +1,556 @@
+{
+  "workflow": "Standard_V37",
+  "groups": {
+    "Ultimate SD Upscale": {
+      "color": "#3f789e",
+      "bounding": [
+        400,
+        1190,
+        940,
+        1040
+      ],
+      "node_ids": [
+        49,
+        51,
+        52,
+        53,
+        59,
+        66,
+        67,
+        74,
+        78,
+        79,
+        88
+      ],
+      "default_modes": {
+        "88": 4,
+        "79": 4,
+        "78": 4,
+        "74": 4,
+        "67": 4,
+        "66": 4,
+        "59": 4,
+        "53": 4,
+        "52": 4,
+        "51": 4,
+        "49": 0
+      }
+    },
+    "Color Match": {
+      "color": "#3f789e",
+      "bounding": [
+        1770,
+        1670,
+        230,
+        210
+      ],
+      "node_ids": [
+        71
+      ],
+      "default_modes": {
+        "71": 4
+      }
+    },
+    "Control Center": {
+      "color": "#444",
+      "bounding": [
+        400,
+        0,
+        1800,
+        1130
+      ],
+      "node_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        12,
+        18,
+        29,
+        30,
+        32,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        43,
+        44,
+        45
+      ],
+      "default_modes": {
+        "45": 0,
+        "44": 0,
+        "43": 0,
+        "40": 0,
+        "39": 0,
+        "38": 0,
+        "37": 0,
+        "36": 0,
+        "35": 0,
+        "34": 0,
+        "32": 0,
+        "29": 0,
+        "18": 0,
+        "12": 0,
+        "5": 0,
+        "4": 0,
+        "3": 0,
+        "2": 0,
+        "1": 0,
+        "30": 0
+      }
+    },
+    "HiresFix Pre Detailer": {
+      "color": "#3f789e",
+      "bounding": [
+        1770,
+        1910,
+        290,
+        320
+      ],
+      "node_ids": [
+        82
+      ],
+      "default_modes": {
+        "82": 4
+      }
+    },
+    "Hand ADetailer": {
+      "color": "#3f789e",
+      "bounding": [
+        3010,
+        0,
+        330,
+        1880
+      ],
+      "node_ids": [
+        8,
+        13,
+        25,
+        62
+      ],
+      "default_modes": {
+        "62": 4,
+        "25": 4,
+        "13": 4,
+        "8": 4
+      }
+    },
+    "NSFW ADetailer": {
+      "color": "#3f789e",
+      "bounding": [
+        3400,
+        0,
+        330,
+        1880
+      ],
+      "node_ids": [
+        9,
+        14,
+        26,
+        63
+      ],
+      "default_modes": {
+        "63": 4,
+        "26": 4,
+        "14": 4,
+        "9": 4
+      }
+    },
+    "Face ADetailer": {
+      "color": "#3f789e",
+      "bounding": [
+        3790,
+        0,
+        330,
+        1880
+      ],
+      "node_ids": [
+        10,
+        15,
+        27,
+        64
+      ],
+      "default_modes": {
+        "64": 0,
+        "27": 0,
+        "15": 0,
+        "10": 0
+      }
+    },
+    "Eyes ADetailer": {
+      "color": "#3f789e",
+      "bounding": [
+        4180,
+        0,
+        330,
+        1880
+      ],
+      "node_ids": [
+        11,
+        16,
+        28,
+        65
+      ],
+      "default_modes": {
+        "65": 4,
+        "28": 4,
+        "16": 4,
+        "11": 4
+      }
+    },
+    "Seperate VAE": {
+      "color": "#3f789e",
+      "bounding": [
+        2060,
+        1190,
+        260,
+        140
+      ],
+      "node_ids": [
+        56,
+        57
+      ],
+      "default_modes": {
+        "57": 4,
+        "56": 4
+      }
+    },
+    "VPred Model?": {
+      "color": "#3f789e",
+      "bounding": [
+        2060,
+        1360,
+        230,
+        240
+      ],
+      "node_ids": [
+        61,
+        68
+      ],
+      "default_modes": {
+        "68": 4,
+        "61": 4
+      }
+    },
+    "Use SAMLoader": {
+      "color": "#3f789e",
+      "bounding": [
+        2620,
+        0,
+        330,
+        170
+      ],
+      "node_ids": [
+        7
+      ],
+      "default_modes": {
+        "7": 0
+      }
+    },
+    "CLIP Skip": {
+      "color": "#3f789e",
+      "bounding": [
+        1770,
+        1190,
+        230,
+        140
+      ],
+      "node_ids": [
+        55
+      ],
+      "default_modes": {
+        "55": 0
+      }
+    },
+    "Detailer Settings": {
+      "color": "#444",
+      "bounding": [
+        2280,
+        0,
+        260,
+        950
+      ],
+      "node_ids": [
+        6,
+        19,
+        23,
+        31,
+        33,
+        41
+      ],
+      "default_modes": {
+        "41": 0,
+        "33": 0,
+        "31": 0,
+        "23": 0,
+        "19": 0,
+        "6": 0
+      }
+    },
+    "Image Saver": {
+      "color": "#444",
+      "bounding": [
+        1400,
+        1190,
+        310,
+        1040
+      ],
+      "node_ids": [
+        54
+      ],
+      "default_modes": {
+        "54": 0
+      }
+    },
+    "Epsilon Scaling": {
+      "color": "#3f789e",
+      "bounding": [
+        1770,
+        1360,
+        230,
+        140
+      ],
+      "node_ids": [
+        60
+      ],
+      "default_modes": {
+        "60": 4
+      }
+    },
+    "CFGZeroStar": {
+      "color": "#3f789e",
+      "bounding": [
+        1770,
+        1530,
+        190,
+        110
+      ],
+      "node_ids": [
+        69
+      ],
+      "default_modes": {
+        "69": 4
+      }
+    },
+    "Apply Signature": {
+      "color": "#3f789e",
+      "bounding": [
+        2480,
+        1820,
+        470,
+        410
+      ],
+      "node_ids": [
+        75,
+        76,
+        77,
+        80,
+        81,
+        84,
+        85,
+        86,
+        89,
+        90,
+        95
+      ],
+      "default_modes": {
+        "95": 4,
+        "90": 4,
+        "89": 4,
+        "86": 4,
+        "85": 4,
+        "84": 4,
+        "81": 4,
+        "80": 4,
+        "77": 4,
+        "76": 4,
+        "75": 0
+      }
+    },
+    "Notes": {
+      "color": "#444",
+      "bounding": [
+        0,
+        0,
+        320,
+        1130
+      ],
+      "node_ids": [
+        0,
+        17,
+        20,
+        42
+      ],
+      "default_modes": {
+        "42": 0,
+        "20": 0,
+        "17": 0,
+        "0": 0
+      }
+    },
+    "Load Image": {
+      "color": "#3f789e",
+      "bounding": [
+        0,
+        1190,
+        320,
+        600
+      ],
+      "node_ids": [
+        50
+      ],
+      "default_modes": {
+        "50": 4
+      }
+    },
+    "HiresFix Post Detailer": {
+      "color": "#3f789e",
+      "bounding": [
+        2100,
+        1910,
+        290,
+        320
+      ],
+      "node_ids": [
+        83
+      ],
+      "default_modes": {
+        "83": 4
+      }
+    },
+    "Detailer": {
+      "color": "#3f789e",
+      "bounding": [
+        2620,
+        430,
+        330,
+        1300
+      ],
+      "node_ids": [
+        21,
+        22,
+        24,
+        58
+      ],
+      "default_modes": {
+        "58": 4,
+        "24": 4,
+        "22": 4,
+        "21": 4
+      }
+    },
+    "Post Processing": {
+      "color": "#444",
+      "bounding": [
+        3010,
+        1990,
+        1290,
+        240
+      ],
+      "node_ids": [
+        87,
+        91,
+        92,
+        93,
+        94
+      ],
+      "default_modes": {
+        "94": 4,
+        "93": 4,
+        "92": 4,
+        "91": 4,
+        "87": 0
+      }
+    },
+    "ImageMorphology": {
+      "color": "#8AA",
+      "bounding": [
+        3270,
+        2030,
+        230,
+        170
+      ],
+      "node_ids": [
+        94
+      ],
+      "default_modes": {
+        "94": 4
+      }
+    },
+    "ImageQuantize": {
+      "color": "#8AA",
+      "bounding": [
+        3520,
+        2030,
+        230,
+        170
+      ],
+      "node_ids": [
+        92
+      ],
+      "default_modes": {
+        "92": 4
+      }
+    },
+    "ImageSharpen": {
+      "color": "#8AA",
+      "bounding": [
+        3770,
+        2030,
+        230,
+        190
+      ],
+      "node_ids": [
+        93
+      ],
+      "default_modes": {
+        "93": 4
+      }
+    },
+    "Contrast": {
+      "color": "#8AA",
+      "bounding": [
+        3020,
+        2030,
+        230,
+        140
+      ],
+      "node_ids": [
+        91
+      ],
+      "default_modes": {
+        "91": 4
+      }
+    }
+  },
+  "feature_extra_nodes": {
+    "i2i_latent_chain": [
+      50,
+      70,
+      73,
+      72
+    ],
+    "ksampler": [
+      46
+    ],
+    "ksampler_helpers": [
+      47,
+      48
+    ],
+    "signature_composite": [
+      98,
+      97
+    ],
+    "impact_switches": [
+      38,
+      40,
+      75
+    ]
+  },
+  "note": "Group membership by bounding box center. Agent sets mode 0=ON, 4=BYPASS before expand."
+}

@@ -1,7 +1,9 @@
-# Agent-dedicated workflows
+# Agent-callable workflows
 
-스크립트·캐릭터 파이프라인이 읽는 **프로덕션 워크플로우**입니다.  
-휴먼 UI 실험 파일과 섞지 마십시오.
+에이전트 CLI가 읽는 **도구용 워크플로/프리셋**입니다.  
+휴먼 UI 실험(`../human/`)과 섞지 마십시오.
+
+도구 특징·선택: **[docs/tool_catalog.md](../../docs/tool_catalog.md)**
 
 > **전환 플랜 (JSON 직접 API 호출):**  
 > [`docs/workflow_api_direct_call_plan.md`](../../docs/workflow_api_direct_call_plan.md)  
@@ -21,6 +23,9 @@
 | `lonecat_i2i_identity` | `presets/lonecat_i2i_identity.api.json` | **I2I 본선** `generate_moody_i2i` / lock / ipadapter(alias) |
 | `krea2_t2i_v10` | `presets/krea2_t2i_v10.api.json` | Krea2 T2I (SFW+NSFW capable) `generate_krea` |
 | `krea2_nsfw_t2i` | 동일 프리셋 별칭 | **빨간맛 still** `generate_krea_nsfw` (adult 18+ only) |
+| `ltx23_nsfw_i2v` | human `ltx23_nsfw/ltx23I2VWorkflow_v20` (UI expand) | **빨간맛 I2V** `generate_ltx_nsfw_i2v` — real WF + group switches |
+| `ltx23_nsfw_director` | human `ltx23_nsfw/ltx23DirectorWorkflow_directorV20` | **빨간맛 Director** `generate_ltx_nsfw_director` |
+| `qwen_instantx_inpaint` | human `image_qwen_image_instantx_inpainting_controlnet` | **마스크 인페인트** `generate_qwen_inpaint` — InstantX CN real WF |
 | `zimage_fun_union_controlnet` | `presets/zimage_fun_union_controlnet.api.json` | **CN 본선** `generate_moody_controlnet` (Fun Union 공식) |
 | `i2i_moody` | `I2I-moody.json` | 레거시 미니 only (`--legacy-mini`) |
 | `i2i_controlnet_moody` | `I2I-ControlNet-moody.json` | CN 레거시 미니 only (`AGENT_CN_BACKEND=legacy_mini`) |

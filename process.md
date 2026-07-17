@@ -1,3 +1,60 @@
+## 2026-07-17 — Illustrious Standard_V37 (anime XL tool)
+- Civitai pack 1386234 V37 — **Standard only** (Advanced TIPO/IPA/OpenPose not in this JSON)
+- **Source-first:** card purpose “Workflow for XL/Illustrious/NoobAI”; pack roles Advanced>Standard>Basic + Detailer; Clip Skip 2; Fabricated XL suggested
+- Guide rewritten around author intent + UI Notes (quality/lighting/shot/res tables); article 17339 linked (may need login)
+- Human SSOT: `workflows/human/illustrious_standard_v37/` + CAPABILITIES purpose/pack_workflow_roles
+- Runner: `lib/illustrious_standard_v37_runner.py` — real UI · Fast Groups mode 0/4 · expand · multi-hop bypass · ports (no mini-graph)
+- CLI: `scripts/generate_illustrious_standard.py` — `--list-features` · presets · Face/Hand/Eyes/I2I/Hires/…
+- Catalog `illustrious_standard_v37` · tool_catalog §B8
+- Smoke OK: `stories/_tool_smoke/std_v37_clean.png` · `std_v37_face.png`
+## 2026-07-17 — YAW Wan 2.2 MoE v0.50 (T2V/I2V tool)
+- Civitai 2008892 boobkake22: easy T2V+I2V Wan 2.2 MoE template
+- Real UI SSOT `workflows/human/yaw_wan22/yetAnotherWorkflowEasyT2vI2v_v050Moe.json`
+- Runner: green T2V/I2V muter modes · SimpleSwitch first-live · **default UnetLoaderGGUF Q4** (pack fp16 huge)
+- Fixes that blocked full graph: empty SimpleSwitch 359 → WanResolutions; missing WanMoeKSampler denoise
+- CLI `generate_yaw_wan22` · guide + CAPABILITIES · catalog `yaw_wan22_v050_moe` · tool_catalog §C2b
+- Smoke OK: `stories/_tool_smoke/yaw_t2v_gguf_smoke.mp4` (17f 768x1168 GGUF+lightx2v)
+## 2026-07-17 — Illustrious Standard_V37 source-purpose doc refresh
+- User feedback: Civitai URL was for purpose/usage, not only file location
+- AGENT_GUIDE §1–3 rewritten from model card + pack hierarchy + in-graph Notes
+## 2026-07-17 — Tool catalog as agent selection SSOT
+- Provider role: ship workflows + CLI + clear specs; projects choose tools freely
+- `docs/tool_catalog.md` rewritten: matrix, when/when-not, CLI samples, decision tree, maintainer checklist
+- Root `TOOLS.md` entry for consumer agents; AGENTS/README/docs index linked
+## 2026-07-17 — Boogu+Ideogram4+Krea2 typography tool
+- UI: `workflows/human/NEWKrea2BooguIdeogram4_booguKrea2.json` (Civitai RedCraft Boogu+Krea2+Ideo4)
+- CLI: `generate_boogu_typo` · runner `lib/boogu_ideogram_krea_runner.py` modes boogu|pipeline|upscale
+- Agent skips Gemini; injects caption into Boogu/Ideogram/Krea stages; SeedVR2 opt-in
+- Guide + catalog `boogu_krea_ideogram_typo` · tool_catalog §1.8
+## 2026-07-17 — Qwen3-TTS voice-clone tool formalized
+- Human UI pack: `workflows/human/qwen3_tts/` (clone/custom/design from Comfy user workflows)
+- `generate_qwen3_tts`: clone mirrors `음성복제TTS-Qwen3-TTS`; ref **max ~30s** guard; emotion via `--instruct` (custom/design field; clone→stage direction on text)
+- `voice_register` duration check; guide `workflows/human/qwen3_tts/AGENT_GUIDE.md`; tool_catalog §3.1
+## 2026-07-17 — Docs: toolbox not production line
+- Identity: ComfyUI **media tool collection** (not standardized mass-production pipeline)
+- Entry: `docs/tool_catalog.md` · `README.md` · `AGENTS.md` · `agent_rules.md` intro · `docs/README.md`
+- Rule 7.0 / 7.2 framed as **optional** when using `stories/` episode rail only
+- Catalog + consumer docs aligned: project picks tools; this repo ships CLIs + specs
+## 2026-07-17 — Toolbox identity + tool catalog
+- Product stance: repo = **tool collection**; projects pick tools freely (not forced one video pipeline)
+- Spec SSOT: `docs/tool_catalog.md` (features / CLI / when-to-pick)
+- `Agents.md` §0 reframed: full CREATIVE→assemble rail is **optional** project recipe
+- `workflows/README.md` points to tool_catalog
+## 2026-07-17 — Qwen InstantX Inpaint (masked edit)
+- UI SSOT: `workflows/human/image_qwen_image_instantx_inpainting_controlnet.json`
+- Path: real UI → expand (outpaint/lightning mode4 omitted) → ports → /prompt
+- CLI: `scripts/generate_qwen_inpaint.py` · runner `lib/qwen_instantx_inpaint_runner.py`
+- Guide: `workflows/human/Qwen_InstantX_Inpaint_AGENT_GUIDE.md` · catalog `qwen_instantx_inpaint`
+- **Default UNet = LoaderGGUF** (not pack fp8): `Qwen-Image-Edit-2509-Q5_K_M.gguf`; `--gguf-light` → 2511 Q4; `--fp8` pack path
+- Smoke OK (~136s after Comfy restart): `F:\generated_images\qwen_instantx_smoke\inpaint_gguf_smoke.png` (Q4, max-dim 1024, seed 42)
+## 2026-07-17 — LTX23 Kenpechi NSFW video (빨간맛 I2V/Director)
+- UI SSOT: `workflows/human/ltx23_nsfw/ltx23I2VWorkflow_v20.json` + `ltx23DirectorWorkflow_directorV20.json`
+- Path: **real UI** → Fast Groups switches (`lib/ltx23_nsfw_switches.py`) → expand (bypass=passthrough) → ports → /prompt
+- Default profile `gguf_10eros`: GGUF 10Eros + CLIP GGUF + Video/Audio VAE; Distilled/Final Upscale/Patch Torch OFF via switches
+- CLI: `generate_ltx_nsfw_i2v` / `generate_ltx_nsfw_director` · guide `workflows/human/ltx23_nsfw/AGENT_GUIDE.md`
+- Smoke: `F:\generated_videos\ltx23_nsfw_smoke\i2v_smoke.mp4` (2s, 576x1024)
+- Expand fixes: skip mode2; bypass subgraph type-matched passthrough; Context Switch first-live; SamplerCustom cfg
+- Hard rule: do **not** strip pack nodes to simplify — only toggle groups like the UI bypassers
 ## 2026-07-17 — Krea2 NSFW (빨간맛) still tool ready
 - Confirmed: krea2SFWNSFWUncensoredImageTo_v10 = uncensored via abliterated Qwen3-VL CLIP + Krea2 turbo
 - Smoke OK: lingerie adult still → `F:\generated_images\krea2_nsfw_smoke\krea2_nsfw_smoke.png` (~28s)

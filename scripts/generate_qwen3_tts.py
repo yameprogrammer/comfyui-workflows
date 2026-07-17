@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 """
-Qwen3-TTS generation via local ComfyUI (FB_Qwen3TTS* nodes).
+Qwen3-TTS via local ComfyUI (FB_Qwen3TTS* nodes).
+
+UI SSOT (human):
+  workflows/human/qwen3_tts/voice_clone_qwen3_tts.json   — 음성복제
+  workflows/human/qwen3_tts/custom_voice_qwen3_tts.json  — 커스텀 화자
+  workflows/human/qwen3_tts/voice_design_qwen3_tts.json  — 보이스 디자인
 
 Modes:
-  custom  — preset speaker + instruct emotion/style (CustomVoice model)
-  design  — natural-language voice design (VoiceDesign model; auto-download)
-  clone   — reference audio clone (Base model; auto-download) — your voice or others
+  custom  — preset speaker + --instruct emotion/style (CustomVoice)
+  design  — natural-language voice design (--instruct required)
+  clone   — ref-audio voice clone (Base); optional --instruct as performance direction
 
-Tuning awkward / unnatural delivery:
-  --temperature  --top-p  --top-k  --repetition-penalty  --seed  --instruct
-  shorter text lines, accurate --ref-text for clone, 5–15s clean ref audio
+Emotion (prior design + nodes):
+  custom/design → node field ``instruct`` (first-class)
+  clone         → no instruct socket on FB_Qwen3TTSVoiceClone; we pass style as
+                  a short stage direction on target_text, and/or use an emotive ref sample
 
-Community path for lip-sync:
-  TTS wav → prepare_driving → episode_s2v (LTX / InfiniteTalk)
+Ref sample length:
+  ideal ~5–15s · practical max ~30s (longer often hangs or dilutes clone)
+
+Guide: workflows/human/qwen3_tts/AGENT_GUIDE.md · docs/qwen3_tts_ltx_audio_pipeline.md
 """
 
 from __future__ import annotations
@@ -23,6 +31,7 @@ import argparse
 import os
 import random
 import shutil
+import subprocess
 import sys
 from typing import Any
 
@@ -39,6 +48,11 @@ from lib.comfy_client import (
     wait_for_history,
     write_meta,
 )
+
+# User-confirmed practical max; docs also cite 5–15s community ideal
+REF_MAX_SECONDS = 30.0
+REF_IDEAL_MIN = 5.0
+REF_IDEAL_MAX = 15.0
 
 CUSTOM_SPEAKERS = (
     "Aiden",
@@ -81,6 +95,83 @@ def resolve_voice_profile(voice_id: str) -> dict[str, Any] | None:
 
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def probe_audio_duration_sec(path: str) -> float | None:
+    """Best-effort duration via ffprobe (or wave for wav)."""
+    if not path or not os.path.isfile(path):
+        return None
+    try:
+        r = subprocess.run(
+            [
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                path,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if r.returncode == 0 and (r.stdout or "").strip():
+            return float(r.stdout.strip())
+    except Exception:
+        pass
+    if path.lower().endswith(".wav"):
+        try:
+            import wave
+
+            with wave.open(path, "rb") as w:
+                frames = w.getnframes()
+                rate = w.getframerate() or 1
+                return float(frames) / float(rate)
+        except Exception:
+            pass
+    return None
+
+
+def validate_ref_audio(path: str, *, max_sec: float = REF_MAX_SECONDS) -> dict[str, Any]:
+    """Return {ok, duration_sec, warnings, error}."""
+    out: dict[str, Any] = {"ok": True, "duration_sec": None, "warnings": [], "error": None}
+    dur = probe_audio_duration_sec(path)
+    out["duration_sec"] = dur
+    if dur is None:
+        out["warnings"].append(
+            "could not probe ref duration — keep sample short (~5–30s)"
+        )
+        return out
+    if dur > max_sec:
+        out["ok"] = False
+        out["error"] = (
+            f"ref audio is {dur:.1f}s > max {max_sec:.0f}s. "
+            "Trim to ~30s or less (ideal 5–15s clean speech)."
+        )
+        return out
+    if dur > REF_IDEAL_MAX:
+        out["warnings"].append(
+            f"ref is {dur:.1f}s — OK under {max_sec:.0f}s but 5–{REF_IDEAL_MAX:.0f}s is more reliable"
+        )
+    if dur < 2.0:
+        out["warnings"].append(f"ref is only {dur:.1f}s — clone quality may be weak")
+    return out
+
+
+def apply_emotion_to_clone_text(text: str, instruct: str) -> str:
+    """FB VoiceClone has no instruct socket — fold emotion into target text.
+
+    Keeps custom/design instruct as first-class; clone gets a light stage direction.
+    """
+    ins = (instruct or "").strip()
+    if not ins:
+        return text
+    # Avoid double-wrapping
+    if text.strip().startswith("(") and ")" in text[:80]:
+        return text
+    return f"({ins}) {text}"
 
 
 def _sampling_inputs(
@@ -204,7 +295,11 @@ def _build_clone_api(
     temperature: float,
     repetition_penalty: float,
     filename_prefix: str,
+    x_vector_only: bool = False,
+    attention: str = "auto",
+    unload_after: bool = False,
 ) -> dict[str, Any]:
+    """Mirrors workflows/human/qwen3_tts/voice_clone_qwen3_tts.json (FB VoiceClone)."""
     inputs = {
         "target_text": text,
         "model_choice": model_choice,
@@ -213,6 +308,9 @@ def _build_clone_api(
         "language": language,
         "ref_audio": ["10", 0],
         "ref_text": ref_text or "",
+        "x_vector_only": bool(x_vector_only),
+        "attention": attention or "auto",
+        "unload_model_after_generate": bool(unload_after),
         **_sampling_inputs(
             seed=seed,
             max_new_tokens=max_new_tokens,
@@ -257,6 +355,11 @@ def generate_qwen3_tts(
     top_k: int = 20,
     temperature: float = 0.9,
     repetition_penalty: float = 1.05,
+    ref_max_sec: float = REF_MAX_SECONDS,
+    allow_long_ref: bool = False,
+    x_vector_only: bool = False,
+    attention: str = "auto",
+    unload_after: bool = False,
     server_address: str = DEFAULT_SERVER,
     timeout_sec: int = 600,
     meta_out: str | None = None,
@@ -293,6 +396,7 @@ def generate_qwen3_tts(
 
     prefix = f"agent_qwen3_tts_{mode}"
     mode = mode.lower().strip()
+    ref_check: dict[str, Any] = {}
 
     # Clone/design often need their own checkpoints; FB nodes download on first use
     if mode == "clone" and model_size == "1.7B":
@@ -343,17 +447,31 @@ def generate_qwen3_tts(
             return fail_result(
                 error="REF_MISSING",
                 message=(
-                    "clone needs --ref-audio wav/mp3 (5–15s clean speech) "
+                    "clone needs --ref-audio wav/mp3 (ideal 5–15s, max ~30s) "
                     "or --voice-id registered profile"
                 ),
             )
+        ref_check = validate_ref_audio(ref_audio, max_sec=float(ref_max_sec))
+        for w in ref_check.get("warnings") or []:
+            print(f"[WARN] {w}")
+        if not ref_check.get("ok") and not allow_long_ref:
+            return fail_result(
+                error="REF_TOO_LONG",
+                message=ref_check.get("error")
+                or f"ref longer than {ref_max_sec}s — trim or pass --allow-long-ref",
+                duration_sec=ref_check.get("duration_sec"),
+            )
+        if not ref_check.get("ok") and allow_long_ref:
+            print(f"[WARN] allowing long ref: {ref_check.get('error')}")
+
+        # Emotion: VoiceClone has no instruct field — stage direction on target_text
+        clone_text = apply_emotion_to_clone_text(text, instruct)
         os.makedirs(COMFYUI_INPUT_DIR, exist_ok=True)
         ext = os.path.splitext(ref_audio)[1] or ".wav"
         temp_name = f"temp_qwen3_tts_ref_{os.getpid()}{ext}"
         shutil.copy2(ref_audio, os.path.join(COMFYUI_INPUT_DIR, temp_name))
-        # Base model: 0.6B lighter first-time; 1.7B better quality if VRAM allows
         api = _build_clone_api(
-            text=text,
+            text=clone_text,
             ref_audio_name=temp_name,
             ref_text=ref_text,
             language=language,
@@ -365,6 +483,9 @@ def generate_qwen3_tts(
             temperature=temperature,
             repetition_penalty=repetition_penalty,
             filename_prefix=prefix,
+            x_vector_only=x_vector_only,
+            attention=attention,
+            unload_after=unload_after,
         )
     else:
         return fail_result(error="BAD_MODE", message="mode must be custom|design|clone")
@@ -372,9 +493,13 @@ def generate_qwen3_tts(
     print(f"Qwen3-TTS mode={mode} lang={language} seed={seed} temp={temperature}")
     print(f"  text[:120]={text[:120]!r}")
     if instruct:
-        print(f"  instruct[:120]={instruct[:120]!r}")
+        print(f"  instruct/emotion[:120]={instruct[:120]!r}")
     if mode == "clone":
         print(f"  ref={ref_audio} ref_text_len={len(ref_text or '')}")
+        if ref_check.get("duration_sec") is not None:
+            print(f"  ref_duration_sec={ref_check['duration_sec']:.1f}")
+        if instruct:
+            print("  emotion: folded into target_text (clone node has no instruct socket)")
         print("  note: first clone run may download Base model into models/Qwen3-TTS/")
 
     try:
@@ -416,11 +541,18 @@ def generate_qwen3_tts(
 
     meta_path = resolve_meta_out(output_filename, meta_out)
     meta = {
+        "tool": "generate_qwen3_tts",
+        "role": "tts",
         "mode": f"qwen3_tts_{mode}",
         "text": text,
         "speaker": speaker if mode == "custom" else None,
         "voice_id": voice_id,
         "instruct": instruct or None,
+        "emotion_path": (
+            "instruct_field"
+            if mode in ("custom", "design")
+            else ("stage_direction_on_text" if instruct else "ref_performance_only")
+        ),
         "language": language,
         "model_size": model_size,
         "seed": seed,
@@ -430,13 +562,20 @@ def generate_qwen3_tts(
         "repetition_penalty": repetition_penalty,
         "ref_audio": os.path.abspath(ref_audio) if ref_audio else None,
         "ref_text": ref_text or None,
+        "ref_duration_sec": (ref_check.get("duration_sec") if mode == "clone" else None),
+        "ref_max_sec": float(ref_max_sec) if mode == "clone" else None,
+        "ui_source": {
+            "clone": "workflows/human/qwen3_tts/voice_clone_qwen3_tts.json",
+            "custom": "workflows/human/qwen3_tts/custom_voice_qwen3_tts.json",
+            "design": "workflows/human/qwen3_tts/voice_design_qwen3_tts.json",
+        }.get(mode),
         "output_path": os.path.abspath(output_filename),
         "comfy_prompt_id": prompt_id,
         "created_at": utc_now_iso(),
         "si2v_hint": "audio_prepare_driving → episode_tts --bind-si2v / episode_s2v",
         "tune_hint": (
-            "awkward? try lower temperature (0.6–0.8), shorter lines, "
-            "clearer instruct, or clone with 5–15s clean ref + ref_text"
+            "awkward? lower temperature (0.6–0.8), shorter lines, clearer --instruct; "
+            "clone: 5–15s clean ref (max ~30s) + accurate --ref-text"
         ),
     }
     if meta_path:
@@ -462,12 +601,42 @@ def main(argv=None) -> int:
     p.add_argument("--speaker", default="Sohee", help=f"custom: {', '.join(CUSTOM_SPEAKERS)}")
     p.add_argument("--language", default="Korean", choices=list(LANGUAGES))
     p.add_argument("--instruct", default="", help="Emotion/style or voice design text")
-    p.add_argument("--ref-audio", default=None, help="Clone: 5–15s clean speech sample")
+    p.add_argument(
+        "--ref-audio",
+        default=None,
+        help="Clone: clean speech sample (ideal 5–15s, hard max ~30s)",
+    )
     p.add_argument("--ref-text", default="", help="Clone: exact transcript of ref audio")
     p.add_argument(
         "--voice-id",
         default=None,
         help="Registered clone profile under voices/<id>/ (implies mode=clone)",
+    )
+    p.add_argument(
+        "--ref-max-sec",
+        type=float,
+        default=REF_MAX_SECONDS,
+        help=f"Reject longer refs (default {REF_MAX_SECONDS:.0f})",
+    )
+    p.add_argument(
+        "--allow-long-ref",
+        action="store_true",
+        help="Bypass duration guard (not recommended)",
+    )
+    p.add_argument(
+        "--x-vector-only",
+        action="store_true",
+        help="Clone: x_vector_only (timbre-only; less content leakage)",
+    )
+    p.add_argument(
+        "--attention",
+        default="auto",
+        choices=["auto", "sage_attn", "flash_attn", "sdpa", "eager"],
+    )
+    p.add_argument(
+        "--unload-after",
+        action="store_true",
+        help="Unload TTS model after generate (free VRAM)",
     )
     p.add_argument("--model-size", default="1.7B", choices=["0.6B", "1.7B"])
     p.add_argument("--output", "-o", default=None)
@@ -490,9 +659,14 @@ def main(argv=None) -> int:
     p.add_argument("--timeout", type=int, default=600)
     args = p.parse_args(argv)
 
+    # --voice-id implies clone (also set inside generate)
+    mode = args.mode
+    if args.voice_id and mode == "custom":
+        mode = "clone"
+
     r = generate_qwen3_tts(
         args.text,
-        mode=args.mode,
+        mode=mode,
         speaker=args.speaker,
         language=args.language,
         instruct=args.instruct,
@@ -507,6 +681,11 @@ def main(argv=None) -> int:
         top_k=args.top_k,
         temperature=args.temperature,
         repetition_penalty=args.repetition_penalty,
+        ref_max_sec=args.ref_max_sec,
+        allow_long_ref=args.allow_long_ref,
+        x_vector_only=args.x_vector_only,
+        attention=args.attention,
+        unload_after=args.unload_after,
         timeout_sec=args.timeout,
     )
     if not r.get("ok"):

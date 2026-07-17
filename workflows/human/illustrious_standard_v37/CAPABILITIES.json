@@ -1,0 +1,433 @@
+{
+  "workflow": "Standard_V37 (Legendaer Illustrious XL pack)",
+  "version": 2,
+  "purpose": {
+    "one_liner": "Workflow for XL / Illustrious / NoobAI Models",
+    "author": "Legendaer",
+    "audience": "Anime/illustration still generation on Illustrious and NoobAI checkpoints (not photoreal Z-Image)",
+    "design": "Modular switch UI: generate, detail-enhance, hires/upscale in one graph; pick features with Fast Groups Bypasser",
+    "usage_tips_from_card": {
+      "clip_skip": 2
+    },
+    "suggested_checkpoint_from_card": "Fabricated XL (matches default Illustrious\\\\fabricatedXL_v70.safetensors)",
+    "official_guide_article": "https://civitai.red/articles/17339",
+    "how_to_use_well": [
+      "Use Illustrious/NoobAI ckpt + Clip Skip 2",
+      "Danbooru-style tags + quality tags (see UI Notes for lighting/style/shot tables)",
+      "Start with Standard daily path (Face ADetailer on); add Hand/Eyes/Hires as needed",
+      "For TIPO / IPAdapter / OpenPose / Regional → use Advanced pack file (not this tool)",
+      "For inpaint/outpaint-focused work on existing images → prefer Detailer pack file (V37 updated those)"
+    ]
+  },
+  "source": {
+    "civitai": "https://civitai.red/models/1386234/comfyui-image-workflows",
+    "civitai_article_guide": "https://civitai.red/articles/17339",
+    "author_profile": "https://civitai.com/user/Legendaer",
+    "pack_version": "V37",
+    "pack_archive": "ILV37.zip",
+    "comfyui_version_tested_by_author": "0.27.0",
+    "human_ui": "workflows/human/illustrious_standard_v37/Standard_V37.json",
+    "base_model_family": "Illustrious / NoobAI / SDXL",
+    "default_checkpoint": "Illustrious\\fabricatedXL_v70.safetensors",
+    "license": "Illustrious License",
+    "v37_changelog_summary": {
+      "general": ["improvements and bug fixes", "changed default values"],
+      "advanced_only": ["Added NegPip"],
+      "detailer_only": ["Updated Inpainting", "Updated Outpainting"]
+    }
+  },
+  "pack_workflow_roles": {
+    "Advanced": {
+      "card": "comprehensive text to image workflow",
+      "in_this_tool": false,
+      "use_when": "TIPO, IPAdapter, OpenPose, Regional, full ControlNet stack, FBCNN"
+    },
+    "Standard": {
+      "card": "more basic version of the Advanced workflow",
+      "in_this_tool": true,
+      "use_when": "Daily Illustrious T2I/I2I with detailers, hires, ultimate upscale, wildcards, LoRA"
+    },
+    "Basic": {
+      "card": "more basic version of the Standard workflow",
+      "in_this_tool": false,
+      "use_when": "Even lighter path than Standard"
+    },
+    "Detailer": {
+      "card": "detailing previously generated or existing images",
+      "in_this_tool": false,
+      "use_when": "Post-process existing images; V37 emphasizes inpaint/outpaint updates"
+    }
+  },
+  "pack_key_features_marketing": [
+    "LoRA",
+    "TIPO Prompting",
+    "Detail Enhancers",
+    "ControlNet Upscale",
+    "IPAdapter",
+    "HiresFix",
+    "OpenPose",
+    "Wildcards",
+    "ControlNET",
+    "Color Match",
+    "FBCNN",
+    "Regional Prompting",
+    "Inpaint",
+    "Outpaint"
+  ],
+  "integration_policy": {
+    "rule": "Read Civitai purpose first. Use the real UI graph as-is. Agent toggles Fast Groups Bypasser pale_blue/cyan groups via node mode 0/4, then expand_ui_workflow_to_api + port inject. Do NOT rebuild a mini T2I graph. Do NOT fake Advanced-only features inside Standard.",
+    "bypasser_pale_blue": {
+      "ui_id": 2,
+      "matchColors": "pale_blue",
+      "controls": "optional feature groups (#3f789e)"
+    },
+    "bypasser_cyan": {
+      "ui_id": 87,
+      "matchColors": "cyan",
+      "controls": "post FX groups (#8AA): Morphology / Quantize / Sharpen / Contrast"
+    },
+    "always_on_groups": [
+      "Control Center",
+      "Detailer Settings",
+      "Image Saver",
+      "Notes",
+      "Post Processing"
+    ]
+  },
+  "pack_siblings_not_in_this_file": {
+    "note": "Same Civitai pack ships Advanced / Basic / Detailer as separate JSON files. This tool is Standard_V37 only.",
+    "missing_vs_pack_marketing": [
+      "TIPO prompting",
+      "IPAdapter",
+      "OpenPose full stack",
+      "Regional prompting",
+      "Dedicated outpaint graph",
+      "FBCNN"
+    ],
+    "when_needed": "Import Advanced or Detailer as separate tools — do not fake them inside Standard."
+  },
+  "defaults_as_shipped": {
+    "path": "T2I EmptyLatent → KSampler → VAEDecode → Face ADetailer → (bypassed post chain passthrough) → Image Saver",
+    "size": [1024, 1536],
+    "steps": 28,
+    "cfg": 6,
+    "sampler": "euler_ancestral",
+    "scheduler": "normal",
+    "denoise": 1.0,
+    "clip_skip": -2,
+    "face_adetailer": "ON",
+    "hand_eyes_nsfw_adetailer": "OFF",
+    "load_image_i2i": "OFF",
+    "hires": "OFF",
+    "ultimate_sd_upscale": "OFF",
+    "post_fx_cyan": "OFF"
+  },
+  "features": [
+    {
+      "feature_id": "core_t2i",
+      "name": "Core T2I (Control Center)",
+      "category": "core",
+      "default": "ON",
+      "groups": ["Control Center"],
+      "toggleable": false,
+      "when_to_use": "Always — checkpoint, prompts, LoRA Manager, seed, size, KSampler path",
+      "ports": ["positive", "negative", "seed", "width", "height", "steps", "cfg", "sampler", "scheduler", "denoise", "ckpt_name", "lora_text", "batch_size"]
+    },
+    {
+      "feature_id": "face_adetailer",
+      "name": "Face ADetailer",
+      "category": "detailer",
+      "default": "ON",
+      "groups_on": ["Face ADetailer"],
+      "matchColors": "pale_blue",
+      "detector": "bbox/face_yolov9c.pt",
+      "when_to_use": "Anime/portrait face cleanup (default Standard path)",
+      "cli": "--face / --no-face",
+      "local_models": ["ultralytics/bbox/face_yolov9c.pt"]
+    },
+    {
+      "feature_id": "hand_adetailer",
+      "name": "Hand ADetailer",
+      "category": "detailer",
+      "default": "OFF",
+      "groups_on": ["Hand ADetailer"],
+      "matchColors": "pale_blue",
+      "detector": "bbox/hand_yolov9c.pt (pack) — local may use hand_yolov8s.pt",
+      "when_to_use": "Hand fixes after base gen",
+      "cli": "--hand",
+      "caveats": ["Pack detector name may differ from disk — runner remaps if needed"]
+    },
+    {
+      "feature_id": "eyes_adetailer",
+      "name": "Eyes ADetailer",
+      "category": "detailer",
+      "default": "OFF",
+      "groups_on": ["Eyes ADetailer"],
+      "matchColors": "pale_blue",
+      "detector": "bbox/Eyeful_v2-Individual.pt (pack) — local may use Eyeful_v2-Paired.pt",
+      "when_to_use": "Eye detail pass",
+      "cli": "--eyes"
+    },
+    {
+      "feature_id": "nsfw_adetailer",
+      "name": "NSFW ADetailer",
+      "category": "detailer",
+      "default": "OFF",
+      "groups_on": ["NSFW ADetailer"],
+      "matchColors": "pale_blue",
+      "detector": "segm/ntd11_anime_nsfw_segm_v5-variant1.pt",
+      "when_to_use": "Adult anatomy detailer (18+). Needs pack segm weights.",
+      "cli": "--nsfw-detailer",
+      "policy": "adults_only",
+      "status": "needs_model"
+    },
+    {
+      "feature_id": "generic_detailer",
+      "name": "Generic Detailer (DetailerForEach)",
+      "category": "detailer",
+      "default": "OFF",
+      "groups_on": ["Detailer"],
+      "matchColors": "pale_blue",
+      "when_to_use": "SEGS / full-image detailer path (not face pipe)",
+      "cli": "--generic-detailer"
+    },
+    {
+      "feature_id": "use_sam",
+      "name": "SAMLoader for detailers",
+      "category": "detailer",
+      "default": "ON",
+      "groups_on": ["Use SAMLoader"],
+      "matchColors": "pale_blue",
+      "when_to_use": "Better masks for ADetailer; disable to save VRAM if bbox-only is enough",
+      "cli": "--no-sam",
+      "local_models": ["sams/sam_vit_b_01ec64.pth"]
+    },
+    {
+      "feature_id": "clip_skip",
+      "name": "CLIP Skip (-2)",
+      "category": "model",
+      "default": "ON",
+      "groups_on": ["CLIP Skip"],
+      "matchColors": "pale_blue",
+      "when_to_use": "Illustrious/anime XL typically clip skip 2 — leave ON",
+      "cli": "--no-clip-skip"
+    },
+    {
+      "feature_id": "load_image_i2i",
+      "name": "Load Image → I2I latent",
+      "category": "i2i",
+      "default": "OFF",
+      "groups_on": ["Load Image"],
+      "matchColors": "pale_blue",
+      "extra_nodes_on": [50, 70, 73, 72],
+      "impact_switch": {
+        "id": 38,
+        "select_node": 72,
+        "select_value": 2,
+        "meaning": "input2 = VAEEncode(LoadImage)"
+      },
+      "when_to_use": "img2img from existing image; set denoise < 1",
+      "cli": "--image PATH  (implies I2I)",
+      "ports": ["image", "denoise"]
+    },
+    {
+      "feature_id": "separate_vae",
+      "name": "Separate VAE loader",
+      "category": "model",
+      "default": "OFF",
+      "groups_on": ["Seperate VAE"],
+      "matchColors": "pale_blue",
+      "impact_switch": {
+        "id": 40,
+        "select_node": 57,
+        "select_value": 2,
+        "meaning": "input2 = VAELoader instead of checkpoint VAE"
+      },
+      "when_to_use": "Force sdxl_vae.safetensors (or override) when ckpt VAE is wrong",
+      "cli": "--separate-vae [--vae-name NAME]",
+      "local_models": ["vae/sdxl_vae.safetensors (optional)"]
+    },
+    {
+      "feature_id": "vpred",
+      "name": "V-Prediction sampling (ModelSamplingDiscrete + Mahiro)",
+      "category": "model",
+      "default": "OFF",
+      "groups_on": ["VPred Model?"],
+      "matchColors": "pale_blue",
+      "when_to_use": "VPred Illustrious/NoobAI checkpoints only — wrong on epsilon models",
+      "cli": "--vpred"
+    },
+    {
+      "feature_id": "epsilon_scaling",
+      "name": "Epsilon Scaling",
+      "category": "sampler_mod",
+      "default": "OFF",
+      "groups_on": ["Epsilon Scaling"],
+      "matchColors": "pale_blue",
+      "when_to_use": "Optional sampler quality tweak",
+      "cli": "--epsilon-scaling"
+    },
+    {
+      "feature_id": "cfg_zero_star",
+      "name": "CFGZeroStar",
+      "category": "sampler_mod",
+      "default": "OFF",
+      "groups_on": ["CFGZeroStar"],
+      "matchColors": "pale_blue",
+      "when_to_use": "Optional CFG helper node",
+      "cli": "--cfg-zero-star"
+    },
+    {
+      "feature_id": "hires_pre",
+      "name": "HiresFix Pre Detailer",
+      "category": "upscale",
+      "default": "OFF",
+      "groups_on": ["HiresFix Pre Detailer"],
+      "matchColors": "pale_blue",
+      "when_to_use": "Upscale before detailer chain",
+      "cli": "--hires-pre",
+      "local_models": ["upscale_models/4x_foolhardy_Remacri.pth"]
+    },
+    {
+      "feature_id": "hires_post",
+      "name": "HiresFix Post Detailer",
+      "category": "upscale",
+      "default": "OFF",
+      "groups_on": ["HiresFix Post Detailer"],
+      "matchColors": "pale_blue",
+      "when_to_use": "Upscale after detailer chain",
+      "cli": "--hires-post",
+      "local_models": ["upscale_models/4x_foolhardy_Remacri.pth"]
+    },
+    {
+      "feature_id": "color_match",
+      "name": "Color Match",
+      "category": "post",
+      "default": "OFF",
+      "groups_on": ["Color Match"],
+      "matchColors": "pale_blue",
+      "when_to_use": "Match colors to reference / stabilize after hires",
+      "cli": "--color-match"
+    },
+    {
+      "feature_id": "ultimate_sd_upscale",
+      "name": "Ultimate SD Upscale (+ Canny ControlNet)",
+      "category": "upscale",
+      "default": "OFF",
+      "groups_on": ["Ultimate SD Upscale"],
+      "matchColors": "pale_blue",
+      "when_to_use": "Tile upscale with CN canny structure lock — heavy VRAM/time",
+      "cli": "--ultimate-upscale",
+      "local_models": [
+        "upscale_models/4x_foolhardy_Remacri.pth",
+        "controlnet/SDXL/control-lora-canny-rank256.safetensors (pack path)"
+      ],
+      "status": "needs_controlnet_file"
+    },
+    {
+      "feature_id": "apply_signature",
+      "name": "Apply Signature watermark",
+      "category": "post",
+      "default": "OFF",
+      "groups_on": ["Apply Signature"],
+      "matchColors": "pale_blue",
+      "impact_switch": {
+        "id": 75,
+        "select_node": 95,
+        "select_value": 2,
+        "meaning": "composite signature branch"
+      },
+      "when_to_use": "Stamp signature PNG onto result",
+      "cli": "--signature PATH"
+    },
+    {
+      "feature_id": "post_morphology",
+      "name": "Image Morphology",
+      "category": "post_fx",
+      "default": "OFF",
+      "groups_on": ["ImageMorphology"],
+      "matchColors": "cyan",
+      "cli": "--fx-morphology"
+    },
+    {
+      "feature_id": "post_quantize",
+      "name": "Image Quantize",
+      "category": "post_fx",
+      "default": "OFF",
+      "groups_on": ["ImageQuantize"],
+      "matchColors": "cyan",
+      "cli": "--fx-quantize"
+    },
+    {
+      "feature_id": "post_sharpen",
+      "name": "Image Sharpen",
+      "category": "post_fx",
+      "default": "OFF",
+      "groups_on": ["ImageSharpen"],
+      "matchColors": "cyan",
+      "cli": "--fx-sharpen"
+    },
+    {
+      "feature_id": "post_contrast",
+      "name": "Contrast",
+      "category": "post_fx",
+      "default": "OFF",
+      "groups_on": ["Contrast"],
+      "matchColors": "cyan",
+      "cli": "--fx-contrast"
+    },
+    {
+      "feature_id": "lora_manager",
+      "name": "LoRA Loader (LoraManager)",
+      "category": "prompt",
+      "default": "ON (empty stack)",
+      "groups": ["Control Center"],
+      "when_to_use": "Add Illustrious LoRAs via --lora-text syntax of LoraManager",
+      "cli": "--lora-text \"...\"",
+      "toggleable": false
+    },
+    {
+      "feature_id": "wildcards",
+      "name": "ImpactWildcardProcessor prompts",
+      "category": "prompt",
+      "default": "ON",
+      "groups": ["Control Center"],
+      "when_to_use": "Danbooru-tag / wildcard prompts; mode=populate",
+      "cli": "-p / -n",
+      "toggleable": false
+    }
+  ],
+  "agent_presets": {
+    "t2i_face": {
+      "description": "Default shipped: T2I + Face ADetailer + CLIP skip + SAM",
+      "features_on": ["core_t2i", "face_adetailer", "use_sam", "clip_skip"],
+      "features_off": ["hand_adetailer", "eyes_adetailer", "nsfw_adetailer", "load_image_i2i", "hires_pre", "hires_post", "ultimate_sd_upscale"]
+    },
+    "t2i_clean": {
+      "description": "T2I only — all detailers off (faster)",
+      "features_on": ["core_t2i", "clip_skip"],
+      "features_off": ["face_adetailer", "hand_adetailer", "eyes_adetailer", "nsfw_adetailer", "use_sam"]
+    },
+    "t2i_face_hand_eyes": {
+      "description": "Full portrait detailer stack",
+      "features_on": ["core_t2i", "face_adetailer", "hand_adetailer", "eyes_adetailer", "use_sam", "clip_skip"]
+    },
+    "i2i_face": {
+      "description": "Load image + I2I denoise + face detailer",
+      "features_on": ["core_t2i", "load_image_i2i", "face_adetailer", "use_sam", "clip_skip"],
+      "requires": ["image"]
+    },
+    "t2i_hires_face": {
+      "description": "T2I + face + post hires",
+      "features_on": ["core_t2i", "face_adetailer", "hires_post", "use_sam", "clip_skip"]
+    }
+  },
+  "custom_nodes_required": [
+    "comfyui-impact-pack",
+    "comfyui-impact-subpack",
+    "rgthree-comfy",
+    "comfyui-easy-use",
+    "comfyui-lora-manager",
+    "comfy-image-saver / comfyui-image-saver"
+  ]
+}

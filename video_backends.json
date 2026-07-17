@@ -238,6 +238,40 @@
       "notes": "DEFAULT I2V after A/B vs Wan2.2 (2026-07-17): better motion + film quality at work res. Real AIO UI WF via generate_s2v/generate_i2v.",
       "quality_tier": "default"
     },
+    "ltx23_nsfw_i2v": {
+      "status": "ready",
+      "kind": "i2v",
+      "engine": "Kenpechi LTX 2.3 I2V v2.0 (10Eros NSFW)",
+      "workflow": "ltx23I2VWorkflow_v20",
+      "source_ui": "workflows/human/ltx23_nsfw/ltx23I2VWorkflow_v20.json",
+      "runner": "lib/ltx23_nsfw_workflow_runner.py",
+      "switches": "lib/ltx23_nsfw_switches.py",
+      "cli": "scripts/generate_ltx_nsfw_i2v.py",
+      "strengths": [
+        "nsfw_i2v",
+        "erotic_motion",
+        "adult_clip"
+      ],
+      "notes": "Adult 18+ only. Real Kenpechi UI + Fast Groups switches (not mini graph). Default profile gguf_10eros. SFW motion stays ltx23_aio_i2v.",
+      "policy": "adult_18_plus_only",
+      "quality_tier": "nsfw"
+    },
+    "ltx23_nsfw_director": {
+      "status": "ready",
+      "kind": "director",
+      "engine": "Kenpechi LTX 2.3 Director v2.0 (10Eros NSFW)",
+      "workflow": "ltx23DirectorWorkflow_directorV20",
+      "source_ui": "workflows/human/ltx23_nsfw/ltx23DirectorWorkflow_directorV20.json",
+      "runner": "lib/ltx23_nsfw_workflow_runner.py",
+      "cli": "scripts/generate_ltx_nsfw_director.py",
+      "strengths": [
+        "nsfw_director",
+        "multi_shot_erotic"
+      ],
+      "notes": "Adult 18+ only. LTXDirector timeline. Prefer ltx23_nsfw_i2v for single-image clips.",
+      "policy": "adult_18_plus_only",
+      "quality_tier": "nsfw"
+    },
     "infinitetalk": {
       "status": "ready",
       "kind": "s2v",

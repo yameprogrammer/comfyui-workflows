@@ -1,38 +1,42 @@
-# docs/ — 에이전트용 설계·스펙 (2026-07-14 정리)
+# docs/ — 설계·스펙 · 도구 문서
 
-코드보다 **문서 SSOT**를 둘 때 이 폴더를 연다.  
-실행 규칙·이력: 루트 `agent_rules.md` · `process.md` · 소비자 `AGENTS.md`.
+`agent_custom` = ComfyUI **미디어 도구 모음**.  
+실행 규칙·이력: 루트 `README.md` · `AGENTS.md` · `agent_rules.md` · `process.md`.
 
 **정리 원칙**
 
 | 구역 | 의미 |
 |------|------|
-| **활성 (아래 표)** | 지금 파이프·기본값·게이트의 SSOT 또는 살아 있는 백로그 |
-| **참고** | 설계 배경·리서치. 구현과 충돌하면 **활성 문서·코드 우선** |
-| **`archive/`** | 유효 기간 지난 세션 노트·일회성 디버그·원문 리서치 — [archive/README.md](archive/README.md) |
+| **도구 명세 (1순위)** | [tool_catalog.md](tool_catalog.md) — 무엇을 골라 쓸지 |
+| **활성** | 도구 계약·백엔드·옵션 레시피 SSOT |
+| **참고** | 설계 배경. 충돌 시 **코드 + tool_catalog** 우선 |
+| **`archive/`** | 만료 세션·일회성 — [archive/README.md](archive/README.md) |
 
 ---
 
-## 1. 에이전트가 먼저 읽을 것 (쇼츠 제작)
+## 1. 에이전트가 먼저 읽을 것
 
 | 우선 | 문서 | 역할 | 상태 |
 |------|------|------|------|
-| 0 | [agent_consumer_workspace_contract.md](agent_consumer_workspace_contract.md) | 공장 vs 작업대 · export 의무 | ✅ 계약 |
-| 1 | [production_asset_pipeline.md](production_asset_pipeline.md) | 캐릭·로케·룩·스토리·I2V 통합 지도 | ✅ |
-| 2 | [agent_video_tooling_todo.md](agent_video_tooling_todo.md) | **근시일 구현 백로그** (길이·감정 모션·export) | 📋 TODO |
-| **0★** | [../skills/video-direction/SKILL.md](../skills/video-direction/SKILL.md) | **연출 스킬 (이식)** — 게이트·레시피·공장 핸드오프 · `skill_equip.py` | ✅ **영상 필수** |
-| **1★** | [video_director_master_persona.md](video_director_master_persona.md) | **디렉터 마스터 페르소나** — 장문 컷 문법 SSOT (Rule 7.0) | ✅ **영상 필수** |
-| 2a | [video_creative_director_persona.md](video_creative_director_persona.md) | 감성 Creative Pack 레이어 (master 하위) | ✅ 감성 |
-| 2b | [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) | **기획 자율** — 키워드/음악만 있을 때 SOP·가드레일 | ✅ 문서 레일 |
-| 2c | [image_cut_verification_gate.md](image_cut_verification_gate.md) | **이미지 컷 육안 검증** — 키프레임·클립 + **기계 QA JSON 게이트** (Rule 7.3) | ✅ QA SSOT |
-| 2d | [failure_notes_system.md](failure_notes_system.md) | **실패 노트 공유** — `failures/` · 에이전트 간 교훈 (Rule 7.4) | ✅ 학습 |
-| 2e | [generation_prompt_craft.md](generation_prompt_craft.md) | **생성 프롬프트 크래프트** — Moody/I2V/SI2V 고품질 작성 (Rule 7.5) | ✅ 품질 |
-| 3 | [agent_av_smoke_checklist.md](agent_av_smoke_checklist.md) | AV 스모크·컷 승인 체크 | ✅ |
-| 4 | [audio_motion_production_modes.md](audio_motion_production_modes.md) | production_mode · SI2V · mix | ✅ 구현 진행 |
-| 5 | [video_delivery_and_backends.md](video_delivery_and_backends.md) | format / work·deliver / 백엔드 | ✅ |
-| 6 | [commission_workflow.md](commission_workflow.md) | 수주 → 납품 순서 | ✅ |
-| — | [agent_native_capability_autonomy.md](agent_native_capability_autonomy.md) | **전 에이전트** 자체 툴·스킬 능동 활용 (Rule 8.0) | ✅ |
-| — | [grok_build_hybrid_tooling.md](grok_build_hybrid_tooling.md) | Grok 전용: 네이티브+공장 (Rule 8.1) | ✅ |
+| **0** | **[tool_catalog.md](tool_catalog.md)** · [../TOOLS.md](../TOOLS.md) | **도구 특징·사용법·선택 트리 (제공 SSOT)** | ✅ **입구** |
+| 1 | [agent_consumer_workspace_contract.md](agent_consumer_workspace_contract.md) | 도구 레포 vs 프로젝트 작업대 · export | ✅ |
+| 2 | [video_delivery_and_backends.md](video_delivery_and_backends.md) | format / work·deliver / I2V 백엔드 | ✅ |
+| 3 | [generation_prompt_craft.md](generation_prompt_craft.md) | 프롬프트 품질 (쓸 때) | ✅ |
+| 4 | [failure_notes_system.md](failure_notes_system.md) | 실패 노트 공유 | ✅ |
+| 5 | [agent_native_capability_autonomy.md](agent_native_capability_autonomy.md) | 자체 툴 자율 (Rule 8.0) | ✅ |
+| 6 | [comfy_memory_and_model_switching.md](comfy_memory_and_model_switching.md) | VRAM · 모델 전환 | ✅ |
+| — | [agent_video_tooling_todo.md](agent_video_tooling_todo.md) | 툴 백로그 | 📋 |
+
+### 옵션 — 에피소드/`stories/` 레일을 쓸 때만
+
+| 문서 | 역할 |
+|------|------|
+| [../skills/video-direction/SKILL.md](../skills/video-direction/SKILL.md) | 연출 스킬 |
+| [video_director_master_persona.md](video_director_master_persona.md) | 컷 문법 |
+| [image_cut_verification_gate.md](image_cut_verification_gate.md) | 키프레임·클립 QA |
+| [production_asset_pipeline.md](production_asset_pipeline.md) | 캐릭·로케·스토리 통합 지도 |
+| [audio_motion_production_modes.md](audio_motion_production_modes.md) | SI2V · mix |
+| [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) | 기획 SOP (선택) |
 
 ---
 

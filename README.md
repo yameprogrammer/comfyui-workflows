@@ -1,11 +1,24 @@
-# agent_custom — 에이전트용 ComfyUI 미디어 도구
+# agent_custom — ComfyUI 미디어 **도구 모음**
 
-사람이 쓰는 앱 UI가 아니라, **로컬 ComfyUI(API)를 에이전트가 배치 제어**하기 위한 워크스페이스입니다.  
-Z-Image-Turbo (Moody) T2I/I2I, ControlNet, 캐릭터 패키지, Wan2.2 I2V 등이 여기에 모입니다.
+로컬 ComfyUI를 에이전트·사람이 **CLI로 호출**하는 **도구 상자**입니다.  
+정형화된 영상 양산 공장(한 가지 공정으로 찍어내기)이 **아닙니다.**
+
+| 이 레포 | 각 미디어 프로젝트 |
+|---------|-------------------|
+| Comfy 워크플로 + `scripts/generate_*` 도구 | 자기 스토리·파이프라인·납품 구조 |
+| 특징 명세 → **골라 씀** | 필요한 도구만 호출 |
+| `stories/` 에피소드 레일 | **옵션** (쓰면 게이트 따름) |
+
+**시작 (프로젝트 에이전트):** **[TOOLS.md](TOOLS.md)** → **[docs/tool_catalog.md](docs/tool_catalog.md)**  
+(기능·언제 씀·CLI·선택 트리 — 골라서 `scripts/generate_*.py` 호출)
+
+소비자 계약: [AGENTS.md](AGENTS.md)
+
+포함 예: Lonecat/Krea still, Qwen edit·inpaint·angle, LTX/Wan I2V, NSFW LTX, TTS, 업스케일, (옵션) 캐릭터·에피소드 헬퍼.
 
 ---
 
-## 레이아웃 (에이전트 SSOT)
+## 레이아웃
 
 ```text
 agent_custom/
@@ -29,16 +42,15 @@ agent_custom/
 | 캐릭터 데이터 | `characters/` |
 | 스펙/로드맵 | `docs/` |
 | 규칙/이력 | 루트 `agent_rules.md`, `process.md` |
+| **도구 카탈로그 (1순위)** | [docs/tool_catalog.md](docs/tool_catalog.md) |
 | **소비자 에이전트** | 루트 [AGENTS.md](AGENTS.md) · [docs/agent_consumer_workspace_contract.md](docs/agent_consumer_workspace_contract.md) |
-| **영상 디렉터 필수 주입** | [docs/video_director_master_persona.md](docs/video_director_master_persona.md) · Rule 7.0 |
-| **영상 감성·기획** | [docs/video_creative_director_persona.md](docs/video_creative_director_persona.md) · [docs/creative_brief_autonomy_design.md](docs/creative_brief_autonomy_design.md) |
-| **컷 육안 검증** | [docs/image_cut_verification_gate.md](docs/image_cut_verification_gate.md) · Rule 7.3 |
-| **실패 노트 공유** | [failures/](failures/) · [docs/failure_notes_system.md](docs/failure_notes_system.md) · `scripts/failure_note.py` · Rule 7.4 |
-| **자체 툴·스킬 자율** | [docs/agent_native_capability_autonomy.md](docs/agent_native_capability_autonomy.md) · Rule 8.0 (Grok: Rule 8.1) |
-| **생성 프롬프트** | [docs/generation_prompt_craft.md](docs/generation_prompt_craft.md) · Rule 7.5 |
+| **연출 스킬 (에피소드 레일 쓸 때만)** | [skills/video-direction](skills/video-direction/SKILL.md) · Rule 7.0 optional |
+| **실패 노트** | [failures/](failures/) · [docs/failure_notes_system.md](docs/failure_notes_system.md) |
+| **자체 툴 자율** | [docs/agent_native_capability_autonomy.md](docs/agent_native_capability_autonomy.md) · Rule 8.0 |
+| **프롬프트 품질** | [docs/generation_prompt_craft.md](docs/generation_prompt_craft.md) |
 
-**공장 vs 작업대:** CLI 산출물은 기본적으로 `stories/<episode>/` 에 쌓인다.  
-호출 에이전트는 `export_episode_to_workspace.py --dest <내_프로젝트>` 로 **자기 작업 디렉터리에 복사**한 뒤 후처리를 한다. 공장에만 두고 끝내지 말 것.
+**스테이징 vs 프로젝트:** CLI 기본 출력은 이 레포/로컬 경로에 쌓일 수 있다.  
+프로젝트 작업이면 결과물을 **자기 워크스페이스로 복사·export** 한 뒤 편집한다.
 
 상세 규약: [workflows/README.md](workflows/README.md) · [scripts/README.md](scripts/README.md) · [docs/README.md](docs/README.md)
 

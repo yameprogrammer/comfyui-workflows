@@ -1,7 +1,18 @@
 # 📜 에이전트 작업 협업 규칙 및 핸드북 (agent_rules.md)
 
-이 문서는 `agent_custom` 워크스페이스를 개선·운영하는 **AI 코딩 에이전트**를 위한 공식 지침이다.  
-이 저장소는 휴먼 GUI 앱이 아니라 **에이전트용 ComfyUI 도구** 구성이 목표다. 협업 연속성과 품질을 위해 아래 규칙을 준수한다.
+이 문서는 `agent_custom` 를 개선·운영하는 **AI 코딩 에이전트**를 위한 지침이다.
+
+## 정체성 (SSOT)
+
+```text
+agent_custom = ComfyUI 미디어 생성 도구 모음 (toolbox)
+            ≠ 정형화된 영상 양산 공정 / 단일 파이프라인 강제
+```
+
+* **도구 명세·선택:** [docs/tool_catalog.md](docs/tool_catalog.md)  
+* **소비자 진입:** [AGENTS.md](AGENTS.md)  
+* 각 미디어 **프로젝트**가 공정·스토리를 정하고, 여기서는 **도구를 골라** 쓴다.  
+* `stories/` + approve + assemble 은 **옵션 레시피** (프로젝트 선택 시만 Rule 7.x 게이트 적용).
 
 ---
 
@@ -9,55 +20,29 @@
 
 ```text
 agent_custom/
-  agent_rules.md   process.md   README.md     ← 규칙·이력·입구
-  workflows/agent/                             ← 워크플로우 JSON SSOT
-  scripts/                                     ← CLI 진입점
-  lib/                                         ← 공유 코드
-  characters/                                  ← 캐릭터 패키지
-  looks/                                       ← 룩/스타일 코어
-  locations/                                   ← 로케이션 패키지
-  stories/                                     ← 에피소드 작업실
-  deliveries/                                  ← 사용자 납품 상자 (zip)
-  docs/                                        ← 설계·스펙·로드맵
+  README.md  AGENTS.md  agent_rules.md  process.md
+  docs/tool_catalog.md     ← 도구 특징 명세 (1순위)
+  workflows/agent|human/   ← 프리셋·UI 원본
+  scripts/  lib/           ← CLI · 러너
+  characters/ looks/ locations/ stories/  ← 헬퍼 데이터·옵션 에피소드
+  failures/ docs/          ← 실패 노트 · 상세 스펙
 ```
 
-* CLI: `python scripts/<name>.py ...` (루트 cwd 권장, 경로는 `_bootstrap` 이 처리)
-* 워크플로우: `workflows/agent/` + `catalog.json` / `lib/workflow_paths.py`
-* 구현 스펙: [docs/character_impl_spec.md](docs/character_impl_spec.md)
-* 영상 납품: [docs/video_delivery_and_backends.md](docs/video_delivery_and_backends.md)
-* **근시일 영상 툴 TODO**: [docs/agent_video_tooling_todo.md](docs/agent_video_tooling_todo.md) (길이 계약 · 감정 연동 모션 · auto-export 등)
-* **docs 인덱스**: [docs/README.md](docs/README.md) · 만료·세션·디버그: [docs/archive/](docs/archive/)
-* **기획 자율 (키워드/음악만)**: [docs/creative_brief_autonomy_design.md](docs/creative_brief_autonomy_design.md) — 기능 필수 아님, 에이전트 SOP·가드레일
-* **공장 스킬 SSOT**: [skills/](skills/) · `python scripts/skill_equip.py` — 미탑재 시 설치/로드 (**Rule 7.0**)  
-* **영상 연출 스킬**: [skills/video-direction/SKILL.md](skills/video-direction/SKILL.md)  
-* **생성 프롬프트 스킬**: [skills/generation-prompt/SKILL.md](skills/generation-prompt/SKILL.md) — 이미지/영상 프롬프트 팩 · 생성 직전 필수  
-* 장문 연출 SSOT: [docs/video_director_master_persona.md](docs/video_director_master_persona.md) · 프롬프트 SSOT: [docs/generation_prompt_craft.md](docs/generation_prompt_craft.md)
-* **영상 창작 감성 레이어**: [docs/video_creative_director_persona.md](docs/video_creative_director_persona.md) — Creative Pack
-* **이미지 컷 육안 검증 (QA SSOT)**: [docs/image_cut_verification_gate.md](docs/image_cut_verification_gate.md) — 키프레임·클립 approve 전 **필수** (Rule 7.3)
-* **실패 노트 공유**: [failures/](failures/) · [docs/failure_notes_system.md](docs/failure_notes_system.md) · `scripts/failure_note.py` — Rule **7.4**
-* **생성 프롬프트 크래프트**: [docs/generation_prompt_craft.md](docs/generation_prompt_craft.md) — T2I/I2I/I2V/SI2V 고품질 프롬프트 · Rule **7.5**
-* **프로덕션 자산 통합**: [docs/production_asset_pipeline.md](docs/production_asset_pipeline.md)
-* 로케이션 설계: [docs/location_sheet_system_design.md](docs/location_sheet_system_design.md)
-* 룩/스타일: [docs/look_style_system.md](docs/look_style_system.md) · `looks/cinematic_moody_v1`
-* 스토리보드 설계: [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md)
-* **소비자 에이전트 경로 계약**: [docs/agent_consumer_workspace_contract.md](docs/agent_consumer_workspace_contract.md) · 루트 [AGENTS.md](AGENTS.md)
+* CLI: `python scripts/<name>.py ...` (루트 cwd)  
+* 카탈로그: `workflows/agent/catalog.json`  
+* docs 인덱스: [docs/README.md](docs/README.md)  
+* 스킬(연출 등): [skills/](skills/) — **에피소드 레일·품질 향상용, 전 작업 필수 아님**
 
 ---
 
 ## 📌 소비자 에이전트 (도구만 호출할 때)
 
-이 레포를 **공장**으로 쓰고, **작업대는 호출 측 프로젝트 디렉터리**다.
-
-1. cwd = `agent_custom` 루트에서 `python scripts/...` 실행  
-2. 산출물 기본 위치 = `stories/<episode_id>/` (키프레임·clips·audio·exports)  
-3. **의무**: `export_episode_to_workspace.py --dest <내_작업대>` 또는 `-o`로 작업대 직접 지정  
-4. `AGENT_RESULT` / 메타의 **절대 경로를 읽고 복사**하지 않으면 미완료  
-5. 공장(`stories/`)에만 두고 “끝” 보고 금지  
-
-```bash
-python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episodes/EP"
-# 또는 set AGENT_WORKSPACE=D:/my_project
-```
+1. [docs/tool_catalog.md](docs/tool_catalog.md) 에서 도구를 고른다.  
+2. cwd = `agent_custom` 루트에서 `python scripts/...` 실행.  
+3. 출력은 `-o` / 로컬 경로 / 또는 프로젝트로 **복사**.  
+4. 에피소드 패키지(`stories/`)를 쓸 때만 export 계약 적용:  
+   `export_episode_to_workspace.py --dest <프로젝트>`  
+5. 단일 still/I2V/inpaint 호출만으로도 **완료 가능** (전체 영상 공정 불필요).
 
 ---
 
@@ -67,20 +52,20 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
 * 코드·워크플로우 JSON·성능 최적화 시 **즉시 `process.md` 최상단**에 이력을 추가한다.
 * **[작업 일자], [에이전트 이름], [작업 목표], [주요 변경·파라미터]** 를 남긴다.
 
-### Rule 2. 자동화 스크립트 정합성 유지
-* **Still 생성 본선 (workflow_api only)**:
-  - T2I Moody: `generate_moody` → `lonecat_t2i_turbo`
-  - T2I Krea (일반): `generate_krea` → `krea2_t2i_v10`
-  - T2I Krea **NSFW/빨간맛**: `generate_krea_nsfw` → `krea2_nsfw_t2i` (= 동일 `krea2_t2i_v10` 그래프, abliterated CLIP). **성인 18+ only**
-  - I2I: `generate_moody_i2i` / lock / ipadapter이름 → `lonecat_i2i_identity`
-  - ControlNet: `generate_moody_controlnet` → `zimage_fun_union_controlnet` (공식 Fun Union)
-  - Qwen multi-angle: `generate_qwen_angle` → `qwen_multiangle_image` (`멀티앵글생성-qwen-image`)
-  - Qwen 지시 편집: `generate_qwen_edit` → `qwen_edit_2509` (`image_qwen_image_edit_2509`)
-  - Video: `generate_i2v` / `generate_s2v` → `ltx23AllInOneWorkflowForRTX_v44` via `ltx_aio_workflow_runner` (default)
-  - LTX **Select options**: `run_ltx_aio_features.py --list` · mode = `[[P:]]` mute set (`ltx_aio_mode_select`) · guide `workflows/human/LTX23_AIO_v44_AGENT_GUIDE.md`
-* 미니 그래프·`convert_ui_to_api`·런타임 노드 inject **금지** (본선). 비상: `--legacy-mini` / `AGENT_*_BACKEND=legacy_mini` / `AGENT_LTX_FORCE_MINI_GRAPH=1`.
-* ComfyUI UI AIO 변경 시: **API re-export** → `workflows/agent/presets/*.api.json` + `*.ports.json` → catalog / `lonecat_feature_presets.json`.
-* JSON만 바꾸고 포트 맵·프리셋 등록을 생략해 배치를 깨뜨리는 행위는 금지.
+### Rule 2. 도구 CLI · 워크플로 정합성
+* **도구 목록·특징 SSOT:** [docs/tool_catalog.md](docs/tool_catalog.md) (프로젝트는 여기서 선택).
+* **주요 CLI 매핑 (요약 — 상세는 카탈로그):**
+  - still: `generate_moody` / `generate_krea` / `generate_krea_nsfw`(18+)
+  - I2I·CN: `generate_moody_i2i*` / `generate_moody_controlnet`
+  - Qwen: `generate_qwen_edit` · `generate_qwen_inpaint` · `generate_qwen_angle`
+  - video: `generate_i2v` / `generate_s2v` (LTX AIO 기본, Wan fallback) · `generate_flf2v`
+  - NSFW video: `generate_ltx_nsfw_i2v` / `generate_ltx_nsfw_director` (18+)
+  - TTS: `generate_qwen3_tts` (custom/design/**clone**) · `voice_register` — 클론 ref **≤~30s** · 감정 `--instruct` · 가이드 `workflows/human/qwen3_tts/AGENT_GUIDE.md`
+  - 타이포 파이프: `generate_boogu_typo` — Boogu→Ideogram4→Krea2 (`NEWKrea2BooguIdeogram4_booguKrea2`) · 가이드 `workflows/human/NEWKrea2BooguIdeogram4_AGENT_GUIDE.md`
+* **실 UI 도구:** 미니 그래프·무단 inject 본선 금지. 포트/스위치/GGUF 스왑만.  
+  비상: `--legacy-mini` / `AGENT_*_BACKEND=legacy_mini`.
+* UI 변경 후: API re-export 또는 expand 러너 + catalog / ports 갱신 + **tool_catalog.md 블록 추가**.
+* JSON만 바꾸고 CLI·카탈로그를 안 맞추면 금지.
 
 ### Rule 2.1 에이전트 전용 워크플로우 경로
 * 스크립트가 읽는 워크플로우 **SSOT는 `workflows/agent/`** 이다.
@@ -103,6 +88,7 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
 * 에이전트는 UI를 클릭하지 않고 **`feature_id` → ready `agent_preset` → `*.api.json` + port patch** 만 사용한다.
 * **Lonecat (Z-Image):** `workflows/human/Lonecat_AIO_Z-Image_ver17_AGENT_GUIDE.md`, `…_CAPABILITIES.json`
 * **Krea2:** `workflows/human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md`, `…_CAPABILITIES.json` · 소스 `krea2SFWNSFWUncensoredImageTo_v10` · 기본 프리셋 `krea2_t2i_v10` (CLIP **type=krea2** abliterated, Lonecat과 혼용 금지) · **NSFW 도구:** `generate_krea_nsfw` / alias `krea2_nsfw_t2i`
+* **LTX23 NSFW (Kenpechi v20):** `workflows/human/ltx23_nsfw/AGENT_GUIDE.md` · I2V `ltx23I2VWorkflow_v20` · Director `ltx23DirectorWorkflow_directorV20` · 스위치 `lib/ltx23_nsfw_switches.py` · CLI `generate_ltx_nsfw_i2v` / `generate_ltx_nsfw_director` · 기본 프로필 `gguf_10eros`
 * 공통 인덱스: `workflows/agent/presets/lonecat_feature_presets.json` (families 포함)
 * 목록: `python scripts/run_workflow_api.py --list-features` · 재스캔: `_build_lonecat_capabilities.py` / `_build_krea2_capabilities.py`
 * 새 기능 = UI에서 바이패서 조합 고정 → API export → presets 등록. full AIO `convert_ui_to_api` / 런타임 노드 inject 금지.
@@ -192,33 +178,14 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
   - `shot_type`이 approved ref 우선순위 결정 (`stories/shot_type_presets.json`).  
 * 스토리 설계: [docs/storyboard_pipeline_design.md](docs/storyboard_pipeline_design.md).
 
-### Rule 7.0 영상 디렉터 페르소나 · 컷 문법 · **스킬 탑재** (hard)
-* **문제**: 감성 한 줄만 있거나 Brief 표만 채우면 **기획력·컷 설계력이 붕괴**한다.  
-  face CU 남발, 가사 슬라이드쇼, 커버리지 없는 샷리스트, freeze pad 가 반복된다.
-* **스킬 탑재 (에이전트 공통)**  
-  1. [skills/README.md](skills/README.md) equip contract  
-  2. 세션에 `video-direction` 없으면:  
-     `python scripts/skill_equip.py install video-direction`  
-     또는 **`skills/video-direction/SKILL.md` 전문 로드** (최소 의무)  
-  3. 미탑재 상태로 `shot_compose` 대량 / I2V 배치 **금지**
-* **필수 로드 (순서 고정)**  
-  1. **[skills/video-direction/SKILL.md](skills/video-direction/SKILL.md)** — 이식 가능한 연출 스킬 (게이트·레시피)  
-  2. **[docs/video_director_master_persona.md](docs/video_director_master_persona.md)** — 장문 컷 문법 SSOT  
-  3. [docs/video_creative_director_persona.md](docs/video_creative_director_persona.md) — Creative Pack  
-  4. [docs/image_cut_verification_gate.md](docs/image_cut_verification_gate.md) — 승인 전 육안  
-* **의무 산출 (공장 본선 전)**  
-  - `CREATIVE.md` (pitch · paradox · motifs×3 · anti-list · thumbnail)  
-  - `SHOT_DESIGN.md` (**size rhythm 한 줄** + 샷별 type/angle/move/intent/risk)  
-  - 이후 `shots.json` 은 SHOT_DESIGN의 기계 번역 (intent 유지)  
-* **컷 문법 하드 규칙 (master §5)**  
-  - 동일 shot_type **3연속 금지**  
-  - 인접 샷 size 또는 angle 변경  
-  - 12컷+ 작품: wide · medium · CU/ECU · insert 각 ≥1  
-  - 후렴 = 시각 **사건** (size/motion/motif jump)  
-* **금지**: master persona 미로드 · SHOT_DESIGN 없이 `shot_compose --all` · 가사 직역 타임라인 · freeze pad  
-* **순서**: Persona 주입 → Creative Pack → SHOT_DESIGN → 자산 → keyframe QA → full motion QA → assemble → export  
-* **범위**: 소비자·공장 에이전트 공통. 순수 툴 버그픽스·스모크만 예외.  
-* 연결: [creative_brief_autonomy_design.md](docs/creative_brief_autonomy_design.md) 역할 0 = Director (master persona).
+### Rule 7.0 영상 연출 레일 (**옵션** — `stories/` 에피소드 본선을 쓸 때만)
+* **적용 조건:** 프로젝트가 이 레포의 **에피소드 패키지 + shot_compose + assemble** 레일을 쓰기로 한 경우.  
+  단일 I2V/still/inpaint 도구 호출만 할 때는 **이 절을 강제하지 않는다.**
+* **권장 스킬:** [skills/video-direction/SKILL.md](skills/video-direction/SKILL.md) · [generation-prompt](skills/generation-prompt/SKILL.md)  
+* **권장 산출 (에피소드 레일):** `CREATIVE.md` · `SHOT_DESIGN.md` → 키프레임 QA → 모션 → clip approve → assemble  
+* **컷 문법 (레일 사용 시):** 동일 framing 3연속 금지 · coverage · freeze-pad 금지 — 상세 master persona  
+* **범위 밖:** 도구 버그픽스·스모크·카탈로그 단일 CLI.  
+* 연결: [docs/tool_catalog.md](docs/tool_catalog.md) §4 옵션 레일 · [AGENTS.md](AGENTS.md) §0.
 
 ### Rule 7. 영상 해상도·백엔드 규약
 * **format** = 종횡비 (`cinematic_16x9` …). 16:9 고정 아님. SSOT: `video_backends.json`.
@@ -262,7 +229,7 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
   - 기본 **instrumental only**; 뮤비 원곡 `masters/` 는 AI로 대체하지 않음.  
   - 립싱크 driving에 BGM 섞지 말 것 (보이스 stem만).
 
-### Rule 7.2 컷별 검수 게이트 (합본 전 · hard)
+### Rule 7.2 컷별 검수 게이트 (에피소드 **assemble 레일** 사용 시 · hard)
 * **문제**: 합본(final)만 보고 중간 컷을 고치면 재생성·체인 재작업 비용이 폭증한다.  
   last-frame SI2V 체인은 붕괴 컷의 끝 프레임이 **다음 seed**가 되어 피해가 전파된다.
 * **의무 순서**  

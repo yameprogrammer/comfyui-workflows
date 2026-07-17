@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "description": "Agent workflow aliases → files under workflows/agent/ (presets/*.api.json preferred; _legacy/ for emergency mini only).",
+  "description": "Tool aliases for agent CLIs. Human-readable selection guide: docs/tool_catalog.md (features, when to use, how to call). This JSON is the machine index only.",
   "workflows": {
     "t2i_moody": {
       "file": "_legacy/T2I-moody.json",
@@ -49,6 +49,25 @@
       "human_ui": "workflows/human/wan22/wan22_i2v_start_end.json",
       "notes": "First/Last frame I2V; export API after graphToPrompt",
       "agent_preset": "i2v_wan22_a14b_flf"
+    },
+    "yaw_wan22_v050_moe": {
+      "file": null,
+      "format": "ui_expand",
+      "role": "text_to_video_and_i2v",
+      "family": "wan22",
+      "status": "ready",
+      "description": "YAW Wan 2.2 MoE v0.50 real UI. Easy T2V/I2V with green group switch. Default UnetLoaderGGUF Q4 (pack fp16 optional).",
+      "purpose": "Easy T2V + I2V template for Wan 2.2 MoE",
+      "source_ui": "workflows/human/yaw_wan22/yetAnotherWorkflowEasyT2vI2v_v050Moe.json",
+      "runner": "lib/yaw_wan22_runner.py",
+      "guide": "workflows/human/yaw_wan22/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/yaw_wan22/CAPABILITIES.json",
+      "used_by": [
+        "scripts/generate_yaw_wan22.py"
+      ],
+      "default_backend": "gguf_q4_k_m",
+      "civitai": "https://civitai.red/models/2008892/yet-another-workflow-easy-t2v-i2v-yaw-wan-22",
+      "notes": "Tool catalog entry only — no pipeline rank. Real UI + switches. No mini-graph. Smoke T2V GGUF OK."
     },
     "wan22_face_enhance": {
       "file": "presets/wan22_face_enhance.api.json",
@@ -123,6 +142,40 @@
         "scripts/shot_keyframe_edit.py"
       ]
     },
+    "qwen3_tts": {
+      "file": null,
+      "format": "api_inject",
+      "role": "tts",
+      "family": "qwen3_tts",
+      "status": "ready",
+      "description": "Qwen3-TTS custom/design/clone. Emotion via instruct; clone ref max ~30s.",
+      "source_ui": "workflows/human/qwen3_tts/",
+      "used_by": [
+        "scripts/generate_qwen3_tts.py",
+        "scripts/voice_register.py",
+        "scripts/episode_tts.py"
+      ],
+      "modes": ["custom", "design", "clone"],
+      "guide": "workflows/human/qwen3_tts/AGENT_GUIDE.md"
+    },
+    "qwen3_tts_voice_clone": {
+      "file": null,
+      "format": "api_inject",
+      "role": "tts_voice_clone",
+      "family": "qwen3_tts",
+      "status": "ready",
+      "alias_of": "qwen3_tts",
+      "description": "Voice-clone path (음성복제TTS-Qwen3-TTS). mode=clone + ref audio.",
+      "source_ui": "workflows/human/qwen3_tts/voice_clone_qwen3_tts.json",
+      "used_by": [
+        "scripts/generate_qwen3_tts.py"
+      ],
+      "ref_policy": {
+        "ideal_sec": [5, 15],
+        "max_sec": 30
+      },
+      "guide": "workflows/human/qwen3_tts/AGENT_GUIDE.md"
+    },
     "qwen_angle_2511": {
       "file": "presets/qwen_multiangle_image.api.json",
       "ports": "presets/qwen_multiangle_image.ports.json",
@@ -134,6 +187,61 @@
         "scripts/generate_qwen_angle.py",
         "scripts/character_qwen_turns.py"
       ]
+    },
+    "qwen_instantx_inpaint": {
+      "file": "presets/qwen_instantx_inpaint.api.json",
+      "format": "ui_expand",
+      "role": "qwen_masked_inpaint",
+      "family": "qwen_inpaint",
+      "status": "ready",
+      "description": "Qwen InstantX ControlNet inpainting. Real UI + expand + ports. Region edit with mask.",
+      "source_ui": "workflows/human/image_qwen_image_instantx_inpainting_controlnet.json",
+      "runner": "lib/qwen_instantx_inpaint_runner.py",
+      "guide": "workflows/human/Qwen_InstantX_Inpaint_AGENT_GUIDE.md",
+      "used_by": [
+        "scripts/generate_qwen_inpaint.py"
+      ]
+    },
+    "boogu_krea_ideogram_typo": {
+      "file": null,
+      "format": "ui_expand",
+      "role": "typography_design_pipeline",
+      "family": "boogu_ideogram_krea",
+      "status": "ready",
+      "description": "Boogu dense text + Ideogram4 layout + Krea2 polish (RedCraft NEWKrea2BooguIdeogram4).",
+      "source_ui": "workflows/human/NEWKrea2BooguIdeogram4_booguKrea2.json",
+      "runner": "lib/boogu_ideogram_krea_runner.py",
+      "guide": "workflows/human/NEWKrea2BooguIdeogram4_AGENT_GUIDE.md",
+      "used_by": [
+        "scripts/generate_boogu_typo.py"
+      ],
+      "modes": ["boogu", "pipeline", "upscale"],
+      "civitai": "https://civitai.red/models/579280?modelVersionId=3066747"
+    },
+    "illustrious_standard_v37": {
+      "file": null,
+      "format": "ui_expand",
+      "role": "text_to_image_anime_xl",
+      "family": "illustrious_xl",
+      "status": "ready",
+      "description": "Legendaer pack Standard: Workflow for XL/Illustrious/NoobAI. Daily-driver subset of Advanced (detailers, hires, ultimate upscale, wildcards, LoRA). Real UI switches only.",
+      "purpose": "Workflow for XL / Illustrious / NoobAI Models (Civitai model card)",
+      "source_ui": "workflows/human/illustrious_standard_v37/Standard_V37.json",
+      "runner": "lib/illustrious_standard_v37_runner.py",
+      "guide": "workflows/human/illustrious_standard_v37/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/illustrious_standard_v37/CAPABILITIES.json",
+      "groups": "workflows/human/illustrious_standard_v37/GROUPS.json",
+      "used_by": [
+        "scripts/generate_illustrious_standard.py"
+      ],
+      "default_checkpoint": "Illustrious\\fabricatedXL_v70.safetensors",
+      "usage_tip_clip_skip": 2,
+      "civitai": "https://civitai.red/models/1386234/comfyui-image-workflows",
+      "civitai_guide_article": "https://civitai.red/articles/17339",
+      "pack_version": "V37",
+      "pack_role": "Standard (more basic version of Advanced)",
+      "pack_siblings": ["Advanced", "Basic", "Detailer"],
+      "notes": "Read source purpose before calling. Not for TIPO/IPA/OpenPose (Advanced) or dedicated in/outpaint Detailer workflow."
     },
     "lonecat_t2i_gguf": {
       "file": "presets/lonecat_t2i_gguf.api.json",
@@ -264,6 +372,60 @@
           "generate_moody",
           "lonecat_t2i_turbo"
         ]
+      }
+    },
+    "ltx23_nsfw_i2v": {
+      "file": null,
+      "format": "ui_expand",
+      "role": "nsfw_image_to_video",
+      "family": "ltx23_nsfw",
+      "status": "ready",
+      "description": "Kenpechi LTX 2.3 I2V v2.0 NSFW. Real UI + Fast Groups switches. Adult 18+ only.",
+      "source_ui": "workflows/human/ltx23_nsfw/ltx23I2VWorkflow_v20.json",
+      "runner": "lib/ltx23_nsfw_workflow_runner.py",
+      "switches": "lib/ltx23_nsfw_switches.py",
+      "guide": "workflows/human/ltx23_nsfw/AGENT_GUIDE.md",
+      "used_by": [
+        "scripts/generate_ltx_nsfw_i2v.py"
+      ],
+      "default_profile": "gguf_10eros",
+      "policy": {
+        "adults_only": true,
+        "min_age": 18,
+        "use_for": [
+          "nsfw_i2v",
+          "erotic_motion",
+          "adult_clip"
+        ],
+        "prefer_sfw_elsewhere": [
+          "generate_i2v",
+          "ltx23_aio_i2v"
+        ]
+      }
+    },
+    "ltx23_nsfw_director": {
+      "file": null,
+      "format": "ui_expand",
+      "role": "nsfw_director_video",
+      "family": "ltx23_nsfw",
+      "status": "ready",
+      "description": "Kenpechi LTX 2.3 Director v2.0 NSFW multi-shot. Real UI + switches. Adult 18+ only.",
+      "source_ui": "workflows/human/ltx23_nsfw/ltx23DirectorWorkflow_directorV20.json",
+      "runner": "lib/ltx23_nsfw_workflow_runner.py",
+      "switches": "lib/ltx23_nsfw_switches.py",
+      "guide": "workflows/human/ltx23_nsfw/AGENT_GUIDE.md",
+      "used_by": [
+        "scripts/generate_ltx_nsfw_director.py"
+      ],
+      "default_profile": "gguf_10eros",
+      "policy": {
+        "adults_only": true,
+        "min_age": 18,
+        "use_for": [
+          "nsfw_director",
+          "multi_shot_erotic"
+        ],
+        "prefer_single_image": "ltx23_nsfw_i2v"
       }
     }
   }

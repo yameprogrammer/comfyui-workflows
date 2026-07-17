@@ -1,12 +1,28 @@
-# AGENTS.md — using `agent_custom` as a **tool**
+# AGENTS.md — `agent_custom` = ComfyUI **tool box**
 
-This repo is a **media factory** (ComfyUI CLI tools), not your film project folder.
+This is **not** your film project folder and **not** a fixed production line.  
+It is a **collection of media tools** (still / edit / I2V / TTS / …) driven by local ComfyUI.
+
+```text
+Project owns story & pipeline  →  pick tools from the catalog  →  call scripts/
+```
+
+| Do | Don’t |
+|----|--------|
+| Start at **[docs/tool_catalog.md](docs/tool_catalog.md)** or **[TOOLS.md](TOOLS.md)** | Treat CREATIVE→assemble as mandatory for every job |
+| Read **when / when not** + CLI, then call one tool | Ignore per-tool limits (mask, VRAM, 18+, ref length) |
+| Copy results into **your** project | Leave “finished” work only here if you have a consumer workspace |
+| Use `stories/` + approve + assemble **only if you choose that recipe** | Confuse optional episode helpers with “the only way” |
+
+**Provider vs consumer:** we maintain tools + specs; **you pick wisely for your project.**
+
+Maintainers: [agent_rules.md](agent_rules.md) · history: [process.md](process.md)
 
 ---
 
-## 0. MANDATORY — Factory skills + Video director equip
+## 0. OPTIONAL — Full episode direction rail (only if your project uses it)
 
-**If you are here to make video** (music video, shorts, story film, anything with shots):
+**If your project chooses** the factory’s long-form shot pipeline (music video / story episode with `stories/<ep>/` + assemble):
 
 ### 0.A Skills directory (portable director brain)
 
@@ -38,13 +54,15 @@ Do **not** skip to `shot_compose` / batch motion without this skill (or equivale
 
 Paste and adopt the skill SYSTEM identity (and master persona §1 if diving deep).
 
-### You MUST produce before factory mainline
+### If using this optional rail, produce before episode mainline
 
 1. **Equip** `video-direction` skill (install or full read)  
 2. `CREATIVE.md` — one-image pitch, paradox, motifs×3, anti-list, thumbnail thesis  
 3. `SHOT_DESIGN.md` — **size rhythm line** + per-shot type / angle / move / intent / risk  
 4. **Equip** `generation-prompt` → per-shot **still + motion** prompts (quality gates)  
 5. Only then: assets → keyframes → visual QA → motion → freeze gate → assemble  
+
+**If not using this rail:** skip §0 and call tools from [docs/tool_catalog.md](docs/tool_catalog.md) only.
 
 ### Hard bans
 

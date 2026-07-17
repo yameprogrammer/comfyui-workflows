@@ -1,0 +1,684 @@
+{
+  "106": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan",
+      "device": "default"
+    }
+  },
+  "117": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    }
+  },
+  "126": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "1389",
+        0
+      ],
+      "vae": [
+        "117",
+        0
+      ]
+    }
+  },
+  "131": {
+    "class_type": "PathchSageAttentionKJ",
+    "inputs": {
+      "model": [
+        "149",
+        0
+      ],
+      "sage_attention": "auto",
+      "allow_compile": false
+    },
+    "_meta": {
+      "title": "Patch Sage Attention (High)"
+    }
+  },
+  "132": {
+    "class_type": "PathchSageAttentionKJ",
+    "inputs": {
+      "model": [
+        "150",
+        0
+      ],
+      "sage_attention": "auto",
+      "allow_compile": false
+    },
+    "_meta": {
+      "title": "Patch Sage Attention (Low)"
+    }
+  },
+  "139": {
+    "class_type": "mxSlider",
+    "inputs": {
+      "Xi": 5,
+      "Xf": 5,
+      "isfloatX": 0
+    },
+    "_meta": {
+      "title": "Length (seconds)"
+    }
+  },
+  "140": {
+    "class_type": "MathExpression|pysssss",
+    "inputs": {
+      "a": [
+        "139",
+        0
+      ],
+      "expression": "a * 16 + 1"
+    }
+  },
+  "143": {
+    "class_type": "VHS_VideoCombine",
+    "inputs": {
+      "images": [
+        "126",
+        0
+      ],
+      "frame_rate": 16,
+      "loop_count": 0,
+      "filename_prefix": "WANT2V/%date:yyyy-MM-dd%/%date:hhmmss%_",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 10,
+      "save_metadata": false,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true
+    },
+    "_meta": {
+      "title": "Preview before Post Processing"
+    }
+  },
+  "150": {
+    "class_type": "UnetLoaderGGUF",
+    "inputs": {
+      "unet_name": "Wan2.2\\Wan2.2-T2V-A14B-LowNoise-Q4_K_M.gguf"
+    },
+    "_meta": {
+      "title": "UNET GGUF t2v_low"
+    }
+  },
+  "158": {
+    "class_type": "Seed (rgthree)",
+    "inputs": {
+      "seed": -1
+    }
+  },
+  "163": {
+    "class_type": "ImageSharpen",
+    "inputs": {
+      "image": [
+        "1377",
+        0
+      ],
+      "sharpen_radius": 1,
+      "sigma": 0.43,
+      "alpha": 0.31000000000000005
+    },
+    "_meta": {
+      "title": "🔪 Image Sharpen"
+    }
+  },
+  "214": {
+    "class_type": "GetImageSizeAndCount",
+    "inputs": {
+      "image": [
+        "126",
+        0
+      ]
+    }
+  },
+  "238": {
+    "class_type": "PrimitiveFloat",
+    "inputs": {
+      "value": 1
+    },
+    "_meta": {
+      "title": "CFG"
+    }
+  },
+  "303": {
+    "class_type": "Int",
+    "inputs": {
+      "Number": "2"
+    },
+    "_meta": {
+      "title": "Int: 2"
+    }
+  },
+  "306": {
+    "class_type": "Int",
+    "inputs": {
+      "Number": "32"
+    },
+    "_meta": {
+      "title": "Int: 32"
+    }
+  },
+  "312": {
+    "class_type": "WanVideoNAG",
+    "inputs": {
+      "model": [
+        "234",
+        0
+      ],
+      "conditioning": [
+        "352",
+        0
+      ],
+      "nag_scale": 11,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default"
+    },
+    "_meta": {
+      "title": "WanVideoNAG (High)"
+    }
+  },
+  "313": {
+    "class_type": "WanVideoNAG",
+    "inputs": {
+      "model": [
+        "233",
+        0
+      ],
+      "conditioning": [
+        "352",
+        0
+      ],
+      "nag_scale": 10.993,
+      "nag_alpha": 0.25,
+      "nag_tau": 2.5,
+      "input_type": "default"
+    },
+    "_meta": {
+      "title": "WanVideoNAG (Low)"
+    }
+  },
+  "330": {
+    "class_type": "WanFirstLastFrameToVideo",
+    "inputs": {
+      "positive": [
+        "351",
+        0
+      ],
+      "negative": [
+        "352",
+        0
+      ],
+      "vae": [
+        "117",
+        0
+      ],
+      "width": [
+        "1272",
+        0
+      ],
+      "height": [
+        "1272",
+        1
+      ],
+      "length": [
+        "140",
+        0
+      ],
+      "batch_size": 1
+    }
+  },
+  "351": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "106",
+        0
+      ],
+      "text": "The women in black sparkling evening gowns do a choreographed dance on a musical film, film studio sound stage set, large art deco staircase prop, a 1920's Golden Age Hollywood film style, cinematic, Busby Berkely style musical. 30 synchronized dancers in glittering gowns dance down the symetrical curved stair cases under art deco chandeliers. The camera pushes in for an extreme close-up of the lead dancer in front who smiles seductively as she dances and sings. The cutest beautiful blonde lead dancer with styled voluminous hair is wearing a sparking gold gown with a mink shawl. The background is a high concept constructed stage set with strong geometric patterns."
+    },
+    "_meta": {
+      "title": "Positive Prompt"
+    }
+  },
+  "352": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "106",
+        0
+      ],
+      "text": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+    },
+    "_meta": {
+      "title": "Negative Prompt (ignored with CFG 1)"
+    }
+  },
+  "357": {
+    "class_type": "FilmGrainLTXV",
+    "inputs": {
+      "images": [
+        "163",
+        0
+      ],
+      "grain_intensity": 0.01,
+      "saturation": 0.5
+    },
+    "_meta": {
+      "title": "🌾 FilmGrainLTXV"
+    }
+  },
+  "1272": {
+    "class_type": "WanResolutions",
+    "inputs": {
+      "aspect_ratio": "2:3",
+      "resolution": "Wan 2.2 Native — 768×1168",
+      "official_only": false
+    },
+    "_meta": {
+      "title": "Width and height from aspect ratio 🪴"
+    }
+  },
+  "1289": {
+    "class_type": "easy int",
+    "inputs": {
+      "value": 16
+    },
+    "_meta": {
+      "title": "Wan FPS"
+    }
+  },
+  "1291": {
+    "class_type": "GetImageSizeAndCount",
+    "inputs": {
+      "image": [
+        "214",
+        0
+      ]
+    }
+  },
+  "1306": {
+    "class_type": "easy int",
+    "inputs": {
+      "value": 0
+    },
+    "_meta": {
+      "title": "✂️ Trim Start Frames"
+    }
+  },
+  "1309": {
+    "class_type": "easy int",
+    "inputs": {
+      "value": 0
+    },
+    "_meta": {
+      "title": "Trim End Frames ✂️"
+    }
+  },
+  "1322": {
+    "class_type": "SamplingPlanWan22",
+    "inputs": {
+      "model": [
+        "131",
+        0
+      ],
+      "step_budget": [
+        "1352",
+        0
+      ],
+      "task": [
+        "1331",
+        0
+      ],
+      "acceleration": [
+        "1351",
+        0
+      ],
+      "scheduler": [
+        "1323",
+        0
+      ],
+      "priority": [
+        "1353",
+        0
+      ]
+    }
+  },
+  "1331": {
+    "class_type": "TaskSelector",
+    "inputs": {
+      "task": "T2V"
+    },
+    "_meta": {
+      "title": "T2V Planner"
+    }
+  },
+  "1349": {
+    "class_type": "AccelerationModelPair",
+    "inputs": {
+      "state": [
+        "1322",
+        1
+      ],
+      "base_high": [
+        "1384",
+        0
+      ],
+      "accelerated_high": [
+        "312",
+        0
+      ],
+      "base_low": [
+        "1385",
+        0
+      ],
+      "accelerated_low": [
+        "313",
+        0
+      ],
+      "base_cfg": [
+        "201",
+        0
+      ],
+      "accelerated_cfg": [
+        "238",
+        0
+      ]
+    }
+  },
+  "1351": {
+    "class_type": "AccelerationSelector",
+    "inputs": {
+      "acceleration": "High + Low"
+    },
+    "_meta": {
+      "title": "lightx2/ning Selector"
+    }
+  },
+  "1356": {
+    "class_type": "Frame Select",
+    "inputs": {
+      "frames": [
+        "1291",
+        0
+      ],
+      "select": [
+        "1359",
+        0
+      ]
+    }
+  },
+  "1359": {
+    "class_type": "MathExpression|pysssss",
+    "inputs": {
+      "a": [
+        "1291",
+        3
+      ],
+      "expression": "a-1"
+    }
+  },
+  "1376": {
+    "class_type": "Frames Slice",
+    "inputs": {
+      "frames": [
+        "214",
+        0
+      ],
+      "start": [
+        "1306",
+        0
+      ],
+      "stop": [
+        "214",
+        3
+      ]
+    }
+  },
+  "1377": {
+    "class_type": "Frames Slice",
+    "inputs": {
+      "frames": [
+        "1376",
+        0
+      ],
+      "stop": [
+        "1378",
+        0
+      ],
+      "start": 0
+    }
+  },
+  "1378": {
+    "class_type": "MathExpression|pysssss",
+    "inputs": {
+      "a": [
+        "1306",
+        0
+      ],
+      "b": [
+        "214",
+        3
+      ],
+      "c": [
+        "1309",
+        0
+      ],
+      "expression": "b - a - c"
+    }
+  },
+  "1384": {
+    "class_type": "Power Lora Loader (rgthree)",
+    "inputs": {
+      "model": [
+        "131",
+        0
+      ],
+      "clip": [
+        "106",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "LoRA's (High)"
+    }
+  },
+  "1385": {
+    "class_type": "Power Lora Loader (rgthree)",
+    "inputs": {
+      "model": [
+        "132",
+        0
+      ],
+      "clip": [
+        "106",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "LoRA's (Low)"
+    }
+  },
+  "145": {
+    "class_type": "VHS_VideoCombine",
+    "inputs": {
+      "images": [
+        "357",
+        0
+      ],
+      "frame_rate": [
+        "306",
+        0
+      ],
+      "loop_count": 0,
+      "filename_prefix": "output_%date:yyyy-MM-dd%/%date:hhmmss%_IN",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 19,
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true
+    },
+    "_meta": {
+      "title": "Final Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "1391": {
+    "class_type": "MoeSamplerBreakout",
+    "inputs": {
+      "plan": [
+        "1322",
+        0
+      ],
+      "model_high": [
+        "1349",
+        0
+      ],
+      "model_low": [
+        "1349",
+        1
+      ]
+    }
+  },
+  "1389": {
+    "class_type": "WanMoeKSampler",
+    "inputs": {
+      "model_high_noise": [
+        "1391",
+        0
+      ],
+      "model_low_noise": [
+        "1391",
+        1
+      ],
+      "positive": [
+        "330",
+        0
+      ],
+      "negative": [
+        "330",
+        1
+      ],
+      "latent_image": [
+        "330",
+        2
+      ],
+      "boundary": [
+        "1391",
+        4
+      ],
+      "seed": [
+        "158",
+        0
+      ],
+      "steps": [
+        "1391",
+        2
+      ],
+      "cfg_high_noise": [
+        "1349",
+        2
+      ],
+      "cfg_low_noise": [
+        "1349",
+        3
+      ],
+      "sampler_name": [
+        "1350",
+        0
+      ],
+      "scheduler": [
+        "1323",
+        0
+      ],
+      "sigma_shift": [
+        "1391",
+        3
+      ],
+      "denoise": 1.0
+    }
+  },
+  "1353": {
+    "class_type": "PrioritySelector",
+    "inputs": {
+      "priority": "Balanced"
+    },
+    "_meta": {
+      "title": "Step Scheduling Priority (Sigmas)"
+    }
+  },
+  "1323": {
+    "class_type": "SchedulerSelector",
+    "inputs": {
+      "scheduler": "simple"
+    }
+  },
+  "1350": {
+    "class_type": "SamplerSelector",
+    "inputs": {
+      "sampler": "euler"
+    }
+  },
+  "201": {
+    "class_type": "PrimitiveFloat",
+    "inputs": {
+      "value": 3.5
+    },
+    "_meta": {
+      "title": "CFG"
+    }
+  },
+  "1352": {
+    "class_type": "StepBudget",
+    "inputs": {
+      "accelerated_steps": 10,
+      "full_steps": 30
+    },
+    "_meta": {
+      "title": "Step Budget (4-25 / 30-60)"
+    }
+  },
+  "149": {
+    "class_type": "UnetLoaderGGUF",
+    "inputs": {
+      "unet_name": "Wan2.2\\Wan2.2-T2V-A14B-HighNoise-Q4_K_M.gguf"
+    },
+    "_meta": {
+      "title": "UNET GGUF t2v_high"
+    }
+  },
+  "234": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "1384",
+        0
+      ],
+      "lora_name": "Wan2.2\\Wan_2_2_I2V_A14B_HIGH_lightx2v_4step_lora_260412_rank_64_fp16.safetensors",
+      "strength_model": 1
+    },
+    "_meta": {
+      "title": "Lightx2/ning LoRA Loader (High)"
+    }
+  },
+  "233": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "1385",
+        0
+      ],
+      "lora_name": "Wan2.2\\lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank32_bf16.safetensors",
+      "strength_model": 1.35
+    },
+    "_meta": {
+      "title": "lightx2/ning - LoraLoaderModelOnly (Low)"
+    }
+  }
+}
