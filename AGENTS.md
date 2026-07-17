@@ -124,8 +124,13 @@ Grok mapping: [docs/grok_build_hybrid_tooling.md](docs/grok_build_hybrid_tooling
 ```bash
 python scripts/export_episode_to_workspace.py -e YOUR_EP --dest "PATH/TO/YOUR/PROJECT/episodes/YOUR_EP"
 # Or: set AGENT_WORKSPACE=PATH/TO/YOUR/PROJECT
+
+# After export / smoke session: tidy factory staging (dry-run first)
+python scripts/factory_cleanup.py --scope session
+python scripts/factory_cleanup.py --scope session --apply
 ```
 
+Factory may stage under `stories/` or dump dirs; **export then cleanup**.  
 Full contract: [docs/agent_consumer_workspace_contract.md](docs/agent_consumer_workspace_contract.md)  
 AV reliability: [docs/agent_av_smoke_checklist.md](docs/agent_av_smoke_checklist.md)  
 Tooling backlog: [docs/agent_video_tooling_todo.md](docs/agent_video_tooling_todo.md)  

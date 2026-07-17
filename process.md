@@ -1,3 +1,8 @@
+## 2026-07-17 — Factory cleanup lifecycle (staging OK, tidy after)
+- Contract: factory may hold temp media; consumer must export then cleanup
+- `lib/factory_cleanup.py` + `scripts/factory_cleanup.py` scopes: smoke|comfy|logs|session|episode
+- Default dry-run; `--apply` deletes dumps/temps; episode wipe needs export marker
+- AGENTS.md + agent_consumer_workspace_contract §6 lifecycle
 ## 2026-07-17 — LTX face A/B OFF vs ON (detailer)
 - Same S01 seed42: `F:\generated_videos\ab_ltx_face_detailer\S01_ltx_detailer_{OFF,ON}.mp4`
 - ON: face_stability detailer@0.55 confirmed in log; mid/last frames more frontal face readability

@@ -116,9 +116,61 @@ python scripts/export_episode_to_workspace.py -e my_ep
 
 ---
 
-## 6. 한 줄 요약
+## 6. 공장 스테이징 vs 정리 (lifecycle)
+
+공장은 **일시 스테이징을 허용**한다. 금지하는 것은 “작업대 없이 공장에만 최종본을 방치”하는 것이다.
 
 ```text
-RUN tools from agent_custom → READ artifact paths → COPY into YOUR workspace → THEN edit/deliver
-Never leave final work only under stories/ inside the tool repo.
+[1 GENERATE]  stories/<ep>/  ·  (스모크) F:\generated_*  ·  Comfy input/output temps
+      ↓
+[2 EXPORT]    AGENT_WORKSPACE/episodes/<ep>/   ← 의무 (또는 -o 로 처음부터 작업대)
+      ↓
+[3 CLEANUP]   factory_cleanup --scope session|episode
 ```
+
+| 단계 | 어디에 남아도 되나 | 에이전트 의무 |
+|------|-------------------|---------------|
+| 생성 중 | `stories/<ep>/`, 스모크 덤프, Comfy temp | 경로를 기록 |
+| 세션 끝 | **작업대에 복사본** | `export_episode_to_workspace` 또는 `-o` |
+| 정리 | 공장 스모크/temp 삭제 OK | `factory_cleanup` |
+
+### 6.1 정리 CLI
+
+```bash
+# 기본: dry-run (무엇을 지울지 출력)
+python scripts/factory_cleanup.py --scope session
+
+# 실제 삭제: 스모크 덤프 + Comfy temp + archive logs
+python scripts/factory_cleanup.py --scope session --apply
+
+# 에피소드 스테이징 삭제 (export 마커 있을 때만)
+python scripts/export_episode_to_workspace.py -e EP
+python scripts/factory_cleanup.py --scope episode -e EP --apply
+```
+
+| scope | 대상 |
+|-------|------|
+| `smoke` | `F:\generated_images` / `F:\generated_videos` 의 `ab_*`, `*smoke*`, `agent_*` 등 |
+| `comfy` | Comfy `input/temp_*`, `output/agent_*` |
+| `logs` | `scripts/_archive/tmp/*.out.txt`, 프리셋 백업 폴더 |
+| `session` | smoke + comfy + logs (**세션 종료 기본**) |
+| `episode` | `stories/<ep>/` (export 마커 또는 `AGENT_CLEANUP_FORCE_EPISODE=1`) |
+
+**절대 자동 삭제 안 함:** `workflows/`, `characters/`, `locations/`, `looks/`, `skills/`, 코드.
+
+### 6.2 완료 보고에 cleanup 한 줄
+
+```text
+workspace_copy: <AGENT_WORKSPACE>/episodes/<ep>
+factory_cleanup: session applied | dry-run | skipped
+```
+
+---
+
+## 7. 한 줄 요약
+
+```text
+RUN tools from agent_custom → READ paths → COPY to YOUR workspace → CLEANUP factory staging
+Staging on the factory floor is OK; abandoning finals there is not.
+```
+
