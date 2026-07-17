@@ -2,15 +2,44 @@
 
 **원본:** `F:\ComfyUI_workflows\krea2SFWNSFWUncensoredImageTo_v10.json`  
 **기계 가독:** `Krea2_SFW_NSFW_v10_CAPABILITIES.json`  
-**ready 프리셋:** `krea2_t2i_v10`
+**ready 프리셋:** `krea2_t2i_v10` · **NSFW 별칭:** `krea2_nsfw_t2i`  
+**NSFW CLI:** `scripts/generate_krea_nsfw.py`
 
 에이전트는 UI 스위치를 누르지 않고 **feature_id / preset** 으로 고른다.
 
 ```text
-python scripts/run_workflow_api.py -p krea2_t2i_v10 --positive "..." --seed 42
-python scripts/run_workflow_api.py --family krea2 --positive "..."
+# SFW 또는 일반 Krea2
+python scripts/generate_krea.py -p "..." --seed 42
+
+# 빨간맛 / NSFW 스틸 (권장 엔트리)
+python scripts/generate_krea_nsfw.py -p "adult woman, sheer lingerie, ..." -o out.png --seed 42
+
+python scripts/run_workflow_api.py -p krea2_nsfw_t2i --positive "..." --seed 42
 python scripts/run_workflow_api.py --list-features
 ```
+
+---
+
+## 0. NSFW (빨간맛) — 팩토리 역할
+
+| 항목 | 내용 |
+|------|------|
+| **가능 여부** | ✅ 스모크 2026-07-17 통과 (lingerie / uncensored still) |
+| **이유** | Krea2 turbo + **abliterated** Qwen3-VL CLIP (`type=krea2`) — safety filter 약화 경로 |
+| **UI 라벨** | “Uncensored patch” |
+| **프리셋** | 동일 그래프 `krea2_t2i_v10` (별도 센서드 스위치 없음 — 프롬프트로 SFW/NSFW) |
+| **에이전트 도구** | **`generate_krea_nsfw`** / catalog `krea2_nsfw_t2i` |
+
+### 에이전트 정책 (강제)
+
+| 규칙 | |
+|------|--|
+| **성인만** | 피사체 **18+** (또는 성인 설정 픽션). 미성년·애매한 연령 금지 |
+| **SFW 본선** | 일상·스토리 키프레임은 Lonecat / `generate_moody` 우선 |
+| **NSFW 본선** | 에로·누드·란제리 등 **빨간맛 still** → 이 도구 |
+| **금지** | CSAM, loli/shota, school sexualization of minors |
+
+스모크 산출: `F:\generated_images\krea2_nsfw_smoke\krea2_nsfw_smoke.png`
 
 ---
 

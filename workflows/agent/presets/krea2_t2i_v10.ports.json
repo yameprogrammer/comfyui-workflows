@@ -1,7 +1,7 @@
 {
   "preset": "krea2_t2i_v10",
   "workflow_api": "presets/krea2_t2i_v10.api.json",
-  "description": "krea2SFWNSFWUncensoredImageTo_v10 T2I (Krea2 turbo, krea2 CLIP, agent-safe)",
+  "description": "krea2SFWNSFWUncensoredImageTo_v10 T2I — Krea2 turbo + abliterated krea2 CLIP (SFW and NSFW / 빨간맛). Agent NSFW entry: generate_krea_nsfw.py / alias krea2_nsfw_t2i.",
   "source_ui": "F:\\ComfyUI_workflows\\krea2SFWNSFWUncensoredImageTo_v10.json",
   "family": "krea2",
   "ports": {
@@ -61,5 +61,12 @@
     "CLIP type=krea2 required",
     "Prompt enhancer / Image-to-prompt / CivitAI metadata stripped for API reliability",
     "UNET defaults Krea2Turbo\\\\krea2_turbo_fp8_scaled; try int8_convrot via unet_name port"
-  ]
+  ],
+  "nsfw": {
+    "capable": true,
+    "clip": "Huihui-Qwen3-VL-4B-Instruct-abliterated-fp8_scaled.safetensors",
+    "agent_cli": "scripts/generate_krea_nsfw.py",
+    "catalog_alias": "krea2_nsfw_t2i",
+    "policy": "adult_18_plus_only"
+  }
 }

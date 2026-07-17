@@ -70,7 +70,8 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
 ### Rule 2. 자동화 스크립트 정합성 유지
 * **Still 생성 본선 (workflow_api only)**:
   - T2I Moody: `generate_moody` → `lonecat_t2i_turbo`
-  - T2I Krea: `generate_krea` → `krea2_t2i_v10`
+  - T2I Krea (일반): `generate_krea` → `krea2_t2i_v10`
+  - T2I Krea **NSFW/빨간맛**: `generate_krea_nsfw` → `krea2_nsfw_t2i` (= 동일 `krea2_t2i_v10` 그래프, abliterated CLIP). **성인 18+ only**
   - I2I: `generate_moody_i2i` / lock / ipadapter이름 → `lonecat_i2i_identity`
   - ControlNet: `generate_moody_controlnet` → `zimage_fun_union_controlnet` (공식 Fun Union)
   - Qwen multi-angle: `generate_qwen_angle` → `qwen_multiangle_image` (`멀티앵글생성-qwen-image`)
@@ -101,7 +102,7 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
 * Lonecat / Krea2 등 AIO의 **Fast Groups Bypasser / selector / Any Switch** 는 UI 기능 스위치다.
 * 에이전트는 UI를 클릭하지 않고 **`feature_id` → ready `agent_preset` → `*.api.json` + port patch** 만 사용한다.
 * **Lonecat (Z-Image):** `workflows/human/Lonecat_AIO_Z-Image_ver17_AGENT_GUIDE.md`, `…_CAPABILITIES.json`
-* **Krea2:** `workflows/human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md`, `…_CAPABILITIES.json` · 소스 `krea2SFWNSFWUncensoredImageTo_v10` · 기본 프리셋 `krea2_t2i_v10` (CLIP **type=krea2**, Lonecat과 혼용 금지)
+* **Krea2:** `workflows/human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md`, `…_CAPABILITIES.json` · 소스 `krea2SFWNSFWUncensoredImageTo_v10` · 기본 프리셋 `krea2_t2i_v10` (CLIP **type=krea2** abliterated, Lonecat과 혼용 금지) · **NSFW 도구:** `generate_krea_nsfw` / alias `krea2_nsfw_t2i`
 * 공통 인덱스: `workflows/agent/presets/lonecat_feature_presets.json` (families 포함)
 * 목록: `python scripts/run_workflow_api.py --list-features` · 재스캔: `_build_lonecat_capabilities.py` / `_build_krea2_capabilities.py`
 * 새 기능 = UI에서 바이패서 조합 고정 → API export → presets 등록. full AIO `convert_ui_to_api` / 런타임 노드 inject 금지.

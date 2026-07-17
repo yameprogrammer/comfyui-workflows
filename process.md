@@ -1,3 +1,8 @@
+## 2026-07-17 — Krea2 NSFW (빨간맛) still tool ready
+- Confirmed: krea2SFWNSFWUncensoredImageTo_v10 = uncensored via abliterated Qwen3-VL CLIP + Krea2 turbo
+- Smoke OK: lingerie adult still → `F:\generated_images\krea2_nsfw_smoke\krea2_nsfw_smoke.png` (~28s)
+- Agent entry: `scripts/generate_krea_nsfw.py` · catalog alias `krea2_nsfw_t2i` · guide §0 NSFW policy (18+)
+- SFW story keyframes remain Lonecat/moody; Krea NSFW for explicit erotic stills only
 ## 2026-07-17 — Factory cleanup lifecycle (staging OK, tidy after)
 - Contract: factory may hold temp media; consumer must export then cleanup
 - `lib/factory_cleanup.py` + `scripts/factory_cleanup.py` scopes: smoke|comfy|logs|session|episode

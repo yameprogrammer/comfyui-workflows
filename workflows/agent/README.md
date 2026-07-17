@@ -19,6 +19,8 @@
 |----|------|----------|
 | `t2i_moody` | `T2I-moody.json` | `scripts/generate_moody.py` (Phase2 → Lonecat T2I 예정) |
 | `lonecat_i2i_identity` | `presets/lonecat_i2i_identity.api.json` | **I2I 본선** `generate_moody_i2i` / lock / ipadapter(alias) |
+| `krea2_t2i_v10` | `presets/krea2_t2i_v10.api.json` | Krea2 T2I (SFW+NSFW capable) `generate_krea` |
+| `krea2_nsfw_t2i` | 동일 프리셋 별칭 | **빨간맛 still** `generate_krea_nsfw` (adult 18+ only) |
 | `zimage_fun_union_controlnet` | `presets/zimage_fun_union_controlnet.api.json` | **CN 본선** `generate_moody_controlnet` (Fun Union 공식) |
 | `i2i_moody` | `I2I-moody.json` | 레거시 미니 only (`--legacy-mini`) |
 | `i2i_controlnet_moody` | `I2I-ControlNet-moody.json` | CN 레거시 미니 only (`AGENT_CN_BACKEND=legacy_mini`) |

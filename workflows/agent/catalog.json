@@ -154,7 +154,9 @@
       "description": "krea2SFWNSFWUncensoredImageTo_v10 T2I (Krea2 turbo + krea2 CLIP)",
       "scripts": [
         "scripts/run_workflow_api.py"
-      ]
+      ],
+      "nsfw_capable": true,
+      "clip_note": "Huihui Qwen3-VL-4B abliterated (uncensored)"
     },
     "krea2_sfw_nsfw_v10": {
       "file": "presets/krea2_sfw_nsfw_v10.api.json",
@@ -235,6 +237,34 @@
         "scripts/generate_i2v.py",
         "scripts/generate_flf2v.py"
       ]
+    },
+    "krea2_nsfw_t2i": {
+      "file": "presets/krea2_t2i_v10.api.json",
+      "ports": "presets/krea2_t2i_v10.ports.json",
+      "format": "api",
+      "role": "nsfw_text_to_image",
+      "family": "krea2",
+      "alias_of": "krea2_t2i_v10",
+      "status": "ready",
+      "description": "Krea2 uncensored stills (SFW+NSFW). Abliterated CLIP. Adult 18+ only.",
+      "used_by": [
+        "scripts/generate_krea_nsfw.py",
+        "scripts/generate_krea.py"
+      ],
+      "policy": {
+        "adults_only": true,
+        "min_age": 18,
+        "use_for": [
+          "nsfw_still",
+          "erotic",
+          "uncensored_lingerie",
+          "adult_character"
+        ],
+        "prefer_sfw_elsewhere": [
+          "generate_moody",
+          "lonecat_t2i_turbo"
+        ]
+      }
     }
   }
 }
