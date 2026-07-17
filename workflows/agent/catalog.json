@@ -50,6 +50,46 @@
       "notes": "First/Last frame I2V; export API after graphToPrompt",
       "agent_preset": "i2v_wan22_a14b_flf"
     },
+    "ltx23_redmix_krea2": {
+      "file": null,
+      "format": "ui_expand",
+      "role": "image_to_video",
+      "family": "ltx",
+      "status": "ready",
+      "description": "RedCraft LTX2.3 REDMix I2V subgraph (NEWKrea2 collection). Animate stills; default UnetLoaderGGUF distilled Q4 when pack REDGTA missing.",
+      "purpose": "I2V 2-pass LTX for Krea/Ideogram stills",
+      "source_ui": "workflows/human/ltx23_redmix_krea2/NEWKrea2LTX23Ideogram4_ltx23redmixkrea2.json",
+      "runner": "lib/ltx23_redmix_runner.py",
+      "guide": "workflows/human/ltx23_redmix_krea2/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/ltx23_redmix_krea2/CAPABILITIES.json",
+      "used_by": [
+        "scripts/generate_ltx23_redmix_i2v.py"
+      ],
+      "default_backend": "gguf_distilled",
+      "civitai": "https://civitai.red/models/579280/newkrea2-and-ltx23-and-ideogram-4-wf-in-collection",
+      "notes": "Collection also has still WFs (Boogu/Ideogram/Krea) as separate tools. Smoke OK stories/_tool_smoke/ltx23_redmix_gguf_smoke.mp4"
+    },
+    "ltx23_latentheart_aio": {
+      "file": null,
+      "format": "ui_expand",
+      "role": "ltx_director_aio",
+      "family": "ltx",
+      "status": "ready",
+      "description": "LatentHeart LTX2.3 AIO Director (v2/v1.3). Modular SFW/NSFW T/I/A2V with model groups STANDARD/GGUF/10EROS. Agent default GGUF Q4.",
+      "purpose": "Modular LTX2.3 Director AIO — ControlNet, ID LoRA, detailer, upscaler, interpolator",
+      "source_ui": "workflows/human/ltx23_latentheart_aio/LTX23LTXDirector2.json",
+      "source_ui_alt": "workflows/human/ltx23_latentheart_aio/LTX23LTXDirector13.json",
+      "runner": "lib/ltx23_latentheart_runner.py",
+      "switches": "lib/ltx23_latentheart_switches.py",
+      "guide": "workflows/human/ltx23_latentheart_aio/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/ltx23_latentheart_aio/CAPABILITIES.json",
+      "used_by": [
+        "scripts/generate_ltx23_latentheart.py"
+      ],
+      "default_profile": "gguf_distilled",
+      "civitai": "https://civitai.red/models/2553704/ltx23-all-in-one-sfw-nsfw-ltx-director-id-lora-controlnet-detailer-upscaler-interpolator",
+      "notes": "Tool catalog only. Real UI + group modes. GGUFLoaderKJ→UnetLoaderGGUF. Smoke OK gguf_distilled → stories/_tool_smoke/ltx23_lh_gguf_smoke.mp4"
+    },
     "yaw_wan22_v050_moe": {
       "file": null,
       "format": "ui_expand",

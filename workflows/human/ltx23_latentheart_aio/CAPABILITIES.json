@@ -1,0 +1,58 @@
+{
+  "workflow": "LTX23 LatentHeart AIO (Director)",
+  "version": 1,
+  "purpose": {
+    "one_liner": "Modular LTX2.3 T/I/A2V AIO with LTX Director, multi-model, ControlNet, detailer, upscaler, interpolator",
+    "author": "LatentHeart",
+    "civitai": "https://civitai.red/models/2553704/ltx23-all-in-one-sfw-nsfw-ltx-director-id-lora-controlnet-detailer-upscaler-interpolator",
+    "pack_version": "v4.0",
+    "supported_models_card": [
+      "Standard LTX 2.3 distilled",
+      "LTX 2.3 distilled GGUF",
+      "10Eros (v1 / 1.2 / 1.4 compatible per card)"
+    ]
+  },
+  "human_ui": {
+    "director2": "workflows/human/ltx23_latentheart_aio/LTX23LTXDirector2.json",
+    "director13": "workflows/human/ltx23_latentheart_aio/LTX23LTXDirector13.json",
+    "default": "director2"
+  },
+  "integration_policy": {
+    "rule": "Real UI only. Fast Groups Bypasser model max-one + feature groups. Default GGUF via UnetLoaderGGUF swap from GGUFLoaderKJ. No mini-graph. No pipeline rank.",
+    "default_profile": "gguf_distilled",
+    "memory": "Prefer GGUF Q4_K_M; avoid loading STANDARD+GGUF+10EROS together"
+  },
+  "model_groups": {
+    "STANDARD": "LTX2.3 MODEL [STANDARD]",
+    "GGUF": "LTX2.3 MODEL [GGUF]",
+    "10EROS": "LTX2.3 MODEL [10EROS]"
+  },
+  "features": [
+    {"feature_id": "half_resolution", "group": "Half resolution"},
+    {"feature_id": "controlnet", "group": "Controlnet conditioning"},
+    {"feature_id": "id_lora", "group": "ID LoRA conditioning (voice cloning)"},
+    {"feature_id": "ltx_2x_upscaler", "group": "LTX 2x Upscaler"},
+    {"feature_id": "ltx_detailer", "group": "LTX Detailer"},
+    {"feature_id": "nvidia_vsr", "group": "Nvidia VSR upscaler"},
+    {"feature_id": "interpolation", "group": "Interpolation"},
+    {"feature_id": "image_reference", "group": "Image reference"},
+    {"feature_id": "lipsync_enhancer", "group": "Lipsync enhancer"},
+    {"feature_id": "prompt_enhancer", "group": "Prompt enhancer"}
+  ],
+  "profiles": ["gguf_distilled", "gguf_10eros", "gguf_half_upscale", "as_saved"],
+  "local_gguf": {
+    "distilled": "LTX2.3\\LTX-2.3-22B-distilled-1.1-Q4_K_M.gguf",
+    "10eros": "LTX2.3\\10Eros_v1-Q4_K_M.gguf",
+    "dev": "LTX2.3\\ltx-2.3-22b-dev-Q4_K_M.gguf"
+  },
+  "cli": "scripts/generate_ltx23_latentheart.py",
+  "runner": "lib/ltx23_latentheart_runner.py",
+  "switches": "lib/ltx23_latentheart_switches.py",
+  "smoke": {
+    "status": "ok",
+    "profile": "gguf_distilled",
+    "output": "stories/_tool_smoke/ltx23_lh_gguf_smoke.mp4",
+    "seed": 42,
+    "notes": "GGUF distilled Q4; ~2s/49f path; video-only (no MelBand audio)"
+  }
+}

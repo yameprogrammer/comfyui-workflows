@@ -7,6 +7,19 @@
 - CLI: `scripts/generate_illustrious_standard.py` — `--list-features` · presets · Face/Hand/Eyes/I2I/Hires/…
 - Catalog `illustrious_standard_v37` · tool_catalog §B8
 - Smoke OK: `stories/_tool_smoke/std_v37_clean.png` · `std_v37_face.png`
+## 2026-07-17 — LTX2.3 REDMix Krea2 I2V (Civitai 579280)
+- UI: `NEWKrea2LTX23Ideogram4_ltx23redmixkrea2.json` → `workflows/human/ltx23_redmix_krea2/`
+- Collection hosts still WFs separately; this JSON = I2V subgraph only (LoadImage→LTX 2-pass→SaveVideo)
+- Pack UNET REDGTA int4 **missing** → default `UnetLoaderGGUF` distilled Q4; distill lora path remap; missing yoyo/clap passthrough
+- VAE Anything Everywhere dead links rewired to VAELoader; LTXVPreprocess must not get vae
+- CLI `generate_ltx23_redmix_i2v` · catalog ready · smoke `stories/_tool_smoke/ltx23_redmix_gguf_smoke.mp4`
+## 2026-07-17 — LatentHeart LTX2.3 AIO Director (2553704)
+- UI: `LTX23LTXDirector2` + `LTX23LTXDirector13` under `workflows/human/ltx23_latentheart_aio/`
+- Source: modular SFW/NSFW Director AIO; model groups STANDARD/GGUF/10EROS self-contained
+- Agent default profile `gguf_distilled`: GGUF group ON, heavy post OFF; UnetLoaderGGUF swap from GGUFLoaderKJ
+- Switches lib + runner + CLI `generate_ltx23_latentheart` · catalog `ltx23_latentheart_aio` (**ready**)
+- Smoke OK: `stories/_tool_smoke/ltx23_lh_gguf_smoke.mp4` (seed 42, distilled Q4, video-only)
+- Host fixes kept: DualCLIP remap, missing LoRA rewire, MelBand mute, Director widget remap, AV-separate skip, showAnything drop
 ## 2026-07-17 — YAW Wan 2.2 MoE v0.50 (T2V/I2V tool)
 - Civitai 2008892 boobkake22: easy T2V+I2V Wan 2.2 MoE template
 - Real UI SSOT `workflows/human/yaw_wan22/yetAnotherWorkflowEasyT2vI2v_v050Moe.json`

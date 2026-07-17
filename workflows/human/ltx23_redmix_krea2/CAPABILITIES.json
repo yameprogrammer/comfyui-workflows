@@ -1,0 +1,31 @@
+{
+  "workflow": "NEWKrea2LTX23Ideogram4_ltx23redmixkrea2",
+  "version": 1,
+  "purpose": {
+    "one_liner": "LTX 2.3 I2V 2-pass to animate stills (RedCraft REDMix / Krea2 collection)",
+    "civitai": "https://civitai.red/models/579280/newkrea2-and-ltx23-and-ideogram-4-wf-in-collection",
+    "civitai_version": "LTX2.3REDMixKrea2",
+    "collection_note": "Same Civitai model page hosts Boogu/Ideogram/Krea still WFs; this JSON is I2V only"
+  },
+  "human_ui": "workflows/human/ltx23_redmix_krea2/NEWKrea2LTX23Ideogram4_ltx23redmixkrea2.json",
+  "integration_policy": {
+    "rule": "Real UI with one I2V subgraph. Expand + port inject. Default UnetLoaderGGUF when pack REDGTA missing. No mini-graph.",
+    "default_backend": "gguf_distilled"
+  },
+  "pack_unet": "REDGTA1.1_LTX23-int4-convrot.safetensors",
+  "backends": {
+    "gguf_distilled": "LTX2.3\\LTX-2.3-22B-distilled-1.1-Q4_K_M.gguf",
+    "gguf_10eros": "LTX2.3\\10Eros_v1-Q4_K_M.gguf",
+    "gguf_dev": "LTX2.3\\ltx-2.3-22b-dev-Q4_K_M.gguf",
+    "pack_redgta": "REDGTA1.1_LTX23-int4-convrot.safetensors"
+  },
+  "ports": ["image", "prompt", "negative", "seed", "width", "height", "frames", "fps"],
+  "cli": "scripts/generate_ltx23_redmix_i2v.py",
+  "runner": "lib/ltx23_redmix_runner.py",
+  "smoke": {
+    "status": "ok",
+    "backend": "gguf_distilled",
+    "output": "stories/_tool_smoke/ltx23_redmix_gguf_smoke.mp4",
+    "seed": 42
+  }
+}

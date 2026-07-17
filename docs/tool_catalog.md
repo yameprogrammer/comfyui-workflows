@@ -39,6 +39,8 @@
 | **Wan 2.2 T2V/I2V (YAW MoE)** | `generate_yaw_wan22` | 실 UI · GGUF · green T2V/I2V 스위치 |
 | 첫·끝 프레임 연결 | `generate_flf2v` | LTX flf |
 | 이미지+오디오→립/연동 | `generate_s2v` | LTX aio / InfiniteTalk |
+| LTX2.3 AIO Director (모듈) | `generate_ltx23_latentheart` | LatentHeart · GGUF 프로필 |
+| **LTX2.3 REDMix I2V** (스틸→영상) | `generate_ltx23_redmix_i2v` | RedCraft · GGUF 기본 |
 | 빨간맛 영상 클립 | `generate_ltx_nsfw_i2v` | Kenpechi · **18+** |
 | 감정·복제 TTS | `generate_qwen3_tts` | custom / clone / design |
 | 보이스 샘플 등록 | `voice_register` | `voices/<id>/` |
@@ -240,7 +242,47 @@ python scripts/generate_yaw_wan22.py -i start.png -p "slow push-in" -o i2v.mp4
 
 ---
 
-### C3. Kenpechi LTX NSFW — 빨간맛 영상
+### C3. LatentHeart LTX2.3 AIO (Director) — 모듈형 T/I/A2V
+
+| 항목 | 내용 |
+|------|------|
+| **출처 목적** | LatentHeart **LTX Director AIO** (SFW/NSFW · CN · Detailer · Upscaler · Interpolator) |
+| **UI** | `LTX23LTXDirector2` (기본) · `LTX23LTXDirector13` (구 노드) |
+| **CLI** | **`generate_ltx23_latentheart`** |
+| **모델** | **GGUF 우선** (`gguf_distilled` / `gguf_10eros`) · STANDARD fp8은 옵션 |
+| **스위치** | QUICK MODEL max-one · half-res · CN · ID LoRA · 2×up · detailer · VSR · RIFE |
+| **언제** | LTX2.3 Director 타임라인 · 모듈 기능 조합 |
+| **원칙** | 실 UI · 그룹 mode · GGUF 스왑 · 카탈로그 자유 선택 |
+| **가이드** | [ltx23_latentheart_aio/AGENT_GUIDE.md](../workflows/human/ltx23_latentheart_aio/AGENT_GUIDE.md) |
+| **출처** | [Civitai 2553704](https://civitai.red/models/2553704/ltx23-all-in-one-sfw-nsfw-ltx-director-id-lora-controlnet-detailer-upscaler-interpolator) |
+
+```bash
+python scripts/generate_ltx23_latentheart.py --list-profiles
+python scripts/generate_ltx23_latentheart.py -p "cinematic motion..." -o out.mp4 --profile gguf_distilled
+```
+
+---
+
+### C3b. LTX2.3 REDMix Krea2 — 스틸 I2V
+
+| 항목 | 내용 |
+|------|------|
+| **출처** | [Civitai 579280 LTX2.3REDMixKrea2](https://civitai.red/models/579280/newkrea2-and-ltx23-and-ideogram-4-wf-in-collection) |
+| **기능** | 이미지→영상 2-pass LTX I2V (low→latent upscale→high) · 오디오 디코드 포함 |
+| **CLI** | **`generate_ltx23_redmix_i2v`** |
+| **모델** | 팩 REDGTA int4 **로컬 없음** → 기본 **distilled GGUF Q4** (`--backend gguf_10eros` 등) |
+| **언제** | Krea/Ideogram/Boogu 스틸을 짧게 애니메이트 |
+| **관련** | 스틸: `generate_krea*` / `generate_ideogram4` / `generate_boogu_typo` (별 도구) |
+| **가이드** | [ltx23_redmix_krea2/AGENT_GUIDE.md](../workflows/human/ltx23_redmix_krea2/AGENT_GUIDE.md) |
+
+```bash
+python scripts/generate_ltx23_redmix_i2v.py -i still.png \
+  -p "smiles and turns slowly, cinematic natural motion" -o clip.mp4 --seed 42
+```
+
+---
+
+### C3c. Kenpechi LTX NSFW — 빨간맛 영상
 
 | 항목 | 내용 |
 |------|------|

@@ -12,6 +12,8 @@ ComfyUI **웹 UI**에서 실험·튜닝한 워크플로 원본입니다.
 |------|------|
 | [illustrious_standard_v37/](illustrious_standard_v37/) | Legendaer Illustrious XL Standard_V37 + [AGENT_GUIDE.md](illustrious_standard_v37/AGENT_GUIDE.md) · feature 스위치 메뉴 |
 | [yaw_wan22/](yaw_wan22/) | YAW Wan 2.2 MoE v0.50 T2V/I2V 실 UI + GGUF · [AGENT_GUIDE.md](yaw_wan22/AGENT_GUIDE.md) |
+| [ltx23_latentheart_aio/](ltx23_latentheart_aio/) | LatentHeart LTX2.3 AIO Director (v2/v1.3) · GGUF 프로필 · [AGENT_GUIDE.md](ltx23_latentheart_aio/AGENT_GUIDE.md) |
+| [ltx23_redmix_krea2/](ltx23_redmix_krea2/) | RedCraft LTX2.3 REDMix I2V (Krea 컬렉션) · GGUF · [AGENT_GUIDE.md](ltx23_redmix_krea2/AGENT_GUIDE.md) |
 | [wan22/](wan22/) | WAN 2.2 I2V / FLF / FaceEnhance / Upscale / Animate 선별본 + [AGENT_GUIDE.md](wan22/AGENT_GUIDE.md) |
 | [qwen3_tts/](qwen3_tts/) | Qwen3-TTS 음성복제·커스텀·디자인 + [AGENT_GUIDE.md](qwen3_tts/AGENT_GUIDE.md) |
 | [ltx23_nsfw/](ltx23_nsfw/) | Kenpechi LTX NSFW I2V/Director |
