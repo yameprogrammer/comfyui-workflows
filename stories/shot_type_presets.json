@@ -10,27 +10,30 @@
       "i2v_hint": "slow camera drift or gentle push-in, environment only, no new people"
     },
     "wide": {
-      "framing": "wide full-body in set, readable environment, character fully visible head-to-toe",
+      "framing": "wide full-body in set, readable environment, character fully visible head-to-toe, headroom and feet in frame",
       "prefer_source": "character",
       "character_ref_aliases": [
-        "costume_default",
-        "master_full",
+        "pose_stand_idle",
+        "pose_walk",
         "turn_front",
-        "pose_stand_idle"
+        "master_full",
+        "costume_default"
       ],
       "location_ref_aliases": ["empty_stage", "angle_eye", "master_wide"],
       "i2v_hint": "subtle body motion, ambient room life, keep identity and wardrobe fixed"
     },
     "medium": {
-      "framing": "medium shot waist-up, dialogue-friendly, set readable behind",
+      "framing": "medium shot waist-up, head and torso both in frame with headroom, environment readable behind, not face-only close-up",
       "prefer_source": "character",
       "character_ref_aliases": [
-        "master_front",
-        "costume_default",
+        "pose_stand_idle",
+        "pose_walk",
+        "turn_front",
+        "master_full",
         "expr_neutral",
-        "master_full"
+        "master_front"
       ],
-      "location_ref_aliases": ["empty_stage", "angle_eye"],
+      "location_ref_aliases": ["empty_stage", "angle_eye", "landmark_a", "master_wide"],
       "i2v_hint": "subtle head and shoulder motion, natural blink, camera locked or micro move"
     },
     "closeup": {

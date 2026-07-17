@@ -11,7 +11,7 @@
   "default_work_preset": null,
   "default_deliver_tier": "deliver_1080",
   "default_model": "pro",
-  "default_denoise": 0.78,
+  "default_denoise": 0.52,
   "default_cfg": 3.5,
   "audio": {
     "master": null,

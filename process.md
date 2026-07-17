@@ -1,3 +1,82 @@
+## 2026-07-17 — LTX face A/B OFF vs ON (detailer)
+- Same S01 seed42: `F:\generated_videos\ab_ltx_face_detailer\S01_ltx_detailer_{OFF,ON}.mp4`
+- ON: face_stability detailer@0.55 confirmed in log; mid/last frames more frontal face readability
+- OFF: more downcast/softened face mid-clip
+- Keep default face_stability ON (not a full identity lock)
+## 2026-07-17 — LTX face stability (detailer IC-LoRA ON)
+- Problem: LTX I2V faces melt/drift; AIO default left `ltx-2-19b-ic-lora-detailer` OFF
+- `build_aio_switched_api(face_stability=True)` default for i2v/flf/…: detailer@0.55 + face neg + motion suffix
+- CLI: `--face-stability` / `--no-face-stability` / `--detailer-strength` · env AGENT_LTX_FACE_STABILITY / AGENT_LTX_DETAILER_STRENGTH
+- Doc: docs/ltx_face_stability.md
+## 2026-07-17 — A/B Wan2.2 vs LTX2.3 I2V → LTX quality default
+- Same KF S01 960-class: `F:\generated_videos\ab_wan_vs_ltx\S01_{wan22,ltx23}.mp4` + compare sheets
+- Wan: sharper still, flatter motion (6step lightx2v). LTX: better pose/gaze motion, filmic, higher bitrate
+- **Policy**: default I2V=`ltx23_aio_i2v`, default FLF=`ltx23_aio_flf`; wan22/wan22_flf = fallback only
+- `video_backends.json` i2v_quality_policy · `docs/wan_vs_ltx_i2v_ab_2026-07-17.md`
+- generate_i2v --last / generate_flf2v / episode flf2v → LTX flf (not Wan) unless explicit wan backend
+## 2026-07-17 — WanVideoLoader: ban fp16_fast (torch nightly trap)
+- Error: `allow_fp16_accumulation` requires torch 2.7 nightly — community packs default `base_precision=fp16_fast`
+- Fix: agent presets force `bf16` + `quantization=disabled` + strip `compile_args` / TorchCompileSettings
+- Runtime: `workflow_video_runner._normalize_local_model_paths` always rewrites loaders; `generate_i2v` same
+- Also fixed umt5 path `WAN2.2\\umt5-…` → bare `umt5-xxl-enc-bf16.safetensors` (text_encoders list)
+## 2026-07-17 — FLF2V ready (wan22 start+end)
+- Preset: `presets/i2v_wan22_a14b_flf.api.json` (base I2V API + LoadImage end + encode.end_image, fun_or_fl2v_model=true)
+- CLI: `generate_flf2v.py` · `generate_i2v --last end.png` → backend `wan22_flf`
+- `episode_i2v`: runs `motion_driver=flf2v` when `keyframe_end` or `keyframes/Sxx_end.png`
+- video_backends: wan22_flf + flf2v alias ready; catalog i2v_wan22_a14b_flf
+- FaceEnhance: CLI stub `generate_wan22_face_enhance.py` (needs API export of human subgraph pack)
+- flf2v_f2f_roadmap status → P0 CLI ready
+## 2026-07-17 — WAN 2.2 pack triage + I2V API preset
+- Scanned user pack under `F:\ComfyUI_workflows\WAN 2.2 *` (subgraphs: FaceEnhance/Upscale/I2V/Animate)
+- **Selected →** `workflows/human/wan22/`: i2v, i2v_start_end, face_enhance, upscale, upscale+face, animate (+ native flf/lightning refs)
+- **Skipped:** UPSCALE BATCH (folder crawl), AllInOne, S2V, FunCamera, FASTWAN 5B batch, LORA COMPARE
+- Agent Wan I2V: `presets/i2v_wan22_a14b.api.json` (convert once from I2V-wan22-a14b UI); `generate_i2v` prefers API format (no convert)
+- catalog v2: legacy mini → `_legacy/`; planned wan22_* entries; video/upscale_backends planned backends
+- Guide: `workflows/human/wan22/AGENT_GUIDE.md`
+## 2026-07-17 — shot_compose pipeline smoke S01 (Lonecat I2I)
+- `shot_compose -e sonagi_mv_v3 -s S01 --force` OK (~27s)
+- engine=ipadapter name → `lonecat_i2i_identity` workflow_api (not mini I2I-moody)
+- layout=char_on_loc; denoise=0.52; out 960x544 draft keyframe
+## 2026-07-17 — Qwen edit 2509 → GGUF (drop heavy fp8)
+- Interrupted fp8 smoke; queue clear
+- Preset node 37: **LoaderGGUF** `Qwen-Image-Edit-2509-Q5_K_M.gguf` (not UNETLoader ~20GB fp8)
+- Ports: `gguf_name` (not unet_name); turbo switch unchanged
+## 2026-07-17 — Qwen instruction edit → image_qwen_image_edit_2509
+- Preset `qwen_edit_2509` from official Comfy template (subgraph Image Edit Qwen 2509 flattened)
+- `generate_qwen_edit` default backend=workflow_api; turbo=Lightning 4step / --no-lightning quality 20/CFG4
+- Multi-ref image2/image3 optional inject on TextEncode
+## 2026-07-17 — LTX AIO full verify (params + modes live)
+- Graph checks 20/20: all 10 Select-option modes mute OK; clip/edge/aspect/fps inject OK; media ports OK
+- Live 5/5 OK: i2v 9:16, i2v 16:9, flf, i2v_audio, t2v via ltx_aio_workflow_runner
+- Outputs: F:\generated_images\ltx_aio_verify\ (576x960 / 1024x576, clip 2s / audio 4s)
+## 2026-07-17 — LTX AIO Select options → agent feature catalog
+- Scanned v44 Orchestrator + [[P:]] ports → CAPABILITIES + AGENT_GUIDE
+- `lib/ltx_aio_mode_select`: feature_id/mode resolve, list_features, Orchestrator widget sync
+- CLI: `python scripts/run_ltx_aio_features.py --list|--describe i2v_audio`
+- Modes still run via generate_s2v --backend ltx23_aio_* / --ltx-mode (no mini graph)
+## 2026-07-17 — Qwen multi-angle + LTX AIO v44 as video SSOT
+- Qwen: `멀티앵글생성-qwen-image` → `presets/qwen_multiangle_image` + `generate_qwen_angle` workflow_api
+- LTX: default I2V=`ltx23_aio_i2v`, S2V=`ltx23_aio`; runner loads `ltx23AllInOneWorkflowForRTX_v44.json` (not mini)
+- `generate_i2v` LTX backends delegate to `generate_s2v` real AIO path
+## 2026-07-16 — ControlNet → Fun Union API preset
+- Source: `image_z_image_turbo_fun_union_controlnet` (official Comfy template)
+- Flatten subgraph → `presets/zimage_fun_union_controlnet.api.json` + ports
+- `generate_moody_controlnet` default → workflow_api (empty latent + Union 2.1 patch)
+- Canny/openpose preprocess stays in script before LoadImage (no homemade graph inject)
+- Alias: `lonecat_controlnet` → same preset; legacy mini: `--legacy-mini` / AGENT_CN_BACKEND
+## 2026-07-16 — Still gen → workflow_api (T2I + Krea + I2I)
+- **Only rewire generation to API presets** (no layout/PIL detours)
+- `generate_moody` default → `lonecat_t2i_turbo` (legacy: `--legacy-mini` / AGENT_T2I_BACKEND)
+- `generate_krea` default → `krea2_t2i_v10` (legacy: AGENT_KREA_BACKEND)
+- I2I already → `lonecat_i2i_identity` (prior); lock/ipadapter alias same path
+- Callers unchanged: shot_compose / character_* / location_* / cast_pool hit rewired entrypoints
+- Still NOT API-preset (no ready AIO export yet): controlnet mini, Qwen edit/angle inject, I2V/S2V, BGM, Ideogram
+## 2026-07-16 — Phase1 I2I → Lonecat API (no mini/inject)
+- `generate_moody_i2i` default: `workflow_api_runner` + `lonecat_i2i_identity` (port patch only)
+- `generate_moody_i2i_lock` / `_ipadapter`: same path; IPAdapter node inject **removed** (RuntimeError)
+- Emergency only: `--legacy-mini` / `AGENT_I2I_BACKEND=legacy_mini` (old I2I-moody)
+- `select_lonecat_preset(mode=i2i, family=krea2)` → `krea2_i2i_v10`
+- Callers unchanged: shot_compose / expand_sheets / shot_keyframe_edit still call generate_i2i_*
 ## 2026-07-16 — Qwen Edit Lightning policy
 - Default: Lightning **ON** (4step/CFG1) first pass
 - Escalate only if result fails intent: `--no-lightning --steps 20 --cfg 4` (smoke v2 cup+straw OK)
