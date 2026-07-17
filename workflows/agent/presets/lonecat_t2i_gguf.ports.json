@@ -1,0 +1,57 @@
+{
+  "preset": "lonecat_t2i_gguf",
+  "workflow_api": "presets/lonecat_t2i_gguf.api.json",
+  "description": "Lonecat Model selector GGUF branch (UnetLoaderGGUF + standard ZIT CLIP lumina2)",
+  "ports": {
+    "positive": {
+      "node": "1315",
+      "key": "text"
+    },
+    "negative": {
+      "node": "1317",
+      "key": "negative",
+      "optional": true
+    },
+    "seed": {
+      "node": "1307",
+      "key": "seed"
+    },
+    "denoise": {
+      "node": "2039",
+      "key": "denoise",
+      "optional": true
+    },
+    "width": {
+      "node": "1808",
+      "key": "width",
+      "optional": true
+    },
+    "height": {
+      "node": "1808",
+      "key": "height",
+      "optional": true
+    },
+    "unet_name": {
+      "node": "1323",
+      "key": "unet_name",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "1696",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "denoise": 1.0,
+    "width": 1024,
+    "height": 576,
+    "unet_name": "ZImageTurbo\\z-image-turbo-Q4_K_M.gguf",
+    "filename_prefix": "lonecat_t2i_gguf"
+  },
+  "notes": [
+    "UI: Model selector (always one) -> enable GGUF Model group, disable Diffusion Model",
+    "API export with GGUF active bakes UnetLoaderGGUF into Model switch any_02",
+    "This preset rewires loader to UnetLoaderGGUF for available z-image-turbo-Q4_K_M.gguf"
+  ]
+}

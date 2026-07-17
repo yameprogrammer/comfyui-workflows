@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "description": "Agent feature/preset index: Lonecat Z-Image + Krea2 families",
+  "presets": {
+    "lonecat_t2i_turbo": {
+      "feature_ids": [
+        "model_diffusion"
+      ],
+      "file": "presets/lonecat_t2i_turbo.api.json",
+      "ports": "presets/lonecat_t2i_turbo.ports.json",
+      "status": "ready"
+    },
+    "lonecat_t2i_gguf": {
+      "feature_ids": [
+        "model_gguf"
+      ],
+      "file": "presets/lonecat_t2i_gguf.api.json",
+      "ports": "presets/lonecat_t2i_gguf.ports.json",
+      "status": "ready",
+      "notes": "AuraFlow bypassed for Q4 GGUF stability"
+    },
+    "lonecat_i2i_identity": {
+      "feature_ids": [
+        "load_image_i2i",
+        "model_diffusion"
+      ],
+      "file": "presets/lonecat_i2i_identity.api.json",
+      "ports": "presets/lonecat_i2i_identity.ports.json",
+      "family": "zimage",
+      "status": "ready"
+    },
+    "lonecat_i2i_detailer": {
+      "feature_ids": [
+        "model_diffusion",
+        "load_image_i2i",
+        "detailers"
+      ],
+      "status": "planned_phase1"
+    },
+    "lonecat_t2i_detailer_upscale": {
+      "feature_ids": [
+        "model_diffusion",
+        "detailers",
+        "hires_upscale"
+      ],
+      "status": "planned"
+    },
+    "lonecat_controlnet": {
+      "feature_ids": [
+        "controlnet",
+        "model_diffusion"
+      ],
+      "file": "presets/zimage_fun_union_controlnet.api.json",
+      "ports": "presets/zimage_fun_union_controlnet.ports.json",
+      "family": "zimage",
+      "status": "ready",
+      "alias_of": "zimage_fun_union_controlnet",
+      "source_workflow": "image_z_image_turbo_fun_union_controlnet"
+    },
+    "lonecat_inpaint": {
+      "feature_ids": [
+        "model_diffusion",
+        "inpaint"
+      ],
+      "status": "planned"
+    },
+    "krea2_t2i_v10": {
+      "feature_ids": [
+        "krea2_t2i",
+        "krea2_krea2t_enhancer"
+      ],
+      "file": "presets/krea2_t2i_v10.api.json",
+      "ports": "presets/krea2_t2i_v10.ports.json",
+      "family": "krea2",
+      "status": "ready",
+      "source_workflow": "krea2SFWNSFWUncensoredImageTo_v10",
+      "bypass_state_summary": {
+        "Image to prompt": "off",
+        "Prompt enhancer": "off (stripped in API for stability)",
+        "SeedVR2": "off",
+        "CivitAI metadata": "replaced with SaveImage"
+      }
+    },
+    "krea2_i2i_v10": {
+      "feature_ids": [
+        "krea2_i2i"
+      ],
+      "file": "presets/krea2_i2i_v10.api.json",
+      "ports": "presets/krea2_i2i_v10.ports.json",
+      "family": "krea2",
+      "status": "ready",
+      "note": "Classic denoise I2I; official WF image feature is Image-to-prompt (separate)"
+    },
+    "zimage_fun_union_controlnet": {
+      "feature_ids": [
+        "controlnet",
+        "model_diffusion"
+      ],
+      "file": "presets/zimage_fun_union_controlnet.api.json",
+      "ports": "presets/zimage_fun_union_controlnet.ports.json",
+      "family": "zimage",
+      "status": "ready",
+      "source_workflow": "image_z_image_turbo_fun_union_controlnet"
+    },
+    "qwen_multiangle_image": {
+      "feature_ids": [
+        "qwen_multiangle",
+        "qwen_angle"
+      ],
+      "file": "presets/qwen_multiangle_image.api.json",
+      "ports": "presets/qwen_multiangle_image.ports.json",
+      "family": "qwen_angle",
+      "status": "ready",
+      "source_workflow": "멀티앵글생성-qwen-image"
+    },
+    "qwen_angle_2511": {
+      "alias_of": "qwen_multiangle_image",
+      "file": "presets/qwen_multiangle_image.api.json",
+      "ports": "presets/qwen_multiangle_image.ports.json",
+      "family": "qwen_angle",
+      "status": "ready"
+    },
+    "qwen_edit_2509": {
+      "feature_ids": [
+        "qwen_edit",
+        "qwen_edit_2509"
+      ],
+      "file": "presets/qwen_edit_2509.api.json",
+      "ports": "presets/qwen_edit_2509.ports.json",
+      "family": "qwen_edit",
+      "status": "ready",
+      "source_workflow": "image_qwen_image_edit_2509"
+    }
+  },
+  "select_preset": {
+    "t2i_default": "lonecat_t2i_turbo",
+    "t2i_low_vram": "lonecat_t2i_gguf",
+    "i2i_default": "lonecat_i2i_identity",
+    "i2i_krea2": "krea2_i2i_v10",
+    "by_extension": {
+      ".safetensors": "lonecat_t2i_turbo",
+      ".gguf": "lonecat_t2i_gguf"
+    },
+    "t2i_krea2": "krea2_t2i_v10",
+    "by_family": {
+      "zimage": "lonecat_t2i_turbo",
+      "z-image": "lonecat_t2i_turbo",
+      "lonecat": "lonecat_t2i_turbo",
+      "krea2": "krea2_t2i_v10",
+      "krea": "krea2_t2i_v10"
+    },
+    "controlnet_default": "zimage_fun_union_controlnet",
+    "qwen_angle_default": "qwen_multiangle_image",
+    "qwen_edit_default": "qwen_edit_2509"
+  },
+  "families": {
+    "zimage": {
+      "default_t2i": "lonecat_t2i_turbo",
+      "default_t2i_low_vram": "lonecat_t2i_gguf",
+      "guide": "workflows/human/Lonecat_AIO_Z-Image_ver17_AGENT_GUIDE.md"
+    },
+    "krea2": {
+      "default_t2i": "krea2_t2i_v10",
+      "guide": "workflows/human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md",
+      "capabilities": "workflows/human/Krea2_SFW_NSFW_v10_CAPABILITIES.json",
+      "source_workflow": "krea2SFWNSFWUncensoredImageTo_v10"
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "preset": "qwen_multiangle_image",
+  "workflow_api": "presets/qwen_multiangle_image.api.json",
+  "description": "멀티앵글생성-qwen-image (subgraph flattened): Qwen-Image-Edit-2511 GGUF + Lightning + Multiple-Angles LoRA + QwenMultiangleCameraNode",
+  "source_ui": "F:/ComfyUI_windows_portable/ComfyUI/user/default/workflows/멀티앵글생성-qwen-image.json",
+  "family": "qwen_angle",
+  "ports": {
+    "input_image": {
+      "node": "41",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "horizontal_angle": {
+      "node": "111",
+      "key": "horizontal_angle",
+      "optional": true
+    },
+    "vertical_angle": {
+      "node": "111",
+      "key": "vertical_angle",
+      "optional": true
+    },
+    "zoom": {
+      "node": "111",
+      "key": "zoom",
+      "optional": true
+    },
+    "positive": {
+      "node": "103",
+      "key": "prompt",
+      "optional": true
+    },
+    "seed": {
+      "node": "105",
+      "key": "seed"
+    },
+    "steps": {
+      "node": "105",
+      "key": "steps",
+      "optional": true
+    },
+    "cfg": {
+      "node": "105",
+      "key": "cfg",
+      "optional": true
+    },
+    "denoise": {
+      "node": "105",
+      "key": "denoise",
+      "optional": true
+    },
+    "sampler_name": {
+      "node": "105",
+      "key": "sampler_name",
+      "optional": true
+    },
+    "scheduler": {
+      "node": "105",
+      "key": "scheduler",
+      "optional": true
+    },
+    "lightning_strength": {
+      "node": "107",
+      "key": "strength_model",
+      "optional": true
+    },
+    "angles_strength": {
+      "node": "110",
+      "key": "strength_model",
+      "optional": true
+    },
+    "gguf_name": {
+      "node": "113",
+      "key": "gguf_name",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "horizontal_angle": 0,
+    "vertical_angle": 0,
+    "zoom": 5.0,
+    "steps": 4,
+    "cfg": 1.0,
+    "denoise": 1.0,
+    "lightning_strength": 1.0,
+    "angles_strength": 1.0,
+    "filename_prefix": "Qwen_multiangle"
+  },
+  "notes": [
+    "Source: 멀티앵글생성-qwen-image.json",
+    "QwenMultiangleCameraNode emits <sks> … prompts for Angles LoRA",
+    "If port positive is set, it overrides linked multiangle prompt on node 103",
+    "Agent view keys map to horizontal_angle/vertical_angle/zoom"
+  ]
+}

@@ -1,0 +1,846 @@
+{
+  "workflow": "krea2SFWNSFWUncensoredImageTo_v10",
+  "version": 1,
+  "source_ui": "F:\\ComfyUI_workflows\\krea2SFWNSFWUncensoredImageTo_v10.json",
+  "node_count": 113,
+  "group_count": 15,
+  "features": [
+    {
+      "feature_id": "krea2_t2i",
+      "name": "Krea2 Text-to-Image (core)",
+      "category": "t2i",
+      "ui_groups_on": [
+        "Models",
+        "Main settings",
+        "Prompt",
+        "Main sampler",
+        "Resolution"
+      ],
+      "ui_groups_off": [
+        "Image to prompt",
+        "Prompt enhancer",
+        "SeedVR2 upscaler"
+      ],
+      "bypassers": [
+        {
+          "id": 43,
+          "matchTitle": "Image to prompt",
+          "set": "bypass/off for pure T2I"
+        },
+        {
+          "id": 47,
+          "matchTitle": "prompt enhancer",
+          "set": "bypass/off for smoke"
+        },
+        {
+          "id": 16,
+          "matchTitle": "SeedVR2 upscaler",
+          "set": "off unless 4K needed"
+        }
+      ],
+      "agent_preset": "krea2_t2i_v10",
+      "status": "ready",
+      "when_to_use": "Default Krea2 photoreal T2I; CLIP type must be krea2",
+      "ports": "presets/krea2_t2i_v10.ports.json"
+    },
+    {
+      "feature_id": "krea2_img2prompt",
+      "name": "Image to prompt (reference → caption)",
+      "category": "prompt",
+      "ui_groups_on": [
+        "Image to prompt"
+      ],
+      "bypassers": [
+        {
+          "id": 43,
+          "matchTitle": "Image to prompt",
+          "set": "ON"
+        }
+      ],
+      "ui_nodes": [
+        {
+          "id": 44,
+          "type": "LoadImage",
+          "title": "Reference image",
+          "mode_when_off": 4
+        }
+      ],
+      "agent_preset": null,
+      "status": "planned",
+      "when_to_use": "Derive prompt from a reference still before generation"
+    },
+    {
+      "feature_id": "krea2_prompt_enhancer",
+      "name": "Prompt enhancer",
+      "category": "prompt",
+      "ui_groups_on": [
+        "Prompt enhancer"
+      ],
+      "bypassers": [
+        {
+          "id": 47,
+          "matchTitle": "prompt enhancer",
+          "set": "ON"
+        }
+      ],
+      "agent_preset": null,
+      "status": "planned",
+      "when_to_use": "Expand short prompts; may need extra models / slower",
+      "default_for_batch": "OFF"
+    },
+    {
+      "feature_id": "krea2_resolution_simple",
+      "name": "Simple image size",
+      "category": "resolution",
+      "ui_groups_on": [
+        "Simple image size"
+      ],
+      "bypassers": [
+        {
+          "id": 18,
+          "matchTitle": "image size",
+          "restriction": "max one",
+          "set": "Simple image size"
+        }
+      ],
+      "status": "documented",
+      "when_to_use": "Quick fixed resolutions"
+    },
+    {
+      "feature_id": "krea2_resolution_advanced",
+      "name": "Advanced image size",
+      "category": "resolution",
+      "ui_groups_on": [
+        "Advanced image size"
+      ],
+      "bypassers": [
+        {
+          "id": 18,
+          "matchTitle": "image size",
+          "restriction": "max one",
+          "set": "Advanced image size"
+        }
+      ],
+      "status": "documented",
+      "when_to_use": "Custom / calculated sizes"
+    },
+    {
+      "feature_id": "krea2_2nd_pass",
+      "name": "2nd pass refine",
+      "category": "refine",
+      "ui_groups_on": [
+        "2nd pass"
+      ],
+      "bypassers": [
+        {
+          "id": 14,
+          "title": "2nd pass",
+          "matchTitle": "2nd pass",
+          "set": "ON"
+        },
+        {
+          "id": 95,
+          "matchTitle": "2nd pass",
+          "set": "ON"
+        }
+      ],
+      "status": "planned",
+      "when_to_use": "Second sampling pass for detail"
+    },
+    {
+      "feature_id": "krea2_seedvr2",
+      "name": "SeedVR2 upscaler",
+      "category": "upscale",
+      "ui_groups_on": [
+        "SeedVR2 upscaler"
+      ],
+      "bypassers": [
+        {
+          "id": 16,
+          "title": "Upscaler",
+          "matchTitle": "SeedVR2 upscaler",
+          "set": "ON"
+        },
+        {
+          "id": 88,
+          "matchTitle": "SeedVR2 upscaler",
+          "set": "ON"
+        }
+      ],
+      "status": "planned",
+      "when_to_use": "4K upscale; high VRAM",
+      "default_for_batch": "OFF"
+    },
+    {
+      "feature_id": "krea2_post_noise_color_sharpen",
+      "name": "Post: Noise / Color / Sharpen",
+      "category": "post",
+      "ui_groups_on": [
+        "Noise",
+        "Color correction",
+        "Sharpen"
+      ],
+      "bypassers": [
+        {
+          "id": 15,
+          "title": "Extra nodes",
+          "set": "controls extra post groups"
+        },
+        {
+          "id": 89,
+          "title": "Extra nodes",
+          "set": "duplicate Extra nodes control"
+        }
+      ],
+      "status": "documented",
+      "when_to_use": "Film grain, grade, sharpen polish"
+    },
+    {
+      "feature_id": "krea2_civitai_metadata",
+      "name": "CivitAI metadata save",
+      "category": "io",
+      "ui_groups_on": [
+        "CivitAI metadata"
+      ],
+      "status": "documented",
+      "when_to_use": "Embed hashes for CivitAI; WidgetToString may break pure API — agent T2I uses SaveImage instead",
+      "agent_note": "krea2_t2i_v10 strips this path for reliability"
+    },
+    {
+      "feature_id": "krea2_krea2t_enhancer",
+      "name": "ComfyUI-Krea2T-Enhancer (model patch)",
+      "category": "model",
+      "ui_nodes": [
+        {
+          "id": 4,
+          "type": "ComfyUI-Krea2T-Enhancer"
+        }
+      ],
+      "status": "ready_in_t2i_preset",
+      "when_to_use": "On by default in main model chain; strength widget on node 4"
+    }
+  ],
+  "agent_policy": {
+    "default_t2i": "krea2_t2i_v10",
+    "family": "krea2",
+    "source_workflow": "krea2SFWNSFWUncensoredImageTo_v10",
+    "selection_rules": [
+      "Use family=krea2 or -p krea2_t2i_v10 for Krea2; never put Krea2 UNET into Lonecat (CLIP type mismatch)",
+      "CLIPLoader type must be krea2",
+      "T2I batch: Image-to-prompt OFF, Prompt enhancer OFF, SeedVR2 OFF unless user asks",
+      "Resolution: Simple vs Advanced via image size bypasser (max one)",
+      "New feature combo = UI bypassers fixed → graphToPrompt → presets/*.api.json + ports + status ready",
+      "Port patch only; no convert_ui_to_api on full graph for production"
+    ],
+    "clip_type": "krea2",
+    "default_unet": "Krea2Turbo\\krea2_turbo_fp8_scaled.safetensors",
+    "default_clip": "Huihui-Qwen3-VL-4B-Instruct-abliterated-fp8_scaled.safetensors",
+    "default_vae": "qwen_image_vae.safetensors"
+  },
+  "bypassers": [
+    {
+      "id": 15,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Extra nodes",
+      "matchTitle": "",
+      "matchColors": "cyan",
+      "toggleRestriction": "default",
+      "matched_groups": [],
+      "mode": 0
+    },
+    {
+      "id": 16,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Upscaler",
+      "matchTitle": "SeedVR2 upscaler",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        "SeedVR2 upscaler"
+      ],
+      "mode": 0
+    },
+    {
+      "id": 18,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "",
+      "matchTitle": "image size",
+      "matchColors": "",
+      "toggleRestriction": "max one",
+      "matched_groups": [
+        "Simple image size",
+        "Advanced image size"
+      ],
+      "mode": 0
+    },
+    {
+      "id": 17,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Prompt groups",
+      "matchTitle": "^(?!prompt$).*prompt.*$",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        "Image to prompt",
+        "Prompt enhancer"
+      ],
+      "mode": 0
+    },
+    {
+      "id": 89,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Extra nodes",
+      "matchTitle": "",
+      "matchColors": "cyan",
+      "toggleRestriction": "default",
+      "matched_groups": [],
+      "mode": 0
+    },
+    {
+      "id": 47,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "",
+      "matchTitle": "prompt enhancer",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        "Prompt enhancer"
+      ],
+      "mode": 0
+    },
+    {
+      "id": 88,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "",
+      "matchTitle": "SeedVR2 upscaler",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        "SeedVR2 upscaler"
+      ],
+      "mode": 0
+    },
+    {
+      "id": 95,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "",
+      "matchTitle": "2nd pass",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        "2nd pass"
+      ],
+      "mode": 0
+    },
+    {
+      "id": 43,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "",
+      "matchTitle": "Image to prompt",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        "Image to prompt"
+      ],
+      "mode": 0
+    },
+    {
+      "id": 14,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "2nd pass",
+      "matchTitle": "2nd pass",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        "2nd pass"
+      ],
+      "mode": 0
+    }
+  ],
+  "switches": [
+    {
+      "id": 9,
+      "type": "Any Switch (rgthree)",
+      "title": "",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 8,
+      "type": "Any Switch (rgthree)",
+      "title": "",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 96,
+      "type": "Any Switch (rgthree)",
+      "title": "",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    }
+  ],
+  "notes_and_labels": [
+    {
+      "id": 10,
+      "type": "Label (rgthree)",
+      "title": "USE ONE OR THE OTHER",
+      "text": "",
+      "mode": 0
+    },
+    {
+      "id": 35,
+      "type": "easy string",
+      "title": "ACTIVATION SIGNAL",
+      "text": "Image to prompt activation signal",
+      "mode": 4
+    },
+    {
+      "id": 38,
+      "type": "easy string",
+      "title": "PROMPT ENHANCER ACTIVATION SIGNAL",
+      "text": "PROMPT ENHANCER ACTIVATION SIGNAL",
+      "mode": 4
+    },
+    {
+      "id": 57,
+      "type": "Label (rgthree)",
+      "title": "Change your seed here",
+      "text": "",
+      "mode": 0
+    },
+    {
+      "id": 72,
+      "type": "MarkdownNote",
+      "title": "Recommended settings",
+      "text": "### Krea2 turbo\n---\n**sampler_name:** linear/euler\n- eta: 0\n- scheduler: simple\n- steps: 8\n- cfg: 1\n\n**sampler_name:** exponential/res_2s\n- eta: 0.7\n- scheduler: bong_tangent\n- steps: 8\n- cfg: 1",
+      "mode": 0
+    },
+    {
+      "id": 137,
+      "type": "Label (rgthree)",
+      "title": "EVERYTHING HERE IS AUTOMATIC",
+      "text": "",
+      "mode": 0
+    },
+    {
+      "id": 157,
+      "type": "Note",
+      "title": "💡 Tip",
+      "text": "You can safely delete this \"CivitAI metadata\" group if you are not gonna use it. Just don't forget to enable the standard save image node.",
+      "mode": 0
+    },
+    {
+      "id": 160,
+      "type": "Note",
+      "title": "💡 Tip",
+      "text": "Change attention mode to the option compatible with your setup.\nIf you are in windows and you don't have sage attention installed, use SDPA.",
+      "mode": 0
+    },
+    {
+      "id": 166,
+      "type": "Note",
+      "title": "💡 Tip",
+      "text": "A seed value of -1 = Random seed\nAny other number (including 0) will be treated as a fixed seed.\n\"Use last queued seed\" will fix the seed from the last execution, same as easyGlobalSeed.",
+      "mode": 0
+    },
+    {
+      "id": 171,
+      "type": "Label (rgthree)",
+      "title": "PRESS 1 TO MOVE HERE",
+      "text": "",
+      "mode": 0
+    },
+    {
+      "id": 172,
+      "type": "Label (rgthree)",
+      "title": "PRESS 2 TO MOVE HERE",
+      "text": "",
+      "mode": 0
+    },
+    {
+      "id": 174,
+      "type": "Label (rgthree)",
+      "title": "PRESS 3 TO MOVE HERE",
+      "text": "",
+      "mode": 0
+    },
+    {
+      "id": 176,
+      "type": "Label (rgthree)",
+      "title": "PRESS 4 TO MOVE HERE",
+      "text": "",
+      "mode": 0
+    },
+    {
+      "id": 181,
+      "type": "Label (rgthree)",
+      "title": "PRESS 6 TO MOVE HERE",
+      "text": "",
+      "mode": 0
+    },
+    {
+      "id": 180,
+      "type": "Label (rgthree)",
+      "title": "PRESS 5 TO MOVE HERE",
+      "text": "",
+      "mode": 0
+    },
+    {
+      "id": 182,
+      "type": "Label (rgthree)",
+      "title": "PRESS 7 TO MOVE HERE",
+      "text": "",
+      "mode": 0
+    },
+    {
+      "id": 159,
+      "type": "Note",
+      "title": "",
+      "text": "You can delete this node if you want, it sends a notification via a system notification but it has to be setup",
+      "mode": 0
+    },
+    {
+      "id": 161,
+      "type": "MarkdownNote",
+      "title": "MODEL LINKS",
+      "text": "**diffusion_models**\n\n- [krea2_turbo_fp8_scaled.safetensors](https://huggingface.co/Comfy-Org/Krea-2/resolve/main/diffusion_models/krea2_turbo_fp8_scaled.safetensors?download=true)\n\n**text_encoders**\n- [qwen3vl-4b-abliterated_fp8_e4m3fn.safetensors](https://civitai.red/models/2731465/qwen3-vl-4b-abliterated-comfyui-krea-2-text-encoder-bf16-fp8) (download the FP8 variant)\n\n**vae**\n\n- [qwen_image_vae.safetensors](https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/vae/qwen_image_vae.safetensors)\n\n**Recommended LoRAs**\n\n- [Krea2 NSFW v3](https://civitai.red/models/2725430/krea-2-nsfw-v3?modelVersionId=3071760)\n\n## Model Storage Location\n\n```\n📂 ComfyUI/\n├── 📂 models/\n│   ├── 📂 diffusion_models/\n│   │   └── krea2_turbo_fp8_scaled.safetensors\n│   ├── 📂 text_encoders/\n│   │   └── qwen3vl-4b-abliterated_fp8_e4m3fn.safetensors\n│   ├── 📂 vae/\n│   │   └── qwen_image_vae.safetensors\n│   └── 📂 loras/\n│       └── LORAS GO HERE\n```\n",
+      "mode": 0
+    },
+    {
+      "id": 185,
+      "type": "Label (rgthree)",
+      "title": "Uncensored patch ",
+      "text": "",
+      "mode": 0
+    },
+    {
+      "id": 162,
+      "type": "MarkdownNote",
+      "title": "Instructions",
+      "text": "**Press `0` to center the workflow on these instructions any time you need.**\n\n⚠️ **WARNING:** Always make a backup of your ComfyUI installation before updating or installing new custom nodes so you can roll back if anything goes wrong.\n\n---\n\n## Prerequisites\n\n- ComfyUI-Krea2T-Enhancer Nightly version, to access the latest patch. The node used to have a cache bug that caused the workflow to re-run the entire pipeline even when the seed was exactly the same, it was fixed in the latest version.\n\n---\n\n## General Instructions\n\n> **Node color legend**\n> | Color | Meaning |\n> |-------|---------|\n> 🔴 Red | Instructional notes — read-only reference |\n> 🟡 Yellow | Configurable elements — adjust to your needs |\n> 🟣 Purple | Toggle switches — enable or disable option groups |\n\n**TIP:** Disable all groups at the start using the fast group bypasser switches (press `1` to center the workflow). Then enable groups one by one as needed. Try not to manually bypass anything; use the fast group bypasser switches instead. Otherwise, you could accidentally bypass something important. As a general rule of thumb, if it doesn't have a bypasser switch, it shouldn't be bypassed.\n\nYou can first quickly generate a set of several images at 720p queuing several generations with a random seed in one go, then pick and choose the one you like from the results, fix the seed and second pass it or upscale it.\n\n---\n\n## 1. Main Settings (press `1`)\n\n### Resolution\n\nTwo resolution modes are available. Use the **Fast Groups Bypasser (rgthree)** node to switch between them:\n\n- **Advanced image size** — use this if you are familiar with Resolution Master and want fine-grained control.\n- **Simple video size** — recommended for most users; provides straightforward resolution and image orientation selection.\n\n### LoRAs\n\nLoRAs are loaded via the **Power LoRA Loader** node. For each LoRA you wish to use:\n\n1. Select the LoRA file from the dropdown.\n2. Adjust the **strength** value to control its influence on the generation.\n\n> Multiple LoRAs can be stacked within the same Power LoRA Loader node.\n\nIf you are going to generate NSFW content, I strongly recommend using the [Krea2 NSFW v3](https://civitai.red/models/2725430/krea-2-nsfw-v3?modelVersionId=3071760) LoRA by [19doorsside884](https://civitai.red/user/19doorsside884).\n\nThis workflow already patches the model to remove its built-in censorship. However, some prompts may still require a little extra \"punch.\" This LoRA gives the model the additional push it needs to fully \"understand\" those types of prompts.\n\n**Recommended strength:** `1.5`\n\n---\n\n## 2. Prompt (press `2`)\n\nThree prompt input methods are available. Select one based on your use case:\n\n### Option A — Manual Prompt (default)\n\nEnter your prompt directly into the **`POSITIVE PROMPT`** node inside the **Prompt** group. This is the standard input method. Optionally, you can enable the **`Prompt enhancer`** to allow the text encoder model to improve your base positive prompt.\n\n### Option B — Image to Prompt (automatic)\n\nEnable the **Image to prompt** group (purple toggle) to automatically generate a prompt from a reference image:\n\n1. Load your reference image into the **`Reference image`** node within this group.\n2. You can guide the generation by briefly describing your image in the **`POSITIVE PROMPT`** node, adding anything you want to be different from the reference image, or including details that the prompt processor might otherwise miss. In other words, you can combine the positive prompt and the reference image for greater control. In Image to Prompt mode, the positive prompt is completely optional, but I strongly recommend adding a brief description of the reference image to help the model better understand it.\n3. Optionally, adjust the **seed** of the **`Prompt processor`** subgraph to explore different prompt variations.\n4. To preview a generated prompt before committing to a full run, **partially execute the workflow up to the `Final prompt` node**.\n5. On\n…(truncated)…",
+      "mode": 0
+    },
+    {
+      "id": 46,
+      "type": "PrimitiveStringMultiline",
+      "title": "POSITIVE PROMPT",
+      "text": "A young Caucasian woman, 20-25 years old, standing in a full-body medium shot centered in front of a sleek dark gray Audi sedan, wearing a black hoodie with the text “CUTIE AT WORK” and a colorful sugar skull graphic, paired with heavily ripped light blue denim jeans and black-and-white Vans sneakers, her short reddish-brown hair styled with bangs, wearing round dark sunglasses, adorned with multiple stacked bracelets on both wrists, hands resting flat on the car’s hood, posture upright and confident, gaze directly at the camera with a neutral expression, surrounded by blurred pedestrians on a palm-lined urban street at golden hour sunset, shallow depth of field with bokeh background, cinematic lighting with warm amber tones and high contrast shadows, photorealistic style, sharp focus on subject, natural lens compression, realistic textures and reflections, vibrant yet saturated color grading with dominant warm oranges and deep grays.",
+      "mode": 0
+    }
+  ],
+  "groups": [
+    {
+      "title": "Models",
+      "color": "#3f789e",
+      "member_count": 8,
+      "types": [
+        "Anything Everywhere",
+        "CLIPLoader",
+        "ComfyUI-Krea2T-Enhancer",
+        "Label (rgthree)",
+        "SetNode",
+        "UNETLoader",
+        "VAELoader"
+      ]
+    },
+    {
+      "title": "Main settings",
+      "color": "#3f789e",
+      "member_count": 12,
+      "types": [
+        "1464c9c8-1dba-47d4-877c-06d133855a16",
+        "Any Switch (rgthree)",
+        "EmptyLatentImage",
+        "Fast Groups Bypasser (rgthree)",
+        "GetNode",
+        "Label (rgthree)",
+        "Power Lora Loader (rgthree)",
+        "ResolutionMaster",
+        "SetNode"
+      ]
+    },
+    {
+      "title": "Resolution",
+      "color": "#3f789e",
+      "member_count": 2,
+      "types": [
+        "1464c9c8-1dba-47d4-877c-06d133855a16",
+        "ResolutionMaster"
+      ]
+    },
+    {
+      "title": "Simple image size",
+      "color": "#3f789e",
+      "member_count": 1,
+      "types": [
+        "1464c9c8-1dba-47d4-877c-06d133855a16"
+      ]
+    },
+    {
+      "title": "Advanced image size",
+      "color": "#3f789e",
+      "member_count": 1,
+      "types": [
+        "ResolutionMaster"
+      ]
+    },
+    {
+      "title": "Prompt",
+      "color": "#3f789e",
+      "member_count": 16,
+      "types": [
+        "Bookmark (rgthree)",
+        "Fast Groups Bypasser (rgthree)",
+        "GetNode",
+        "Label (rgthree)",
+        "LoadImage",
+        "Note",
+        "PreviewAny",
+        "PrimitiveStringMultiline",
+        "ResizeImageMaskNode",
+        "SetNode",
+        "easy string",
+        "fe965eb7-2c71-4e8d-a105-4fdfa63d0336"
+      ]
+    },
+    {
+      "title": "Image to prompt",
+      "color": "#3f789e",
+      "member_count": 4,
+      "types": [
+        "LoadImage",
+        "ResizeImageMaskNode",
+        "SetNode",
+        "easy string"
+      ]
+    },
+    {
+      "title": "Prompt enhancer",
+      "color": "#3f789e",
+      "member_count": 1,
+      "types": [
+        "easy string"
+      ]
+    },
+    {
+      "title": "Main sampler",
+      "color": "#3f789e",
+      "member_count": 16,
+      "types": [
+        "GetNode",
+        "Label (rgthree)",
+        "MarkdownNote",
+        "SeedNode",
+        "SetNode",
+        "cff27ed2-98c9-40c2-96d6-684cb6a56ffd"
+      ]
+    },
+    {
+      "title": "2nd pass",
+      "color": "#88A",
+      "member_count": 9,
+      "types": [
+        "8c980f6a-59bb-4a15-95bc-352a486d4c2b",
+        "Bookmark (rgthree)",
+        "GetNode",
+        "Image Comparer (rgthree)",
+        "SeedNode"
+      ]
+    },
+    {
+      "title": "Noise",
+      "color": "#8AA",
+      "member_count": 1,
+      "types": [
+        "LayerFilter: AddGrain"
+      ]
+    },
+    {
+      "title": "Color correction",
+      "color": "#8AA",
+      "member_count": 1,
+      "types": [
+        "LayerColor: Brightness & Contrast"
+      ]
+    },
+    {
+      "title": "Sharpen",
+      "color": "#8AA",
+      "member_count": 1,
+      "types": [
+        "Image Lucy Sharpen"
+      ]
+    },
+    {
+      "title": "SeedVR2 upscaler",
+      "color": "#3f789e",
+      "member_count": 1,
+      "types": [
+        "6cd3f891-ef96-4aa6-af71-a79e1de1de69"
+      ]
+    },
+    {
+      "title": "CivitAI metadata",
+      "color": "#3f789e",
+      "member_count": 16,
+      "types": [
+        "0bc7d22f-87f4-45ba-941d-28aeadb5e817",
+        "GetNode",
+        "Label (rgthree)",
+        "Note",
+        "Seed",
+        "WidgetToString",
+        "Workflow Input Value (Image Saver)",
+        "easy showAnything"
+      ]
+    }
+  ],
+  "key_nodes": [
+    {
+      "id": 11,
+      "type": "EmptyLatentImage",
+      "title": "",
+      "mode": 0,
+      "widgets": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 78,
+      "type": "SeedNode",
+      "title": "",
+      "mode": 0,
+      "widgets": [
+        1003949590422403,
+        "fixed"
+      ]
+    },
+    {
+      "id": 60,
+      "type": "SeedNode",
+      "title": "",
+      "mode": 0,
+      "widgets": [
+        1003949590422403,
+        "fixed"
+      ]
+    },
+    {
+      "id": 144,
+      "type": "Workflow Input Value (Image Saver)",
+      "title": "MODEL",
+      "mode": 0,
+      "widgets": [
+        "2",
+        "unet_name"
+      ]
+    },
+    {
+      "id": 128,
+      "type": "Seed",
+      "title": "",
+      "mode": 0,
+      "widgets": [
+        1003949590422403,
+        "fixed"
+      ]
+    },
+    {
+      "id": 158,
+      "type": "SaveImage",
+      "title": "",
+      "mode": 4,
+      "widgets": [
+        "Krea2"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "UNETLoader",
+      "title": "",
+      "mode": 0,
+      "widgets": [
+        "Krea2\\krea2_turbo_fp8_scaled.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "CLIPLoader",
+      "title": "",
+      "mode": 0,
+      "widgets": [
+        "Qwen3VL4B\\qwen3vl-4b-abliterated_fp8_e4m3fn.safetensors",
+        "krea2",
+        "default"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "VAELoader",
+      "title": "",
+      "mode": 0,
+      "widgets": [
+        "qwen_image_vae.safetensors"
+      ]
+    },
+    {
+      "id": 44,
+      "type": "LoadImage",
+      "title": "Reference image",
+      "mode": 4,
+      "widgets": [
+        "1.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 46,
+      "type": "PrimitiveStringMultiline",
+      "title": "POSITIVE PROMPT",
+      "mode": 0,
+      "widgets": "['A young Caucasian woman, 20-25 years old, standing in a full-body medium shot centered in front of a sleek dark gray Audi sedan, wearing a black hoodie with the text “CUTIE AT WORK” and a colorful s…"
+    },
+    {
+      "id": 63,
+      "type": "easy globalSeed",
+      "title": "",
+      "mode": 0,
+      "widgets": [
+        1003949590422403,
+        true,
+        "fixed",
+        1003949590422403
+      ]
+    },
+    {
+      "id": 4,
+      "type": "ComfyUI-Krea2T-Enhancer",
+      "title": "",
+      "mode": 0,
+      "widgets": [
+        true,
+        1.5,
+        false
+      ]
+    }
+  ],
+  "ready_presets": [
+    "krea2_t2i_v10"
+  ]
+}

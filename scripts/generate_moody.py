@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+"""
+T2I via validated Comfy **API workflow presets** (Lonecat AIO).
+
+Default: ``lonecat_t2i_turbo`` → port patch only → POST /prompt.
+No mini-graph assembly, no convert_ui_to_api, no runtime node inject.
+
+Legacy mini T2I-moody: ``--legacy-mini`` or ``AGENT_T2I_BACKEND=legacy_mini``.
+"""
+
+from __future__ import annotations
+
 import _bootstrap  # noqa: F401  # repo root + scripts on path
 import argparse
 import os
@@ -21,7 +33,34 @@ from lib.comfy_client import (
 )
 from lib.comfy_engine_session import FAMILY_MOODY, ensure_engine
 from lib.prompt_assembly import load_text
+from lib.workflow_api_runner import run_workflow_api, select_lonecat_preset
 from lib.workflow_paths import default_workflow, resolve_workflow
+
+DEFAULT_T2I_PRESET = "lonecat_t2i_turbo"
+
+
+def _resolve_backend(explicit: str | None = None) -> str:
+    raw = (
+        explicit
+        or os.environ.get("AGENT_T2I_BACKEND")
+        or "workflow_api"
+    ).strip().lower()
+    if raw in ("legacy", "legacy_mini", "mini", "t2i_moody"):
+        return "legacy_mini"
+    return "workflow_api"
+
+
+def _resolve_preset(
+    preset: str | None,
+    *,
+    family: str | None,
+    model_type: str,
+    unet_name: str | None,
+) -> str:
+    if preset:
+        return preset
+    unet = unet_name or MODEL_MAPPING.get((model_type or "real").lower())
+    return select_lonecat_preset(mode="t2i", unet_name=unet, family=family)
 
 
 def generate_image(
@@ -38,6 +77,11 @@ def generate_image(
     server_address=DEFAULT_SERVER,
     timeout_sec=600,
     workflow=None,
+    *,
+    preset: str | None = None,
+    family: str | None = None,
+    backend: str | None = None,
+    unet_name: str | None = None,
 ):
     eng = ensure_engine(FAMILY_MOODY, server_address, caller="generate_moody")
     if not eng.get("ok"):
@@ -47,11 +91,195 @@ def generate_image(
             engine_session=eng,
         )
 
-    workflow_path = resolve_workflow(workflow) if workflow else default_workflow("t2i_moody")
-    selected_model = MODEL_MAPPING.get(model_type.lower(), MODEL_MAPPING["real"])
+    be = _resolve_backend(backend)
+    if workflow and be != "legacy_mini" and not preset:
+        print(
+            "[WARN] --workflow is for legacy mini only; "
+            "default uses Lonecat API preset. Pass --legacy-mini to use mini graph."
+        )
+
+    if be == "legacy_mini":
+        return _generate_t2i_legacy_mini(
+            prompt_text=prompt_text,
+            model_type=model_type,
+            output_filename=output_filename,
+            seed=seed,
+            negative_text=negative_text,
+            steps=steps,
+            cfg=cfg,
+            width=width,
+            height=height,
+            meta_out=meta_out,
+            server_address=server_address,
+            timeout_sec=timeout_sec,
+            workflow=workflow,
+        )
+
+    return _generate_t2i_workflow_api(
+        prompt_text=prompt_text,
+        model_type=model_type,
+        output_filename=output_filename,
+        seed=seed,
+        negative_text=negative_text,
+        steps=steps,
+        cfg=cfg,
+        width=width,
+        height=height,
+        meta_out=meta_out,
+        server_address=server_address,
+        timeout_sec=timeout_sec,
+        preset=preset,
+        family=family,
+        unet_name=unet_name,
+    )
+
+
+def _generate_t2i_workflow_api(
+    *,
+    prompt_text: str,
+    model_type: str,
+    output_filename: str | None,
+    seed: int | None,
+    negative_text: str,
+    steps,
+    cfg,
+    width: int | None,
+    height: int | None,
+    meta_out: str | None,
+    server_address: str,
+    timeout_sec: float,
+    preset: str | None,
+    family: str | None,
+    unet_name: str | None,
+) -> dict:
+    selected_model = unet_name or MODEL_MAPPING.get(
+        (model_type or "real").lower(), MODEL_MAPPING["real"]
+    )
+    preset_name = _resolve_preset(
+        preset, family=family, model_type=model_type, unet_name=selected_model
+    )
 
     if output_filename is None:
-        output_filename = os.path.join(r"F:\generated_images", f"output_{model_type}.png")
+        output_filename = os.path.join(
+            r"F:\generated_images", f"output_{model_type}.png"
+        )
+
+    ports: dict = {
+        "positive": prompt_text,
+        "unet_name": selected_model,
+        "denoise": 1.0,
+    }
+    if negative_text:
+        ports["negative"] = negative_text
+    if width is not None:
+        ports["width"] = int(width)
+    if height is not None:
+        ports["height"] = int(height)
+
+    print(
+        f"T2I via workflow_api preset={preset_name} "
+        f"model={selected_model} size={width}x{height}"
+    )
+    if steps is not None or cfg is not None:
+        print(
+            f"[note] steps={steps} cfg={cfg} stored in meta only "
+            f"(Lonecat T2I preset uses baked sampler; no steps/cfg ports)"
+        )
+
+    r = run_workflow_api(
+        preset_name,
+        ports=ports,
+        output_path=output_filename,
+        meta_out=None,
+        server_address=server_address,
+        timeout_sec=timeout_sec,
+        seed=seed,
+    )
+    if not r.get("ok"):
+        return r
+
+    applied_seed = r.get("seed")
+    prompt_id = r.get("prompt_id")
+    out_abs = r.get("output_path") or os.path.abspath(output_filename)
+    base_meta = r.get("meta") or {}
+
+    meta = {
+        "character_id": None,
+        "sheet": None,
+        "view": None,
+        "variant": None,
+        "seed": applied_seed,
+        "candidate": None,
+        "model": model_type,
+        "unet": selected_model,
+        "workflow": preset_name,
+        "workflow_api": base_meta.get("workflow_api"),
+        "mode": "t2i",
+        "engine": "workflow_api",
+        "backend": "workflow_api",
+        "prompt": prompt_text,
+        "negative": negative_text or "",
+        "negative_injected": bool(negative_text),
+        "denoise": 1.0,
+        "cfg": cfg,
+        "steps": steps,
+        "width": width,
+        "height": height,
+        "source_image": None,
+        "created_at": utc_now_iso(),
+        "comfy_prompt_id": prompt_id,
+        "output_path": out_abs,
+        "ports_applied": base_meta.get("ports_applied"),
+    }
+    meta_path = resolve_meta_out(out_abs, meta_out)
+    if meta_path:
+        write_meta(meta_path, meta)
+        print(f"Meta saved to: {meta_path}")
+
+    print(f"Image successfully saved to: {out_abs}")
+    return ok_result(
+        output_path=out_abs,
+        seed=applied_seed,
+        prompt_id=prompt_id,
+        meta_path=meta_path,
+        meta=meta,
+        workflow_api=base_meta.get("workflow_api"),
+        preset=preset_name,
+    )
+
+
+def _generate_t2i_legacy_mini(
+    *,
+    prompt_text: str,
+    model_type: str,
+    output_filename: str | None,
+    seed: int | None,
+    negative_text: str,
+    steps,
+    cfg,
+    width: int | None,
+    height: int | None,
+    meta_out: str | None,
+    server_address: str,
+    timeout_sec: float,
+    workflow,
+) -> dict:
+    """Emergency-only: old T2I-moody mini + convert_ui_to_api."""
+    print(
+        "[WARN] legacy_mini T2I-moody path — not production SSOT. "
+        "Prefer lonecat_t2i_turbo."
+    )
+    workflow_path = (
+        resolve_workflow(workflow) if workflow else default_workflow("t2i_moody")
+    )
+    selected_model = MODEL_MAPPING.get(
+        (model_type or "real").lower(), MODEL_MAPPING["real"]
+    )
+
+    if output_filename is None:
+        output_filename = os.path.join(
+            r"F:\generated_images", f"output_{model_type}.png"
+        )
 
     parent = os.path.dirname(os.path.abspath(output_filename))
     if parent:
@@ -85,7 +313,6 @@ def generate_image(
         print("[WARN] Prompt node not found in T2I workflow")
 
     if negative_text:
-        # T2I-moody may not expose a dedicated negative node; store in meta always.
         print(
             "[WARN] Negative text provided but T2I-moody has no dedicated negative input; "
             "saved to meta only"
@@ -144,23 +371,33 @@ def generate_image(
 
     print(f"Generating image with {model_type.upper()} model (polling)...")
     try:
-        history_entry = wait_for_history(server_address, prompt_id, timeout_sec=timeout_sec)
+        history_entry = wait_for_history(
+            server_address, prompt_id, timeout_sec=timeout_sec
+        )
     except TimeoutError as e:
         print(f"[ERROR] code=41 message={e}")
-        return fail_result(error="COMFY_TIMEOUT", message=str(e), seed=new_seed, prompt_id=prompt_id)
+        return fail_result(
+            error="COMFY_TIMEOUT", message=str(e), seed=new_seed, prompt_id=prompt_id
+        )
     except Exception as e:
         print(f"Error waiting for history: {e}")
-        return fail_result(error="HISTORY_FAILED", message=str(e), seed=new_seed, prompt_id=prompt_id)
+        return fail_result(
+            error="HISTORY_FAILED", message=str(e), seed=new_seed, prompt_id=prompt_id
+        )
 
     try:
         image_filename, image_subfolder, image_type = extract_first_image(history_entry)
     except FileNotFoundError as e:
         print(f"[ERROR] code=42 message={e}")
-        return fail_result(error="COMFY_NO_OUTPUT", message=str(e), seed=new_seed, prompt_id=prompt_id)
+        return fail_result(
+            error="COMFY_NO_OUTPUT", message=str(e), seed=new_seed, prompt_id=prompt_id
+        )
 
     print(f"Downloading image: {image_filename}")
     try:
-        download_image(server_address, image_filename, image_subfolder, image_type, output_filename)
+        download_image(
+            server_address, image_filename, image_subfolder, image_type, output_filename
+        )
         print(f"Image successfully saved to: {output_filename}")
     except Exception as e:
         print(f"Error downloading output image: {e}")
@@ -182,6 +419,8 @@ def generate_image(
         "model": model_type,
         "workflow": "T2I-moody",
         "mode": "t2i",
+        "engine": "legacy_mini",
+        "backend": "legacy_mini",
         "prompt": prompt_text,
         "negative": negative_text or "",
         "negative_injected": negative_injected,
@@ -211,7 +450,12 @@ def generate_image(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate image using customized Moody models on ComfyUI")
+    parser = argparse.ArgumentParser(
+        description=(
+            "T2I via Lonecat AIO API preset (default lonecat_t2i_turbo). "
+            "No mini-graph."
+        )
+    )
     parser.add_argument(
         "--prompt",
         "-p",
@@ -222,36 +466,62 @@ if __name__ == "__main__":
         ),
         help="Text prompt for image generation",
     )
-    parser.add_argument("--prompt-file", type=str, default=None, help="Path to prompt text file (overrides --prompt)")
-    parser.add_argument("--negative", type=str, default="", help="Negative prompt (meta; inject if node exists)")
-    parser.add_argument("--negative-file", type=str, default=None, help="Path to negative prompt file")
+    parser.add_argument(
+        "--prompt-file", type=str, default=None, help="Path to prompt text file"
+    )
+    parser.add_argument("--negative", type=str, default="", help="Negative prompt")
+    parser.add_argument("--negative-file", type=str, default=None)
     parser.add_argument(
         "--model",
         "-m",
         type=str,
         choices=["real", "pro", "wild"],
         default="real",
-        help="Choose moody model type",
+        help="Moody model alias → unet_name",
     )
-    parser.add_argument("--output", "-o", type=str, default=None, help="Output image path")
-    parser.add_argument("--seed", type=int, default=None, help="Fixed seed (default: random)")
-    parser.add_argument("--meta-out", type=str, default=None, help="Meta JSON path (default: output stem + .json)")
-    parser.add_argument("--steps", type=int, default=None, help="Override KSampler steps")
-    parser.add_argument("--cfg", type=float, default=None, help="Override KSampler CFG")
-    parser.add_argument("--width", type=int, default=None, help="Override latent width")
-    parser.add_argument("--height", type=int, default=None, help="Override latent height")
-    parser.add_argument("--timeout", type=int, default=600, help="Comfy wait timeout seconds")
+    parser.add_argument("--output", "-o", type=str, default=None)
+    parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--meta-out", type=str, default=None)
+    parser.add_argument(
+        "--steps", type=int, default=None, help="Meta only on Lonecat preset"
+    )
+    parser.add_argument(
+        "--cfg", type=float, default=None, help="Meta only on Lonecat preset"
+    )
+    parser.add_argument("--width", type=int, default=None)
+    parser.add_argument("--height", type=int, default=None)
+    parser.add_argument("--timeout", type=int, default=600)
+    parser.add_argument(
+        "--preset",
+        type=str,
+        default=None,
+        help=f"API preset (default: {DEFAULT_T2I_PRESET})",
+    )
+    parser.add_argument(
+        "--family",
+        type=str,
+        default=None,
+        help="zimage|lonecat|krea2 — family default if --preset omitted",
+    )
+    parser.add_argument("--unet-name", type=str, default=None)
+    parser.add_argument(
+        "--legacy-mini",
+        action="store_true",
+        help="Use old T2I-moody mini graph (emergency only)",
+    )
     parser.add_argument(
         "--workflow",
         type=str,
         default=None,
-        help="Workflow path or catalog alias (default: workflows/agent T2I-moody)",
+        help="Legacy mini workflow (requires --legacy-mini)",
     )
 
     args = parser.parse_args()
 
     prompt_text = load_text(args.prompt_file) if args.prompt_file else args.prompt
-    negative_text = load_text(args.negative_file) if args.negative_file else (args.negative or "")
+    negative_text = (
+        load_text(args.negative_file) if args.negative_file else (args.negative or "")
+    )
 
     result = generate_image(
         prompt_text=prompt_text,
@@ -266,5 +536,9 @@ if __name__ == "__main__":
         meta_out=args.meta_out,
         timeout_sec=args.timeout,
         workflow=args.workflow,
+        preset=args.preset,
+        family=args.family,
+        backend="legacy_mini" if args.legacy_mini else "workflow_api",
+        unet_name=args.unet_name,
     )
     sys.exit(0 if result.get("ok") else 1)

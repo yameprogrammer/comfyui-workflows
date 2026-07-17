@@ -1,0 +1,100 @@
+{
+  "preset": "zimage_fun_union_controlnet",
+  "workflow_api": "presets/zimage_fun_union_controlnet.api.json",
+  "description": "Official Z-Image Turbo Fun Union ControlNet (image_z_image_turbo_fun_union_controlnet), subgraph flattened. Empty latent sized from control image; QwenImageDiffsynthControlnet + Union 2.1 patch.",
+  "source_ui": "F:/ComfyUI_windows_portable/ComfyUI/user/default/workflows/image_z_image_turbo_fun_union_controlnet.json",
+  "family": "zimage",
+  "ports": {
+    "positive": {
+      "node": "45",
+      "key": "text"
+    },
+    "seed": {
+      "node": "44",
+      "key": "seed"
+    },
+    "denoise": {
+      "node": "44",
+      "key": "denoise",
+      "optional": true
+    },
+    "steps": {
+      "node": "44",
+      "key": "steps",
+      "optional": true
+    },
+    "cfg": {
+      "node": "44",
+      "key": "cfg",
+      "optional": true
+    },
+    "sampler_name": {
+      "node": "44",
+      "key": "sampler_name",
+      "optional": true
+    },
+    "scheduler": {
+      "node": "44",
+      "key": "scheduler",
+      "optional": true
+    },
+    "control_image": {
+      "node": "58",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "control_strength": {
+      "node": "60",
+      "key": "strength",
+      "optional": true
+    },
+    "unet_name": {
+      "node": "46",
+      "key": "unet_name",
+      "optional": true
+    },
+    "clip_name": {
+      "node": "39",
+      "key": "clip_name",
+      "optional": true
+    },
+    "vae_name": {
+      "node": "40",
+      "key": "vae_name",
+      "optional": true
+    },
+    "patch_name": {
+      "node": "64",
+      "key": "name",
+      "optional": true
+    },
+    "largest_size": {
+      "node": "62",
+      "key": "largest_size",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "denoise": 1.0,
+    "steps": 8,
+    "cfg": 1.0,
+    "control_strength": 1.0,
+    "largest_size": 1024,
+    "filename_prefix": "zimage_fun_union_cn",
+    "vae_name": "ae.safetensors",
+    "clip_name": "qwen_3_4b.safetensors",
+    "patch_name": "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors"
+  },
+  "notes": [
+    "Source template: image_z_image_turbo_fun_union_controlnet.json",
+    "In-graph Canny removed — agent applies canny/raw preprocess then LoadImage",
+    "Latent size = GetImageSize(scaled control); no VAEEncode I2I base",
+    "Identity comes from prompt (+ core_prefix), not from a face VAEEncode path",
+    "Legacy I2I-ControlNet-moody remains via --legacy-mini only"
+  ]
+}

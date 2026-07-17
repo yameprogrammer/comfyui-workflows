@@ -1,0 +1,2200 @@
+{
+  "workflow": "Lonecat's AIO Z-Image ver 17",
+  "version": 1,
+  "features": [
+    {
+      "feature_id": "model_diffusion",
+      "name": "Diffusion UNET (safetensors ZIT/Moody)",
+      "category": "model",
+      "bypasser_id": 1329,
+      "bypasser_title": "Model selector",
+      "matchTitle": "Model",
+      "restriction": "always one",
+      "select": "Enable group whose title contains Diffusion Model; disable GGUF Model & Checkpoint Model",
+      "groups_on": [
+        "Diffusion Model"
+      ],
+      "groups_off": [
+        "GGUF Model",
+        "Checkpoint Model"
+      ],
+      "api_loader": {
+        "node_role": "unet",
+        "class_type": "UNETLoader",
+        "ui_id": 1323
+      },
+      "model_switch_slot": "any_01",
+      "clip_switch_slot": "any_01",
+      "agent_preset": "lonecat_t2i_turbo",
+      "when_to_use": "Default high-quality Z-Image Turbo / Moody mixes (.safetensors)"
+    },
+    {
+      "feature_id": "model_gguf",
+      "name": "GGUF UNET (low VRAM)",
+      "category": "model",
+      "bypasser_id": 1329,
+      "bypasser_title": "Model selector",
+      "matchTitle": "Model",
+      "restriction": "always one",
+      "select": "Enable GGUF Model group only",
+      "groups_on": [
+        "GGUF Model"
+      ],
+      "groups_off": [
+        "Diffusion Model",
+        "Checkpoint Model"
+      ],
+      "api_loader": {
+        "node_role": "unet",
+        "class_type": "UnetLoaderGGUF",
+        "ui_id": 1678
+      },
+      "paired_clip": {
+        "class_type": "ClipLoaderGGUF",
+        "ui_id": 1670,
+        "note": "UI pairs ClipLoaderGGUF; some GGUF unets also work with CLIPLoader qwen_3_4b lumina2"
+      },
+      "model_switch_slot": "any_02",
+      "clip_switch_slot": "any_02",
+      "agent_preset": "lonecat_t2i_gguf",
+      "when_to_use": "VRAM tight; Q4 GGUF e.g. ZImageTurbo\\\\z-image-turbo-Q4_K_M.gguf",
+      "caveats": [
+        "ModelSamplingAuraFlow may break some GGUF weights (unpack error) — GGUF preset skips AuraFlow",
+        "UI default GGUF filename may differ from files on disk"
+      ]
+    },
+    {
+      "feature_id": "model_checkpoint",
+      "name": "Checkpoint (merged AIO ckpt)",
+      "category": "model",
+      "bypasser_id": 1329,
+      "bypasser_title": "Model selector",
+      "matchTitle": "Model",
+      "restriction": "always one",
+      "select": "Enable Checkpoint Model group only",
+      "groups_on": [
+        "Checkpoint Model"
+      ],
+      "groups_off": [
+        "Diffusion Model",
+        "GGUF Model"
+      ],
+      "api_loader": {
+        "node_role": "checkpoint",
+        "class_type": "Checkpoint Loader with Name (Image Saver)",
+        "ui_id": 1561
+      },
+      "model_switch_slot": "any_03",
+      "clip_switch_slot": "any_03",
+      "agent_preset": null,
+      "when_to_use": "Merged checkpoint workflows; ensure ckpt path exists",
+      "status": "preset_pending"
+    },
+    {
+      "feature_id": "prompt_qwen_enhancer",
+      "name": "Qwen VL prompt enhancer",
+      "category": "prompt",
+      "bypasser_id": 1867,
+      "matchTitle": "Prompt",
+      "select": "Turn ON groups matching Prompt (Qwen Prompt Enhancer, Img Prompt)",
+      "groups_on": [
+        "#   Qwen Prompt Enhancer",
+        "#     📝 Img Prompt"
+      ],
+      "agent_preset": null,
+      "when_to_use": "Expand short prompts; needs llama_cpp + GGUF VL weights",
+      "default_for_smoke": "OFF",
+      "status": "optional_heavy"
+    },
+    {
+      "feature_id": "load_image_i2i",
+      "name": "Load image + I2I",
+      "category": "i2i",
+      "bypasser_id": 2028,
+      "matchTitle": "!",
+      "select": "Enable groups with ! (Load Image, I2I, Remove Background, …)",
+      "groups_on": [
+        "#      🖼️Load Image!",
+        "#     I2I 🖼️!",
+        "#      Remove Background!"
+      ],
+      "related_switch": {
+        "id": 1800,
+        "title": "Latent Switch",
+        "t2i": "EmptyLatent (any_02)",
+        "i2i": "VAEEncode of loaded image (any_01)"
+      },
+      "agent_preset": null,
+      "when_to_use": "Image-to-image keyframes / identity",
+      "status": "phase1_target"
+    },
+    {
+      "feature_id": "controlnet",
+      "name": "ControlNet",
+      "category": "control",
+      "bypasser_id": 2034,
+      "matchTitle": "🥅",
+      "groups_on": [
+        "#   🥅Controlnet"
+      ],
+      "when_to_use": "Pose/structure lock from reference image",
+      "status": "phase2_target"
+    },
+    {
+      "feature_id": "inpaint",
+      "name": "Inpaint (Klein)",
+      "category": "edit",
+      "bypasser_id": 1866,
+      "matchTitle": "Klein Inpaint",
+      "groups_on": [
+        "# Klein Inpaint 🖌️",
+        "Inpaint"
+      ],
+      "related": {
+        "bypasser_id": 2031,
+        "title": "Picture or Mask?",
+        "matchTitle": "'"
+      },
+      "when_to_use": "Local edit with mask",
+      "status": "phase2_target"
+    },
+    {
+      "feature_id": "detailers",
+      "name": "Face/Eyes/Hands detailers",
+      "category": "refine",
+      "bypasser_id": 2094,
+      "matchTitle": "::",
+      "groups_on": [
+        "🔎 Detailers",
+        "# ::Face 🙂",
+        "# ::Eyes 👀",
+        "# ::Hands ✋",
+        "# ::Spare 🛞"
+      ],
+      "when_to_use": "After base gen, refine anatomy",
+      "status": "phase1_optional"
+    },
+    {
+      "feature_id": "hires_upscale",
+      "name": "Hi-res / Ultimate SD upscale",
+      "category": "upscale",
+      "bypasser_id": 2046,
+      "matchTitle": "Hi Rez Fix/ Upscale",
+      "groups_on": [
+        "#  Hi Rez Fix/ Upscale",
+        "Hi Rez fix & Upscale"
+      ],
+      "when_to_use": "2x quality upscale after still",
+      "status": "phase2_target"
+    },
+    {
+      "feature_id": "seed_vr2",
+      "name": "SeedVR2 upscale",
+      "category": "upscale",
+      "bypasser_id": 1863,
+      "matchTitle": "#  Seed",
+      "groups_on": [
+        "#   Seed Variance",
+        "#  Seed VR2 Upscale",
+        "Seed VR2 (ver 6.0 math node update)"
+      ],
+      "when_to_use": "Heavy 4K upscale; high VRAM/time",
+      "status": "phase2_target"
+    },
+    {
+      "feature_id": "post_optical_crop",
+      "name": "Post: Optical Realism + Crop",
+      "category": "post",
+      "bypasser_id": 1872,
+      "matchTitle": "📷",
+      "groups_on": [
+        "Optical Realism 📷",
+        "✂️Crop 📷"
+      ],
+      "related_switches": [
+        "Optical Real switch",
+        "crop bypass Switch",
+        "Color match bypass switch"
+      ],
+      "when_to_use": "Grade / crop polish",
+      "status": "optional"
+    },
+    {
+      "feature_id": "save_meta",
+      "name": "Save with metadata / folders",
+      "category": "io",
+      "bypasser_id": 1708,
+      "bypasser_title": "Meta 📂📅+",
+      "groups_on": [
+        "💾 Save Group",
+        "#Save w/Metadata🗒️",
+        "#Create Subfolder📂",
+        "#Save Draft 📐"
+      ],
+      "when_to_use": "Organized delivery outputs",
+      "status": "optional"
+    },
+    {
+      "feature_id": "llm_instruct",
+      "name": "LLM system instruct presets",
+      "category": "prompt",
+      "bypasser_id": 2100,
+      "bypasser_title": "LLM Prompt Instructions",
+      "groups_on": [
+        "Instruct (Beta)"
+      ],
+      "when_to_use": "With Qwen enhancer — Realistic/Photographic/NSFW system prompts",
+      "default_for_smoke": "OFF",
+      "status": "optional_heavy"
+    },
+    {
+      "feature_id": "hash_options_master",
+      "name": "Master toggle for # option groups",
+      "category": "meta",
+      "bypasser_id": 1318,
+      "bypasser_title": "Bypasser",
+      "matchTitle": "#",
+      "when_to_use": "Bulk enable/disable many optional # groups — use carefully",
+      "status": "advanced"
+    }
+  ],
+  "agent_policy": {
+    "default_still_t2i": "lonecat_t2i_turbo",
+    "default_still_t2i_low_vram": "lonecat_t2i_gguf",
+    "default_still_i2i": "lonecat_i2i_identity",
+    "selection_rules": [
+      "Prefer catalog agent_preset over raw UI when available",
+      "Never convert_ui_to_api full AIO; use exported .api.json presets",
+      "Model family: safetensors ZIT/Moody → model_diffusion; .gguf unet → model_gguf",
+      "Krea2-named mixes need krea2 CLIP — not ZIT presets",
+      "Smoke/batch: Qwen enhancer OFF, SeedVR2 OFF unless requested",
+      "I2I: load_image_i2i ON + Latent Switch encode + denoise 0.4-0.65",
+      "T2I: load_image_i2i OFF + EmptyLatent + denoise 1.0",
+      "One Model selector path only (always one)"
+    ],
+    "port_patch_only": true,
+    "workflow_ui": "F:\\ComfyUI_windows_portable\\ComfyUI\\user\\default\\workflows\\Lonecat's AIO Z-Image ver 17.json",
+    "docs": {
+      "usage": "workflows/human/Lonecat_AIO_Z-Image_ver17_USAGE.md",
+      "agent_guide": "workflows/human/Lonecat_AIO_Z-Image_ver17_AGENT_GUIDE.md",
+      "capabilities_json": "workflows/human/Lonecat_AIO_Z-Image_ver17_CAPABILITIES.json",
+      "feature_presets": "workflows/agent/presets/lonecat_feature_presets.json"
+    }
+  },
+  "bypassers": [
+    {
+      "id": 1352,
+      "type": "Fast Bypasser (rgthree)",
+      "title": "",
+      "matchTitle": "",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": []
+    },
+    {
+      "id": 1329,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Model selector",
+      "matchTitle": "Model",
+      "matchColors": "",
+      "toggleRestriction": "always one",
+      "matched_groups": [
+        {
+          "title": "Diffusion Model",
+          "color": "#b58b2a",
+          "member_count": 3,
+          "key_types": [
+            "CLIPLoader",
+            "UNETLoader",
+            "WidgetToString"
+          ]
+        },
+        {
+          "title": "GGUF Model",
+          "color": "#b58b2a",
+          "member_count": 3,
+          "key_types": [
+            "ClipLoaderGGUF",
+            "UnetLoaderGGUF",
+            "WidgetToString"
+          ]
+        },
+        {
+          "title": "Checkpoint Model",
+          "color": "#b58b2a",
+          "member_count": 1,
+          "key_types": [
+            "Checkpoint Loader with Name (Image Saver)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1708,
+      "type": "Fast Bypasser (rgthree)",
+      "title": "Meta 📂📅+",
+      "matchTitle": "",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": []
+    },
+    {
+      "id": 1744,
+      "type": "Fast Bypasser (rgthree)",
+      "title": "",
+      "matchTitle": "",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": []
+    },
+    {
+      "id": 1863,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchTitle": "#  Seed",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        {
+          "title": "#  Seed VR2 Upscale",
+          "color": "#8AA",
+          "member_count": 3,
+          "key_types": [
+            "SeedVR2LoadDiTModel",
+            "SeedVR2LoadVAEModel",
+            "SeedVR2VideoUpscaler"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1874,
+      "type": "Fast Bypasser (rgthree)",
+      "title": "Post processing selector",
+      "matchTitle": "",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": []
+    },
+    {
+      "id": 2029,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchTitle": "📝 Img Prompt",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        {
+          "title": "#     📝 Img Prompt",
+          "color": "#8A8",
+          "member_count": 10,
+          "key_types": [
+            "CR Text Replace",
+            "Fast Groups Bypasser (rgthree)",
+            "Florence2Run",
+            "GetNode",
+            "MarkdownNote",
+            "RemoveDuplicateTags|LP",
+            "ShowText|pysssss"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1318,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Bypasser",
+      "matchTitle": "#",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        {
+          "title": "#  Hi Rez Fix/ Upscale",
+          "color": "#3f789e",
+          "member_count": 3,
+          "key_types": [
+            "Image Comparer (rgthree)",
+            "MarkdownNote",
+            "UltimateSDUpscale"
+          ]
+        },
+        {
+          "title": "#   Seed Variance",
+          "color": "#b58b2a",
+          "member_count": 1,
+          "key_types": [
+            "SeedVarianceEnhancer"
+          ]
+        },
+        {
+          "title": "#   Qwen Prompt Enhancer",
+          "color": "#8A8",
+          "member_count": 1,
+          "key_types": [
+            "AILab_QwenVL_GGUF_PromptEnhancer"
+          ]
+        },
+        {
+          "title": "#Save Mask🎭",
+          "color": "#8AA",
+          "member_count": 5,
+          "key_types": [
+            "DF_Text",
+            "GetNode",
+            "JoinStrings",
+            "SaveImage"
+          ]
+        },
+        {
+          "title": "#Save Draft 📐",
+          "color": "#8AA",
+          "member_count": 6,
+          "key_types": [
+            "DF_Text",
+            "GetNode",
+            "JoinStringMulti",
+            "SaveImage"
+          ]
+        },
+        {
+          "title": "#Save w/Metadata🗒️",
+          "color": "#8AA",
+          "member_count": 10,
+          "key_types": [
+            "Any Switch (rgthree)",
+            "DF_Text",
+            "GetNode",
+            "Image Saver Simple",
+            "JoinStringMulti",
+            "PrimitiveBoolean"
+          ]
+        },
+        {
+          "title": "#Create Subfolder📂",
+          "color": "#8AA",
+          "member_count": 6,
+          "key_types": [
+            "DF_Text",
+            "Fast Bypasser (rgthree)",
+            "GetNode",
+            "JWDatetimeString",
+            "JoinStrings"
+          ]
+        },
+        {
+          "title": "# Klein Inpaint 🖌️",
+          "color": "#88A",
+          "member_count": 25,
+          "key_types": [
+            "CFGGuider",
+            "CLIPTextEncode",
+            "ClownSampler_Beta",
+            "ConditioningZeroOut",
+            "EmptyFlux2LatentImage",
+            "Fast Bypasser (rgthree)",
+            "Flux2Scheduler",
+            "FluxGuidance",
+            "Image Comparer (rgthree)",
+            "ImageScale",
+            "JoinStrings",
+            "MarkdownNote",
+            "MathExpression|pysssss",
+            "PreviewImage",
+            "ReferenceLatent",
+            "ResizeImageNode",
+            "SamplerCustomAdvanced",
+            "VAEDecodeTiled",
+            "VAEEncodeTiled",
+            "easy cleanGpuUsed"
+          ]
+        },
+        {
+          "title": "#  Seed VR2 Upscale",
+          "color": "#8AA",
+          "member_count": 3,
+          "key_types": [
+            "SeedVR2LoadDiTModel",
+            "SeedVR2LoadVAEModel",
+            "SeedVR2VideoUpscaler"
+          ]
+        },
+        {
+          "title": "#      Remove Background!",
+          "color": "#3f789e",
+          "member_count": 1,
+          "key_types": [
+            "RMBG"
+          ]
+        },
+        {
+          "title": "#     I2I 🖼️!",
+          "color": "#8AA",
+          "member_count": 2,
+          "key_types": [
+            "SetNode",
+            "VAEEncode"
+          ]
+        },
+        {
+          "title": "#     📝 Img Prompt",
+          "color": "#8A8",
+          "member_count": 10,
+          "key_types": [
+            "CR Text Replace",
+            "Fast Groups Bypasser (rgthree)",
+            "Florence2Run",
+            "GetNode",
+            "MarkdownNote",
+            "RemoveDuplicateTags|LP",
+            "ShowText|pysssss"
+          ]
+        },
+        {
+          "title": "#      🖼️Load Image!",
+          "color": "#8AA",
+          "member_count": 20,
+          "key_types": [
+            "BooleanSwitchNode",
+            "Fast Groups Bypasser (rgthree)",
+            "Get resolution [Crystools]",
+            "GetNode",
+            "ImageResizeKJv2",
+            "JWImageResizeByShorterSide",
+            "Largest Int (JPS)",
+            "LoadImage",
+            "MarkdownNote",
+            "PreviewImage",
+            "PrimitiveBoolean",
+            "RMBG",
+            "SetNode",
+            "VAEEncode"
+          ]
+        },
+        {
+          "title": "#   🥅Controlnet",
+          "color": "#b36195",
+          "member_count": 7,
+          "key_types": [
+            "AIO_Preprocessor",
+            "Any Switch (rgthree)",
+            "ImageResizeKJv2",
+            "Largest Int (JPS)",
+            "MarkdownNote",
+            "PreviewImage",
+            "QwenImageDiffsynthControlnet"
+          ]
+        },
+        {
+          "title": "# ::Face 🙂",
+          "color": "#3f789e",
+          "member_count": 7,
+          "key_types": [
+            "CLIPTextEncode",
+            "ConditioningCombine",
+            "Image Comparer (rgthree)",
+            "MaskPreview",
+            "SAM_SmartInpainter",
+            "mxSlider"
+          ]
+        },
+        {
+          "title": "# ::Eyes 👀",
+          "color": "#3f789e",
+          "member_count": 7,
+          "key_types": [
+            "CLIPTextEncode",
+            "ConditioningCombine",
+            "Image Comparer (rgthree)",
+            "MaskPreview",
+            "SAM_SmartInpainter",
+            "mxSlider"
+          ]
+        },
+        {
+          "title": "# ::Hands ✋",
+          "color": "#3f789e",
+          "member_count": 7,
+          "key_types": [
+            "CLIPTextEncode",
+            "ConditioningCombine",
+            "Image Comparer (rgthree)",
+            "MaskPreview",
+            "SAM_SmartInpainter",
+            "mxSlider"
+          ]
+        },
+        {
+          "title": "# ::Spare 🛞",
+          "color": "#3f789e",
+          "member_count": 7,
+          "key_types": [
+            "CLIPTextEncode",
+            "ConditioningCombine",
+            "Image Comparer (rgthree)",
+            "MaskPreview",
+            "SAM_SmartInpainter",
+            "mxSlider"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1867,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchTitle": "Prompt",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        {
+          "title": "#   Qwen Prompt Enhancer",
+          "color": "#8A8",
+          "member_count": 1,
+          "key_types": [
+            "AILab_QwenVL_GGUF_PromptEnhancer"
+          ]
+        },
+        {
+          "title": "#     📝 Img Prompt",
+          "color": "#8A8",
+          "member_count": 10,
+          "key_types": [
+            "CR Text Replace",
+            "Fast Groups Bypasser (rgthree)",
+            "Florence2Run",
+            "GetNode",
+            "MarkdownNote",
+            "RemoveDuplicateTags|LP",
+            "ShowText|pysssss"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2046,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchTitle": "Hi Rez Fix/ Upscale",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        {
+          "title": "#  Hi Rez Fix/ Upscale",
+          "color": "#3f789e",
+          "member_count": 3,
+          "key_types": [
+            "Image Comparer (rgthree)",
+            "MarkdownNote",
+            "UltimateSDUpscale"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2031,
+      "type": "Fast Groups Muter (rgthree)",
+      "title": "Picture or Mask?",
+      "matchTitle": "'",
+      "matchColors": "",
+      "toggleRestriction": "max one",
+      "matched_groups": [
+        {
+          "title": "Create Mask'",
+          "color": "#3f789e",
+          "member_count": 4,
+          "key_types": [
+            "AIO_Preprocessor",
+            "ImageResizeKJv2",
+            "Largest Int (JPS)",
+            "PreviewImage"
+          ]
+        },
+        {
+          "title": "Load Mask'",
+          "color": "#3f789e",
+          "member_count": 2,
+          "key_types": [
+            "ImageResizeKJv2",
+            "LoadImage"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2034,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchTitle": "🥅",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        {
+          "title": "#   🥅Controlnet",
+          "color": "#b36195",
+          "member_count": 7,
+          "key_types": [
+            "AIO_Preprocessor",
+            "Any Switch (rgthree)",
+            "ImageResizeKJv2",
+            "Largest Int (JPS)",
+            "MarkdownNote",
+            "PreviewImage",
+            "QwenImageDiffsynthControlnet"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1866,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchTitle": "Klein Inpaint 🖌️",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        {
+          "title": "# Klein Inpaint 🖌️",
+          "color": "#88A",
+          "member_count": 25,
+          "key_types": [
+            "CFGGuider",
+            "CLIPTextEncode",
+            "ClownSampler_Beta",
+            "ConditioningZeroOut",
+            "EmptyFlux2LatentImage",
+            "Fast Bypasser (rgthree)",
+            "Flux2Scheduler",
+            "FluxGuidance",
+            "Image Comparer (rgthree)",
+            "ImageScale",
+            "JoinStrings",
+            "MarkdownNote",
+            "MathExpression|pysssss",
+            "PreviewImage",
+            "ReferenceLatent",
+            "ResizeImageNode",
+            "SamplerCustomAdvanced",
+            "VAEDecodeTiled",
+            "VAEEncodeTiled",
+            "easy cleanGpuUsed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2094,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "pssst....over here 🤫",
+      "matchTitle": "::",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        {
+          "title": "# ::Face 🙂",
+          "color": "#3f789e",
+          "member_count": 7,
+          "key_types": [
+            "CLIPTextEncode",
+            "ConditioningCombine",
+            "Image Comparer (rgthree)",
+            "MaskPreview",
+            "SAM_SmartInpainter",
+            "mxSlider"
+          ]
+        },
+        {
+          "title": "# ::Eyes 👀",
+          "color": "#3f789e",
+          "member_count": 7,
+          "key_types": [
+            "CLIPTextEncode",
+            "ConditioningCombine",
+            "Image Comparer (rgthree)",
+            "MaskPreview",
+            "SAM_SmartInpainter",
+            "mxSlider"
+          ]
+        },
+        {
+          "title": "# ::Hands ✋",
+          "color": "#3f789e",
+          "member_count": 7,
+          "key_types": [
+            "CLIPTextEncode",
+            "ConditioningCombine",
+            "Image Comparer (rgthree)",
+            "MaskPreview",
+            "SAM_SmartInpainter",
+            "mxSlider"
+          ]
+        },
+        {
+          "title": "# ::Spare 🛞",
+          "color": "#3f789e",
+          "member_count": 7,
+          "key_types": [
+            "CLIPTextEncode",
+            "ConditioningCombine",
+            "Image Comparer (rgthree)",
+            "MaskPreview",
+            "SAM_SmartInpainter",
+            "mxSlider"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1872,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Group switches",
+      "matchTitle": "📷",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        {
+          "title": "✂️Crop 📷",
+          "color": "#A88",
+          "member_count": 11,
+          "key_types": [
+            "AILab_ImageCrop",
+            "Get resolution [Crystools]",
+            "JWImageResizeByLongerSide",
+            "Largest Int (JPS)",
+            "MarkdownNote",
+            "PreviewImage",
+            "Reroute",
+            "easy mathInt",
+            "mxSlider"
+          ]
+        },
+        {
+          "title": "Optical Realism 📷",
+          "color": "#b06634",
+          "member_count": 10,
+          "key_types": [
+            "DepthAnythingPreprocessor",
+            "Get resolution [Crystools]",
+            "Image Comparer (rgthree)",
+            "ImageInvert",
+            "Largest Int (JPS)",
+            "MarkdownNote",
+            "OpticalRealism",
+            "PreviewImage",
+            "RemoveAlphaChannel",
+            "ResizeImageNode"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2028,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchTitle": "!",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": [
+        {
+          "title": "#      Remove Background!",
+          "color": "#3f789e",
+          "member_count": 1,
+          "key_types": [
+            "RMBG"
+          ]
+        },
+        {
+          "title": "#     I2I 🖼️!",
+          "color": "#8AA",
+          "member_count": 2,
+          "key_types": [
+            "SetNode",
+            "VAEEncode"
+          ]
+        },
+        {
+          "title": "#      🖼️Load Image!",
+          "color": "#8AA",
+          "member_count": 20,
+          "key_types": [
+            "BooleanSwitchNode",
+            "Fast Groups Bypasser (rgthree)",
+            "Get resolution [Crystools]",
+            "GetNode",
+            "ImageResizeKJv2",
+            "JWImageResizeByShorterSide",
+            "Largest Int (JPS)",
+            "LoadImage",
+            "MarkdownNote",
+            "PreviewImage",
+            "PrimitiveBoolean",
+            "RMBG",
+            "SetNode",
+            "VAEEncode"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2100,
+      "type": "Fast Bypasser (rgthree)",
+      "title": "LLM Prompt Instructions",
+      "matchTitle": "",
+      "matchColors": "",
+      "toggleRestriction": "max one",
+      "matched_groups": []
+    },
+    {
+      "id": 1068,
+      "type": "Fast Muter (rgthree)",
+      "title": "Options",
+      "matchTitle": "",
+      "matchColors": "",
+      "toggleRestriction": "default",
+      "matched_groups": []
+    }
+  ],
+  "switches": [
+    {
+      "id": 1353,
+      "type": "Any Switch (rgthree)",
+      "title": "Ref step switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1354,
+      "type": "Any Switch (rgthree)",
+      "title": "CFG Switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1355,
+      "type": "Any Switch (rgthree)",
+      "title": "Sampler Switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1356,
+      "type": "Any Switch (rgthree)",
+      "title": "Scheduler Switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1351,
+      "type": "Any Switch (rgthree)",
+      "title": "Step switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1391,
+      "type": "Any Switch (rgthree)",
+      "title": "VAE Switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1331,
+      "type": "Any Switch (rgthree)",
+      "title": "Clip switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02",
+        "any_03"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1700,
+      "type": "Any Switch (rgthree)",
+      "title": "",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1778,
+      "type": "Any Switch (rgthree)",
+      "title": "IMG pass \\switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1330,
+      "type": "Any Switch (rgthree)",
+      "title": "Model switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02",
+        "any_03"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1562,
+      "type": "Any Switch (rgthree)",
+      "title": "Modelname Switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02",
+        "any_03"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1800,
+      "type": "Any Switch (rgthree)",
+      "title": "Latent Switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1923,
+      "type": "Any Switch (rgthree)",
+      "title": "color match switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1925,
+      "type": "Any Switch (rgthree)",
+      "title": "Color match bypass switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 2008,
+      "type": "Any Switch (rgthree)",
+      "title": "",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 4
+    },
+    {
+      "id": 2010,
+      "type": "BooleanSwitchNode",
+      "title": "boolean width",
+      "linked_inputs": [
+        "on_true",
+        "on_false",
+        "state"
+      ],
+      "widgets": [
+        false
+      ],
+      "mode": 0
+    },
+    {
+      "id": 2011,
+      "type": "BooleanSwitchNode",
+      "title": "boolean height",
+      "linked_inputs": [
+        "on_true",
+        "on_false",
+        "state"
+      ],
+      "widgets": [
+        false
+      ],
+      "mode": 0
+    },
+    {
+      "id": 1807,
+      "type": "Any Switch (rgthree)",
+      "title": "Width Sw",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1806,
+      "type": "Any Switch (rgthree)",
+      "title": "Height sw",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 2072,
+      "type": "Any Switch (rgthree)",
+      "title": "switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 2098,
+      "type": "Any Switch (rgthree)",
+      "title": "Any Switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02",
+        "any_03"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 2120,
+      "type": "Any Switch (rgthree)",
+      "title": "Regex Switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1069,
+      "type": "Any Switch (rgthree)",
+      "title": "🛑 switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 2042,
+      "type": "easy showAnything",
+      "title": "sampler switch",
+      "linked_inputs": [
+        "anything"
+      ],
+      "widgets": [
+        "radau_iia_5s"
+      ],
+      "mode": 0
+    },
+    {
+      "id": 1890,
+      "type": "Any Switch (rgthree)",
+      "title": "crop bypass Switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1893,
+      "type": "Any Switch (rgthree)",
+      "title": "Optical Real switch",
+      "linked_inputs": [
+        "any_01",
+        "any_02"
+      ],
+      "widgets": [],
+      "mode": 0
+    },
+    {
+      "id": 1872,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Group switches",
+      "linked_inputs": [],
+      "widgets": null,
+      "mode": 0
+    }
+  ],
+  "groups_summary": [
+    {
+      "title": "Final vs. Rough Draft",
+      "color": "#3f789e",
+      "member_count": 3,
+      "types": [
+        "GetNode",
+        "Image Comparer (rgthree)"
+      ]
+    },
+    {
+      "title": "#  Hi Rez Fix/ Upscale",
+      "color": "#3f789e",
+      "member_count": 3,
+      "types": [
+        "Image Comparer (rgthree)",
+        "MarkdownNote",
+        "UltimateSDUpscale"
+      ]
+    },
+    {
+      "title": "#   Seed Variance",
+      "color": "#b58b2a",
+      "member_count": 1,
+      "types": [
+        "SeedVarianceEnhancer"
+      ]
+    },
+    {
+      "title": "Diffusion Model",
+      "color": "#b58b2a",
+      "member_count": 3,
+      "types": [
+        "CLIPLoader",
+        "UNETLoader",
+        "WidgetToString"
+      ]
+    },
+    {
+      "title": "GGUF Model",
+      "color": "#b58b2a",
+      "member_count": 3,
+      "types": [
+        "ClipLoaderGGUF",
+        "UnetLoaderGGUF",
+        "WidgetToString"
+      ]
+    },
+    {
+      "title": "Checkpoint Model",
+      "color": "#b58b2a",
+      "member_count": 1,
+      "types": [
+        "Checkpoint Loader with Name (Image Saver)"
+      ]
+    },
+    {
+      "title": "Sampler Select",
+      "color": "#1d723e",
+      "member_count": 4,
+      "types": [
+        "Fast Bypasser (rgthree)",
+        "KSampler Config (rgthree)",
+        "MarkdownNote"
+      ]
+    },
+    {
+      "title": "Getset Nodes",
+      "color": "#b58b2a",
+      "member_count": 49,
+      "types": [
+        "Any Switch (rgthree)",
+        "Anything Everywhere",
+        "CLIPTextEncode",
+        "CR Text Replace",
+        "GetNode",
+        "Image Saver Metadata",
+        "JoinStrings",
+        "SetNode",
+        "ShowText|pysssss",
+        "easy showAnything",
+        "vsLinx_AppendLorasFromNodeToString"
+      ]
+    },
+    {
+      "title": "#   Qwen Prompt Enhancer",
+      "color": "#8A8",
+      "member_count": 1,
+      "types": [
+        "AILab_QwenVL_GGUF_PromptEnhancer"
+      ]
+    },
+    {
+      "title": "Loaders 💩",
+      "color": "#b58b2a",
+      "member_count": 11,
+      "types": [
+        "CLIPLoader",
+        "Checkpoint Loader with Name (Image Saver)",
+        "ClipLoaderGGUF",
+        "DownloadAndLoadFlorence2Model",
+        "Fast Groups Bypasser (rgthree)",
+        "ModelPatchLoader",
+        "UNETLoader",
+        "UnetLoaderGGUF",
+        "VAELoader",
+        "WidgetToString"
+      ]
+    },
+    {
+      "title": "💾 Save Group",
+      "color": "#67e811",
+      "member_count": 29,
+      "types": [
+        "Any Switch (rgthree)",
+        "DF_Text",
+        "Fast Bypasser (rgthree)",
+        "GetNode",
+        "Image Saver Simple",
+        "JWDatetimeString",
+        "JoinStringMulti",
+        "JoinStrings",
+        "Label (rgthree)",
+        "MarkdownNote",
+        "PrimitiveBoolean",
+        "SaveImage"
+      ]
+    },
+    {
+      "title": "#Save Mask🎭",
+      "color": "#8AA",
+      "member_count": 5,
+      "types": [
+        "DF_Text",
+        "GetNode",
+        "JoinStrings",
+        "SaveImage"
+      ]
+    },
+    {
+      "title": "#Save Draft 📐",
+      "color": "#8AA",
+      "member_count": 6,
+      "types": [
+        "DF_Text",
+        "GetNode",
+        "JoinStringMulti",
+        "SaveImage"
+      ]
+    },
+    {
+      "title": "#Save w/Metadata🗒️",
+      "color": "#8AA",
+      "member_count": 10,
+      "types": [
+        "Any Switch (rgthree)",
+        "DF_Text",
+        "GetNode",
+        "Image Saver Simple",
+        "JoinStringMulti",
+        "PrimitiveBoolean"
+      ]
+    },
+    {
+      "title": "#Create Subfolder📂",
+      "color": "#8AA",
+      "member_count": 6,
+      "types": [
+        "DF_Text",
+        "Fast Bypasser (rgthree)",
+        "GetNode",
+        "JWDatetimeString",
+        "JoinStrings"
+      ]
+    },
+    {
+      "title": "Inpaint",
+      "color": "#3f789e",
+      "member_count": 40,
+      "types": [
+        "Any Switch (rgthree)",
+        "CFGGuider",
+        "CLIPLoader",
+        "CLIPTextEncode",
+        "ClownSamplerSelector_Beta",
+        "ClownSampler_Beta",
+        "ConditioningZeroOut",
+        "EmptyFlux2LatentImage",
+        "Fast Bypasser (rgthree)",
+        "Fast Groups Bypasser (rgthree)",
+        "Flux2Scheduler",
+        "FluxGuidance",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "Image Comparer (rgthree)",
+        "ImageScale",
+        "JoinStrings",
+        "MarkdownNote",
+        "MathExpression|pysssss",
+        "Power Lora Loader (rgthree)",
+        "PreviewImage",
+        "RandomNoise",
+        "ReferenceLatent",
+        "ResizeImageNode",
+        "SamplerCustomAdvanced"
+      ]
+    },
+    {
+      "title": "# Klein Inpaint 🖌️",
+      "color": "#88A",
+      "member_count": 25,
+      "types": [
+        "CFGGuider",
+        "CLIPTextEncode",
+        "ClownSampler_Beta",
+        "ConditioningZeroOut",
+        "EmptyFlux2LatentImage",
+        "Fast Bypasser (rgthree)",
+        "Flux2Scheduler",
+        "FluxGuidance",
+        "Image Comparer (rgthree)",
+        "ImageScale",
+        "JoinStrings",
+        "MarkdownNote",
+        "MathExpression|pysssss",
+        "PreviewImage",
+        "ReferenceLatent",
+        "ResizeImageNode",
+        "SamplerCustomAdvanced",
+        "VAEDecodeTiled",
+        "VAEEncodeTiled",
+        "easy cleanGpuUsed",
+        "easy clearCacheAll",
+        "easy positive",
+        "mxStop"
+      ]
+    },
+    {
+      "title": "Settings",
+      "color": "#b58b2a",
+      "member_count": 8,
+      "types": [
+        "CLIPLoader",
+        "ClownSamplerSelector_Beta",
+        "Power Lora Loader (rgthree)",
+        "UnetLoaderGGUF",
+        "VAELoader",
+        "mxSlider"
+      ]
+    },
+    {
+      "title": "Seed VR2 (ver 6.0 math node update)",
+      "color": "#A88",
+      "member_count": 11,
+      "types": [
+        "ComfyMathExpression",
+        "Fast Groups Bypasser (rgthree)",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "Largest Int (JPS)",
+        "MarkdownNote",
+        "SeedVR2LoadDiTModel",
+        "SeedVR2LoadVAEModel",
+        "SeedVR2VideoUpscaler",
+        "SetNode"
+      ]
+    },
+    {
+      "title": "Getset nodes",
+      "color": "#b58b2a",
+      "member_count": 6,
+      "types": [
+        "ComfyMathExpression",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "Largest Int (JPS)",
+        "SetNode"
+      ]
+    },
+    {
+      "title": "#  Seed VR2 Upscale",
+      "color": "#8AA",
+      "member_count": 3,
+      "types": [
+        "SeedVR2LoadDiTModel",
+        "SeedVR2LoadVAEModel",
+        "SeedVR2VideoUpscaler"
+      ]
+    },
+    {
+      "title": "🎨 Post Processing Suite (updated 260404)",
+      "color": "#b58b2a",
+      "member_count": 58,
+      "types": [
+        "AILab_ImageCrop",
+        "Any Switch (rgthree)",
+        "ArcaneBloomFX",
+        "ChromaticAberration",
+        "ClarityFX",
+        "ColorMatch",
+        "DepthAnythingPreprocessor",
+        "FL_ImageAdjuster",
+        "Fast Bypasser (rgthree)",
+        "Fast Groups Bypasser (rgthree)",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "Image Comparer (rgthree)",
+        "ImageCASharpening+",
+        "ImageDesaturate+",
+        "ImageInvert",
+        "JWImageResizeByLongerSide",
+        "Label (rgthree)",
+        "Largest Int (JPS)",
+        "LayerColor: RGB",
+        "LensFX",
+        "LoadImage",
+        "MarkdownNote",
+        "Node Collector (rgthree)",
+        "OpticalRealism"
+      ]
+    },
+    {
+      "title": "✂️Crop 📷",
+      "color": "#A88",
+      "member_count": 11,
+      "types": [
+        "AILab_ImageCrop",
+        "Get resolution [Crystools]",
+        "JWImageResizeByLongerSide",
+        "Largest Int (JPS)",
+        "MarkdownNote",
+        "PreviewImage",
+        "Reroute",
+        "easy mathInt",
+        "mxSlider"
+      ]
+    },
+    {
+      "title": "Optical Realism 📷",
+      "color": "#b06634",
+      "member_count": 10,
+      "types": [
+        "DepthAnythingPreprocessor",
+        "Get resolution [Crystools]",
+        "Image Comparer (rgthree)",
+        "ImageInvert",
+        "Largest Int (JPS)",
+        "MarkdownNote",
+        "OpticalRealism",
+        "PreviewImage",
+        "RemoveAlphaChannel",
+        "ResizeImageNode"
+      ]
+    },
+    {
+      "title": "Getset nodes",
+      "color": "#b58b2a",
+      "member_count": 2,
+      "types": [
+        "GetNode",
+        "SetNode"
+      ]
+    },
+    {
+      "title": "Create Mask'",
+      "color": "#3f789e",
+      "member_count": 4,
+      "types": [
+        "AIO_Preprocessor",
+        "ImageResizeKJv2",
+        "Largest Int (JPS)",
+        "PreviewImage"
+      ]
+    },
+    {
+      "title": "Load Mask'",
+      "color": "#3f789e",
+      "member_count": 2,
+      "types": [
+        "ImageResizeKJv2",
+        "LoadImage"
+      ]
+    },
+    {
+      "title": "Getset Nodes",
+      "color": "#b58b2a",
+      "member_count": 8,
+      "types": [
+        "GetNode",
+        "SetNode"
+      ]
+    },
+    {
+      "title": "#      Remove Background!",
+      "color": "#3f789e",
+      "member_count": 1,
+      "types": [
+        "RMBG"
+      ]
+    },
+    {
+      "title": "#     I2I 🖼️!",
+      "color": "#8AA",
+      "member_count": 2,
+      "types": [
+        "SetNode",
+        "VAEEncode"
+      ]
+    },
+    {
+      "title": "#     📝 Img Prompt",
+      "color": "#8A8",
+      "member_count": 10,
+      "types": [
+        "CR Text Replace",
+        "Fast Groups Bypasser (rgthree)",
+        "Florence2Run",
+        "GetNode",
+        "MarkdownNote",
+        "RemoveDuplicateTags|LP",
+        "ShowText|pysssss"
+      ]
+    },
+    {
+      "title": "#      🖼️Load Image!",
+      "color": "#8AA",
+      "member_count": 20,
+      "types": [
+        "BooleanSwitchNode",
+        "Fast Groups Bypasser (rgthree)",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "ImageResizeKJv2",
+        "JWImageResizeByShorterSide",
+        "Largest Int (JPS)",
+        "LoadImage",
+        "MarkdownNote",
+        "PreviewImage",
+        "PrimitiveBoolean",
+        "RMBG",
+        "SetNode",
+        "VAEEncode"
+      ]
+    },
+    {
+      "title": "#   🥅Controlnet",
+      "color": "#b36195",
+      "member_count": 7,
+      "types": [
+        "AIO_Preprocessor",
+        "Any Switch (rgthree)",
+        "ImageResizeKJv2",
+        "Largest Int (JPS)",
+        "MarkdownNote",
+        "PreviewImage",
+        "QwenImageDiffsynthControlnet"
+      ]
+    },
+    {
+      "title": "⚙️ User Settings",
+      "color": "#fafafa",
+      "member_count": 68,
+      "types": [
+        "AILab_QwenVL_GGUF_PromptEnhancer",
+        "Any Switch (rgthree)",
+        "Anything Everywhere",
+        "CLIPSetLastLayer",
+        "CLIPTextEncode",
+        "CR Aspect Ratio Social Media",
+        "CR Text Replace",
+        "DF_Text",
+        "EmptyLatentImage",
+        "Fast Groups Bypasser (rgthree)",
+        "GetNode",
+        "Image Saver Metadata",
+        "JoinStrings",
+        "ModelSamplingAuraFlow",
+        "PathchSageAttentionKJ",
+        "Power Lora Loader (rgthree)",
+        "Seed (rgthree)",
+        "SeedVarianceEnhancer",
+        "SetNode",
+        "ShowText|pysssss",
+        "easy negative",
+        "easy positive",
+        "easy showAnything",
+        "mxSlider",
+        "vsLinx_AppendLorasFromNodeToString"
+      ]
+    },
+    {
+      "title": "Hi Rez fix & Upscale",
+      "color": "#3f789e",
+      "member_count": 20,
+      "types": [
+        "ComfyMathExpression",
+        "Fast Groups Bypasser (rgthree)",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "Image Comparer (rgthree)",
+        "MarkdownNote",
+        "SetNode",
+        "UltimateSDUpscale",
+        "UpscaleModelLoader",
+        "easy cleanGpuUsed",
+        "easy clearCacheAll",
+        "mxSlider"
+      ]
+    },
+    {
+      "title": "Group",
+      "color": "#b06634",
+      "member_count": 8,
+      "types": [
+        "MarkdownNote",
+        "Note"
+      ]
+    },
+    {
+      "title": "🔎 Detailers",
+      "color": "#64fa64",
+      "member_count": 48,
+      "types": [
+        "Any Switch (rgthree)",
+        "CLIPTextEncode",
+        "ConditioningCombine",
+        "Fast Groups Bypasser (rgthree)",
+        "GetNode",
+        "Image Comparer (rgthree)",
+        "MarkdownNote",
+        "MaskPreview",
+        "ModelSamplingAuraFlow",
+        "Power Lora Loader (rgthree)",
+        "SAM_SmartInpainter",
+        "SetNode",
+        "easy cleanGpuUsed",
+        "easy clearCacheAll",
+        "easy showAnything",
+        "mxSlider"
+      ]
+    },
+    {
+      "title": "# ::Face 🙂",
+      "color": "#3f789e",
+      "member_count": 7,
+      "types": [
+        "CLIPTextEncode",
+        "ConditioningCombine",
+        "Image Comparer (rgthree)",
+        "MaskPreview",
+        "SAM_SmartInpainter",
+        "mxSlider"
+      ]
+    },
+    {
+      "title": "# ::Eyes 👀",
+      "color": "#3f789e",
+      "member_count": 7,
+      "types": [
+        "CLIPTextEncode",
+        "ConditioningCombine",
+        "Image Comparer (rgthree)",
+        "MaskPreview",
+        "SAM_SmartInpainter",
+        "mxSlider"
+      ]
+    },
+    {
+      "title": "# ::Hands ✋",
+      "color": "#3f789e",
+      "member_count": 7,
+      "types": [
+        "CLIPTextEncode",
+        "ConditioningCombine",
+        "Image Comparer (rgthree)",
+        "MaskPreview",
+        "SAM_SmartInpainter",
+        "mxSlider"
+      ]
+    },
+    {
+      "title": "# ::Spare 🛞",
+      "color": "#3f789e",
+      "member_count": 7,
+      "types": [
+        "CLIPTextEncode",
+        "ConditioningCombine",
+        "Image Comparer (rgthree)",
+        "MaskPreview",
+        "SAM_SmartInpainter",
+        "mxSlider"
+      ]
+    },
+    {
+      "title": "Instruct (Beta)",
+      "color": "#b06634",
+      "member_count": 8,
+      "types": [
+        "Any Switch (rgthree)",
+        "Fast Bypasser (rgthree)",
+        "MarkdownNote",
+        "Node Collector (rgthree)",
+        "SetNode",
+        "Text Multiline"
+      ]
+    },
+    {
+      "title": "🧠 Brains",
+      "color": "#a1309b",
+      "member_count": 46,
+      "types": [
+        "Any Switch (rgthree)",
+        "ClownSamplerSelector_Beta",
+        "ClownsharKSampler_Beta",
+        "ClownsharkChainsampler_Beta",
+        "Fast Muter (rgthree)",
+        "GetNode",
+        "Label (rgthree)",
+        "MarkdownNote",
+        "Node Collector (rgthree)",
+        "PlaySound|pysssss",
+        "PreviewImage",
+        "SetNode",
+        "String Replace (mtb)",
+        "VAEDecode",
+        "easy cleanGpuUsed",
+        "easy clearCacheAll",
+        "easy mathInt",
+        "easy showAnything",
+        "mxSlider",
+        "mxStop"
+      ]
+    },
+    {
+      "title": "🥱 to 🤡 regexes",
+      "color": "#3f789e",
+      "member_count": 14,
+      "types": [
+        "GetNode",
+        "MarkdownNote",
+        "String Replace (mtb)",
+        "easy showAnything"
+      ]
+    },
+    {
+      "title": "Image suite",
+      "color": "#3f789e",
+      "member_count": 50,
+      "types": [
+        "AIO_Preprocessor",
+        "Any Switch (rgthree)",
+        "BooleanSwitchNode",
+        "CR Text Replace",
+        "Fast Groups Bypasser (rgthree)",
+        "Fast Groups Muter (rgthree)",
+        "Florence2Run",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "ImageResizeKJv2",
+        "JWImageResizeByShorterSide",
+        "Label (rgthree)",
+        "Largest Int (JPS)",
+        "LoadImage",
+        "MarkdownNote",
+        "PreviewImage",
+        "PrimitiveBoolean",
+        "QwenImageDiffsynthControlnet",
+        "RMBG",
+        "RemoveDuplicateTags|LP",
+        "SetNode",
+        "ShowText|pysssss",
+        "VAEEncode"
+      ]
+    }
+  ],
+  "loaders": [
+    {
+      "id": 1301,
+      "type": "ModelPatchLoader",
+      "title": "ModelPatchLoader (Turbo)",
+      "mode": 0,
+      "widgets": [
+        "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors"
+      ]
+    },
+    {
+      "id": 1323,
+      "type": "UNETLoader",
+      "title": null,
+      "mode": 0,
+      "widgets": [
+        "ZImageTurbo\\z_image_turbo_int8_convrot.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 1561,
+      "type": "Checkpoint Loader with Name (Image Saver)",
+      "title": "Checkpoint Loader",
+      "mode": 4,
+      "widgets": [
+        "ZIT\\gonzalomoZpop_v30AIO.safetensors"
+      ]
+    },
+    {
+      "id": 1325,
+      "type": "CLIPLoader",
+      "title": null,
+      "mode": 0,
+      "widgets": [
+        "qwen_3_4b.safetensors",
+        "lumina2",
+        "default"
+      ]
+    },
+    {
+      "id": 1678,
+      "type": "UnetLoaderGGUF",
+      "title": null,
+      "mode": 4,
+      "widgets": [
+        "Z-Image\\swiftFastAndDetailed_neo.gguf"
+      ]
+    },
+    {
+      "id": 1299,
+      "type": "VAELoader",
+      "title": null,
+      "mode": 0,
+      "widgets": [
+        "ae.safetensors"
+      ]
+    },
+    {
+      "id": 1670,
+      "type": "ClipLoaderGGUF",
+      "title": null,
+      "mode": 4,
+      "widgets": [
+        "huihui-qwen3-4b-abliterated-v2-q8_0.gguf",
+        "lumina2",
+        "default"
+      ]
+    },
+    {
+      "id": 1748,
+      "type": "CLIPLoader",
+      "title": null,
+      "mode": 0,
+      "widgets": [
+        "qwen_3_8b.safetensors",
+        "flux2",
+        "default"
+      ]
+    },
+    {
+      "id": 1752,
+      "type": "VAELoader",
+      "title": null,
+      "mode": 0,
+      "widgets": [
+        "flux2-vae.safetensors"
+      ]
+    },
+    {
+      "id": 1771,
+      "type": "Power Lora Loader (rgthree)",
+      "title": null,
+      "mode": 0,
+      "widgets": [
+        {},
+        {
+          "type": "PowerLoraLoaderHeaderWidget"
+        },
+        {
+          "on": false,
+          "lora": "Flux 2\\Klein\\f2k_9B_lcs_consist_20260415.safetensors",
+          "strength": 1,
+          "strengthTwo": null
+        },
+        {},
+        ""
+      ]
+    },
+    {
+      "id": 1784,
+      "type": "UnetLoaderGGUF",
+      "title": null,
+      "mode": 0,
+      "widgets": [
+        "Flux2\\flux-2-klein-9b-Q8_0.gguf"
+      ]
+    },
+    {
+      "id": 1280,
+      "type": "UpscaleModelLoader",
+      "title": null,
+      "mode": 0,
+      "widgets": [
+        "RealESRGAN_x4plus.pth"
+      ]
+    },
+    {
+      "id": 2087,
+      "type": "Power Lora Loader (rgthree)",
+      "title": "Character or Detailer LoRAS only",
+      "mode": 0,
+      "widgets": [
+        {},
+        {
+          "type": "PowerLoraLoaderHeaderWidget"
+        },
+        {},
+        ""
+      ]
+    },
+    {
+      "id": 1436,
+      "type": "Power Lora Loader (rgthree)",
+      "title": null,
+      "mode": 0,
+      "widgets": [
+        {},
+        {
+          "type": "PowerLoraLoaderHeaderWidget"
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\Your Loras\\Better_Passion ZIT.safetensors",
+          "strength": 0.47,
+          "strengthTwo": null
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\Your Loras\\Better Yuri.safetensors",
+          "strength": 0.48,
+          "strengthTwo": null
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\Your Loras\\Stockings ZIT 2.safetensors",
+          "strength": 0.42,
+          "strengthTwo": null
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\Your Loras\\Better Eyeroll Zit.safetensors",
+          "strength": 0.68,
+          "strengthTwo": null
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\Styles\\anime_style_-_beauties_women_illustration_v1.safetensors",
+          "strength": 0.43,
+          "strengthTwo": null
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\Styles\\SomberFantasy_Zv1.safetensors",
+          "strength": 0.3,
+          "strengthTwo": null
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\Styles\\new_mecha_zit_V2.safetensors",
+          "strength": 0.48333740234375,
+          "strengthTwo": null
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\Styles\\edge of reality.safetensors",
+          "strength": 0.63,
+          "strengthTwo": null
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\Styles\\ProjectRealismPhotoLora_v1.safetensors",
+          "strength": 0.85,
+          "strengthTwo": null
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\Characters\\ANika 2 ZIT.safetensors",
+          "strength": 0.35,
+          "strengthTwo": null
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\lighting and details\\Z_Instapic_V1.safetensors",
+          "strength": 0.6,
+          "strengthTwo": null
+        },
+        {
+          "on": false,
+          "lora": "ZIT\\Model adjust\\Nipple poke ZIT.safetensors",
+          "strength": 0.9,
+          "strengthTwo": null
+        },
+        {},
+        ""
+      ]
+    }
+  ],
+  "model_switch": {
+    "id": 1330,
+    "title": "Model switch",
+    "slots": {
+      "any_01": "UNETLoader (Diffusion)",
+      "any_02": "UnetLoaderGGUF (GGUF)",
+      "any_03": "Checkpoint Loader"
+    }
+  },
+  "clip_switch": {
+    "id": 1331,
+    "title": "Clip switch",
+    "slots": {
+      "any_01": "CLIPLoader",
+      "any_02": "ClipLoaderGGUF",
+      "any_03": "Checkpoint CLIP"
+    }
+  },
+  "latent_switch": {
+    "id": 1800,
+    "title": "Latent Switch",
+    "slots": {
+      "any_01": "VAEEncode I2I",
+      "any_02": "EmptyLatent T2I"
+    }
+  },
+  "related_workflows": {
+    "krea2SFWNSFWUncensoredImageTo_v10": {
+      "family": "krea2",
+      "agent_guide": "workflows/human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md",
+      "capabilities": "workflows/human/Krea2_SFW_NSFW_v10_CAPABILITIES.json",
+      "default_preset": "krea2_t2i_v10"
+    }
+  }
+}

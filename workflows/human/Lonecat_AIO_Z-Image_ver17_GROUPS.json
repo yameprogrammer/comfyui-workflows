@@ -1,0 +1,5389 @@
+{
+  "groups": [
+    {
+      "index": 0,
+      "title": "Final vs. Rough Draft",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        -1020,
+        -850,
+        1010,
+        1150
+      ],
+      "member_count": 3,
+      "members_sample": [
+        {
+          "id": 173,
+          "type": "GetNode",
+          "title": "Get_Rough Draft"
+        },
+        {
+          "id": 174,
+          "type": "GetNode",
+          "title": "Get_Pro Post"
+        },
+        {
+          "id": 172,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "GetNode",
+        "Image Comparer (rgthree)"
+      ]
+    },
+    {
+      "index": 1,
+      "title": "#  Hi Rez Fix/ Upscale",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        800,
+        -2630,
+        640,
+        820
+      ],
+      "member_count": 3,
+      "members_sample": [
+        {
+          "id": 1574,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2045,
+          "type": "MarkdownNote",
+          "title": "Notes/ 笔记"
+        },
+        {
+          "id": 1285,
+          "type": "UltimateSDUpscale",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "Image Comparer (rgthree)",
+        "MarkdownNote",
+        "UltimateSDUpscale"
+      ]
+    },
+    {
+      "index": 2,
+      "title": "#   Seed Variance",
+      "color": "#b58b2a",
+      "font_size": null,
+      "bounding": [
+        -1500,
+        -2580,
+        290,
+        310
+      ],
+      "member_count": 1,
+      "members_sample": [
+        {
+          "id": 1289,
+          "type": "SeedVarianceEnhancer",
+          "title": "Seed Variance"
+        }
+      ],
+      "member_types": [
+        "SeedVarianceEnhancer"
+      ]
+    },
+    {
+      "index": 3,
+      "title": "Diffusion Model",
+      "color": "#b58b2a",
+      "font_size": null,
+      "bounding": [
+        -2240,
+        -2550,
+        330,
+        350
+      ],
+      "member_count": 3,
+      "members_sample": [
+        {
+          "id": 1577,
+          "type": "WidgetToString",
+          "title": null
+        },
+        {
+          "id": 1323,
+          "type": "UNETLoader",
+          "title": null
+        },
+        {
+          "id": 1325,
+          "type": "CLIPLoader",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "CLIPLoader",
+        "UNETLoader",
+        "WidgetToString"
+      ]
+    },
+    {
+      "index": 4,
+      "title": "GGUF Model",
+      "color": "#b58b2a",
+      "font_size": null,
+      "bounding": [
+        -2240,
+        -2190,
+        330,
+        370
+      ],
+      "member_count": 3,
+      "members_sample": [
+        {
+          "id": 1678,
+          "type": "UnetLoaderGGUF",
+          "title": null
+        },
+        {
+          "id": 1578,
+          "type": "WidgetToString",
+          "title": null
+        },
+        {
+          "id": 1670,
+          "type": "ClipLoaderGGUF",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "ClipLoaderGGUF",
+        "UnetLoaderGGUF",
+        "WidgetToString"
+      ]
+    },
+    {
+      "index": 5,
+      "title": "Checkpoint Model",
+      "color": "#b58b2a",
+      "font_size": null,
+      "bounding": [
+        -2240,
+        -1810,
+        330,
+        200
+      ],
+      "member_count": 1,
+      "members_sample": [
+        {
+          "id": 1561,
+          "type": "Checkpoint Loader with Name (Image Saver)",
+          "title": "Checkpoint Loader"
+        }
+      ],
+      "member_types": [
+        "Checkpoint Loader with Name (Image Saver)"
+      ]
+    },
+    {
+      "index": 6,
+      "title": "Sampler Select",
+      "color": "#1d723e",
+      "font_size": null,
+      "bounding": [
+        -1860,
+        -2740,
+        300,
+        940
+      ],
+      "member_count": 4,
+      "members_sample": [
+        {
+          "id": 1350,
+          "type": "KSampler Config (rgthree)",
+          "title": "KSampler Base"
+        },
+        {
+          "id": 1341,
+          "type": "KSampler Config (rgthree)",
+          "title": "KSampler ZIT"
+        },
+        {
+          "id": 1352,
+          "type": "Fast Bypasser (rgthree)",
+          "title": null
+        },
+        {
+          "id": 1258,
+          "type": "MarkdownNote",
+          "title": "settings:"
+        }
+      ],
+      "member_types": [
+        "Fast Bypasser (rgthree)",
+        "KSampler Config (rgthree)",
+        "MarkdownNote"
+      ]
+    },
+    {
+      "index": 7,
+      "title": "Getset Nodes",
+      "color": "#b58b2a",
+      "font_size": null,
+      "bounding": [
+        70,
+        -2720,
+        400,
+        910
+      ],
+      "member_count": 49,
+      "members_sample": [
+        {
+          "id": 1265,
+          "type": "SetNode",
+          "title": "Set_Positive"
+        },
+        {
+          "id": 1269,
+          "type": "SetNode",
+          "title": "Set_Negtext"
+        },
+        {
+          "id": 1266,
+          "type": "SetNode",
+          "title": "Set_Negative"
+        },
+        {
+          "id": 1346,
+          "type": "SetNode",
+          "title": "Set_CFG"
+        },
+        {
+          "id": 1268,
+          "type": "SetNode",
+          "title": "Set_postext"
+        },
+        {
+          "id": 1348,
+          "type": "SetNode",
+          "title": "Set_Sampler"
+        },
+        {
+          "id": 1349,
+          "type": "SetNode",
+          "title": "Set_Scheduler"
+        },
+        {
+          "id": 1345,
+          "type": "SetNode",
+          "title": "Set_Steps"
+        },
+        {
+          "id": 1525,
+          "type": "SetNode",
+          "title": "Set_FloModel"
+        },
+        {
+          "id": 1267,
+          "type": "SetNode",
+          "title": "Set_Upscale factor"
+        },
+        {
+          "id": 1272,
+          "type": "SetNode",
+          "title": "Set_Lora Model"
+        },
+        {
+          "id": 1261,
+          "type": "SetNode",
+          "title": "Set_Prescale"
+        },
+        {
+          "id": 1262,
+          "type": "SetNode",
+          "title": "Set_Seed"
+        },
+        {
+          "id": 1673,
+          "type": "SetNode",
+          "title": "Set_Clip"
+        },
+        {
+          "id": 1271,
+          "type": "SetNode",
+          "title": "Set_Model Patch"
+        },
+        {
+          "id": 1263,
+          "type": "SetNode",
+          "title": "Set_prefix"
+        },
+        {
+          "id": 1600,
+          "type": "SetNode",
+          "title": "Set_Metadata"
+        },
+        {
+          "id": 1260,
+          "type": "SetNode",
+          "title": "Set_Width"
+        },
+        {
+          "id": 1264,
+          "type": "SetNode",
+          "title": "Set_Height"
+        },
+        {
+          "id": 1810,
+          "type": "SetNode",
+          "title": "Set_H1"
+        },
+        {
+          "id": 1811,
+          "type": "SetNode",
+          "title": "Set_W1"
+        },
+        {
+          "id": 1275,
+          "type": "GetNode",
+          "title": "Get_Prompt Tag"
+        },
+        {
+          "id": 1804,
+          "type": "GetNode",
+          "title": "Get_H2"
+        },
+        {
+          "id": 1803,
+          "type": "GetNode",
+          "title": "Get_W2"
+        },
+        {
+          "id": 1353,
+          "type": "Any Switch (rgthree)",
+          "title": "Ref step switch"
+        },
+        {
+          "id": 1354,
+          "type": "Any Switch (rgthree)",
+          "title": "CFG Switch"
+        },
+        {
+          "id": 1355,
+          "type": "Any Switch (rgthree)",
+          "title": "Sampler Switch"
+        },
+        {
+          "id": 1356,
+          "type": "Any Switch (rgthree)",
+          "title": "Scheduler Switch"
+        },
+        {
+          "id": 1314,
+          "type": "CLIPTextEncode",
+          "title": null
+        },
+        {
+          "id": 1351,
+          "type": "Any Switch (rgthree)",
+          "title": "Step switch"
+        },
+        {
+          "id": 1315,
+          "type": "CLIPTextEncode",
+          "title": null
+        },
+        {
+          "id": 1303,
+          "type": "JoinStrings",
+          "title": null
+        },
+        {
+          "id": 1391,
+          "type": "Any Switch (rgthree)",
+          "title": "VAE Switch"
+        },
+        {
+          "id": 1331,
+          "type": "Any Switch (rgthree)",
+          "title": "Clip switch"
+        },
+        {
+          "id": 1330,
+          "type": "Any Switch (rgthree)",
+          "title": "Model switch"
+        },
+        {
+          "id": 1562,
+          "type": "Any Switch (rgthree)",
+          "title": "Modelname Switch"
+        },
+        {
+          "id": 1598,
+          "type": "easy showAnything",
+          "title": "🤔"
+        },
+        {
+          "id": 1596,
+          "type": "vsLinx_AppendLorasFromNodeToString",
+          "title": "Magic 🪄"
+        },
+        {
+          "id": 1599,
+          "type": "easy showAnything",
+          "title": "🤔"
+        },
+        {
+          "id": 1807,
+          "type": "Any Switch (rgthree)",
+          "title": "Width Sw"
+        }
+      ],
+      "member_types": [
+        "Any Switch (rgthree)",
+        "Anything Everywhere",
+        "CLIPTextEncode",
+        "CR Text Replace",
+        "GetNode",
+        "Image Saver Metadata",
+        "JoinStrings",
+        "SetNode",
+        "ShowText|pysssss",
+        "easy showAnything",
+        "vsLinx_AppendLorasFromNodeToString"
+      ]
+    },
+    {
+      "index": 8,
+      "title": "#   Qwen Prompt Enhancer",
+      "color": "#8A8",
+      "font_size": null,
+      "bounding": [
+        -690,
+        -2590,
+        260,
+        590
+      ],
+      "member_count": 1,
+      "members_sample": [
+        {
+          "id": 2044,
+          "type": "AILab_QwenVL_GGUF_PromptEnhancer",
+          "title": "Qwen Prompt 📝"
+        }
+      ],
+      "member_types": [
+        "AILab_QwenVL_GGUF_PromptEnhancer"
+      ]
+    },
+    {
+      "index": 9,
+      "title": "Loaders 💩",
+      "color": "#b58b2a",
+      "font_size": null,
+      "bounding": [
+        -2250,
+        -2740,
+        350,
+        1513.6
+      ],
+      "member_count": 11,
+      "members_sample": [
+        {
+          "id": 1577,
+          "type": "WidgetToString",
+          "title": null
+        },
+        {
+          "id": 1524,
+          "type": "DownloadAndLoadFlorence2Model",
+          "title": null
+        },
+        {
+          "id": 1301,
+          "type": "ModelPatchLoader",
+          "title": "ModelPatchLoader (Turbo)"
+        },
+        {
+          "id": 1323,
+          "type": "UNETLoader",
+          "title": null
+        },
+        {
+          "id": 1561,
+          "type": "Checkpoint Loader with Name (Image Saver)",
+          "title": "Checkpoint Loader"
+        },
+        {
+          "id": 1325,
+          "type": "CLIPLoader",
+          "title": null
+        },
+        {
+          "id": 1329,
+          "type": "Fast Groups Bypasser (rgthree)",
+          "title": "Model selector"
+        },
+        {
+          "id": 1678,
+          "type": "UnetLoaderGGUF",
+          "title": null
+        },
+        {
+          "id": 1578,
+          "type": "WidgetToString",
+          "title": null
+        },
+        {
+          "id": 1299,
+          "type": "VAELoader",
+          "title": null
+        },
+        {
+          "id": 1670,
+          "type": "ClipLoaderGGUF",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "CLIPLoader",
+        "Checkpoint Loader with Name (Image Saver)",
+        "ClipLoaderGGUF",
+        "DownloadAndLoadFlorence2Model",
+        "Fast Groups Bypasser (rgthree)",
+        "ModelPatchLoader",
+        "UNETLoader",
+        "UnetLoaderGGUF",
+        "VAELoader",
+        "WidgetToString"
+      ]
+    },
+    {
+      "index": 10,
+      "title": "💾 Save Group",
+      "color": "#67e811",
+      "font_size": null,
+      "bounding": [
+        40,
+        450,
+        700,
+        700
+      ],
+      "member_count": 29,
+      "members_sample": [
+        {
+          "id": 1682,
+          "type": "GetNode",
+          "title": "Get_prefix"
+        },
+        {
+          "id": 1683,
+          "type": "GetNode",
+          "title": "Get_Rough Draft"
+        },
+        {
+          "id": 1688,
+          "type": "GetNode",
+          "title": "Get_prefix"
+        },
+        {
+          "id": 1689,
+          "type": "GetNode",
+          "title": "Get_Maskimg"
+        },
+        {
+          "id": 1690,
+          "type": "GetNode",
+          "title": "Get_prefix"
+        },
+        {
+          "id": 1698,
+          "type": "GetNode",
+          "title": "Get_Metadata"
+        },
+        {
+          "id": 1699,
+          "type": "GetNode",
+          "title": "Get_prefix"
+        },
+        {
+          "id": 1702,
+          "type": "GetNode",
+          "title": "Get_Pro Post"
+        },
+        {
+          "id": 1681,
+          "type": "PrimitiveBoolean",
+          "title": "Embed workflow?"
+        },
+        {
+          "id": 1684,
+          "type": "DF_Text",
+          "title": "Original name add"
+        },
+        {
+          "id": 1685,
+          "type": "DF_Text",
+          "title": "Pro Post"
+        },
+        {
+          "id": 1686,
+          "type": "JoinStrings",
+          "title": null
+        },
+        {
+          "id": 1687,
+          "type": "DF_Text",
+          "title": "Folder"
+        },
+        {
+          "id": 1691,
+          "type": "DF_Text",
+          "title": "Metadata"
+        },
+        {
+          "id": 1692,
+          "type": "SaveImage",
+          "title": null
+        },
+        {
+          "id": 1693,
+          "type": "JoinStringMulti",
+          "title": null
+        },
+        {
+          "id": 1694,
+          "type": "JoinStringMulti",
+          "title": null
+        },
+        {
+          "id": 1695,
+          "type": "DF_Text",
+          "title": "Timestamp"
+        },
+        {
+          "id": 1696,
+          "type": "SaveImage",
+          "title": null
+        },
+        {
+          "id": 1697,
+          "type": "DF_Text",
+          "title": "MetaData folder"
+        },
+        {
+          "id": 1700,
+          "type": "Any Switch (rgthree)",
+          "title": null
+        },
+        {
+          "id": 1701,
+          "type": "DF_Text",
+          "title": "Metadata"
+        },
+        {
+          "id": 1703,
+          "type": "JoinStrings",
+          "title": null
+        },
+        {
+          "id": 1704,
+          "type": "Image Saver Simple",
+          "title": null
+        },
+        {
+          "id": 1705,
+          "type": "JWDatetimeString",
+          "title": "+ Date to meta 📂"
+        },
+        {
+          "id": 1706,
+          "type": "JoinStrings",
+          "title": "Date join"
+        },
+        {
+          "id": 1707,
+          "type": "MarkdownNote",
+          "title": "💾 Note/ 笔记"
+        },
+        {
+          "id": 1708,
+          "type": "Fast Bypasser (rgthree)",
+          "title": "Meta 📂📅+"
+        },
+        {
+          "id": 1680,
+          "type": "Label (rgthree)",
+          "title": "default 💾 location: ComfyUI\\output\\metadata\\ (your prefix)+(date)"
+        }
+      ],
+      "member_types": [
+        "Any Switch (rgthree)",
+        "DF_Text",
+        "Fast Bypasser (rgthree)",
+        "GetNode",
+        "Image Saver Simple",
+        "JWDatetimeString",
+        "JoinStringMulti",
+        "JoinStrings",
+        "Label (rgthree)",
+        "MarkdownNote",
+        "PrimitiveBoolean",
+        "SaveImage"
+      ]
+    },
+    {
+      "index": 11,
+      "title": "#Save Mask🎭",
+      "color": "#8AA",
+      "font_size": null,
+      "bounding": [
+        270,
+        490,
+        210,
+        250
+      ],
+      "member_count": 5,
+      "members_sample": [
+        {
+          "id": 1682,
+          "type": "GetNode",
+          "title": "Get_prefix"
+        },
+        {
+          "id": 1689,
+          "type": "GetNode",
+          "title": "Get_Maskimg"
+        },
+        {
+          "id": 1685,
+          "type": "DF_Text",
+          "title": "Pro Post"
+        },
+        {
+          "id": 1686,
+          "type": "JoinStrings",
+          "title": null
+        },
+        {
+          "id": 1692,
+          "type": "SaveImage",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "DF_Text",
+        "GetNode",
+        "JoinStrings",
+        "SaveImage"
+      ]
+    },
+    {
+      "index": 12,
+      "title": "#Save Draft 📐",
+      "color": "#8AA",
+      "font_size": null,
+      "bounding": [
+        50,
+        490,
+        210,
+        280
+      ],
+      "member_count": 6,
+      "members_sample": [
+        {
+          "id": 1683,
+          "type": "GetNode",
+          "title": "Get_Rough Draft"
+        },
+        {
+          "id": 1690,
+          "type": "GetNode",
+          "title": "Get_prefix"
+        },
+        {
+          "id": 1684,
+          "type": "DF_Text",
+          "title": "Original name add"
+        },
+        {
+          "id": 1687,
+          "type": "DF_Text",
+          "title": "Folder"
+        },
+        {
+          "id": 1693,
+          "type": "JoinStringMulti",
+          "title": null
+        },
+        {
+          "id": 1696,
+          "type": "SaveImage",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "DF_Text",
+        "GetNode",
+        "JoinStringMulti",
+        "SaveImage"
+      ]
+    },
+    {
+      "index": 13,
+      "title": "#Save w/Metadata🗒️",
+      "color": "#8AA",
+      "font_size": null,
+      "bounding": [
+        490,
+        490,
+        240,
+        490
+      ],
+      "member_count": 10,
+      "members_sample": [
+        {
+          "id": 1688,
+          "type": "GetNode",
+          "title": "Get_prefix"
+        },
+        {
+          "id": 1698,
+          "type": "GetNode",
+          "title": "Get_Metadata"
+        },
+        {
+          "id": 1702,
+          "type": "GetNode",
+          "title": "Get_Pro Post"
+        },
+        {
+          "id": 1681,
+          "type": "PrimitiveBoolean",
+          "title": "Embed workflow?"
+        },
+        {
+          "id": 1691,
+          "type": "DF_Text",
+          "title": "Metadata"
+        },
+        {
+          "id": 1694,
+          "type": "JoinStringMulti",
+          "title": null
+        },
+        {
+          "id": 1695,
+          "type": "DF_Text",
+          "title": "Timestamp"
+        },
+        {
+          "id": 1697,
+          "type": "DF_Text",
+          "title": "MetaData folder"
+        },
+        {
+          "id": 1700,
+          "type": "Any Switch (rgthree)",
+          "title": null
+        },
+        {
+          "id": 1704,
+          "type": "Image Saver Simple",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "Any Switch (rgthree)",
+        "DF_Text",
+        "GetNode",
+        "Image Saver Simple",
+        "JoinStringMulti",
+        "PrimitiveBoolean"
+      ]
+    },
+    {
+      "index": 14,
+      "title": "#Create Subfolder📂",
+      "color": "#8AA",
+      "font_size": null,
+      "bounding": [
+        50,
+        780,
+        280,
+        360
+      ],
+      "member_count": 6,
+      "members_sample": [
+        {
+          "id": 1699,
+          "type": "GetNode",
+          "title": "Get_prefix"
+        },
+        {
+          "id": 1701,
+          "type": "DF_Text",
+          "title": "Metadata"
+        },
+        {
+          "id": 1703,
+          "type": "JoinStrings",
+          "title": null
+        },
+        {
+          "id": 1705,
+          "type": "JWDatetimeString",
+          "title": "+ Date to meta 📂"
+        },
+        {
+          "id": 1706,
+          "type": "JoinStrings",
+          "title": "Date join"
+        },
+        {
+          "id": 1708,
+          "type": "Fast Bypasser (rgthree)",
+          "title": "Meta 📂📅+"
+        }
+      ],
+      "member_types": [
+        "DF_Text",
+        "Fast Bypasser (rgthree)",
+        "GetNode",
+        "JWDatetimeString",
+        "JoinStrings"
+      ]
+    },
+    {
+      "index": 15,
+      "title": "Inpaint",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        40,
+        -650,
+        1590,
+        1040
+      ],
+      "member_count": 40,
+      "members_sample": [
+        {
+          "id": 1779,
+          "type": "SetNode",
+          "title": "Set_Inpaint Image"
+        },
+        {
+          "id": 1777,
+          "type": "GetNode",
+          "title": "Get_Seed"
+        },
+        {
+          "id": 1775,
+          "type": "GetNode",
+          "title": "Get_detail image"
+        },
+        {
+          "id": 1742,
+          "type": "mxStop",
+          "title": null
+        },
+        {
+          "id": 1744,
+          "type": "Fast Bypasser (rgthree)",
+          "title": null
+        },
+        {
+          "id": 1745,
+          "type": "ClownSampler_Beta",
+          "title": null
+        },
+        {
+          "id": 1746,
+          "type": "easy positive",
+          "title": "Quality Prompt"
+        },
+        {
+          "id": 1747,
+          "type": "FluxGuidance",
+          "title": null
+        },
+        {
+          "id": 1748,
+          "type": "CLIPLoader",
+          "title": null
+        },
+        {
+          "id": 1752,
+          "type": "VAELoader",
+          "title": null
+        },
+        {
+          "id": 1753,
+          "type": "PreviewImage",
+          "title": "Original Image"
+        },
+        {
+          "id": 1754,
+          "type": "SamplerCustomAdvanced",
+          "title": null
+        },
+        {
+          "id": 1755,
+          "type": "mxSlider",
+          "title": "Steps"
+        },
+        {
+          "id": 1756,
+          "type": "mxSlider",
+          "title": "CFG"
+        },
+        {
+          "id": 1757,
+          "type": "ResizeImageNode",
+          "title": null
+        },
+        {
+          "id": 1759,
+          "type": "EmptyFlux2LatentImage",
+          "title": null
+        },
+        {
+          "id": 1760,
+          "type": "Flux2Scheduler",
+          "title": null
+        },
+        {
+          "id": 1761,
+          "type": "MathExpression|pysssss",
+          "title": "Width Math"
+        },
+        {
+          "id": 1763,
+          "type": "easy cleanGpuUsed",
+          "title": "Clean VRAM"
+        },
+        {
+          "id": 1766,
+          "type": "MathExpression|pysssss",
+          "title": "Height Math"
+        },
+        {
+          "id": 1767,
+          "type": "easy clearCacheAll",
+          "title": "Clear Cache"
+        },
+        {
+          "id": 1768,
+          "type": "ImageScale",
+          "title": null
+        },
+        {
+          "id": 1769,
+          "type": "CFGGuider",
+          "title": null
+        },
+        {
+          "id": 1772,
+          "type": "ConditioningZeroOut",
+          "title": null
+        },
+        {
+          "id": 1773,
+          "type": "CLIPTextEncode",
+          "title": null
+        },
+        {
+          "id": 1774,
+          "type": "JoinStrings",
+          "title": "Join $"
+        },
+        {
+          "id": 1776,
+          "type": "Get resolution [Crystools]",
+          "title": null
+        },
+        {
+          "id": 1778,
+          "type": "Any Switch (rgthree)",
+          "title": "IMG pass \\switch"
+        },
+        {
+          "id": 1780,
+          "type": "RandomNoise",
+          "title": null
+        },
+        {
+          "id": 1771,
+          "type": "Power Lora Loader (rgthree)",
+          "title": null
+        },
+        {
+          "id": 1750,
+          "type": "MarkdownNote",
+          "title": "Notes:"
+        },
+        {
+          "id": 1770,
+          "type": "mxSlider",
+          "title": "Rescale (VRAM cheater)"
+        },
+        {
+          "id": 1762,
+          "type": "ReferenceLatent",
+          "title": "Ref Lat"
+        },
+        {
+          "id": 1783,
+          "type": "VAEDecodeTiled",
+          "title": "VAE Decode"
+        },
+        {
+          "id": 1782,
+          "type": "VAEEncodeTiled",
+          "title": "VAE Encode"
+        },
+        {
+          "id": 1784,
+          "type": "UnetLoaderGGUF",
+          "title": null
+        },
+        {
+          "id": 1765,
+          "type": "ClownSamplerSelector_Beta",
+          "title": null
+        },
+        {
+          "id": 1793,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 1749,
+          "type": "easy positive",
+          "title": "Inpainting prompt"
+        },
+        {
+          "id": 1866,
+          "type": "Fast Groups Bypasser (rgthree)",
+          "title": "psst...over here 🤫"
+        }
+      ],
+      "member_types": [
+        "Any Switch (rgthree)",
+        "CFGGuider",
+        "CLIPLoader",
+        "CLIPTextEncode",
+        "ClownSamplerSelector_Beta",
+        "ClownSampler_Beta",
+        "ConditioningZeroOut",
+        "EmptyFlux2LatentImage",
+        "Fast Bypasser (rgthree)",
+        "Fast Groups Bypasser (rgthree)",
+        "Flux2Scheduler",
+        "FluxGuidance",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "Image Comparer (rgthree)",
+        "ImageScale",
+        "JoinStrings",
+        "MarkdownNote",
+        "MathExpression|pysssss",
+        "Power Lora Loader (rgthree)",
+        "PreviewImage",
+        "RandomNoise",
+        "ReferenceLatent",
+        "ResizeImageNode",
+        "SamplerCustomAdvanced",
+        "SetNode",
+        "UnetLoaderGGUF",
+        "VAEDecodeTiled",
+        "VAEEncodeTiled",
+        "VAELoader",
+        "easy cleanGpuUsed",
+        "easy clearCacheAll",
+        "easy positive",
+        "mxSlider",
+        "mxStop"
+      ]
+    },
+    {
+      "index": 16,
+      "title": "# Klein Inpaint 🖌️",
+      "color": "#88A",
+      "font_size": null,
+      "bounding": [
+        410,
+        -610,
+        1200,
+        860
+      ],
+      "member_count": 25,
+      "members_sample": [
+        {
+          "id": 1742,
+          "type": "mxStop",
+          "title": null
+        },
+        {
+          "id": 1744,
+          "type": "Fast Bypasser (rgthree)",
+          "title": null
+        },
+        {
+          "id": 1745,
+          "type": "ClownSampler_Beta",
+          "title": null
+        },
+        {
+          "id": 1746,
+          "type": "easy positive",
+          "title": "Quality Prompt"
+        },
+        {
+          "id": 1747,
+          "type": "FluxGuidance",
+          "title": null
+        },
+        {
+          "id": 1753,
+          "type": "PreviewImage",
+          "title": "Original Image"
+        },
+        {
+          "id": 1754,
+          "type": "SamplerCustomAdvanced",
+          "title": null
+        },
+        {
+          "id": 1757,
+          "type": "ResizeImageNode",
+          "title": null
+        },
+        {
+          "id": 1759,
+          "type": "EmptyFlux2LatentImage",
+          "title": null
+        },
+        {
+          "id": 1760,
+          "type": "Flux2Scheduler",
+          "title": null
+        },
+        {
+          "id": 1761,
+          "type": "MathExpression|pysssss",
+          "title": "Width Math"
+        },
+        {
+          "id": 1763,
+          "type": "easy cleanGpuUsed",
+          "title": "Clean VRAM"
+        },
+        {
+          "id": 1766,
+          "type": "MathExpression|pysssss",
+          "title": "Height Math"
+        },
+        {
+          "id": 1767,
+          "type": "easy clearCacheAll",
+          "title": "Clear Cache"
+        },
+        {
+          "id": 1768,
+          "type": "ImageScale",
+          "title": null
+        },
+        {
+          "id": 1769,
+          "type": "CFGGuider",
+          "title": null
+        },
+        {
+          "id": 1772,
+          "type": "ConditioningZeroOut",
+          "title": null
+        },
+        {
+          "id": 1773,
+          "type": "CLIPTextEncode",
+          "title": null
+        },
+        {
+          "id": 1774,
+          "type": "JoinStrings",
+          "title": "Join $"
+        },
+        {
+          "id": 1750,
+          "type": "MarkdownNote",
+          "title": "Notes:"
+        },
+        {
+          "id": 1762,
+          "type": "ReferenceLatent",
+          "title": "Ref Lat"
+        },
+        {
+          "id": 1783,
+          "type": "VAEDecodeTiled",
+          "title": "VAE Decode"
+        },
+        {
+          "id": 1782,
+          "type": "VAEEncodeTiled",
+          "title": "VAE Encode"
+        },
+        {
+          "id": 1793,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 1749,
+          "type": "easy positive",
+          "title": "Inpainting prompt"
+        }
+      ],
+      "member_types": [
+        "CFGGuider",
+        "CLIPTextEncode",
+        "ClownSampler_Beta",
+        "ConditioningZeroOut",
+        "EmptyFlux2LatentImage",
+        "Fast Bypasser (rgthree)",
+        "Flux2Scheduler",
+        "FluxGuidance",
+        "Image Comparer (rgthree)",
+        "ImageScale",
+        "JoinStrings",
+        "MarkdownNote",
+        "MathExpression|pysssss",
+        "PreviewImage",
+        "ReferenceLatent",
+        "ResizeImageNode",
+        "SamplerCustomAdvanced",
+        "VAEDecodeTiled",
+        "VAEEncodeTiled",
+        "easy cleanGpuUsed",
+        "easy clearCacheAll",
+        "easy positive",
+        "mxStop"
+      ]
+    },
+    {
+      "index": 17,
+      "title": "Settings",
+      "color": "#b58b2a",
+      "font_size": null,
+      "bounding": [
+        50,
+        -610,
+        350,
+        980
+      ],
+      "member_count": 8,
+      "members_sample": [
+        {
+          "id": 1748,
+          "type": "CLIPLoader",
+          "title": null
+        },
+        {
+          "id": 1752,
+          "type": "VAELoader",
+          "title": null
+        },
+        {
+          "id": 1755,
+          "type": "mxSlider",
+          "title": "Steps"
+        },
+        {
+          "id": 1756,
+          "type": "mxSlider",
+          "title": "CFG"
+        },
+        {
+          "id": 1771,
+          "type": "Power Lora Loader (rgthree)",
+          "title": null
+        },
+        {
+          "id": 1770,
+          "type": "mxSlider",
+          "title": "Rescale (VRAM cheater)"
+        },
+        {
+          "id": 1784,
+          "type": "UnetLoaderGGUF",
+          "title": null
+        },
+        {
+          "id": 1765,
+          "type": "ClownSamplerSelector_Beta",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "CLIPLoader",
+        "ClownSamplerSelector_Beta",
+        "Power Lora Loader (rgthree)",
+        "UnetLoaderGGUF",
+        "VAELoader",
+        "mxSlider"
+      ]
+    },
+    {
+      "index": 18,
+      "title": "Seed VR2 (ver 6.0 math node update)",
+      "color": "#A88",
+      "font_size": null,
+      "bounding": [
+        1500,
+        -2480,
+        910,
+        680
+      ],
+      "member_count": 11,
+      "members_sample": [
+        {
+          "id": 1856,
+          "type": "SetNode",
+          "title": "Set_VR2 image"
+        },
+        {
+          "id": 1857,
+          "type": "GetNode",
+          "title": "Get_Upscale factor"
+        },
+        {
+          "id": 1855,
+          "type": "GetNode",
+          "title": "Get_Inpaint Image"
+        },
+        {
+          "id": 1858,
+          "type": "Get resolution [Crystools]",
+          "title": null
+        },
+        {
+          "id": 1861,
+          "type": "SeedVR2LoadDiTModel",
+          "title": null
+        },
+        {
+          "id": 1862,
+          "type": "SeedVR2LoadVAEModel",
+          "title": null
+        },
+        {
+          "id": 1864,
+          "type": "MarkdownNote",
+          "title": "🛑⚠️Super Important"
+        },
+        {
+          "id": 1865,
+          "type": "SeedVR2VideoUpscaler",
+          "title": "SeedVR2 Upscaler (v2.5.24)"
+        },
+        {
+          "id": 1863,
+          "type": "Fast Groups Bypasser (rgthree)",
+          "title": "psst...over here 🤫"
+        },
+        {
+          "id": 1860,
+          "type": "ComfyMathExpression",
+          "title": null
+        },
+        {
+          "id": 1859,
+          "type": "Largest Int (JPS)",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "ComfyMathExpression",
+        "Fast Groups Bypasser (rgthree)",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "Largest Int (JPS)",
+        "MarkdownNote",
+        "SeedVR2LoadDiTModel",
+        "SeedVR2LoadVAEModel",
+        "SeedVR2VideoUpscaler",
+        "SetNode"
+      ]
+    },
+    {
+      "index": 19,
+      "title": "Getset nodes",
+      "color": "#b58b2a",
+      "font_size": null,
+      "bounding": [
+        1510,
+        -2430,
+        210,
+        280
+      ],
+      "member_count": 6,
+      "members_sample": [
+        {
+          "id": 1856,
+          "type": "SetNode",
+          "title": "Set_VR2 image"
+        },
+        {
+          "id": 1857,
+          "type": "GetNode",
+          "title": "Get_Upscale factor"
+        },
+        {
+          "id": 1855,
+          "type": "GetNode",
+          "title": "Get_Inpaint Image"
+        },
+        {
+          "id": 1858,
+          "type": "Get resolution [Crystools]",
+          "title": null
+        },
+        {
+          "id": 1860,
+          "type": "ComfyMathExpression",
+          "title": null
+        },
+        {
+          "id": 1859,
+          "type": "Largest Int (JPS)",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "ComfyMathExpression",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "Largest Int (JPS)",
+        "SetNode"
+      ]
+    },
+    {
+      "index": 20,
+      "title": "#  Seed VR2 Upscale",
+      "color": "#8AA",
+      "font_size": null,
+      "bounding": [
+        1730,
+        -2440,
+        667.5425781249996,
+        631.6
+      ],
+      "member_count": 3,
+      "members_sample": [
+        {
+          "id": 1861,
+          "type": "SeedVR2LoadDiTModel",
+          "title": null
+        },
+        {
+          "id": 1862,
+          "type": "SeedVR2LoadVAEModel",
+          "title": null
+        },
+        {
+          "id": 1865,
+          "type": "SeedVR2VideoUpscaler",
+          "title": "SeedVR2 Upscaler (v2.5.24)"
+        }
+      ],
+      "member_types": [
+        "SeedVR2LoadDiTModel",
+        "SeedVR2LoadVAEModel",
+        "SeedVR2VideoUpscaler"
+      ]
+    },
+    {
+      "index": 21,
+      "title": "🎨 Post Processing Suite (updated 260404)",
+      "color": "#b58b2a",
+      "font_size": null,
+      "bounding": [
+        1680,
+        -650,
+        2200,
+        1940
+      ],
+      "member_count": 58,
+      "members_sample": [
+        {
+          "id": 1922,
+          "type": "SetNode",
+          "title": "Set_Pro Post"
+        },
+        {
+          "id": 1924,
+          "type": "GetNode",
+          "title": "Get_VR2 image"
+        },
+        {
+          "id": 1868,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 1869,
+          "type": "MarkdownNote",
+          "title": "✂️ Crop Notes/ 笔记"
+        },
+        {
+          "id": 1870,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 1871,
+          "type": "AILab_ImageCrop",
+          "title": null
+        },
+        {
+          "id": 1873,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 1874,
+          "type": "Fast Bypasser (rgthree)",
+          "title": "Post processing selector"
+        },
+        {
+          "id": 1875,
+          "type": "easy mathInt",
+          "title": "Height math"
+        },
+        {
+          "id": 1876,
+          "type": "mxSlider",
+          "title": "Height crop (total if centered)"
+        },
+        {
+          "id": 1877,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 1878,
+          "type": "JWImageResizeByLongerSide",
+          "title": "resize by long"
+        },
+        {
+          "id": 1879,
+          "type": "easy mathInt",
+          "title": "width math"
+        },
+        {
+          "id": 1881,
+          "type": "ProPostApplyLUT",
+          "title": null
+        },
+        {
+          "id": 1882,
+          "type": "ImageDesaturate+",
+          "title": null
+        },
+        {
+          "id": 1883,
+          "type": "Largest Int (JPS)",
+          "title": null
+        },
+        {
+          "id": 1884,
+          "type": "mxSlider",
+          "title": "Width crop (total if centered)"
+        },
+        {
+          "id": 1885,
+          "type": "Get resolution [Crystools]",
+          "title": null
+        },
+        {
+          "id": 1886,
+          "type": "PlaySound|pysssss",
+          "title": "🔊PlaySound"
+        },
+        {
+          "id": 1887,
+          "type": "Reroute",
+          "title": null
+        },
+        {
+          "id": 1888,
+          "type": "Label (rgthree)",
+          "title": "Ding!"
+        },
+        {
+          "id": 1889,
+          "type": "Get resolution [Crystools]",
+          "title": "Final 🖼️📏"
+        },
+        {
+          "id": 1896,
+          "type": "FL_ImageAdjuster",
+          "title": "Image Adjust"
+        },
+        {
+          "id": 1897,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 1899,
+          "type": "MarkdownNote",
+          "title": "Notes /  说明"
+        },
+        {
+          "id": 1900,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 1902,
+          "type": "ClarityFX",
+          "title": "🔬 Clarity FX"
+        },
+        {
+          "id": 1903,
+          "type": "ImageInvert",
+          "title": null
+        },
+        {
+          "id": 1904,
+          "type": "Get resolution [Crystools]",
+          "title": null
+        },
+        {
+          "id": 1905,
+          "type": "RemoveAlphaChannel",
+          "title": "Remove Alpha"
+        },
+        {
+          "id": 1906,
+          "type": "ResizeImageNode",
+          "title": null
+        },
+        {
+          "id": 1907,
+          "type": "Largest Int (JPS)",
+          "title": null
+        },
+        {
+          "id": 1908,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 1909,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 1910,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 1911,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 1912,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 1913,
+          "type": "PreviewImage",
+          "title": "color match"
+        },
+        {
+          "id": 1914,
+          "type": "LoadImage",
+          "title": "Color match to Loaded Image"
+        },
+        {
+          "id": 1915,
+          "type": "ChromaticAberration",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "AILab_ImageCrop",
+        "Any Switch (rgthree)",
+        "ArcaneBloomFX",
+        "ChromaticAberration",
+        "ClarityFX",
+        "ColorMatch",
+        "DepthAnythingPreprocessor",
+        "FL_ImageAdjuster",
+        "Fast Bypasser (rgthree)",
+        "Fast Groups Bypasser (rgthree)",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "Image Comparer (rgthree)",
+        "ImageCASharpening+",
+        "ImageDesaturate+",
+        "ImageInvert",
+        "JWImageResizeByLongerSide",
+        "Label (rgthree)",
+        "Largest Int (JPS)",
+        "LayerColor: RGB",
+        "LensFX",
+        "LoadImage",
+        "MarkdownNote",
+        "Node Collector (rgthree)",
+        "OpticalRealism",
+        "PlaySound|pysssss",
+        "PreviewImage",
+        "ProPostApplyLUT",
+        "RemoveAlphaChannel",
+        "Reroute",
+        "ResizeImageNode",
+        "SetNode",
+        "SmartDeNoiseFX",
+        "easy mathInt",
+        "mxSlider"
+      ]
+    },
+    {
+      "index": 22,
+      "title": "✂️Crop 📷",
+      "color": "#A88",
+      "font_size": null,
+      "bounding": [
+        2530,
+        760,
+        730,
+        520
+      ],
+      "member_count": 11,
+      "members_sample": [
+        {
+          "id": 1868,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 1869,
+          "type": "MarkdownNote",
+          "title": "✂️ Crop Notes/ 笔记"
+        },
+        {
+          "id": 1871,
+          "type": "AILab_ImageCrop",
+          "title": null
+        },
+        {
+          "id": 1875,
+          "type": "easy mathInt",
+          "title": "Height math"
+        },
+        {
+          "id": 1876,
+          "type": "mxSlider",
+          "title": "Height crop (total if centered)"
+        },
+        {
+          "id": 1878,
+          "type": "JWImageResizeByLongerSide",
+          "title": "resize by long"
+        },
+        {
+          "id": 1879,
+          "type": "easy mathInt",
+          "title": "width math"
+        },
+        {
+          "id": 1883,
+          "type": "Largest Int (JPS)",
+          "title": null
+        },
+        {
+          "id": 1884,
+          "type": "mxSlider",
+          "title": "Width crop (total if centered)"
+        },
+        {
+          "id": 1885,
+          "type": "Get resolution [Crystools]",
+          "title": null
+        },
+        {
+          "id": 1887,
+          "type": "Reroute",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "AILab_ImageCrop",
+        "Get resolution [Crystools]",
+        "JWImageResizeByLongerSide",
+        "Largest Int (JPS)",
+        "MarkdownNote",
+        "PreviewImage",
+        "Reroute",
+        "easy mathInt",
+        "mxSlider"
+      ]
+    },
+    {
+      "index": 23,
+      "title": "Optical Realism 📷",
+      "color": "#b06634",
+      "font_size": null,
+      "bounding": [
+        1970,
+        0,
+        1110,
+        660
+      ],
+      "member_count": 10,
+      "members_sample": [
+        {
+          "id": 1900,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 1903,
+          "type": "ImageInvert",
+          "title": null
+        },
+        {
+          "id": 1904,
+          "type": "Get resolution [Crystools]",
+          "title": null
+        },
+        {
+          "id": 1905,
+          "type": "RemoveAlphaChannel",
+          "title": "Remove Alpha"
+        },
+        {
+          "id": 1906,
+          "type": "ResizeImageNode",
+          "title": null
+        },
+        {
+          "id": 1907,
+          "type": "Largest Int (JPS)",
+          "title": null
+        },
+        {
+          "id": 1898,
+          "type": "PreviewImage",
+          "title": "Depth Map"
+        },
+        {
+          "id": 2127,
+          "type": "DepthAnythingPreprocessor",
+          "title": null
+        },
+        {
+          "id": 1895,
+          "type": "MarkdownNote",
+          "title": "Optical Realism Notes/ 笔记"
+        },
+        {
+          "id": 1894,
+          "type": "OpticalRealism",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "DepthAnythingPreprocessor",
+        "Get resolution [Crystools]",
+        "Image Comparer (rgthree)",
+        "ImageInvert",
+        "Largest Int (JPS)",
+        "MarkdownNote",
+        "OpticalRealism",
+        "PreviewImage",
+        "RemoveAlphaChannel",
+        "ResizeImageNode"
+      ]
+    },
+    {
+      "index": 24,
+      "title": "Getset nodes",
+      "color": "#b58b2a",
+      "font_size": null,
+      "bounding": [
+        3660,
+        -580,
+        180,
+        110
+      ],
+      "member_count": 2,
+      "members_sample": [
+        {
+          "id": 1922,
+          "type": "SetNode",
+          "title": "Set_Pro Post"
+        },
+        {
+          "id": 1924,
+          "type": "GetNode",
+          "title": "Get_VR2 image"
+        }
+      ],
+      "member_types": [
+        "GetNode",
+        "SetNode"
+      ]
+    },
+    {
+      "index": 25,
+      "title": "Create Mask'",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        -3850,
+        -1670,
+        440,
+        770
+      ],
+      "member_count": 4,
+      "members_sample": [
+        {
+          "id": 2006,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 2009,
+          "type": "Largest Int (JPS)",
+          "title": null
+        },
+        {
+          "id": 2032,
+          "type": "AIO_Preprocessor",
+          "title": null
+        },
+        {
+          "id": 2005,
+          "type": "ImageResizeKJv2",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "AIO_Preprocessor",
+        "ImageResizeKJv2",
+        "Largest Int (JPS)",
+        "PreviewImage"
+      ]
+    },
+    {
+      "index": 26,
+      "title": "Load Mask'",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        -3150,
+        -1570,
+        440,
+        660
+      ],
+      "member_count": 2,
+      "members_sample": [
+        {
+          "id": 2018,
+          "type": "ImageResizeKJv2",
+          "title": null
+        },
+        {
+          "id": 2019,
+          "type": "LoadImage",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "ImageResizeKJv2",
+        "LoadImage"
+      ]
+    },
+    {
+      "index": 27,
+      "title": "Getset Nodes",
+      "color": "#b58b2a",
+      "font_size": null,
+      "bounding": [
+        -2700,
+        -1570,
+        170,
+        360
+      ],
+      "member_count": 8,
+      "members_sample": [
+        {
+          "id": 1990,
+          "type": "SetNode",
+          "title": "Set_Maskimg"
+        },
+        {
+          "id": 1994,
+          "type": "SetNode",
+          "title": "Set_Prompt Tag"
+        },
+        {
+          "id": 2000,
+          "type": "GetNode",
+          "title": "Get_Model Patch"
+        },
+        {
+          "id": 2001,
+          "type": "GetNode",
+          "title": "Get_Width"
+        },
+        {
+          "id": 2002,
+          "type": "GetNode",
+          "title": "Get_Height"
+        },
+        {
+          "id": 2003,
+          "type": "GetNode",
+          "title": "Get_Lora Model"
+        },
+        {
+          "id": 1995,
+          "type": "SetNode",
+          "title": "Set_Model"
+        },
+        {
+          "id": 1999,
+          "type": "GetNode",
+          "title": "Get_FloModel"
+        }
+      ],
+      "member_types": [
+        "GetNode",
+        "SetNode"
+      ]
+    },
+    {
+      "index": 28,
+      "title": "#      Remove Background!",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        -3410,
+        -2510,
+        260,
+        360
+      ],
+      "member_count": 1,
+      "members_sample": [
+        {
+          "id": 2021,
+          "type": "RMBG",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "RMBG"
+      ]
+    },
+    {
+      "index": 29,
+      "title": "#     I2I 🖼️!",
+      "color": "#8AA",
+      "font_size": null,
+      "bounding": [
+        -3140,
+        -2290,
+        180,
+        120
+      ],
+      "member_count": 2,
+      "members_sample": [
+        {
+          "id": 1991,
+          "type": "SetNode",
+          "title": "Set_Orgpic Latent"
+        },
+        {
+          "id": 2017,
+          "type": "VAEEncode",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "SetNode",
+        "VAEEncode"
+      ]
+    },
+    {
+      "index": 30,
+      "title": "#     📝 Img Prompt",
+      "color": "#8A8",
+      "font_size": null,
+      "bounding": [
+        -2870,
+        -2700,
+        560,
+        950
+      ],
+      "member_count": 10,
+      "members_sample": [
+        {
+          "id": 1998,
+          "type": "GetNode",
+          "title": "Get_Seed"
+        },
+        {
+          "id": 2014,
+          "type": "Florence2Run",
+          "title": null
+        },
+        {
+          "id": 2015,
+          "type": "ShowText|pysssss",
+          "title": "original output"
+        },
+        {
+          "id": 2029,
+          "type": "Fast Groups Bypasser (rgthree)",
+          "title": "psst...over here 🤫"
+        },
+        {
+          "id": 2036,
+          "type": "ShowText|pysssss",
+          "title": null
+        },
+        {
+          "id": 2016,
+          "type": "RemoveDuplicateTags|LP",
+          "title": "Remove Dup Tags"
+        },
+        {
+          "id": 2128,
+          "type": "CR Text Replace",
+          "title": "word ✂️"
+        },
+        {
+          "id": 2130,
+          "type": "CR Text Replace",
+          "title": "word ✂️"
+        },
+        {
+          "id": 2129,
+          "type": "CR Text Replace",
+          "title": "word ✂️"
+        },
+        {
+          "id": 2030,
+          "type": "MarkdownNote",
+          "title": "Notes / 笔记 :"
+        }
+      ],
+      "member_types": [
+        "CR Text Replace",
+        "Fast Groups Bypasser (rgthree)",
+        "Florence2Run",
+        "GetNode",
+        "MarkdownNote",
+        "RemoveDuplicateTags|LP",
+        "ShowText|pysssss"
+      ]
+    },
+    {
+      "index": 31,
+      "title": "#      🖼️Load Image!",
+      "color": "#8AA",
+      "font_size": null,
+      "bounding": [
+        -3860,
+        -2700,
+        980,
+        950
+      ],
+      "member_count": 20,
+      "members_sample": [
+        {
+          "id": 1991,
+          "type": "SetNode",
+          "title": "Set_Orgpic Latent"
+        },
+        {
+          "id": 1992,
+          "type": "SetNode",
+          "title": "Set_W2"
+        },
+        {
+          "id": 1993,
+          "type": "SetNode",
+          "title": "Set_H2"
+        },
+        {
+          "id": 1997,
+          "type": "GetNode",
+          "title": "Get_W1"
+        },
+        {
+          "id": 2010,
+          "type": "BooleanSwitchNode",
+          "title": "boolean width"
+        },
+        {
+          "id": 2011,
+          "type": "BooleanSwitchNode",
+          "title": "boolean height"
+        },
+        {
+          "id": 2012,
+          "type": "Get resolution [Crystools]",
+          "title": null
+        },
+        {
+          "id": 2013,
+          "type": "JWImageResizeByShorterSide",
+          "title": null
+        },
+        {
+          "id": 2017,
+          "type": "VAEEncode",
+          "title": null
+        },
+        {
+          "id": 2020,
+          "type": "Largest Int (JPS)",
+          "title": "number stuffs"
+        },
+        {
+          "id": 2021,
+          "type": "RMBG",
+          "title": null
+        },
+        {
+          "id": 2023,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 2025,
+          "type": "SetNode",
+          "title": "Set_OrgMask"
+        },
+        {
+          "id": 2026,
+          "type": "SetNode",
+          "title": "Set_Org pic"
+        },
+        {
+          "id": 2027,
+          "type": "ImageResizeKJv2",
+          "title": "Org resize"
+        },
+        {
+          "id": 2024,
+          "type": "MarkdownNote",
+          "title": "Notes / 笔记 :"
+        },
+        {
+          "id": 1996,
+          "type": "GetNode",
+          "title": "Get_H1"
+        },
+        {
+          "id": 2033,
+          "type": "PrimitiveBoolean",
+          "title": "Use Original Image resolution 🖼️ 📏"
+        },
+        {
+          "id": 2035,
+          "type": "LoadImage",
+          "title": null
+        },
+        {
+          "id": 2028,
+          "type": "Fast Groups Bypasser (rgthree)",
+          "title": "psst...over here 🤫"
+        }
+      ],
+      "member_types": [
+        "BooleanSwitchNode",
+        "Fast Groups Bypasser (rgthree)",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "ImageResizeKJv2",
+        "JWImageResizeByShorterSide",
+        "Largest Int (JPS)",
+        "LoadImage",
+        "MarkdownNote",
+        "PreviewImage",
+        "PrimitiveBoolean",
+        "RMBG",
+        "SetNode",
+        "VAEEncode"
+      ]
+    },
+    {
+      "index": 32,
+      "title": "#   🥅Controlnet",
+      "color": "#b36195",
+      "font_size": null,
+      "bounding": [
+        -3860,
+        -1710,
+        700,
+        820
+      ],
+      "member_count": 7,
+      "members_sample": [
+        {
+          "id": 2006,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 2007,
+          "type": "MarkdownNote",
+          "title": "Notes/ 说明"
+        },
+        {
+          "id": 2008,
+          "type": "Any Switch (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2009,
+          "type": "Largest Int (JPS)",
+          "title": null
+        },
+        {
+          "id": 2032,
+          "type": "AIO_Preprocessor",
+          "title": null
+        },
+        {
+          "id": 2005,
+          "type": "ImageResizeKJv2",
+          "title": null
+        },
+        {
+          "id": 2004,
+          "type": "QwenImageDiffsynthControlnet",
+          "title": "Controlnet"
+        }
+      ],
+      "member_types": [
+        "AIO_Preprocessor",
+        "Any Switch (rgthree)",
+        "ImageResizeKJv2",
+        "Largest Int (JPS)",
+        "MarkdownNote",
+        "PreviewImage",
+        "QwenImageDiffsynthControlnet"
+      ]
+    },
+    {
+      "index": 33,
+      "title": "⚙️ User Settings",
+      "color": "#fafafa",
+      "font_size": null,
+      "bounding": [
+        -1510,
+        -2760,
+        1990,
+        960
+      ],
+      "member_count": 68,
+      "members_sample": [
+        {
+          "id": 1265,
+          "type": "SetNode",
+          "title": "Set_Positive"
+        },
+        {
+          "id": 1269,
+          "type": "SetNode",
+          "title": "Set_Negtext"
+        },
+        {
+          "id": 1266,
+          "type": "SetNode",
+          "title": "Set_Negative"
+        },
+        {
+          "id": 1346,
+          "type": "SetNode",
+          "title": "Set_CFG"
+        },
+        {
+          "id": 1268,
+          "type": "SetNode",
+          "title": "Set_postext"
+        },
+        {
+          "id": 1348,
+          "type": "SetNode",
+          "title": "Set_Sampler"
+        },
+        {
+          "id": 1349,
+          "type": "SetNode",
+          "title": "Set_Scheduler"
+        },
+        {
+          "id": 1345,
+          "type": "SetNode",
+          "title": "Set_Steps"
+        },
+        {
+          "id": 1525,
+          "type": "SetNode",
+          "title": "Set_FloModel"
+        },
+        {
+          "id": 1267,
+          "type": "SetNode",
+          "title": "Set_Upscale factor"
+        },
+        {
+          "id": 1272,
+          "type": "SetNode",
+          "title": "Set_Lora Model"
+        },
+        {
+          "id": 1261,
+          "type": "SetNode",
+          "title": "Set_Prescale"
+        },
+        {
+          "id": 1262,
+          "type": "SetNode",
+          "title": "Set_Seed"
+        },
+        {
+          "id": 1673,
+          "type": "SetNode",
+          "title": "Set_Clip"
+        },
+        {
+          "id": 1271,
+          "type": "SetNode",
+          "title": "Set_Model Patch"
+        },
+        {
+          "id": 1263,
+          "type": "SetNode",
+          "title": "Set_prefix"
+        },
+        {
+          "id": 1600,
+          "type": "SetNode",
+          "title": "Set_Metadata"
+        },
+        {
+          "id": 1260,
+          "type": "SetNode",
+          "title": "Set_Width"
+        },
+        {
+          "id": 1264,
+          "type": "SetNode",
+          "title": "Set_Height"
+        },
+        {
+          "id": 1810,
+          "type": "SetNode",
+          "title": "Set_H1"
+        },
+        {
+          "id": 1811,
+          "type": "SetNode",
+          "title": "Set_W1"
+        },
+        {
+          "id": 1275,
+          "type": "GetNode",
+          "title": "Get_Prompt Tag"
+        },
+        {
+          "id": 1580,
+          "type": "GetNode",
+          "title": "Get_Org pic"
+        },
+        {
+          "id": 1804,
+          "type": "GetNode",
+          "title": "Get_H2"
+        },
+        {
+          "id": 1803,
+          "type": "GetNode",
+          "title": "Get_W2"
+        },
+        {
+          "id": 1289,
+          "type": "SeedVarianceEnhancer",
+          "title": "Seed Variance"
+        },
+        {
+          "id": 1353,
+          "type": "Any Switch (rgthree)",
+          "title": "Ref step switch"
+        },
+        {
+          "id": 1354,
+          "type": "Any Switch (rgthree)",
+          "title": "CFG Switch"
+        },
+        {
+          "id": 1355,
+          "type": "Any Switch (rgthree)",
+          "title": "Sampler Switch"
+        },
+        {
+          "id": 1356,
+          "type": "Any Switch (rgthree)",
+          "title": "Scheduler Switch"
+        },
+        {
+          "id": 1314,
+          "type": "CLIPTextEncode",
+          "title": null
+        },
+        {
+          "id": 1291,
+          "type": "CLIPSetLastLayer",
+          "title": null
+        },
+        {
+          "id": 1351,
+          "type": "Any Switch (rgthree)",
+          "title": "Step switch"
+        },
+        {
+          "id": 1292,
+          "type": "ModelSamplingAuraFlow",
+          "title": null
+        },
+        {
+          "id": 1315,
+          "type": "CLIPTextEncode",
+          "title": null
+        },
+        {
+          "id": 1303,
+          "type": "JoinStrings",
+          "title": null
+        },
+        {
+          "id": 1313,
+          "type": "DF_Text",
+          "title": "Filename Prefix"
+        },
+        {
+          "id": 1391,
+          "type": "Any Switch (rgthree)",
+          "title": "VAE Switch"
+        },
+        {
+          "id": 1331,
+          "type": "Any Switch (rgthree)",
+          "title": "Clip switch"
+        },
+        {
+          "id": 1293,
+          "type": "PathchSageAttentionKJ",
+          "title": "Sage attn: (Don't use with Base)"
+        }
+      ],
+      "member_types": [
+        "AILab_QwenVL_GGUF_PromptEnhancer",
+        "Any Switch (rgthree)",
+        "Anything Everywhere",
+        "CLIPSetLastLayer",
+        "CLIPTextEncode",
+        "CR Aspect Ratio Social Media",
+        "CR Text Replace",
+        "DF_Text",
+        "EmptyLatentImage",
+        "Fast Groups Bypasser (rgthree)",
+        "GetNode",
+        "Image Saver Metadata",
+        "JoinStrings",
+        "ModelSamplingAuraFlow",
+        "PathchSageAttentionKJ",
+        "Power Lora Loader (rgthree)",
+        "Seed (rgthree)",
+        "SeedVarianceEnhancer",
+        "SetNode",
+        "ShowText|pysssss",
+        "easy negative",
+        "easy positive",
+        "easy showAnything",
+        "mxSlider",
+        "vsLinx_AppendLorasFromNodeToString"
+      ]
+    },
+    {
+      "index": 34,
+      "title": "Hi Rez fix & Upscale",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        530,
+        -2670,
+        920,
+        870
+      ],
+      "member_count": 20,
+      "members_sample": [
+        {
+          "id": 1259,
+          "type": "SetNode",
+          "title": "Set_Upscale Image"
+        },
+        {
+          "id": 1276,
+          "type": "GetNode",
+          "title": "Get_Positive"
+        },
+        {
+          "id": 1277,
+          "type": "GetNode",
+          "title": "Get_Negative"
+        },
+        {
+          "id": 1278,
+          "type": "GetNode",
+          "title": "Get_Prescale"
+        },
+        {
+          "id": 1279,
+          "type": "GetNode",
+          "title": "Get_Seed"
+        },
+        {
+          "id": 1321,
+          "type": "GetNode",
+          "title": "Get_Model"
+        },
+        {
+          "id": 1273,
+          "type": "GetNode",
+          "title": "Get_RD Post Stop"
+        },
+        {
+          "id": 1361,
+          "type": "GetNode",
+          "title": "Get_Scheduler"
+        },
+        {
+          "id": 1360,
+          "type": "GetNode",
+          "title": "Get_Sampler"
+        },
+        {
+          "id": 1286,
+          "type": "easy cleanGpuUsed",
+          "title": null
+        },
+        {
+          "id": 1281,
+          "type": "easy clearCacheAll",
+          "title": null
+        },
+        {
+          "id": 1283,
+          "type": "Get resolution [Crystools]",
+          "title": null
+        },
+        {
+          "id": 1852,
+          "type": "ComfyMathExpression",
+          "title": null
+        },
+        {
+          "id": 1853,
+          "type": "ComfyMathExpression",
+          "title": null
+        },
+        {
+          "id": 1288,
+          "type": "mxSlider",
+          "title": "image size / x = tile size(s)"
+        },
+        {
+          "id": 1280,
+          "type": "UpscaleModelLoader",
+          "title": null
+        },
+        {
+          "id": 1574,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2045,
+          "type": "MarkdownNote",
+          "title": "Notes/ 笔记"
+        },
+        {
+          "id": 1285,
+          "type": "UltimateSDUpscale",
+          "title": null
+        },
+        {
+          "id": 2046,
+          "type": "Fast Groups Bypasser (rgthree)",
+          "title": "psst...over here 🤫"
+        }
+      ],
+      "member_types": [
+        "ComfyMathExpression",
+        "Fast Groups Bypasser (rgthree)",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "Image Comparer (rgthree)",
+        "MarkdownNote",
+        "SetNode",
+        "UltimateSDUpscale",
+        "UpscaleModelLoader",
+        "easy cleanGpuUsed",
+        "easy clearCacheAll",
+        "mxSlider"
+      ]
+    },
+    {
+      "index": 35,
+      "title": "Group",
+      "color": "#b06634",
+      "font_size": null,
+      "bounding": [
+        -3870,
+        -830,
+        1270,
+        1200
+      ],
+      "member_count": 8,
+      "members_sample": [
+        {
+          "id": 1335,
+          "type": "MarkdownNote",
+          "title": "Note: Model Precision (borrowed)"
+        },
+        {
+          "id": 1790,
+          "type": "MarkdownNote",
+          "title": "Recommended Samplers & Schedulers"
+        },
+        {
+          "id": 814,
+          "type": "Note",
+          "title": "Camera angles"
+        },
+        {
+          "id": 813,
+          "type": "Note",
+          "title": "Cool camera stuff"
+        },
+        {
+          "id": 816,
+          "type": "Note",
+          "title": "Label and prompt colors"
+        },
+        {
+          "id": 1249,
+          "type": "Note",
+          "title": "Qwen ZIT Instructions Low VRAM"
+        },
+        {
+          "id": 1257,
+          "type": "Note",
+          "title": "NSFW Qwen (use this one)"
+        },
+        {
+          "id": 815,
+          "type": "Note",
+          "title": "Prompt notes"
+        }
+      ],
+      "member_types": [
+        "MarkdownNote",
+        "Note"
+      ]
+    },
+    {
+      "index": 36,
+      "title": "🔎 Detailers",
+      "color": "#64fa64",
+      "font_size": null,
+      "bounding": [
+        40,
+        -1750,
+        3730,
+        1050
+      ],
+      "member_count": 48,
+      "members_sample": [
+        {
+          "id": 2047,
+          "type": "GetNode",
+          "title": "Get_Model"
+        },
+        {
+          "id": 2048,
+          "type": "GetNode",
+          "title": "Get_Clip"
+        },
+        {
+          "id": 2049,
+          "type": "GetNode",
+          "title": "Get_Scheduler"
+        },
+        {
+          "id": 2050,
+          "type": "GetNode",
+          "title": "Get_Sampler"
+        },
+        {
+          "id": 2051,
+          "type": "mxSlider",
+          "title": "Feather (8-12 typ.)"
+        },
+        {
+          "id": 2052,
+          "type": "ConditioningCombine",
+          "title": null
+        },
+        {
+          "id": 2053,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2054,
+          "type": "MaskPreview",
+          "title": null
+        },
+        {
+          "id": 2055,
+          "type": "mxSlider",
+          "title": "Feather (8-12 typ.)"
+        },
+        {
+          "id": 2056,
+          "type": "mxSlider",
+          "title": "Denoise"
+        },
+        {
+          "id": 2057,
+          "type": "ConditioningCombine",
+          "title": null
+        },
+        {
+          "id": 2058,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2059,
+          "type": "CLIPTextEncode",
+          "title": "Detailer Prompt"
+        },
+        {
+          "id": 2060,
+          "type": "MaskPreview",
+          "title": null
+        },
+        {
+          "id": 2061,
+          "type": "mxSlider",
+          "title": "Feather (8-12 typ.)"
+        },
+        {
+          "id": 2062,
+          "type": "mxSlider",
+          "title": "Denoise"
+        },
+        {
+          "id": 2063,
+          "type": "ConditioningCombine",
+          "title": null
+        },
+        {
+          "id": 2064,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2065,
+          "type": "MaskPreview",
+          "title": null
+        },
+        {
+          "id": 2066,
+          "type": "GetNode",
+          "title": "Get_Positive"
+        },
+        {
+          "id": 2067,
+          "type": "GetNode",
+          "title": "Get_Seed"
+        },
+        {
+          "id": 2068,
+          "type": "GetNode",
+          "title": "Get_CFG"
+        },
+        {
+          "id": 2069,
+          "type": "CLIPTextEncode",
+          "title": "Detailer Prompt"
+        },
+        {
+          "id": 2070,
+          "type": "CLIPTextEncode",
+          "title": "Detailer Prompt"
+        },
+        {
+          "id": 2071,
+          "type": "easy clearCacheAll",
+          "title": null
+        },
+        {
+          "id": 2072,
+          "type": "Any Switch (rgthree)",
+          "title": "switch"
+        },
+        {
+          "id": 2073,
+          "type": "ModelSamplingAuraFlow",
+          "title": "ModSampAuraFlo"
+        },
+        {
+          "id": 2074,
+          "type": "GetNode",
+          "title": "Get_Negative"
+        },
+        {
+          "id": 2075,
+          "type": "easy showAnything",
+          "title": "💩"
+        },
+        {
+          "id": 2076,
+          "type": "MarkdownNote",
+          "title": "Detailer notes/ 笔记"
+        },
+        {
+          "id": 2077,
+          "type": "SAM_SmartInpainter",
+          "title": "SAM Smart Inpainter (Face)"
+        },
+        {
+          "id": 2078,
+          "type": "SAM_SmartInpainter",
+          "title": "SAM Smart Inpainter (Eyes)"
+        },
+        {
+          "id": 2079,
+          "type": "mxSlider",
+          "title": "Feather (8-12 typ.)"
+        },
+        {
+          "id": 2080,
+          "type": "ConditioningCombine",
+          "title": null
+        },
+        {
+          "id": 2081,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2082,
+          "type": "MaskPreview",
+          "title": null
+        },
+        {
+          "id": 2083,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2084,
+          "type": "easy cleanGpuUsed",
+          "title": null
+        },
+        {
+          "id": 2085,
+          "type": "SetNode",
+          "title": "Set_detail image"
+        },
+        {
+          "id": 2086,
+          "type": "SAM_SmartInpainter",
+          "title": "SAM Smart Inpainter (Hands)"
+        }
+      ],
+      "member_types": [
+        "Any Switch (rgthree)",
+        "CLIPTextEncode",
+        "ConditioningCombine",
+        "Fast Groups Bypasser (rgthree)",
+        "GetNode",
+        "Image Comparer (rgthree)",
+        "MarkdownNote",
+        "MaskPreview",
+        "ModelSamplingAuraFlow",
+        "Power Lora Loader (rgthree)",
+        "SAM_SmartInpainter",
+        "SetNode",
+        "easy cleanGpuUsed",
+        "easy clearCacheAll",
+        "easy showAnything",
+        "mxSlider"
+      ]
+    },
+    {
+      "index": 37,
+      "title": "# ::Face 🙂",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        410,
+        -1710,
+        650,
+        1000
+      ],
+      "member_count": 7,
+      "members_sample": [
+        {
+          "id": 2051,
+          "type": "mxSlider",
+          "title": "Feather (8-12 typ.)"
+        },
+        {
+          "id": 2052,
+          "type": "ConditioningCombine",
+          "title": null
+        },
+        {
+          "id": 2053,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2054,
+          "type": "MaskPreview",
+          "title": null
+        },
+        {
+          "id": 2069,
+          "type": "CLIPTextEncode",
+          "title": "Detailer Prompt"
+        },
+        {
+          "id": 2077,
+          "type": "SAM_SmartInpainter",
+          "title": "SAM Smart Inpainter (Face)"
+        },
+        {
+          "id": 2091,
+          "type": "mxSlider",
+          "title": "Denoise"
+        }
+      ],
+      "member_types": [
+        "CLIPTextEncode",
+        "ConditioningCombine",
+        "Image Comparer (rgthree)",
+        "MaskPreview",
+        "SAM_SmartInpainter",
+        "mxSlider"
+      ]
+    },
+    {
+      "index": 38,
+      "title": "# ::Eyes 👀",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        1080,
+        -1710,
+        650,
+        1000
+      ],
+      "member_count": 7,
+      "members_sample": [
+        {
+          "id": 2055,
+          "type": "mxSlider",
+          "title": "Feather (8-12 typ.)"
+        },
+        {
+          "id": 2056,
+          "type": "mxSlider",
+          "title": "Denoise"
+        },
+        {
+          "id": 2057,
+          "type": "ConditioningCombine",
+          "title": null
+        },
+        {
+          "id": 2058,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2059,
+          "type": "CLIPTextEncode",
+          "title": "Detailer Prompt"
+        },
+        {
+          "id": 2060,
+          "type": "MaskPreview",
+          "title": null
+        },
+        {
+          "id": 2078,
+          "type": "SAM_SmartInpainter",
+          "title": "SAM Smart Inpainter (Eyes)"
+        }
+      ],
+      "member_types": [
+        "CLIPTextEncode",
+        "ConditioningCombine",
+        "Image Comparer (rgthree)",
+        "MaskPreview",
+        "SAM_SmartInpainter",
+        "mxSlider"
+      ]
+    },
+    {
+      "index": 39,
+      "title": "# ::Hands ✋",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        1750,
+        -1710,
+        650,
+        1000
+      ],
+      "member_count": 7,
+      "members_sample": [
+        {
+          "id": 2061,
+          "type": "mxSlider",
+          "title": "Feather (8-12 typ.)"
+        },
+        {
+          "id": 2062,
+          "type": "mxSlider",
+          "title": "Denoise"
+        },
+        {
+          "id": 2063,
+          "type": "ConditioningCombine",
+          "title": null
+        },
+        {
+          "id": 2064,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2065,
+          "type": "MaskPreview",
+          "title": null
+        },
+        {
+          "id": 2070,
+          "type": "CLIPTextEncode",
+          "title": "Detailer Prompt"
+        },
+        {
+          "id": 2086,
+          "type": "SAM_SmartInpainter",
+          "title": "SAM Smart Inpainter (Hands)"
+        }
+      ],
+      "member_types": [
+        "CLIPTextEncode",
+        "ConditioningCombine",
+        "Image Comparer (rgthree)",
+        "MaskPreview",
+        "SAM_SmartInpainter",
+        "mxSlider"
+      ]
+    },
+    {
+      "index": 40,
+      "title": "# ::Spare 🛞",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        2420,
+        -1710,
+        650,
+        1000
+      ],
+      "member_count": 7,
+      "members_sample": [
+        {
+          "id": 2079,
+          "type": "mxSlider",
+          "title": "Feather (8-12 typ.)"
+        },
+        {
+          "id": 2080,
+          "type": "ConditioningCombine",
+          "title": null
+        },
+        {
+          "id": 2081,
+          "type": "Image Comparer (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2082,
+          "type": "MaskPreview",
+          "title": null
+        },
+        {
+          "id": 2090,
+          "type": "SAM_SmartInpainter",
+          "title": "SAM Smart Inpainter (Spare)"
+        },
+        {
+          "id": 2092,
+          "type": "CLIPTextEncode",
+          "title": "Detailer Prompt"
+        },
+        {
+          "id": 2093,
+          "type": "mxSlider",
+          "title": "Denoise"
+        }
+      ],
+      "member_types": [
+        "CLIPTextEncode",
+        "ConditioningCombine",
+        "Image Comparer (rgthree)",
+        "MaskPreview",
+        "SAM_SmartInpainter",
+        "mxSlider"
+      ]
+    },
+    {
+      "index": 41,
+      "title": "Instruct (Beta)",
+      "color": "#b06634",
+      "font_size": null,
+      "bounding": [
+        -1940,
+        -850,
+        870,
+        590
+      ],
+      "member_count": 8,
+      "members_sample": [
+        {
+          "id": 2096,
+          "type": "SetNode",
+          "title": "Set_Instruct"
+        },
+        {
+          "id": 2097,
+          "type": "Node Collector (rgthree)",
+          "title": "Node Collector"
+        },
+        {
+          "id": 2098,
+          "type": "Any Switch (rgthree)",
+          "title": "Any Switch"
+        },
+        {
+          "id": 2099,
+          "type": "Text Multiline",
+          "title": "Realistic"
+        },
+        {
+          "id": 2101,
+          "type": "MarkdownNote",
+          "title": "Instruct Notes:"
+        },
+        {
+          "id": 2102,
+          "type": "Text Multiline",
+          "title": "Photographic"
+        },
+        {
+          "id": 2103,
+          "type": "Text Multiline",
+          "title": "Generic (NSFW)"
+        },
+        {
+          "id": 2100,
+          "type": "Fast Bypasser (rgthree)",
+          "title": "LLM Prompt Instructions"
+        }
+      ],
+      "member_types": [
+        "Any Switch (rgthree)",
+        "Fast Bypasser (rgthree)",
+        "MarkdownNote",
+        "Node Collector (rgthree)",
+        "SetNode",
+        "Text Multiline"
+      ]
+    },
+    {
+      "index": 42,
+      "title": "🧠 Brains",
+      "color": "#a1309b",
+      "font_size": null,
+      "bounding": [
+        -1510,
+        -1750,
+        1500,
+        850
+      ],
+      "member_count": 46,
+      "members_sample": [
+        {
+          "id": 1364,
+          "type": "GetNode",
+          "title": "Get_Positive"
+        },
+        {
+          "id": 1363,
+          "type": "GetNode",
+          "title": "Get_Negative"
+        },
+        {
+          "id": 1365,
+          "type": "GetNode",
+          "title": "Get_Seed"
+        },
+        {
+          "id": 1334,
+          "type": "GetNode",
+          "title": "Get_Model"
+        },
+        {
+          "id": 1787,
+          "type": "GetNode",
+          "title": "Get_Lora Model"
+        },
+        {
+          "id": 1442,
+          "type": "Label (rgthree)",
+          "title": "you have draft mode on as well as a random seed"
+        },
+        {
+          "id": 1441,
+          "type": "Label (rgthree)",
+          "title": "either use a fixed seed or turn off draft mode"
+        },
+        {
+          "id": 2107,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2108,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2109,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2110,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2111,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2112,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2113,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2114,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2115,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2116,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2117,
+          "type": "GetNode",
+          "title": "Get_Sampler"
+        },
+        {
+          "id": 2118,
+          "type": "easy showAnything",
+          "title": "base schedule name"
+        },
+        {
+          "id": 1066,
+          "type": "SetNode",
+          "title": "Set_RD Post Stop"
+        },
+        {
+          "id": 2120,
+          "type": "Any Switch (rgthree)",
+          "title": "Regex Switch"
+        },
+        {
+          "id": 1369,
+          "type": "GetNode",
+          "title": "Get_Scheduler"
+        },
+        {
+          "id": 1366,
+          "type": "GetNode",
+          "title": "Get_Steps"
+        },
+        {
+          "id": 1789,
+          "type": "easy mathInt",
+          "title": "refiner math"
+        },
+        {
+          "id": 1367,
+          "type": "GetNode",
+          "title": "Get_CFG"
+        },
+        {
+          "id": 2043,
+          "type": "easy showAnything",
+          "title": "🙄"
+        },
+        {
+          "id": 298,
+          "type": "VAEDecode",
+          "title": null
+        },
+        {
+          "id": 1069,
+          "type": "Any Switch (rgthree)",
+          "title": "🛑 switch"
+        },
+        {
+          "id": 2123,
+          "type": "Node Collector (rgthree)",
+          "title": "Node Collect"
+        },
+        {
+          "id": 2042,
+          "type": "easy showAnything",
+          "title": "sampler switch"
+        },
+        {
+          "id": 1070,
+          "type": "PlaySound|pysssss",
+          "title": "PlaySound 🔊"
+        },
+        {
+          "id": 1788,
+          "type": "mxSlider",
+          "title": "refiner steps (typ. 4)"
+        },
+        {
+          "id": 2121,
+          "type": "easy showAnything",
+          "title": "😫"
+        },
+        {
+          "id": 82,
+          "type": "SetNode",
+          "title": "Set_Rough Draft"
+        },
+        {
+          "id": 1071,
+          "type": "mxStop",
+          "title": "🛑🚫 STOP"
+        },
+        {
+          "id": 2039,
+          "type": "ClownsharKSampler_Beta",
+          "title": "🤡 Pass 1"
+        },
+        {
+          "id": 1440,
+          "type": "Label (rgthree)",
+          "title": "if it stops here and goes no further"
+        },
+        {
+          "id": 303,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 2119,
+          "type": "MarkdownNote",
+          "title": "conversion table"
+        },
+        {
+          "id": 299,
+          "type": "easy clearCacheAll",
+          "title": null
+        }
+      ],
+      "member_types": [
+        "Any Switch (rgthree)",
+        "ClownSamplerSelector_Beta",
+        "ClownsharKSampler_Beta",
+        "ClownsharkChainsampler_Beta",
+        "Fast Muter (rgthree)",
+        "GetNode",
+        "Label (rgthree)",
+        "MarkdownNote",
+        "Node Collector (rgthree)",
+        "PlaySound|pysssss",
+        "PreviewImage",
+        "SetNode",
+        "String Replace (mtb)",
+        "VAEDecode",
+        "easy cleanGpuUsed",
+        "easy clearCacheAll",
+        "easy mathInt",
+        "easy showAnything",
+        "mxSlider",
+        "mxStop"
+      ]
+    },
+    {
+      "index": 43,
+      "title": "🥱 to 🤡 regexes",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        -1500,
+        -1710,
+        200,
+        600
+      ],
+      "member_count": 14,
+      "members_sample": [
+        {
+          "id": 2107,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2108,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2109,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2110,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2111,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2112,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2113,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2114,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2115,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2116,
+          "type": "String Replace (mtb)",
+          "title": null
+        },
+        {
+          "id": 2117,
+          "type": "GetNode",
+          "title": "Get_Sampler"
+        },
+        {
+          "id": 2118,
+          "type": "easy showAnything",
+          "title": "base schedule name"
+        },
+        {
+          "id": 2121,
+          "type": "easy showAnything",
+          "title": "😫"
+        },
+        {
+          "id": 2119,
+          "type": "MarkdownNote",
+          "title": "conversion table"
+        }
+      ],
+      "member_types": [
+        "GetNode",
+        "MarkdownNote",
+        "String Replace (mtb)",
+        "easy showAnything"
+      ]
+    },
+    {
+      "index": 44,
+      "title": "Image suite",
+      "color": "#3f789e",
+      "font_size": null,
+      "bounding": [
+        -3870,
+        -2740,
+        1570,
+        1860
+      ],
+      "member_count": 50,
+      "members_sample": [
+        {
+          "id": 1990,
+          "type": "SetNode",
+          "title": "Set_Maskimg"
+        },
+        {
+          "id": 1991,
+          "type": "SetNode",
+          "title": "Set_Orgpic Latent"
+        },
+        {
+          "id": 1992,
+          "type": "SetNode",
+          "title": "Set_W2"
+        },
+        {
+          "id": 1993,
+          "type": "SetNode",
+          "title": "Set_H2"
+        },
+        {
+          "id": 1994,
+          "type": "SetNode",
+          "title": "Set_Prompt Tag"
+        },
+        {
+          "id": 1997,
+          "type": "GetNode",
+          "title": "Get_W1"
+        },
+        {
+          "id": 1998,
+          "type": "GetNode",
+          "title": "Get_Seed"
+        },
+        {
+          "id": 2000,
+          "type": "GetNode",
+          "title": "Get_Model Patch"
+        },
+        {
+          "id": 2001,
+          "type": "GetNode",
+          "title": "Get_Width"
+        },
+        {
+          "id": 2002,
+          "type": "GetNode",
+          "title": "Get_Height"
+        },
+        {
+          "id": 2003,
+          "type": "GetNode",
+          "title": "Get_Lora Model"
+        },
+        {
+          "id": 2006,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 2007,
+          "type": "MarkdownNote",
+          "title": "Notes/ 说明"
+        },
+        {
+          "id": 2008,
+          "type": "Any Switch (rgthree)",
+          "title": null
+        },
+        {
+          "id": 2009,
+          "type": "Largest Int (JPS)",
+          "title": null
+        },
+        {
+          "id": 2010,
+          "type": "BooleanSwitchNode",
+          "title": "boolean width"
+        },
+        {
+          "id": 2011,
+          "type": "BooleanSwitchNode",
+          "title": "boolean height"
+        },
+        {
+          "id": 2012,
+          "type": "Get resolution [Crystools]",
+          "title": null
+        },
+        {
+          "id": 2013,
+          "type": "JWImageResizeByShorterSide",
+          "title": null
+        },
+        {
+          "id": 2014,
+          "type": "Florence2Run",
+          "title": null
+        },
+        {
+          "id": 2015,
+          "type": "ShowText|pysssss",
+          "title": "original output"
+        },
+        {
+          "id": 2017,
+          "type": "VAEEncode",
+          "title": null
+        },
+        {
+          "id": 2018,
+          "type": "ImageResizeKJv2",
+          "title": null
+        },
+        {
+          "id": 2019,
+          "type": "LoadImage",
+          "title": null
+        },
+        {
+          "id": 2020,
+          "type": "Largest Int (JPS)",
+          "title": "number stuffs"
+        },
+        {
+          "id": 2021,
+          "type": "RMBG",
+          "title": null
+        },
+        {
+          "id": 2023,
+          "type": "PreviewImage",
+          "title": null
+        },
+        {
+          "id": 2025,
+          "type": "SetNode",
+          "title": "Set_OrgMask"
+        },
+        {
+          "id": 2026,
+          "type": "SetNode",
+          "title": "Set_Org pic"
+        },
+        {
+          "id": 2029,
+          "type": "Fast Groups Bypasser (rgthree)",
+          "title": "psst...over here 🤫"
+        },
+        {
+          "id": 1995,
+          "type": "SetNode",
+          "title": "Set_Model"
+        },
+        {
+          "id": 2036,
+          "type": "ShowText|pysssss",
+          "title": null
+        },
+        {
+          "id": 2032,
+          "type": "AIO_Preprocessor",
+          "title": null
+        },
+        {
+          "id": 2005,
+          "type": "ImageResizeKJv2",
+          "title": null
+        },
+        {
+          "id": 2004,
+          "type": "QwenImageDiffsynthControlnet",
+          "title": "Controlnet"
+        },
+        {
+          "id": 2027,
+          "type": "ImageResizeKJv2",
+          "title": "Org resize"
+        },
+        {
+          "id": 2022,
+          "type": "Label (rgthree)",
+          "title": "Load 🖼️image above👆. Use Prompt assist if you want. Image & prompt related stuff ⬆️   Controlnet and mask related stuff ⬇️"
+        },
+        {
+          "id": 2024,
+          "type": "MarkdownNote",
+          "title": "Notes / 笔记 :"
+        },
+        {
+          "id": 1996,
+          "type": "GetNode",
+          "title": "Get_H1"
+        },
+        {
+          "id": 2031,
+          "type": "Fast Groups Muter (rgthree)",
+          "title": "Picture or Mask?"
+        }
+      ],
+      "member_types": [
+        "AIO_Preprocessor",
+        "Any Switch (rgthree)",
+        "BooleanSwitchNode",
+        "CR Text Replace",
+        "Fast Groups Bypasser (rgthree)",
+        "Fast Groups Muter (rgthree)",
+        "Florence2Run",
+        "Get resolution [Crystools]",
+        "GetNode",
+        "ImageResizeKJv2",
+        "JWImageResizeByShorterSide",
+        "Label (rgthree)",
+        "Largest Int (JPS)",
+        "LoadImage",
+        "MarkdownNote",
+        "PreviewImage",
+        "PrimitiveBoolean",
+        "QwenImageDiffsynthControlnet",
+        "RMBG",
+        "RemoveDuplicateTags|LP",
+        "SetNode",
+        "ShowText|pysssss",
+        "VAEEncode"
+      ]
+    }
+  ],
+  "bypassers": [
+    {
+      "id": 1352,
+      "type": "Fast Bypasser (rgthree)",
+      "title": null,
+      "matchColors": null,
+      "matchTitle": null,
+      "properties_keys": [
+        "toggleRestriction",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 1329,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Model selector",
+      "matchColors": "",
+      "matchTitle": "Model",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "Model",
+        "showNav": false,
+        "showAllGraphs": true,
+        "sort": "position",
+        "toggleRestriction": "always one",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 1708,
+      "type": "Fast Bypasser (rgthree)",
+      "title": "Meta 📂📅+",
+      "matchColors": null,
+      "matchTitle": null,
+      "properties_keys": [
+        "toggleRestriction",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 1744,
+      "type": "Fast Bypasser (rgthree)",
+      "title": null,
+      "matchColors": null,
+      "matchTitle": null,
+      "properties_keys": [
+        "toggleRestriction",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 1863,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchColors": "",
+      "matchTitle": "#  Seed",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "#  Seed",
+        "showNav": false,
+        "showAllGraphs": false,
+        "sort": "position",
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 1874,
+      "type": "Fast Bypasser (rgthree)",
+      "title": "Post processing selector",
+      "matchColors": null,
+      "matchTitle": null,
+      "properties_keys": [
+        "toggleRestriction",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 2029,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchColors": "",
+      "matchTitle": "📝 Img Prompt",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "ue_properties",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "📝 Img Prompt",
+        "showNav": false,
+        "showAllGraphs": false,
+        "sort": "position",
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 1318,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Bypasser",
+      "matchColors": "",
+      "matchTitle": "#",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "#",
+        "showNav": false,
+        "showAllGraphs": true,
+        "sort": "alphanumeric",
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 1867,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchColors": "",
+      "matchTitle": "Prompt",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "Prompt",
+        "showNav": false,
+        "showAllGraphs": false,
+        "sort": "position",
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 2046,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchColors": "",
+      "matchTitle": "Hi Rez Fix/ Upscale",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "ue_properties",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "Hi Rez Fix/ Upscale",
+        "showNav": false,
+        "showAllGraphs": false,
+        "sort": "position",
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 2031,
+      "type": "Fast Groups Muter (rgthree)",
+      "title": "Picture or Mask?",
+      "matchColors": "",
+      "matchTitle": "'",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "ue_properties",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "'",
+        "showNav": false,
+        "showAllGraphs": true,
+        "sort": "position",
+        "toggleRestriction": "max one",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 2034,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchColors": "",
+      "matchTitle": "🥅",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "ue_properties",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "🥅",
+        "showNav": false,
+        "showAllGraphs": false,
+        "sort": "position",
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 1866,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchColors": "",
+      "matchTitle": "Klein Inpaint 🖌️",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "Klein Inpaint 🖌️",
+        "showNav": false,
+        "showAllGraphs": false,
+        "sort": "position",
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 2094,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "pssst....over here 🤫",
+      "matchColors": "",
+      "matchTitle": "::",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "ue_properties",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "::",
+        "showNav": false,
+        "showAllGraphs": false,
+        "sort": "position",
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 1872,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Group switches",
+      "matchColors": "",
+      "matchTitle": "📷",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "📷",
+        "showNav": false,
+        "showAllGraphs": true,
+        "sort": "position",
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 2028,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "psst...over here 🤫",
+      "matchColors": "",
+      "matchTitle": "!",
+      "properties_keys": [
+        "matchColors",
+        "matchTitle",
+        "showNav",
+        "showAllGraphs",
+        "sort",
+        "customSortAlphabet",
+        "toggleRestriction",
+        "ue_properties",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth"
+      ],
+      "raw_props_subset": {
+        "matchColors": "",
+        "matchTitle": "!",
+        "showNav": false,
+        "showAllGraphs": false,
+        "sort": "position",
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    },
+    {
+      "id": 2100,
+      "type": "Fast Bypasser (rgthree)",
+      "title": "LLM Prompt Instructions",
+      "matchColors": null,
+      "matchTitle": null,
+      "properties_keys": [
+        "toggleRestriction",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "toggleRestriction": "max one"
+      }
+    },
+    {
+      "id": 1068,
+      "type": "Fast Muter (rgthree)",
+      "title": "Options",
+      "matchColors": null,
+      "matchTitle": null,
+      "properties_keys": [
+        "toggleRestriction",
+        "enableTabs",
+        "tabWidth",
+        "tabXOffset",
+        "hasSecondTab",
+        "secondTabText",
+        "secondTabOffset",
+        "secondTabWidth",
+        "ue_properties"
+      ],
+      "raw_props_subset": {
+        "toggleRestriction": "default",
+        "enableTabs": false,
+        "secondTabText": "Send Back"
+      }
+    }
+  ],
+  "switches": [
+    {
+      "id": 1353,
+      "type": "Any Switch (rgthree)",
+      "title": "Ref step switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "INT",
+          "link": 14246
+        },
+        {
+          "name": "any_02",
+          "type": "INT",
+          "link": 14255
+        },
+        {
+          "name": "any_03",
+          "type": "INT",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "INT",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "INT",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1354,
+      "type": "Any Switch (rgthree)",
+      "title": "CFG Switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "FLOAT",
+          "link": 14248
+        },
+        {
+          "name": "any_02",
+          "type": "FLOAT",
+          "link": 14256
+        },
+        {
+          "name": "any_03",
+          "type": "FLOAT",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "FLOAT",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "FLOAT",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1355,
+      "type": "Any Switch (rgthree)",
+      "title": "Sampler Switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "COMBO",
+          "link": 14250
+        },
+        {
+          "name": "any_02",
+          "type": "COMBO",
+          "link": 14257
+        },
+        {
+          "name": "any_03",
+          "type": "COMBO",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "COMBO",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "COMBO",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1356,
+      "type": "Any Switch (rgthree)",
+      "title": "Scheduler Switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "COMBO",
+          "link": 14252
+        },
+        {
+          "name": "any_02",
+          "type": "COMBO",
+          "link": 14258
+        },
+        {
+          "name": "any_03",
+          "type": "COMBO",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "COMBO",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "COMBO",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1351,
+      "type": "Any Switch (rgthree)",
+      "title": "Step switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "INT",
+          "link": 14244
+        },
+        {
+          "name": "any_02",
+          "type": "INT",
+          "link": 14254
+        },
+        {
+          "name": "any_03",
+          "type": "INT",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "INT",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "INT",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1391,
+      "type": "Any Switch (rgthree)",
+      "title": "VAE Switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "VAE",
+          "link": 15412
+        },
+        {
+          "name": "any_02",
+          "type": "VAE",
+          "link": 14370
+        },
+        {
+          "name": "any_03",
+          "type": "VAE",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "VAE",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "VAE",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1331,
+      "type": "Any Switch (rgthree)",
+      "title": "Clip switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "CLIP",
+          "link": 13850
+        },
+        {
+          "name": "any_02",
+          "type": "CLIP",
+          "link": 16695
+        },
+        {
+          "name": "any_03",
+          "type": "CLIP",
+          "link": 15410
+        },
+        {
+          "name": "any_04",
+          "type": "CLIP",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "CLIP",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1700,
+      "type": "Any Switch (rgthree)",
+      "title": "",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "STRING",
+          "link": 17560
+        },
+        {
+          "name": "any_02",
+          "type": "STRING",
+          "link": 17561
+        },
+        {
+          "name": "any_03",
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "STRING",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1778,
+      "type": "Any Switch (rgthree)",
+      "title": "IMG pass \\switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "IMAGE",
+          "link": 17668
+        },
+        {
+          "name": "any_02",
+          "type": "IMAGE",
+          "link": 17669
+        },
+        {
+          "name": "any_03",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "IMAGE",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1330,
+      "type": "Any Switch (rgthree)",
+      "title": "Model switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "MODEL",
+          "link": 13847
+        },
+        {
+          "name": "any_02",
+          "type": "MODEL",
+          "link": 17488
+        },
+        {
+          "name": "any_03",
+          "type": "MODEL",
+          "link": 15409
+        },
+        {
+          "name": "any_04",
+          "type": "MODEL",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "MODEL",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1562,
+      "type": "Any Switch (rgthree)",
+      "title": "Modelname Switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "STRING",
+          "link": 15462
+        },
+        {
+          "name": "any_02",
+          "type": "STRING",
+          "link": 15464
+        },
+        {
+          "name": "any_03",
+          "type": "STRING",
+          "link": 15408
+        },
+        {
+          "name": "any_04",
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "STRING",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1800,
+      "type": "Any Switch (rgthree)",
+      "title": "Latent Switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "LATENT",
+          "link": 17881
+        },
+        {
+          "name": "any_02",
+          "type": "LATENT",
+          "link": 17882
+        },
+        {
+          "name": "any_03",
+          "type": "LATENT",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "LATENT",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "LATENT",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1923,
+      "type": "Any Switch (rgthree)",
+      "title": "color match switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "IMAGE",
+          "link": 18599
+        },
+        {
+          "name": "any_02",
+          "type": "IMAGE",
+          "link": 18600
+        },
+        {
+          "name": "any_03",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "IMAGE",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1925,
+      "type": "Any Switch (rgthree)",
+      "title": "Color match bypass switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "IMAGE",
+          "link": 18601
+        },
+        {
+          "name": "any_02",
+          "type": "IMAGE",
+          "link": 18602
+        },
+        {
+          "name": "any_03",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "IMAGE",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 2008,
+      "type": "Any Switch (rgthree)",
+      "title": "",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "IMAGE",
+          "link": 18798
+        },
+        {
+          "name": "any_02",
+          "type": "IMAGE",
+          "link": 18799
+        },
+        {
+          "name": "any_03",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "IMAGE",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 2010,
+      "type": "BooleanSwitchNode",
+      "title": "boolean width",
+      "widgets": [
+        false
+      ],
+      "inputs": [
+        {
+          "name": "on_true",
+          "type": "*",
+          "link": 18802
+        },
+        {
+          "name": "on_false",
+          "type": "*",
+          "link": 18803
+        },
+        {
+          "name": "state",
+          "type": "BOOLEAN",
+          "link": 18804
+        }
+      ]
+    },
+    {
+      "id": 2011,
+      "type": "BooleanSwitchNode",
+      "title": "boolean height",
+      "widgets": [
+        false
+      ],
+      "inputs": [
+        {
+          "name": "on_true",
+          "type": "*",
+          "link": 18805
+        },
+        {
+          "name": "on_false",
+          "type": "*",
+          "link": 18806
+        },
+        {
+          "name": "state",
+          "type": "BOOLEAN",
+          "link": 18807
+        }
+      ]
+    },
+    {
+      "id": 1807,
+      "type": "Any Switch (rgthree)",
+      "title": "Width Sw",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "INT",
+          "link": 17888
+        },
+        {
+          "name": "any_02",
+          "type": "INT",
+          "link": 18307
+        },
+        {
+          "name": "any_03",
+          "type": "INT",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "INT",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "INT",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1806,
+      "type": "Any Switch (rgthree)",
+      "title": "Height sw",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "INT",
+          "link": 17887
+        },
+        {
+          "name": "any_02",
+          "type": "INT",
+          "link": 18308
+        },
+        {
+          "name": "any_03",
+          "type": "INT",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "INT",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "INT",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 2072,
+      "type": "Any Switch (rgthree)",
+      "title": "switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "IMAGE",
+          "link": 19491
+        },
+        {
+          "name": "any_02",
+          "type": "IMAGE",
+          "link": 19492
+        },
+        {
+          "name": "any_03",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "IMAGE",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 2098,
+      "type": "Any Switch (rgthree)",
+      "title": "Any Switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "STRING",
+          "link": 19613
+        },
+        {
+          "name": "any_02",
+          "type": "STRING",
+          "link": 19614
+        },
+        {
+          "name": "any_03",
+          "type": "STRING",
+          "link": 19615
+        },
+        {
+          "name": "any_04",
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "STRING",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 2120,
+      "type": "Any Switch (rgthree)",
+      "title": "Regex Switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "COMBO",
+          "link": 19928
+        },
+        {
+          "name": "any_02",
+          "type": "COMBO",
+          "link": 19929
+        },
+        {
+          "name": "any_03",
+          "type": "COMBO",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "COMBO",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "COMBO",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1069,
+      "type": "Any Switch (rgthree)",
+      "title": "🛑 switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "IMAGE",
+          "link": 12941
+        },
+        {
+          "name": "any_02",
+          "type": "IMAGE",
+          "link": 12936
+        },
+        {
+          "name": "any_03",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "IMAGE",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 2042,
+      "type": "easy showAnything",
+      "title": "sampler switch",
+      "widgets": [
+        "radau_iia_5s"
+      ],
+      "inputs": [
+        {
+          "name": "anything",
+          "type": "*",
+          "link": 19931
+        }
+      ]
+    },
+    {
+      "id": 1890,
+      "type": "Any Switch (rgthree)",
+      "title": "crop bypass Switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "IMAGE",
+          "link": 18550
+        },
+        {
+          "name": "any_02",
+          "type": "IMAGE",
+          "link": 18551
+        },
+        {
+          "name": "any_03",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "IMAGE",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1893,
+      "type": "Any Switch (rgthree)",
+      "title": "Optical Real switch",
+      "widgets": [],
+      "inputs": [
+        {
+          "name": "any_01",
+          "type": "IMAGE",
+          "link": 18565
+        },
+        {
+          "name": "any_02",
+          "type": "IMAGE",
+          "link": 18566
+        },
+        {
+          "name": "any_03",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_04",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "any_05",
+          "type": "IMAGE",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": 1872,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "title": "Group switches",
+      "widgets": null,
+      "inputs": []
+    }
+  ]
+}

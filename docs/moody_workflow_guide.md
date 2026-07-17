@@ -9,11 +9,13 @@
 
 ## 📁 파일 구조 및 위치
 에이전트용 레이아웃 (`agent_custom` 루트 기준):
-* **워크플로우 SSOT**: `workflows/agent/`
-* **T2I 워크플로우**: [../workflows/agent/T2I-moody.json](../workflows/agent/T2I-moody.json)
-* **T2I 실행 스크립트**: [../scripts/generate_moody.py](../scripts/generate_moody.py)
-* **I2I 워크플로우**: [../workflows/agent/I2I-moody.json](../workflows/agent/I2I-moody.json)
-* **I2I 실행 스크립트**: [../scripts/generate_moody_i2i.py](../scripts/generate_moody_i2i.py)
+* **워크플로우 SSOT**: `workflows/agent/` (API 프리셋 우선)
+* **I2I 본선 (권장)**: `workflows/agent/presets/lonecat_i2i_identity.api.json` + `.ports.json`
+* **I2I 실행 스크립트**: [../scripts/generate_moody_i2i.py](../scripts/generate_moody_i2i.py) → `workflow_api_runner` (기본 프리셋 `lonecat_i2i_identity`)
+* **lock / “ipadapter”**: 동일 경로 (`generate_moody_i2i_lock` · `generate_moody_i2i_ipadapter` — inject 없음)
+* **T2I 실행 스크립트**: [../scripts/generate_moody.py](../scripts/generate_moody.py) (미니 T2I 잔존 — Phase 2에서 Lonecat T2I로 이전 예정)
+* **레거시 미니 I2I**: `I2I-moody.json` — `--legacy-mini` 비상 전용
+* 기능 목록: `python scripts/run_workflow_api.py --list-features`
 
 ---
 
@@ -35,8 +37,14 @@ python scripts/generate_moody.py --model pro --prompt "Cinematic photo of a Kore
 
 ### 2. 이미지 입력 편집 및 일관성 변환 (I2I)
 ```bash
-# 입력 이미지를 활용하여 텀블러로 사물 교체
-python scripts/generate_moody_i2i.py -i "입력이미지경로.png" -p "holding a sleek modern insulated tumbler" -d 0.70 -c 3.5 -m pro -o "출력이미지경로.png"
+# Lonecat AIO I2I 프리셋 (기본). 인물 ID 유지 시 denoise ~0.42–0.58
+python scripts/generate_moody_i2i.py -i "입력이미지경로.png" -p "holding a sleek modern insulated tumbler" -d 0.55 -m pro -o "출력이미지경로.png"
+
+# 동일 경로, 아이덴티티 문구 + denoise cap
+python -c "from generate_moody_i2i_lock import generate_i2i_lock; ..."
+
+# 직접 프리셋 호출
+python scripts/run_workflow_api.py -p lonecat_i2i_identity --positive "..." --input-image "..." --denoise 0.55
 ```
 
 ---

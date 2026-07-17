@@ -3,14 +3,28 @@
 스크립트·캐릭터 파이프라인이 읽는 **프로덕션 워크플로우**입니다.  
 휴먼 UI 실험 파일과 섞지 마십시오.
 
+> **전환 플랜 (JSON 직접 API 호출):**  
+> [`docs/workflow_api_direct_call_plan.md`](../../docs/workflow_api_direct_call_plan.md)  
+> 목표: 미니 그래프/`convert_ui_to_api`/런타임 inject 폐기 → `*.api.json` + port patch + `/prompt` 만.
+>
+> **기능 선택 (Bypasser/셀렉터 → 프리셋):**  
+> Lonecat: [`../human/Lonecat_AIO_Z-Image_ver17_AGENT_GUIDE.md`](../human/Lonecat_AIO_Z-Image_ver17_AGENT_GUIDE.md) ·  
+> Krea2: [`../human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md`](../human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md) ·  
+> [`presets/lonecat_feature_presets.json`](presets/lonecat_feature_presets.json) ·  
+> `python scripts/run_workflow_api.py --list-features`
+
 ## Catalog (SSOT 별칭)
 
 | 키 | 파일 | 스크립트 |
 |----|------|----------|
-| `t2i_moody` | `T2I-moody.json` | `scripts/generate_moody.py` |
-| `i2i_moody` | `I2I-moody.json` | `scripts/generate_moody_i2i.py`, `shot_with_character.py` |
+| `t2i_moody` | `T2I-moody.json` | `scripts/generate_moody.py` (Phase2 → Lonecat T2I 예정) |
+| `lonecat_i2i_identity` | `presets/lonecat_i2i_identity.api.json` | **I2I 본선** `generate_moody_i2i` / lock / ipadapter(alias) |
+| `zimage_fun_union_controlnet` | `presets/zimage_fun_union_controlnet.api.json` | **CN 본선** `generate_moody_controlnet` (Fun Union 공식) |
+| `i2i_moody` | `I2I-moody.json` | 레거시 미니 only (`--legacy-mini`) |
+| `i2i_controlnet_moody` | `I2I-ControlNet-moody.json` | CN 레거시 미니 only (`AGENT_CN_BACKEND=legacy_mini`) |
 | `i2i_controlnet_moody` | `I2I-ControlNet-moody.json` | `scripts/generate_moody_controlnet.py`, expand CN |
-| `i2v_wan22_a14b` | `I2V-wan22-a14b.json` | `scripts/generate_i2v.py` (default) |
+| `i2v_wan22_a14b` | `presets/i2v_wan22_a14b.api.json` | `generate_i2v --backend wan22` (API) |
+| `wan22_*` planned | human `wan22/` pack | FaceEnhance / Upscale / FLF / Animate — see AGENT_GUIDE |
 | `t2i_krea` | `T2I-krea.json` | `scripts/generate_krea.py` |
 | `t2i_z_image_turbo` | `T2I-z-image-turbo.json` | (베이스/참고) |
 | `qwen_edit_2511` | **JSON 없음 — API inject** | `generate_qwen_edit.py` (기본 GGUF=angle과 동일 모델) · `shot_keyframe_edit --engine qwen` |
@@ -22,7 +36,7 @@
 
 | 엔진 | 스크립트 | 가중치 | 언제 |
 |------|----------|--------|------|
-| Moody I2I | `generate_moody_i2i` / `shot_keyframe_edit --engine moody` | Moody/ZImage | 약한 표정·톤 denoise |
+| Lonecat I2I | `generate_moody_i2i` / lock / `ipadapter` 이름 유지 | `lonecat_i2i_identity` API | 키프레임·아이덴티티 denoise |
 | Qwen Edit | `generate_qwen_edit` / `shot_keyframe_edit --engine qwen` | **2509 Q5 GGUF** + 지시 인코더 (Angles 없음) | 물체 교체·제거 |
 | Qwen Angle | `generate_qwen_angle` / `character_qwen_turns` | **2511 GGUF** + Lightning + **Angles LoRA** | 헤드/바디 멀티뷰 (`<sks>`) |
 

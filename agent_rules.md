@@ -68,8 +68,18 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
 * **[작업 일자], [에이전트 이름], [작업 목표], [주요 변경·파라미터]** 를 남긴다.
 
 ### Rule 2. 자동화 스크립트 정합성 유지
-* ComfyUI UI에서 워크플로우를 바꾸면, 대응 스크립트(`scripts/generate_moody.py`, `scripts/generate_moody_i2i.py` 등)의 `convert_ui_to_api`·노드 주입 로직을 **함께** 갱신한다.
-* JSON만 바꾸고 스크립트 매핑을 생략해 배치를 깨뜨리는 행위는 금지.
+* **Still 생성 본선 (workflow_api only)**:
+  - T2I Moody: `generate_moody` → `lonecat_t2i_turbo`
+  - T2I Krea: `generate_krea` → `krea2_t2i_v10`
+  - I2I: `generate_moody_i2i` / lock / ipadapter이름 → `lonecat_i2i_identity`
+  - ControlNet: `generate_moody_controlnet` → `zimage_fun_union_controlnet` (공식 Fun Union)
+  - Qwen multi-angle: `generate_qwen_angle` → `qwen_multiangle_image` (`멀티앵글생성-qwen-image`)
+  - Qwen 지시 편집: `generate_qwen_edit` → `qwen_edit_2509` (`image_qwen_image_edit_2509`)
+  - Video: `generate_i2v` / `generate_s2v` → `ltx23AllInOneWorkflowForRTX_v44` via `ltx_aio_workflow_runner` (default)
+  - LTX **Select options**: `run_ltx_aio_features.py --list` · mode = `[[P:]]` mute set (`ltx_aio_mode_select`) · guide `workflows/human/LTX23_AIO_v44_AGENT_GUIDE.md`
+* 미니 그래프·`convert_ui_to_api`·런타임 노드 inject **금지** (본선). 비상: `--legacy-mini` / `AGENT_*_BACKEND=legacy_mini` / `AGENT_LTX_FORCE_MINI_GRAPH=1`.
+* ComfyUI UI AIO 변경 시: **API re-export** → `workflows/agent/presets/*.api.json` + `*.ports.json` → catalog / `lonecat_feature_presets.json`.
+* JSON만 바꾸고 포트 맵·프리셋 등록을 생략해 배치를 깨뜨리는 행위는 금지.
 
 ### Rule 2.1 에이전트 전용 워크플로우 경로
 * 스크립트가 읽는 워크플로우 **SSOT는 `workflows/agent/`** 이다.
@@ -87,9 +97,23 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
 * **사용자 납품** → `deliveries/` (`package_delivery.py`). 작업실은 `stories/`. 상세 [docs/delivery_handoff.md](docs/delivery_handoff.md).
 * 루트에 실행 스크립트·워크플로우 JSON·장문 스펙을 새로 쌓지 말 것.
 
+### Rule 3.0 AIO 워크플로우 — 기능은 프리셋으로 선택 (Bypasser 분석 결과)
+* Lonecat / Krea2 등 AIO의 **Fast Groups Bypasser / selector / Any Switch** 는 UI 기능 스위치다.
+* 에이전트는 UI를 클릭하지 않고 **`feature_id` → ready `agent_preset` → `*.api.json` + port patch** 만 사용한다.
+* **Lonecat (Z-Image):** `workflows/human/Lonecat_AIO_Z-Image_ver17_AGENT_GUIDE.md`, `…_CAPABILITIES.json`
+* **Krea2:** `workflows/human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md`, `…_CAPABILITIES.json` · 소스 `krea2SFWNSFWUncensoredImageTo_v10` · 기본 프리셋 `krea2_t2i_v10` (CLIP **type=krea2**, Lonecat과 혼용 금지)
+* 공통 인덱스: `workflows/agent/presets/lonecat_feature_presets.json` (families 포함)
+* 목록: `python scripts/run_workflow_api.py --list-features` · 재스캔: `_build_lonecat_capabilities.py` / `_build_krea2_capabilities.py`
+* 새 기능 = UI에서 바이패서 조합 고정 → API export → presets 등록. full AIO `convert_ui_to_api` / 런타임 노드 inject 금지.
+
 ### Rule 3. Flow Matching 모델 연산의 이해 및 보존
 * 코어 모델 `Z-Image-Turbo` 는 Flow Matching 이다.
-* I2I 시 `res_multistep` 대신 **`euler`/`normal`**, denoise **`0.70 ~ 0.85`**, CFG 권장 **≥ 3.5**.
+* I2I 시 `res_multistep` 대신 **`euler`/`normal`**, CFG 권장 **≥ 3.5**.
+* **Denoise는 목적별로 나눈다** (일괄 0.70–0.85 금지 — 얼굴/아이덴티티 붕괴의 주원인):
+  - **프로덕션 키프레임 + 인물 ID 유지** (`shot_compose`, face-bearing source): **0.42–0.58** (기본 ~0.52). `i2i_lock` / IPAdapter 우선.
+  - **장소/빈 세트/insert** (인물 없음): **0.50–0.65**.
+  - **강한 구조 변경·시트 리믹스** (아이덴티티 희생 가능): **0.65–0.80**. 얼굴 있으면 lock/IPA 필수.
+  - **헤드리스 costume / face crop cover** 를 medium 키프레임 source로 쓰지 말 것. pose·full body·layout 합성 사용.
 * I2I 타임스텝 시프터 하드 와이어를 무단 변경하지 말 것.
 
 ### Rule 4. 경로 무결성 보존
@@ -131,9 +155,9 @@ python scripts/export_episode_to_workspace.py -e EP --dest "D:/my_project/episod
   - 엔진: design=`t2i` product · head/body turn=`qwen` · expression=`i2i` · pose=`controlnet` · on-model costume/props=`i2i`+bible.
   - body 소스 우선순위: `approved/costume_default` → `master_full`.
   - 턴만: `character_qwen_turns.py --mode both --approve`
-  - OpenPose 턴 / **ipadapter**: 레거시·실험, 공정 SOP 기본 아님.
+  - OpenPose 턴 / **ipadapter 노드 inject**: 폐기. `engine=ipadapter` 는 Lonecat I2I identity 프리셋으로 라우트.
   - **스틸 편집 엔진 공존** (역할 합치지 말 것):
-    - Moody I2I (`generate_moody_i2i` / `shot_keyframe_edit --engine moody`) — 약한 표정·톤 denoise 리믹스
+    - Moody/Lonecat I2I (`generate_moody_i2i` / `shot_keyframe_edit --engine moody`) — `lonecat_i2i_identity` API 프리셋 (denoise 리믹스·아이덴티티)
     - Qwen Edit (`generate_qwen_edit` / `shot_keyframe_edit --engine qwen`) — 기본 **2509 Q5 GGUF** + 지시 편집 (Angles LoRA 없음)
     - Qwen Angle (`generate_qwen_angle` / `character_qwen_turns`) — **2511 GGUF** + Lightning + **Angles LoRA**, 멀티뷰 턴
     - **Qwen Edit Lightning 정책**: 기본 **ON** (4step). 결과 부족(국소 실패·소품 과삭제) 시에만 `--no-lightning --steps 20 --cfg 4` 승격.

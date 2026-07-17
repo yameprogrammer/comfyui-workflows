@@ -1,0 +1,65 @@
+{
+  "preset": "krea2_t2i_v10",
+  "workflow_api": "presets/krea2_t2i_v10.api.json",
+  "description": "krea2SFWNSFWUncensoredImageTo_v10 T2I (Krea2 turbo, krea2 CLIP, agent-safe)",
+  "source_ui": "F:\\ComfyUI_workflows\\krea2SFWNSFWUncensoredImageTo_v10.json",
+  "family": "krea2",
+  "ports": {
+    "positive": {
+      "node": "127:115",
+      "key": "text"
+    },
+    "seed": {
+      "node": "78",
+      "key": "seed"
+    },
+    "seed_b": {
+      "node": "60",
+      "key": "seed",
+      "optional": true
+    },
+    "seed_c": {
+      "node": "128",
+      "key": "seed",
+      "optional": true
+    },
+    "unet_name": {
+      "node": "2",
+      "key": "unet_name",
+      "optional": true
+    },
+    "clip_name": {
+      "node": "6",
+      "key": "clip_name",
+      "optional": true
+    },
+    "width": {
+      "node": "11",
+      "key": "width",
+      "optional": true
+    },
+    "height": {
+      "node": "11",
+      "key": "height",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "unet_name": "Krea2Turbo\\krea2_turbo_fp8_scaled.safetensors",
+    "clip_name": "Huihui-Qwen3-VL-4B-Instruct-abliterated-fp8_scaled.safetensors",
+    "width": 1024,
+    "height": 576,
+    "filename_prefix": "krea2_t2i_v10"
+  },
+  "notes": [
+    "Source: krea2SFWNSFWUncensoredImageTo_v10",
+    "CLIP type=krea2 required",
+    "Prompt enhancer / Image-to-prompt / CivitAI metadata stripped for API reliability",
+    "UNET defaults Krea2Turbo\\\\krea2_turbo_fp8_scaled; try int8_convrot via unet_name port"
+  ]
+}

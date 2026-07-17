@@ -1,0 +1,66 @@
+{
+  "preset": "krea2_i2i_v10",
+  "workflow_api": "presets/krea2_i2i_v10.api.json",
+  "family": "krea2",
+  "description": "Krea2 stack I2I (VAEEncode+denoise). Official WF image path is Image-to-prompt; this tests pixel I2I on same model stack.",
+  "ports": {
+    "positive": {
+      "node": "127:115",
+      "key": "text"
+    },
+    "seed": {
+      "node": "78",
+      "key": "seed"
+    },
+    "seed_b": {
+      "node": "60",
+      "key": "seed",
+      "optional": true
+    },
+    "seed_c": {
+      "node": "128",
+      "key": "seed",
+      "optional": true
+    },
+    "denoise": {
+      "node": "127:116",
+      "key": "denoise",
+      "optional": true
+    },
+    "input_image": {
+      "node": "2035",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "width": {
+      "node": "2027",
+      "key": "width",
+      "optional": true
+    },
+    "height": {
+      "node": "2027",
+      "key": "height",
+      "optional": true
+    },
+    "unet_name": {
+      "node": "2",
+      "key": "unet_name",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "denoise": 0.55,
+    "width": 1024,
+    "height": 576,
+    "filename_prefix": "krea2_i2i"
+  },
+  "notes": [
+    "Official krea2SFWNSFW group Image-to-prompt is captioning via activation signal, not VAEEncode I2I",
+    "This preset validates classic denoise I2I on Krea2 UNET+CLIP+VAE stack"
+  ]
+}

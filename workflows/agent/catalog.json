@@ -1,64 +1,239 @@
 {
-  "version": 1,
-  "description": "Agent workflow aliases → filenames under workflows/agent/. Scripts resolve via lib.workflow_paths.",
+  "version": 2,
+  "description": "Agent workflow aliases → files under workflows/agent/ (presets/*.api.json preferred; _legacy/ for emergency mini only).",
   "workflows": {
     "t2i_moody": {
-      "file": "T2I-moody.json",
+      "file": "_legacy/T2I-moody.json",
       "role": "text_to_image",
+      "status": "legacy_mini",
+      "replaced_by": "lonecat_t2i_turbo",
       "scripts": [
-        "scripts/generate_moody.py",
-        "scripts/character_create.py"
+        "scripts/generate_moody.py"
       ]
     },
     "i2i_moody": {
-      "file": "I2I-moody.json",
+      "file": "_legacy/I2I-moody.json",
       "role": "image_to_image",
+      "status": "legacy_mini",
+      "replaced_by": "lonecat_i2i_identity",
       "scripts": [
-        "scripts/generate_moody_i2i.py",
-        "scripts/shot_with_character.py",
-        "scripts/character_expand_sheets.py"
+        "scripts/generate_moody_i2i.py"
       ]
     },
     "i2i_controlnet_moody": {
-      "file": "I2I-ControlNet-moody.json",
+      "file": "_legacy/I2I-ControlNet-moody.json",
       "role": "i2i_controlnet",
+      "status": "legacy_mini",
+      "replaced_by": "zimage_fun_union_controlnet",
       "scripts": [
-        "scripts/generate_moody_controlnet.py",
-        "scripts/character_expand_sheets.py"
+        "scripts/generate_moody_controlnet.py"
       ]
     },
     "i2v_wan22_a14b": {
-      "file": "I2V-wan22-a14b.json",
+      "file": "presets/i2v_wan22_a14b.api.json",
+      "ports": "presets/i2v_wan22_a14b.ports.json",
+      "format": "api",
       "role": "image_to_video",
       "backend": "wan22",
-      "scripts": ["scripts/generate_i2v.py"]
+      "status": "ready",
+      "ui_source": "I2V-wan22-a14b.json",
+      "human_ref": "workflows/human/wan22/wan22_i2v.json",
+      "scripts": [
+        "scripts/generate_i2v.py"
+      ]
+    },
+    "wan22_i2v_start_end": {
+      "file": null,
+      "role": "image_to_video_flf",
+      "status": "superseded_by_api",
+      "human_ui": "workflows/human/wan22/wan22_i2v_start_end.json",
+      "notes": "First/Last frame I2V; export API after graphToPrompt",
+      "agent_preset": "i2v_wan22_a14b_flf"
+    },
+    "wan22_face_enhance": {
+      "file": "presets/wan22_face_enhance.api.json",
+      "ports": "presets/wan22_face_enhance.ports.json",
+      "format": "api",
+      "role": "video_face_enhance",
+      "status": "ready_experimental",
+      "notes": "GGUF remapped; needs CLIPSeg/Florence custom nodes. Smoke before production.",
+      "scripts": [
+        "scripts/generate_wan22_face_enhance.py"
+      ]
+    },
+    "wan22_upscale": {
+      "file": "presets/wan22_upscale.api.json",
+      "ports": "presets/wan22_upscale.ports.json",
+      "format": "api",
+      "role": "video_upscale",
+      "status": "ready_experimental",
+      "notes": "GGUF remapped; opt-in only. Default deliver still rtx_vsr.",
+      "scripts": [
+        "scripts/generate_wan22_upscale.py"
+      ]
+    },
+    "wan22_upscale_face_enhance": {
+      "file": null,
+      "role": "video_polish",
+      "status": "planned",
+      "human_ui": "workflows/human/wan22/wan22_upscale_face_enhance.json",
+      "notes": "Hero polish chain upscale+face"
+    },
+    "wan22_animate": {
+      "file": null,
+      "role": "motion_transfer",
+      "status": "planned",
+      "human_ui": "workflows/human/wan22/wan22_animate.json",
+      "notes": "Dance/challenge motion retarget; dance_challenge pipe"
     },
     "t2i_krea": {
-      "file": "T2I-krea.json",
+      "file": "_legacy/T2I-krea.json",
       "role": "text_to_image",
-      "scripts": ["scripts/generate_krea.py"]
+      "status": "legacy_mini",
+      "replaced_by": "krea2_t2i_v10",
+      "scripts": [
+        "scripts/generate_krea.py"
+      ]
     },
     "t2i_z_image_turbo": {
-      "file": "T2I-z-image-turbo.json",
+      "file": "_legacy/T2I-z-image-turbo.json",
       "role": "text_to_image_base",
+      "status": "legacy_mini",
       "scripts": []
     },
-    "qwen_edit_2509": {
-      "file": null,
-      "role": "instruction_image_edit",
-      "note": "API inject generate_qwen_edit.py default backend=gguf_2509: Qwen-Image-Edit-2509-Q5_K_M.gguf + TextEncodeQwenImageEditPlus. gguf_2511/fp8_2509 opt-in.",
+    "lonecat_t2i_turbo": {
+      "file": "presets/lonecat_t2i_turbo.api.json",
+      "ports": "presets/lonecat_t2i_turbo.ports.json",
+      "format": "api",
+      "role": "text_to_image",
+      "description": "Lonecat AIO Z-Image ver17 T2I Turbo core (Phase0 default still T2I)",
       "scripts": [
+        "scripts/run_workflow_api.py"
+      ]
+    },
+    "qwen_edit_2509": {
+      "file": "presets/qwen_edit_2509.api.json",
+      "ports": "presets/qwen_edit_2509.ports.json",
+      "format": "api",
+      "role": "qwen_instruction_edit",
+      "family": "qwen_edit",
+      "source": "image_qwen_image_edit_2509",
+      "used_by": [
         "scripts/generate_qwen_edit.py",
         "scripts/shot_keyframe_edit.py"
       ]
     },
     "qwen_angle_2511": {
-      "file": null,
-      "role": "character_multi_angle",
-      "note": "API inject generate_qwen_angle.py: same GGUF+Lightning + Multiple-Angles LoRA. Not for general object edit.",
-      "scripts": [
+      "file": "presets/qwen_multiangle_image.api.json",
+      "ports": "presets/qwen_multiangle_image.ports.json",
+      "format": "api",
+      "role": "qwen_multiangle",
+      "family": "qwen_angle",
+      "source": "멀티앵글생성-qwen-image",
+      "used_by": [
         "scripts/generate_qwen_angle.py",
         "scripts/character_qwen_turns.py"
+      ]
+    },
+    "lonecat_t2i_gguf": {
+      "file": "presets/lonecat_t2i_gguf.api.json",
+      "ports": "presets/lonecat_t2i_gguf.ports.json",
+      "format": "api",
+      "role": "text_to_image",
+      "description": "Lonecat Model selector GGUF branch",
+      "scripts": [
+        "scripts/run_workflow_api.py"
+      ]
+    },
+    "krea2_t2i_v10": {
+      "file": "presets/krea2_t2i_v10.api.json",
+      "ports": "presets/krea2_t2i_v10.ports.json",
+      "format": "api",
+      "role": "text_to_image",
+      "family": "krea2",
+      "description": "krea2SFWNSFWUncensoredImageTo_v10 T2I (Krea2 turbo + krea2 CLIP)",
+      "scripts": [
+        "scripts/run_workflow_api.py"
+      ]
+    },
+    "krea2_sfw_nsfw_v10": {
+      "file": "presets/krea2_sfw_nsfw_v10.api.json",
+      "ports": "presets/krea2_t2i_v10.ports.json",
+      "format": "api",
+      "role": "text_to_image_aio_export",
+      "family": "krea2",
+      "description": "Full graphToPrompt export of krea2SFWNSFWUncensoredImageTo_v10 (raw)",
+      "scripts": [
+        "scripts/run_workflow_api.py"
+      ]
+    },
+    "lonecat_i2i_identity": {
+      "file": "presets/lonecat_i2i_identity.api.json",
+      "ports": "presets/lonecat_i2i_identity.ports.json",
+      "format": "api",
+      "role": "image_to_image",
+      "family": "zimage",
+      "description": "Lonecat I2I identity (VAEEncode + denoise)",
+      "scripts": [
+        "scripts/run_workflow_api.py"
+      ]
+    },
+    "krea2_i2i_v10": {
+      "file": "presets/krea2_i2i_v10.api.json",
+      "ports": "presets/krea2_i2i_v10.ports.json",
+      "format": "api",
+      "role": "image_to_image",
+      "family": "krea2",
+      "description": "Krea2 classic I2I (VAEEncode) on krea2 stack",
+      "scripts": [
+        "scripts/run_workflow_api.py"
+      ]
+    },
+    "zimage_fun_union_controlnet": {
+      "file": "presets/zimage_fun_union_controlnet.api.json",
+      "ports": "presets/zimage_fun_union_controlnet.ports.json",
+      "format": "api",
+      "role": "controlnet",
+      "family": "zimage",
+      "source": "image_z_image_turbo_fun_union_controlnet",
+      "used_by": [
+        "scripts/generate_moody_controlnet.py"
+      ]
+    },
+    "lonecat_controlnet": {
+      "file": "presets/zimage_fun_union_controlnet.api.json",
+      "ports": "presets/zimage_fun_union_controlnet.ports.json",
+      "format": "api",
+      "role": "controlnet",
+      "family": "zimage",
+      "source": "image_z_image_turbo_fun_union_controlnet",
+      "used_by": [
+        "scripts/generate_moody_controlnet.py"
+      ]
+    },
+    "qwen_multiangle_image": {
+      "file": "presets/qwen_multiangle_image.api.json",
+      "ports": "presets/qwen_multiangle_image.ports.json",
+      "format": "api",
+      "role": "qwen_multiangle",
+      "family": "qwen_angle",
+      "source": "멀티앵글생성-qwen-image",
+      "used_by": [
+        "scripts/generate_qwen_angle.py",
+        "scripts/character_qwen_turns.py"
+      ]
+    },
+    "i2v_wan22_a14b_flf": {
+      "file": "presets/i2v_wan22_a14b_flf.api.json",
+      "ports": "presets/i2v_wan22_a14b_flf.ports.json",
+      "format": "api",
+      "role": "image_to_video_flf",
+      "backend": "wan22_flf",
+      "status": "ready",
+      "human_ref": "workflows/human/wan22/wan22_i2v_start_end.json",
+      "scripts": [
+        "scripts/generate_i2v.py",
+        "scripts/generate_flf2v.py"
       ]
     }
   }

@@ -12,6 +12,8 @@ import sys
 
 from generate_moody import generate_image
 from generate_moody_i2i import generate_i2i_image
+from generate_moody_i2i_lock import generate_i2i_lock
+from generate_moody_i2i_ipadapter import generate_i2i_ipadapter
 from lib.character_package import CharacterPackage, validate_character_id
 from lib.comfy_client import utc_now_iso, write_meta
 from lib.location_package import LocationPackage, validate_location_id
@@ -23,6 +25,25 @@ from lib.story_package import (
     resolve_work_size,
     validate_episode_id,
 )
+
+# Production keyframe denoise caps (identity-safe). Heavy remix uses higher only with lock.
+DENOISE_CHAR_DEFAULT = 0.52
+DENOISE_CHAR_MAX = 0.58
+DENOISE_LOC_DEFAULT = 0.55
+DENOISE_LOC_MAX = 0.65
+DENOISE_LEGACY_HIGH_WARN = 0.70
+
+
+def _strip_prompt_meta_tags(text: str) -> str:
+    """Remove [intent:S01]-style tags that models often render as on-image text."""
+    import re
+
+    if not text:
+        return text
+    # [intent:S01], [intent: about to leave], etc.
+    text = re.sub(r"\[intent:[^\]]*\]", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s{2,}", " ", text).strip(" ,;")
+    return text
 
 EXIT_OK = 0
 EXIT_USAGE = 2
@@ -100,6 +121,272 @@ def _ensure_output_size(path: str, width: int, height: int) -> bool:
         cropped = cropped.resize((tw, th), Image.Resampling.LANCZOS)
     cropped.save(path)
     return True
+
+
+def _infer_space_mode(action: str, shot_type: str) -> str:
+    """interior | exterior | neutral — for location core filtering."""
+    t = f"{action or ''} {shot_type or ''}".lower()
+    interior_hits = sum(
+        1
+        for k in (
+            "checkout",
+            "interior",
+            "inside",
+            "shelves",
+            "fluorescent",
+            "counter",
+            "fridge",
+            "aisle",
+            "cashier",
+        )
+        if k in t
+    )
+    exterior_hits = sum(
+        1
+        for k in (
+            "sidewalk",
+            "parasol",
+            "wet street",
+            "outside",
+            "exterior",
+            "asphalt",
+            "under pure yellow",
+            "under yellow",
+            "street overcast",
+            "utility pole",
+            "empty of people",
+            "wet road",
+        )
+        if k in t
+    )
+    if shot_type in ("establishing", "wide") and exterior_hits >= interior_hits:
+        return "exterior"
+    if interior_hits > exterior_hits:
+        return "interior"
+    if exterior_hits > interior_hits:
+        return "exterior"
+    return "neutral"
+
+
+def _space_filter_loc_core(loc_core: str, space_mode: str) -> str:
+    """Drop conflicting interior/exterior clauses from a combined location core."""
+    if not loc_core or space_mode == "neutral":
+        return loc_core
+    # Split on common separators; keep clauses matching space
+    raw = loc_core.replace(";", ",")
+    parts = [p.strip() for p in raw.split(",") if p.strip()]
+    exterior_kw = (
+        "asphalt",
+        "sidewalk",
+        "parasol",
+        "vinyl",
+        "utility",
+        "overcast rain",
+        "wet street",
+        "lane paint",
+        "pole",
+        "wires",
+    )
+    interior_kw = (
+        "shelf",
+        "shelves",
+        "fridge",
+        "fluorescent",
+        "interior",
+        "snack",
+        "checkout",
+        "aisle",
+        "counter",
+    )
+    kept: list[str] = []
+    for p in parts:
+        pl = p.lower()
+        is_ext = any(k in pl for k in exterior_kw)
+        is_int = any(k in pl for k in interior_kw)
+        if space_mode == "interior":
+            if is_ext and not is_int:
+                continue
+            kept.append(p)
+        elif space_mode == "exterior":
+            if is_int and not is_ext:
+                continue
+            kept.append(p)
+        else:
+            kept.append(p)
+    return ", ".join(kept) if kept else loc_core
+
+
+def _gray_key_rgba(im, tolerance: int = 42):
+    """Soft-key near-neutral studio backdrop so character can composite onto set."""
+    from PIL import Image
+
+    rgba = im.convert("RGBA")
+    pixels = rgba.load()
+    w, h = rgba.size
+    # Sample border median as studio color
+    border = []
+    step = max(1, min(w, h) // 64)
+    for x in range(0, w, step):
+        border.append(pixels[x, 0][:3])
+        border.append(pixels[x, h - 1][:3])
+    for y in range(0, h, step):
+        border.append(pixels[0, y][:3])
+        border.append(pixels[w - 1, y][:3])
+    if not border:
+        return rgba
+    br = sum(c[0] for c in border) / len(border)
+    bg = sum(c[1] for c in border) / len(border)
+    bb = sum(c[2] for c in border) / len(border)
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = pixels[x, y]
+            # neutral + close to border gray
+            mx, mn = max(r, g, b), min(r, g, b)
+            neutral = (mx - mn) < 28
+            dist = abs(r - br) + abs(g - bg) + abs(b - bb)
+            if neutral and dist < tolerance * 3:
+                # feather: fully transparent near exact match
+                if dist < tolerance:
+                    pixels[x, y] = (r, g, b, 0)
+                elif dist < tolerance * 2:
+                    pixels[x, y] = (r, g, b, 90)
+                else:
+                    pixels[x, y] = (r, g, b, 160)
+    return rgba
+
+
+def _layout_char_on_location(
+    char_path: str,
+    loc_path: str,
+    dest_path: str,
+    width: int,
+    height: int,
+    *,
+    char_height_ratio: float = 0.88,
+    anchor: str = "center",
+    crop_mode: str = "full",
+) -> str:
+    """Build a 16:9 layout: location plate + gray-keyed character. Better I2I base than face crop.
+
+    crop_mode:
+      full — full body plate
+      waist — keep upper ~68% (head→mid-thigh) for medium shots
+      chest — upper ~55% for tighter medium/close
+    """
+    from PIL import Image
+
+    tw, th = int(width), int(height)
+    # Location cover-fit as set
+    loc = Image.open(loc_path).convert("RGB")
+    sw, sh = loc.size
+    scale = max(tw / sw, th / sh)
+    nw, nh = max(1, int(round(sw * scale))), max(1, int(round(sh * scale)))
+    loc_r = loc.resize((nw, nh), Image.Resampling.LANCZOS)
+    left = max(0, (nw - tw) // 2)
+    top = max(0, (nh - th) // 2)
+    canvas = loc_r.crop((left, top, left + tw, top + th)).convert("RGBA")
+
+    char = _gray_key_rgba(Image.open(char_path))
+    cw, ch = char.size
+    if crop_mode == "waist":
+        char = char.crop((0, 0, cw, max(1, int(ch * 0.68))))
+        cw, ch = char.size
+    elif crop_mode == "chest":
+        char = char.crop((0, 0, cw, max(1, int(ch * 0.55))))
+        cw, ch = char.size
+    target_h = max(1, int(th * char_height_ratio))
+    scale_c = target_h / ch
+    # Avoid ultra-wide stretch: also cap width ~50% for medium
+    max_w = int(tw * (0.48 if crop_mode != "full" else 0.55))
+    if int(cw * scale_c) > max_w:
+        scale_c = max_w / cw
+    cnw, cnh = max(1, int(round(cw * scale_c))), max(1, int(round(ch * scale_c)))
+    char_r = char.resize((cnw, cnh), Image.Resampling.LANCZOS)
+
+    if anchor == "right":
+        px = int(tw * 0.52)
+    elif anchor == "left":
+        px = int(tw * 0.08)
+    else:
+        px = (tw - cnw) // 2
+    # waist/chest: lower third; full: feet near bottom
+    if crop_mode in ("waist", "chest"):
+        py = int(th * 0.12)
+    else:
+        py = th - cnh
+    py = max(0, min(py, th - cnh))
+    canvas.paste(char_r, (px, py), char_r)
+    out = canvas.convert("RGB")
+    os.makedirs(os.path.dirname(os.path.abspath(dest_path)) or ".", exist_ok=True)
+    out.save(dest_path)
+    return dest_path
+
+
+def _source_has_face_heuristic(path: str) -> bool:
+    """True if upper third is not empty/gray-only (rough face/body presence check)."""
+    from PIL import Image
+
+    try:
+        im = Image.open(path).convert("RGB")
+    except Exception:
+        return False
+    w, h = im.size
+    # costume_default style: head cropped — upper 12% nearly uniform
+    band = im.crop((0, 0, w, max(1, int(h * 0.12))))
+    pixels = list(band.getdata())
+    if not pixels:
+        return False
+    avg = tuple(sum(c[i] for c in pixels) / len(pixels) for i in range(3))
+    var = sum(sum((c[i] - avg[i]) ** 2 for i in range(3)) for c in pixels) / len(pixels)
+    # low variance top band → likely studio with no head
+    return var > 180.0
+
+
+def _pick_canvas_mode(source_path: str, prefer: str, layout_used: bool) -> str:
+    if layout_used:
+        return "cover"  # layout already exact size
+    try:
+        from PIL import Image
+
+        im = Image.open(source_path)
+        sw, sh = im.size
+        # Near 16:9 location plates → cover (no letterbox bars)
+        if sw > sh * 1.2:
+            return "cover"
+        # Square character plates → contain so we don't crop heads
+        if sw > 0 and abs(sw - sh) / max(sw, sh) < 0.12:
+            return "contain"
+        # Portrait taller than wide
+        if sh > sw * 1.15:
+            return "contain"
+    except Exception:
+        pass
+    if prefer == "location":
+        return "cover"
+    return "contain"
+
+
+def _resolve_denoise(
+    *,
+    requested: float | None,
+    episode_default: float | None,
+    has_character: bool,
+    layout_used: bool,
+) -> float:
+    base = (
+        float(requested)
+        if requested is not None
+        else float(episode_default if episode_default is not None else DENOISE_CHAR_DEFAULT)
+    )
+    if has_character:
+        # Never inherit legacy 0.78 story defaults for face shots
+        if requested is None and base >= DENOISE_LEGACY_HIGH_WARN:
+            base = DENOISE_CHAR_DEFAULT
+        cap = DENOISE_CHAR_MAX if layout_used or True else DENOISE_CHAR_MAX
+        return min(base, cap)
+    if requested is None and base >= DENOISE_LEGACY_HIGH_WARN:
+        base = DENOISE_LOC_DEFAULT
+    return min(base, DENOISE_LOC_MAX)
 
 
 def _compose_all(args) -> int:
@@ -295,6 +582,23 @@ def main(argv=None) -> int:
         default="auto",
         help="auto: i2i if source ref else t2i",
     )
+    parser.add_argument(
+        "--engine",
+        choices=["auto", "i2i", "i2i_lock", "ipadapter"],
+        default="auto",
+        help="I2I engine: auto=ipadapter→lock for characters, plain i2i for sets",
+    )
+    parser.add_argument(
+        "--canvas-mode",
+        choices=["auto", "cover", "contain"],
+        default="auto",
+        help="How to fit source to work canvas (auto: contain for square char plates)",
+    )
+    parser.add_argument(
+        "--no-layout",
+        action="store_true",
+        help="Disable character-on-location layout composite",
+    )
     parser.add_argument("--source", default=None, help="Force I2I source image path")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--timeout", type=int, default=600)
@@ -407,7 +711,7 @@ def main(argv=None) -> int:
             shot_type=args.shot_type or "medium",
         )
 
-    action = (args.action or shot.get("action") or "").strip()
+    action = _strip_prompt_meta_tags((args.action or shot.get("action") or "").strip())
     if not action:
         print("[ERROR] code=2 empty action", file=sys.stderr)
         return EXIT_USAGE
@@ -489,12 +793,40 @@ def main(argv=None) -> int:
             )
             loc_core = f"location:{location_id}"
 
+    # Space-aware location text (avoid interior+exterior soup)
+    space_mode = _infer_space_mode(action, shot_type)
+    loc_core = _space_filter_loc_core(loc_core, space_mode)
+
     prefer = type_meta.get("prefer_source") or "character"
+    # Empty / no-character shots must use location plate even if type prefers character
+    if not char_ids:
+        prefer = "location"
     source = args.source
     if not source:
         if prefer == "location":
             source = loc_source or char_source
         else:
+            # Prefer face-bearing character plates over headless costume
+            if char_source and not _source_has_face_heuristic(char_source):
+                for alt_alias in (
+                    "pose_stand_idle",
+                    "pose_walk",
+                    "turn_front",
+                    "master_full",
+                    "master_front",
+                ):
+                    if char_ids:
+                        try:
+                            cpkg_alt = CharacterPackage.load(char_ids[0])
+                            alt = _approved_alias_path(cpkg_alt, alt_alias)
+                            if alt and _source_has_face_heuristic(alt):
+                                print(
+                                    f"  [source-fix] headless/low-face plate → {alt_alias}"
+                                )
+                                char_source = alt
+                                break
+                        except FileNotFoundError:
+                            pass
             source = char_source or loc_source
     mode = args.mode
     if mode == "auto":
@@ -509,34 +841,46 @@ def main(argv=None) -> int:
     cam_text = ", ".join(b for b in cam_bits if b)
 
     wardrobe_clause = f"wearing {wardrobe_lock}" if wardrobe_lock else ""
+    # Leaner quality tags — avoid drowning framing
+    quality_tags = (
+        "photoreal cinematic film still, natural skin texture, sharp focus, "
+        "locked identity and wardrobe"
+    )
     appearance = assemble_prompt(
-        core=look_pos,
+        core=action,
         instruction=assemble_prompt(
-            core=", ".join(char_cores),
+            core=framing,
             instruction=assemble_prompt(
-                core=loc_core,
-                instruction=action,
+                core=", ".join(char_cores),
+                instruction=loc_core,
                 style_lock=wardrobe_clause,
             ),
-            style_lock=framing,
             suffix=cam_text,
         ),
-        quality_tags=(
-            "cinematic production keyframe still for later image-to-video, "
-            "highly detailed, sharp focus, locked identity and wardrobe"
-        ),
+        quality_tags=quality_tags,
     )
+    neg_extra = "morphing face, identity shift, different person, watermark, text, logo"
+    if space_mode == "interior":
+        neg_extra += ", outdoor street only, sidewalk parasol dominating frame, extra people"
+    elif space_mode == "exterior":
+        neg_extra += ", indoor-only empty aisle, face close-up fill frame"
+    if char_ids:
+        neg_extra += ", close-up face only, cropped head, headless, extra person, crowd"
+    neg_extra += ", text on umbrella, text on awning, written words, letters, numbers on props"
     negative = assemble_prompt(
         core=look_neg,
         instruction=", ".join(char_negs + ([loc_neg] if loc_neg else [])),
-        suffix="watermark, text, logo, morphing face, identity shift, different person",
+        suffix=neg_extra,
     )
 
     model = args.model or story.doc.get("default_model") or "pro"
-    denoise = (
-        args.denoise
-        if args.denoise is not None
-        else float(story.doc.get("default_denoise") or 0.78)
+    has_character = bool(char_ids and char_source)
+    # layout decision later; provisional denoise
+    denoise = _resolve_denoise(
+        requested=args.denoise,
+        episode_default=story.doc.get("default_denoise"),
+        has_character=has_character,
+        layout_used=False,
     )
     cfg = args.cfg if args.cfg is not None else float(story.doc.get("default_cfg") or 3.5)
     seed = args.seed if args.seed is not None else random.randint(1, 2**31 - 1)
@@ -551,27 +895,91 @@ def main(argv=None) -> int:
         f"shot_compose episode={args.episode} shot={args.shot} "
         f"format={format_id} {width}x{height} look={look_id} mode={mode}"
     )
-    print(f"  chars={char_ids} loc={location_id} type={shot_type}")
+    print(f"  chars={char_ids} loc={location_id} type={shot_type} space={space_mode}")
     print(f"  source={source or '(none)'}")
 
     if args.dry_run:
         print(f"[dry-run] out={out_path}")
+        print(f"[dry-run] denoise={denoise} cfg={cfg} engine={args.engine}")
+        print(f"[dry-run] loc_core[:180]={loc_core[:180]}")
         print(f"[dry-run] appearance[:200]={appearance[:200]}")
         return EXIT_OK
 
     canvas_source = source
+    layout_used = False
+    engine_used = "i2i"
     if mode == "i2i":
         if not source or not os.path.isfile(source):
             print("[ERROR] code=20 I2I needs source ref", file=sys.stderr)
             return EXIT_SOURCE
-        # Fit ref to episode format BEFORE I2I so latent aspect == keyframe aspect
         canvas_dir = story.path("meta", "_canvas_sources")
         os.makedirs(canvas_dir, exist_ok=True)
         canvas_source = os.path.join(canvas_dir, f"{args.shot}_{width}x{height}.png")
-        _fit_image_to_canvas(source, canvas_source, width, height, mode="cover")
-        print(f"  canvas_source={canvas_source} ({width}x{height} from {os.path.basename(source)})")
-        # I2I body: action + framing + wardrobe; cores via prefix (identity anchors)
-        # Avoid baking dialogue text into walls — action should be visual only.
+
+        # Character + location → layout composite (set plate + keyed figure)
+        use_layout = (
+            not args.no_layout
+            and has_character
+            and loc_source
+            and os.path.isfile(loc_source)
+            and char_source
+            and os.path.isfile(char_source)
+            and shot_type in ("medium", "wide", "closeup")
+            and prefer != "location"
+        )
+        if use_layout:
+            anchor = "right" if "right third" in (action or "").lower() else "center"
+            if shot_type == "wide":
+                ratio, crop_mode = 0.92, "full"
+            elif shot_type == "closeup":
+                ratio, crop_mode = 0.90, "chest"
+            else:
+                # medium default: waist-up plate, fill frame height
+                ratio, crop_mode = 0.95, "waist"
+            _layout_char_on_location(
+                char_source,
+                loc_source,
+                canvas_source,
+                width,
+                height,
+                char_height_ratio=ratio,
+                anchor=anchor,
+                crop_mode=crop_mode,
+            )
+            layout_used = True
+            source = canvas_source
+            print(
+                f"  layout=char_on_loc char={os.path.basename(char_source)} "
+                f"loc={os.path.basename(loc_source)} anchor={anchor} crop={crop_mode}"
+            )
+        else:
+            cmode = args.canvas_mode
+            if cmode == "auto":
+                cmode = _pick_canvas_mode(source, prefer, layout_used=False)
+            _fit_image_to_canvas(source, canvas_source, width, height, mode=cmode)
+            print(
+                f"  canvas_source={canvas_source} ({width}x{height} "
+                f"mode={cmode} from {os.path.basename(source)})"
+            )
+
+        denoise = _resolve_denoise(
+            requested=args.denoise,
+            episode_default=story.doc.get("default_denoise"),
+            has_character=has_character,
+            layout_used=layout_used,
+        )
+        # Slightly higher denoise when blending layout seams
+        if layout_used and args.denoise is None:
+            denoise = min(0.56, max(denoise, 0.50))
+        # Inserts need enough denoise to add props onto empty plates
+        if shot_type == "insert" and args.denoise is None:
+            denoise = max(denoise, 0.58)
+
+        # I2I body: action first, then framing — short, not look-essay
+        no_text = (
+            "no text overlays, no readable signage letters, no logos, "
+            "no watermarks, no intent labels, no shot id text on objects"
+        )
         i2i_body = assemble_prompt(
             core=action,
             instruction=framing,
@@ -579,24 +987,78 @@ def main(argv=None) -> int:
             suffix=assemble_prompt(
                 core=cam_text,
                 instruction="vertical 9:16 composition" if format_id == "shorts_9x16" else "",
-                suffix="no text overlays, no readable signage letters, no logos",
+                suffix=no_text,
             ),
         )
-        result = generate_i2i_image(
-            input_image_path=canvas_source,
-            prompt_text=i2i_body,
-            denoise_val=denoise,
-            cfg_val=cfg,
-            model_type=model,
-            output_filename=out_path,
-            seed=seed,
-            negative_text=negative,
-            core_prefix=assemble_prompt(
-                core=look_pos, instruction=", ".join(char_cores + [loc_core])
-            ),
-            meta_out=meta_path,
-            timeout_sec=args.timeout,
+        # lean prefix: look + identity + space-filtered loc
+        core_prefix = assemble_prompt(
+            core=look_pos,
+            instruction=", ".join([c for c in char_cores + [loc_core] if c]),
         )
+
+        eng = args.engine
+        if eng == "auto":
+            eng = "ipadapter" if has_character else "i2i"
+
+        def _run_i2i(engine_name: str) -> dict:
+            if engine_name == "ipadapter":
+                return generate_i2i_ipadapter(
+                    input_image_path=canvas_source,
+                    prompt_text=i2i_body,
+                    denoise_val=denoise,
+                    cfg_val=cfg,
+                    model_type=model,
+                    output_filename=out_path,
+                    seed=seed,
+                    negative_text=negative,
+                    core_prefix=core_prefix,
+                    meta_out=meta_path,
+                    timeout_sec=args.timeout,
+                    ipa_weight=0.72,
+                )
+            if engine_name == "i2i_lock":
+                return generate_i2i_lock(
+                    input_image_path=canvas_source,
+                    prompt_text=i2i_body,
+                    denoise_val=denoise,
+                    cfg_val=cfg,
+                    model_type=model,
+                    output_filename=out_path,
+                    seed=seed,
+                    negative_text=negative,
+                    core_prefix=core_prefix,
+                    meta_out=meta_path,
+                    timeout_sec=args.timeout,
+                    max_denoise=DENOISE_CHAR_MAX if has_character else DENOISE_LOC_MAX,
+                )
+            return generate_i2i_image(
+                input_image_path=canvas_source,
+                prompt_text=i2i_body,
+                denoise_val=denoise,
+                cfg_val=cfg,
+                model_type=model,
+                output_filename=out_path,
+                seed=seed,
+                negative_text=negative,
+                core_prefix=core_prefix,
+                meta_out=meta_path,
+                timeout_sec=args.timeout,
+            )
+
+        print(f"  engine={eng} denoise={denoise} cfg={cfg} layout={layout_used}")
+        result = _run_i2i(eng)
+        engine_used = eng
+        if (
+            eng == "ipadapter"
+            and not result.get("ok")
+            and result.get("error")
+            in ("IPADAPTER_FAILED", "QUEUE_FAILED", "COMFY_NO_OUTPUT", "WF_INCOMPLETE")
+        ):
+            print(
+                f"[WARN] IPAdapter failed ({result.get('error')}); fallback → i2i_lock"
+            )
+            result = _run_i2i("i2i_lock")
+            engine_used = "i2i_lock_fallback"
     else:
         result = generate_image(
             prompt_text=appearance,
@@ -609,6 +1071,7 @@ def main(argv=None) -> int:
             meta_out=meta_path,
             timeout_sec=args.timeout,
         )
+        engine_used = "t2i"
 
     if not result.get("ok"):
         print(f"[ERROR] code=30 {result.get('error')} {result.get('message')}", file=sys.stderr)
@@ -663,6 +1126,10 @@ def main(argv=None) -> int:
             "character_ids": char_ids,
             "location_id": location_id,
             "compose_mode": mode,
+            "engine": engine_used,
+            "layout_used": layout_used if mode == "i2i" else False,
+            "space_mode": space_mode,
+            "denoise": denoise if mode == "i2i" else None,
             "source": os.path.abspath(source) if source else None,
             "canvas_source": os.path.abspath(canvas_source) if canvas_source else None,
             "char_source": os.path.abspath(char_source) if char_source else None,

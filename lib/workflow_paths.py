@@ -19,24 +19,35 @@ from typing import Any
 from lib.comfy_client import WORKSPACE_ROOT
 
 AGENT_WORKFLOWS_DIR = os.path.join(WORKSPACE_ROOT, "workflows", "agent")
+AGENT_LEGACY_DIR = os.path.join(AGENT_WORKFLOWS_DIR, "_legacy")
+AGENT_PRESETS_DIR = os.path.join(AGENT_WORKFLOWS_DIR, "presets")
 HUMAN_WORKFLOWS_DIR = os.path.join(WORKSPACE_ROOT, "workflows", "human")
 CATALOG_PATH = os.path.join(AGENT_WORKFLOWS_DIR, "catalog.json")
 
 # Built-in fallback if catalog.json is missing (keep in sync with catalog).
+# Mini graphs live under workflows/agent/_legacy/ (emergency --legacy-mini only).
 _BUILTIN_ALIASES: dict[str, str] = {
-    "t2i_moody": "T2I-moody.json",
-    "i2i_moody": "I2I-moody.json",
-    "i2i_controlnet_moody": "I2I-ControlNet-moody.json",
-    "i2v_wan22_a14b": "I2V-wan22-a14b.json",
-    "t2i_krea": "T2I-krea.json",
-    "t2i_z_image_turbo": "T2I-z-image-turbo.json",
+    "t2i_moody": "_legacy/T2I-moody.json",
+    "i2i_moody": "_legacy/I2I-moody.json",
+    "i2i_controlnet_moody": "_legacy/I2I-ControlNet-moody.json",
+    "i2v_wan22_a14b": "presets/i2v_wan22_a14b.api.json",
+    "i2v_wan22_a14b_flf": "presets/i2v_wan22_a14b_flf.api.json",
+    "wan22_face_enhance": "presets/wan22_face_enhance.api.json",
+    "wan22_upscale": "presets/wan22_upscale.api.json",
+    "I2V-wan22-a14b-flf": "presets/i2v_wan22_a14b_flf.api.json",
+    "t2i_krea": "_legacy/T2I-krea.json",
+    "t2i_z_image_turbo": "_legacy/T2I-z-image-turbo.json",
+    "lonecat_t2i_turbo": "presets/lonecat_t2i_turbo.api.json",
+    "lonecat_i2i_identity": "presets/lonecat_i2i_identity.api.json",
+    "lonecat_i2i_detailer": "presets/lonecat_i2i_detailer.api.json",
+    "lonecat_t2i_detailer_upscale": "presets/lonecat_t2i_detailer_upscale.api.json",
     # filename stems also accepted
-    "T2I-moody": "T2I-moody.json",
-    "I2I-moody": "I2I-moody.json",
-    "I2I-ControlNet-moody": "I2I-ControlNet-moody.json",
-    "I2V-wan22-a14b": "I2V-wan22-a14b.json",
-    "T2I-krea": "T2I-krea.json",
-    "T2I-z-image-turbo": "T2I-z-image-turbo.json",
+    "T2I-moody": "_legacy/T2I-moody.json",
+    "I2I-moody": "_legacy/I2I-moody.json",
+    "I2I-ControlNet-moody": "_legacy/I2I-ControlNet-moody.json",
+    "I2V-wan22-a14b": "presets/i2v_wan22_a14b.api.json",
+    "T2I-krea": "_legacy/T2I-krea.json",
+    "T2I-z-image-turbo": "_legacy/T2I-z-image-turbo.json",
 }
 
 
@@ -124,9 +135,14 @@ def resolve_workflow(name_or_path: str, *, require: bool = True) -> str:
             raise FileNotFoundError(f"Unknown workflow: {name_or_path!r}")
         return ""
 
+    base = os.path.basename(filename)
     candidates = [
         os.path.join(AGENT_WORKFLOWS_DIR, filename),
+        os.path.join(AGENT_LEGACY_DIR, base),
+        os.path.join(AGENT_PRESETS_DIR, base),
+        os.path.join(AGENT_WORKFLOWS_DIR, base),
         os.path.join(WORKSPACE_ROOT, filename),
+        os.path.join(WORKSPACE_ROOT, base),
     ]
     for path in candidates:
         if os.path.isfile(path):

@@ -1,0 +1,349 @@
+[
+  {
+    "id": "1280",
+    "class_type": "UpscaleModelLoader",
+    "inputs": {
+      "model_name": "RealESRGAN_x4plus.pth"
+    }
+  },
+  {
+    "id": "1285",
+    "class_type": "UltimateSDUpscale",
+    "inputs": {
+      "steps": 6,
+      "cfg": 1,
+      "denoise": 0.2,
+      "seam_fix_denoise": 1
+    }
+  },
+  {
+    "id": "1301",
+    "class_type": "ModelPatchLoader",
+    "inputs": {
+      "name": "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors"
+    }
+  },
+  {
+    "id": "1302",
+    "class_type": "ShowText|pysssss",
+    "inputs": {
+      "text_0": "A cinematic close-up portrait of a young woman in her late teens or early twenties, captured with na…"
+    }
+  },
+  {
+    "id": "1305",
+    "class_type": "CR Aspect Ratio Social Media",
+    "inputs": {
+      "aspect_ratio": "Instagram Portrait - 1080x1350"
+    }
+  },
+  {
+    "id": "1307",
+    "class_type": "Seed (rgthree)",
+    "inputs": {
+      "seed": -1
+    }
+  },
+  {
+    "id": "1313",
+    "class_type": "DF_Text",
+    "inputs": {
+      "Text": "Lonecats Z-Image Ver 17"
+    }
+  },
+  {
+    "id": "1317",
+    "class_type": "easy negative",
+    "inputs": {
+      "negative": "bad anatomy, bad hands, watermark, ugly, distorted, censored, lowres, pixelated, distorted, jpeg art…"
+    }
+  },
+  {
+    "id": "1323",
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "ZImageTurbo\\z_image_turbo_int8_convrot.safetensors"
+    }
+  },
+  {
+    "id": "1325",
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors"
+    }
+  },
+  {
+    "id": "1341",
+    "class_type": "KSampler Config (rgthree)",
+    "inputs": {
+      "steps_total": 10,
+      "cfg": 1
+    }
+  },
+  {
+    "id": "1342",
+    "class_type": "easy positive",
+    "inputs": {
+      "positive": ""
+    }
+  },
+  {
+    "id": "1524",
+    "class_type": "DownloadAndLoadFlorence2Model",
+    "inputs": {
+      "model": "MiaoshouAI/Florence-2-base-PromptGen-v2.0"
+    }
+  },
+  {
+    "id": "1595",
+    "class_type": "Image Saver Metadata",
+    "inputs": {
+      "negative": "unknown",
+      "denoise": 1
+    }
+  },
+  {
+    "id": "1596",
+    "class_type": "vsLinx_AppendLorasFromNodeToString",
+    "inputs": {
+      "text": ""
+    }
+  },
+  {
+    "id": "1598",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "euler"
+    }
+  },
+  {
+    "id": "1599",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "simple"
+    }
+  },
+  {
+    "id": "1684",
+    "class_type": "DF_Text",
+    "inputs": {
+      "Text": "Original"
+    }
+  },
+  {
+    "id": "1687",
+    "class_type": "DF_Text",
+    "inputs": {
+      "Text": "Drafts\\"
+    }
+  },
+  {
+    "id": "1691",
+    "class_type": "DF_Text",
+    "inputs": {
+      "Text": "With Metadata"
+    }
+  },
+  {
+    "id": "1695",
+    "class_type": "DF_Text",
+    "inputs": {
+      "Text": "%time"
+    }
+  },
+  {
+    "id": "1697",
+    "class_type": "DF_Text",
+    "inputs": {
+      "Text": "MetaData"
+    }
+  },
+  {
+    "id": "1701",
+    "class_type": "DF_Text",
+    "inputs": {
+      "Text": "Metadata"
+    }
+  },
+  {
+    "id": "1748",
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen_3_8b.safetensors"
+    }
+  },
+  {
+    "id": "1752",
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux2-vae.safetensors"
+    }
+  },
+  {
+    "id": "1765",
+    "class_type": "ClownSamplerSelector_Beta",
+    "inputs": {
+      "sampler_name": "multistep/res_2m"
+    }
+  },
+  {
+    "id": "1784",
+    "class_type": "UnetLoaderGGUF",
+    "inputs": {
+      "unet_name": "Flux2\\flux-2-klein-9b-Q8_0.gguf"
+    }
+  },
+  {
+    "id": "2014",
+    "class_type": "Florence2Run",
+    "inputs": {
+      "text_input": "",
+      "task": "prompt_gen_mixed_caption"
+    }
+  },
+  {
+    "id": "2015",
+    "class_type": "ShowText|pysssss",
+    "inputs": {
+      "text_0": "A close-up portrait of a young woman with long, wavy blonde hair and freckles, wearing a white fur c…"
+    }
+  },
+  {
+    "id": "2035",
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "Lonecats Krea 2 With Metadata 2026-06-28-211331.png"
+    }
+  },
+  {
+    "id": "2036",
+    "class_type": "ShowText|pysssss",
+    "inputs": {
+      "text_0": "A close-up portrait of a young woman with long, wavy blonde hair and freckles, wearing a white fur c…"
+    }
+  },
+  {
+    "id": "2040",
+    "class_type": "ClownsharkChainsampler_Beta",
+    "inputs": {
+      "steps_to_run": -1,
+      "cfg": 1
+    }
+  },
+  {
+    "id": "2042",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "radau_iia_5s"
+    }
+  },
+  {
+    "id": "2043",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "simple"
+    }
+  },
+  {
+    "id": "2044",
+    "class_type": "AILab_QwenVL_GGUF_PromptEnhancer",
+    "inputs": {
+      "model_name": "Qwen3-VL-8B-Instruct-c_abliterated-v3.Q6_K.gguf [~7.5GB]",
+      "preset_system_prompt": "📝 Detailed Visual",
+      "keep_last_prompt": false
+    }
+  },
+  {
+    "id": "2075",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "simple"
+    }
+  },
+  {
+    "id": "2099",
+    "class_type": "Text Multiline",
+    "inputs": {
+      "text": "You are a professional-grade photography prompt generator. Your task is to expand the user's short i…"
+    }
+  },
+  {
+    "id": "2105",
+    "class_type": "ShowText|pysssss",
+    "inputs": {
+      "text_0": "A cinematic close-up portrait of a adult woman in her late  s or early twenties, captured with natur…"
+    }
+  },
+  {
+    "id": "2107",
+    "class_type": "String Replace (mtb)",
+    "inputs": {
+      "new": "multistep/res_2m"
+    }
+  },
+  {
+    "id": "2108",
+    "class_type": "String Replace (mtb)",
+    "inputs": {
+      "old": "sa_solver[_ ]?.*",
+      "new": "multistep/deis_2m"
+    }
+  },
+  {
+    "id": "2109",
+    "class_type": "String Replace (mtb)",
+    "inputs": {
+      "new": "multistep/dpmpp_3m"
+    }
+  },
+  {
+    "id": "2110",
+    "class_type": "String Replace (mtb)",
+    "inputs": {
+      "old": "res_multistep[_ ]?.*",
+      "new": "multistep/res_2m"
+    }
+  },
+  {
+    "id": "2111",
+    "class_type": "String Replace (mtb)",
+    "inputs": {
+      "new": "multistep/dpmpp_2m"
+    }
+  },
+  {
+    "id": "2113",
+    "class_type": "String Replace (mtb)",
+    "inputs": {
+      "new": "multistep/deis_2m"
+    }
+  },
+  {
+    "id": "2116",
+    "class_type": "String Replace (mtb)",
+    "inputs": {
+      "new": "multistep/res_2m"
+    }
+  },
+  {
+    "id": "2118",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "euler"
+    }
+  },
+  {
+    "id": "2121",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "multistep/res_2mmultistep/res_2m"
+    }
+  },
+  {
+    "id": "2130",
+    "class_type": "CR Text Replace",
+    "inputs": {
+      "find3": "bottom right corner"
+    }
+  }
+]

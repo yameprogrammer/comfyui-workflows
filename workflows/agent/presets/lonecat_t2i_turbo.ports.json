@@ -1,0 +1,28 @@
+{
+  "preset": "lonecat_t2i_turbo",
+  "workflow_api": "presets/lonecat_t2i_turbo.api.json",
+  "description": "Lonecat AIO Z-Image ver17 — T2I Turbo core (EmptyLatent, denoise=1.0, Qwen off, SaveImage only). Built from graphToPrompt export + proven T2I wire-ups.",
+  "source_ui": "F:/ComfyUI_windows_portable/ComfyUI/user/default/workflows/Lonecat's AIO Z-Image ver 17.json",
+  "ports": {
+    "positive": { "node": "1315", "key": "text" },
+    "negative": { "node": "1317", "key": "negative", "optional": true },
+    "seed": { "node": "1307", "key": "seed" },
+    "denoise": { "node": "2039", "key": "denoise", "optional": true },
+    "width": { "node": "1808", "key": "width", "optional": true },
+    "height": { "node": "1808", "key": "height", "optional": true },
+    "filename_prefix": { "node": "1696", "key": "filename_prefix", "optional": true },
+    "unet_name": { "node": "1323", "key": "unet_name", "optional": true }
+  },
+  "defaults": {
+    "denoise": 1.0,
+    "width": 1024,
+    "height": 576,
+    "filename_prefix": "lonecat_t2i_turbo"
+  },
+  "notes": [
+    "Bypass in UI when re-exporting: Qwen Prompt, Load Image/I2I, ControlNet optional off",
+    "Latent = EmptyLatentImage; denoise fixed 1.0 for pure T2I",
+    "VAE ae.safetensors wired to VAEDecode (UE bake)",
+    "Do not use convert_ui_to_api on full AIO — use this .api.json via workflow_api_runner"
+  ]
+}

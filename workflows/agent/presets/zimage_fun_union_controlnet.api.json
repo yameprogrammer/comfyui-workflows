@@ -1,0 +1,170 @@
+{
+  "58": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "control_input.png"
+    }
+  },
+  "62": {
+    "class_type": "ImageScaleToMaxDimension",
+    "inputs": {
+      "image": [
+        "58",
+        0
+      ],
+      "upscale_method": "lanczos",
+      "largest_size": 1024
+    }
+  },
+  "39": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen_3_4b.safetensors",
+      "type": "lumina2",
+      "device": "default"
+    }
+  },
+  "46": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "ZImageTurbo\\moodyProMix_zitV12DPO.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "40": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    }
+  },
+  "64": {
+    "class_type": "ModelPatchLoader",
+    "inputs": {
+      "name": "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors"
+    }
+  },
+  "45": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "photoreal cinematic still",
+      "clip": [
+        "39",
+        0
+      ]
+    }
+  },
+  "42": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "45",
+        0
+      ]
+    }
+  },
+  "69": {
+    "class_type": "GetImageSize",
+    "inputs": {
+      "image": [
+        "62",
+        0
+      ]
+    }
+  },
+  "41": {
+    "class_type": "EmptySD3LatentImage",
+    "inputs": {
+      "width": [
+        "69",
+        0
+      ],
+      "height": [
+        "69",
+        1
+      ],
+      "batch_size": 1
+    }
+  },
+  "60": {
+    "class_type": "QwenImageDiffsynthControlnet",
+    "inputs": {
+      "model": [
+        "46",
+        0
+      ],
+      "model_patch": [
+        "64",
+        0
+      ],
+      "vae": [
+        "40",
+        0
+      ],
+      "image": [
+        "62",
+        0
+      ],
+      "strength": 1.0
+    }
+  },
+  "47": {
+    "class_type": "ModelSamplingAuraFlow",
+    "inputs": {
+      "model": [
+        "60",
+        0
+      ],
+      "shift": 3.0
+    }
+  },
+  "44": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "47",
+        0
+      ],
+      "seed": 0,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "res_multistep",
+      "scheduler": "simple",
+      "positive": [
+        "45",
+        0
+      ],
+      "negative": [
+        "42",
+        0
+      ],
+      "latent_image": [
+        "41",
+        0
+      ],
+      "denoise": 1.0
+    }
+  },
+  "43": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "44",
+        0
+      ],
+      "vae": [
+        "40",
+        0
+      ]
+    }
+  },
+  "9": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "43",
+        0
+      ],
+      "filename_prefix": "zimage_fun_union_cn"
+    }
+  }
+}

@@ -80,22 +80,34 @@ def _gen_one(
     if spec["kind"] == "krea":
         from generate_krea import generate_krea_image
 
-        ok = bool(
-            generate_krea_image(
-                prompt_text=prompt,
-                steps=8,
-                cfg=1.0,
-                sampler="euler_ancestral",
-                scheduler="simple",
-                output_filename=out_path,
-            )
+        r = generate_krea_image(
+            prompt_text=prompt,
+            steps=8,
+            cfg=1.0,
+            sampler="euler_ancestral",
+            scheduler="simple",
+            output_filename=out_path,
+            seed=seed,
+            width=width,
+            height=height,
+            timeout_sec=timeout,
+            return_dict=True,
         )
-        # krea ignores seed/size for now — still useful alternate quality axis
+        if isinstance(r, dict):
+            ok = bool(r.get("ok") or os.path.isfile(out_path))
+            return {
+                "ok": ok,
+                "engine": engine,
+                "seed": r.get("seed", seed),
+                "path": out_path if os.path.isfile(out_path) else r.get("output_path"),
+                "error": None if ok else (r.get("error") or "KREA_FAILED"),
+            }
+        ok = bool(r) and os.path.isfile(out_path)
         return {
-            "ok": ok and os.path.isfile(out_path),
+            "ok": ok,
             "engine": engine,
             "seed": seed,
-            "path": out_path if os.path.isfile(out_path) else None,
+            "path": out_path if ok else None,
             "error": None if ok else "KREA_FAILED",
         }
 

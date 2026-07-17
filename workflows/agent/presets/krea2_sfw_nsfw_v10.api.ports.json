@@ -1,0 +1,174 @@
+[
+  {
+    "id": "2",
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "Krea2\\krea2_turbo_fp8_scaled.safetensors"
+    }
+  },
+  {
+    "id": "5",
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "qwen_image_vae.safetensors"
+    }
+  },
+  {
+    "id": "6",
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "Qwen3VL4B\\qwen3vl-4b-abliterated_fp8_e4m3fn.safetensors"
+    }
+  },
+  {
+    "id": "13",
+    "class_type": "ResolutionMaster",
+    "inputs": {
+      "auto_detect_presets_json": "{\"Instagram Square\":{\"width\":1080,\"height\":1080,\"isCustom\":false,\"isHidden\":false},\"Instagram Portra…",
+      "resolution": "1.3K (768p)_landscape"
+    }
+  },
+  {
+    "id": "46",
+    "class_type": "PrimitiveStringMultiline",
+    "inputs": {
+      "value": "A young Caucasian woman, 20-25 years old, standing in a full-body medium shot centered in front of a…"
+    }
+  },
+  {
+    "id": "60",
+    "class_type": "SeedNode",
+    "inputs": {
+      "seed": 1003949590422403
+    }
+  },
+  {
+    "id": "63",
+    "class_type": "easy globalSeed",
+    "inputs": {
+      "last_seed": 1003949590422403
+    }
+  },
+  {
+    "id": "78",
+    "class_type": "SeedNode",
+    "inputs": {
+      "seed": 1003949590422403
+    }
+  },
+  {
+    "id": "128",
+    "class_type": "Seed",
+    "inputs": {
+      "seed": 1003949590422403
+    }
+  },
+  {
+    "id": "134",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "Krea2\\krea2_turbo_fp8_scaled:eb4dd8c612,manual1:37D96749742D"
+    }
+  },
+  {
+    "id": "149",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "A young Caucasian woman, 20-25 years old, standing in a full-body medium shot centered in front of a…"
+    }
+  },
+  {
+    "id": "109:100",
+    "class_type": "ClownsharKSampler_Beta",
+    "inputs": {
+      "sampler_name": "exponential/res_2s",
+      "steps": 8,
+      "cfg": 1
+    }
+  },
+  {
+    "id": "127:116",
+    "class_type": "ClownsharKSampler_Beta",
+    "inputs": {
+      "steps_to_run": -1
+    }
+  },
+  {
+    "id": "156:139",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": ""
+    }
+  },
+  {
+    "id": "156:143",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "1.0"
+    }
+  },
+  {
+    "id": "156:131",
+    "class_type": "RegexReplace",
+    "inputs": {
+      "regex_pattern": "lora_\\d+: \\{'on': True, 'lora': '([^']+?)\\.safetensors', 'strength': (\\d*\\.?\\d+)\\}"
+    }
+  },
+  {
+    "id": "156:141",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "Krea2\\krea2_turbo_fp8_scaled.safetensors"
+    }
+  },
+  {
+    "id": "156:145",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "linear/euler"
+    }
+  },
+  {
+    "id": "156:147",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "simple"
+    }
+  },
+  {
+    "id": "156:150",
+    "class_type": "easy showAnything",
+    "inputs": {
+      "text": "1.0"
+    }
+  },
+  {
+    "id": "156:155",
+    "class_type": "Image Saver",
+    "inputs": {
+      "filename": "Krea2_%time_%seed",
+      "negative": ""
+    }
+  },
+  {
+    "id": "156:153",
+    "class_type": "Civitai Hash Fetcher (Image Saver)",
+    "inputs": {
+      "model_name": "Krea2 [SFW / NSFW] Uncensored - Image-to-Prompt + Prompt Enhancer + 4K Upscaler + CivitAI Metadata"
+    }
+  },
+  {
+    "id": "56:53",
+    "class_type": "Seed (rgthree)",
+    "inputs": {
+      "seed": -1
+    }
+  },
+  {
+    "id": "56:51",
+    "class_type": "PrimitiveStringMultiline",
+    "inputs": {
+      "value": "You are an image prompt engineer. Your task is to produce a single, optimized image generation promp…"
+    }
+  }
+]

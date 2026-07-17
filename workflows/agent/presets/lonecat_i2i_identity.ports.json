@@ -1,0 +1,56 @@
+{
+  "preset": "lonecat_i2i_identity",
+  "workflow_api": "presets/lonecat_i2i_identity.api.json",
+  "description": "Lonecat AIO I2I: LoadImage + VAEEncode + denoise (Latent Switch encode path)",
+  "ports": {
+    "positive": {
+      "node": "1315",
+      "key": "text"
+    },
+    "negative": {
+      "node": "1317",
+      "key": "negative",
+      "optional": true
+    },
+    "seed": {
+      "node": "1307",
+      "key": "seed"
+    },
+    "denoise": {
+      "node": "2039",
+      "key": "denoise",
+      "optional": true
+    },
+    "input_image": {
+      "node": "2035",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "width": {
+      "node": "2027",
+      "key": "width",
+      "optional": true
+    },
+    "height": {
+      "node": "2027",
+      "key": "height",
+      "optional": true
+    },
+    "unet_name": {
+      "node": "1323",
+      "key": "unet_name",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "1696",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "denoise": 0.55,
+    "width": 1024,
+    "height": 576,
+    "filename_prefix": "lonecat_i2i"
+  }
+}
