@@ -1,45 +1,4 @@
 {
-  "50": {
-    "class_type": "CLIPTextEncode",
-    "inputs": {
-      "clip": [
-        "48",
-        0
-      ],
-      "text": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
-    }
-  },
-  "48": {
-    "class_type": "CLIPLoader",
-    "inputs": {
-      "clip_name": "umt5_xxl_fp16.safetensors",
-      "type": "wan",
-      "device": "default"
-    }
-  },
-  "49": {
-    "class_type": "CLIPTextEncode",
-    "inputs": {
-      "clip": [
-        "48",
-        0
-      ],
-      "text": "high quality nature video featuring a red panda balancing on a bamboo stem while a bird lands on it's head, on the background there is a waterfall"
-    }
-  },
-  "46": {
-    "class_type": "WanVideoTextEmbedBridge",
-    "inputs": {
-      "positive": [
-        "49",
-        0
-      ],
-      "negative": [
-        "50",
-        0
-      ]
-    }
-  },
   "22": {
     "class_type": "WanVideoModelLoader",
     "inputs": {
@@ -178,10 +137,7 @@
         "94",
         0
       ],
-      "cfg": [
-        "95",
-        0
-      ],
+      "cfg": 1.0,
       "end_step": [
         "91",
         0
@@ -225,7 +181,7 @@
         "91",
         0
       ],
-      "cfg": 1,
+      "cfg": 1.0,
       "shift": 8,
       "seed": 43,
       "force_offload": true,
@@ -242,20 +198,6 @@
     "class_type": "INTConstant",
     "inputs": {
       "value": 6
-    }
-  },
-  "95": {
-    "class_type": "CreateCFGScheduleFloatList",
-    "inputs": {
-      "steps": [
-        "94",
-        0
-      ],
-      "cfg_scale_start": 2,
-      "cfg_scale_end": 2,
-      "interpolation": "linear",
-      "start_percent": 0,
-      "end_percent": 0.01
     }
   },
   "97": {

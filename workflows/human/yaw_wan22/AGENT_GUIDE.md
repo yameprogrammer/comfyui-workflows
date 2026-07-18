@@ -1,8 +1,9 @@
 # YAW Wan 2.2 MoE v0.50 — Agent 가이드
 
-> **Toolbox shelf:** MOTION  
+> **Toolbox shelf:** MOTION (easy MoE UI · not episode quality default)  
 > **CLI:** `python scripts/generate_yaw_wan22.py`  
-> **Alternatives:** default quality I2V → `generate_i2v` (LTX) · lip/audio → `generate_s2v`  
+> **Alternatives:** default quality I2V → `generate_i2v` (LTX) · agent Wan I2V → `generate_i2v --backend wan22` · lip → `generate_s2v`  
+> **Family map:** [docs/wan22_workflow_map.md](../../../docs/wan22_workflow_map.md)  
 > **Catalog:** [docs/tool_catalog.md](../../../docs/tool_catalog.md) §2.4
 
 **출처:** [Yet Another Workflow: easy t2v + i2v (YAW - Wan 2.2)](https://civitai.red/models/2008892/yet-another-workflow-easy-t2v-i2v-yaw-wan-22)  

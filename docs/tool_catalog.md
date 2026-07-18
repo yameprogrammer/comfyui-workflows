@@ -82,7 +82,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | **아이들·루프** | `generate_idle_loop` | 대기 모션 + pingpong/roundtrip 루프 |
 | **댄스/레퍼 모션** | `generate_dance_ref` | 레퍼 영상→캐릭 모션 (V2V) |
 | 모션 프리셋 (I2V 옵션) | `generate_i2v --motion-preset …` | 동일 프리셋, 저수준 |
-| 빠른 모션 실험 | `generate_i2v --backend wan22` · `generate_yaw_wan22` | 속도/실험 |
+| Wan 폴백·MoE 실험 | `generate_i2v --backend wan22` · `generate_yaw_wan22` · [맵](wan22_workflow_map.md) | 에피 기본은 LTX |
 | 첫·끝 프레임 이음 | `generate_flf2v` | FLF |
 | 말하기·립 | `generate_s2v` · InfiniteTalk | 오디오 연동 |
 | **샷 사이즈 리프레임** | `generate_reframe` | wide/MCU/CU 크롭 (Comfy 불필요) |
@@ -296,18 +296,20 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 | **`generate_i2v`** | 일반 I2V · 자유 모션 문장 (기본 LTX) | 의도 id만 고르면 camera_move가 편함 |
 | **`--ltx-profile`** | `draft`(~540) / **`work`(720p 기본)** / **`hero`(~1080)** | 배치는 work · 러프만 draft |
 | **`--motion-preset`** | i2v/episode_i2v에 같은 프리셋 연결 | camera_move와 id 공유 |
-| `generate_i2v --backend wan22` | 빠른 실험 | 모션 평탄할 수 있음 |
-| **`generate_yaw_wan22`** | Wan 2.2 MoE T2V/I2V 실 UI | 립 → s2v |
+| `generate_i2v --backend wan22` | LTX 폴백·카메라/텍스처 재시도 (GGUF+lightx2v) | 에피 기본 I2V 금지 · 모션 평탄할 수 있음 |
+| `generate_i2v --backend wan22_flf` | Wan first+last 폴백 | 품질 FLF 본선 = LTX flf |
+| **`generate_yaw_wan22`** | Wan 2.2 MoE T2V/I2V 쉬운 실 UI | 립 → s2v · 에피 본선 대체 아님 |
 | **`generate_flf2v`** | 첫·끝 프레임 연결 | 단일 키프레임 모션 → i2v |
 | **`generate_s2v`** | 이미지+오디오 연동 | 무음 순수 모션 → i2v |
 | `generate_s2v --backend infinitetalk` | 토킹 립 품질 | VRAM·길이 계약 주의 |
 | `generate_ltx23_latentheart` | Director 모듈 조합 | 단순 I2V면 generate_i2v |
 | `generate_ltx23_redmix_i2v` | Krea/Ideogram 스틸 애니 | |
-| `generate_ltx_nsfw_i2v` | 성인 모션 **18+** | SFW → 일반 i2v |
+| `generate_ltx_nsfw_i2v` | 성인 모션 **18+** (LTX 10Eros) | SFW → 일반 i2v |
+| **`generate_wan22_nsfw_i2v`** | 성인 모션 **18+** (Wan dual+lightx2v ± NSFW LoRA) | SFW → i2v · LTX 10Eros 대안 |
 | `generate_v2v` | 영상→영상 의도 (experimental) | |
 
-가이드 예: [LTX AIO](../workflows/human/LTX23_AIO_v44_AGENT_GUIDE.md) · [yaw_wan22](../workflows/human/yaw_wan22/AGENT_GUIDE.md) · [redmix](../workflows/human/ltx23_redmix_krea2/AGENT_GUIDE.md)  
-LTX 품질 리서치·갭: [ltx23_quality_research_and_improvement.md](ltx23_quality_research_and_improvement.md)
+가이드 예: [LTX AIO](../workflows/human/LTX23_AIO_v44_AGENT_GUIDE.md) · [wan22 맵](wan22_workflow_map.md) · [wan22 pack](../workflows/human/wan22/AGENT_GUIDE.md) · [yaw_wan22](../workflows/human/yaw_wan22/AGENT_GUIDE.md) · [redmix](../workflows/human/ltx23_redmix_krea2/AGENT_GUIDE.md)  
+LTX 품질: [ltx23_quality_research_and_improvement.md](ltx23_quality_research_and_improvement.md) · Wan 정리: [wan22_workflow_map.md](wan22_workflow_map.md)
 
 ```bash
 python scripts/generate_camera_move.py --list-presets
@@ -476,7 +478,7 @@ python scripts/upscale_video.py -i work.mp4 -o d4k.mp4 --backend seedvr2 --prese
 |------|------|
 | **cwd** | `agent_custom` 루트에서 `python scripts/...` |
 | **Comfy** | `127.0.0.1:8188` · 런처 SSOT `run_nvidia_gpu.bat` (data: `F:\ComfyUI_data`) |
-| **18+** | `krea_nsfw` · `ltx_nsfw_*` |
+| **18+** | `krea_nsfw` · `ltx_nsfw_*` · `wan22_nsfw_i2v` |
 | **VRAM** | OOM 시 짧은 클립 · GGUF · 엔진 free |
 | **출력** | `-o` 권장 · 프로젝트 작업이면 **복사/export** |
 | **실 UI 도구** | 미니그래프 재작성 금지 · 문서화된 포트/스위치만 |

@@ -1,99 +1,146 @@
-# WAN 2.2 워크플로 팩 — 선별 가이드 (agent_custom)
+# WAN 2.2 워크플로 팩 — 에이전트 가이드
 
-> **Toolbox shelf:** MOTION · FINISH (face/upscale helpers)  
-> **CLI:** `generate_i2v --backend wan22` · `generate_wan22_face_enhance` · `generate_wan22_upscale`  
-> **Alternatives:** quality default I2V → LTX `generate_i2v` · easy MoE UI → `generate_yaw_wan22`  
-> **Catalog:** [docs/tool_catalog.md](../../docs/tool_catalog.md) §2.4 · §2.6
+> **Toolbox shelf:** MOTION (fallback) · FINISH (face / experimental upscale)  
+> **품질 본선 I2V/FLF:** LTX — `generate_i2v` / `generate_flf2v` (Wan 아님)  
+> **Wan CLI:** `generate_i2v --backend wan22` · `wan22_flf` · **`generate_wan22_nsfw_i2v` (18+)** · `generate_yaw_wan22` · face/upscale  
+> **한 장 맵 (SSOT):** [docs/wan22_workflow_map.md](../../../docs/wan22_workflow_map.md)  
+> **구조·효율 리서치:** [docs/wan22_workflow_research_and_design.md](../../../docs/wan22_workflow_research_and_design.md)  
+> **Catalog:** [docs/tool_catalog.md](../../../docs/tool_catalog.md) §2.4 · §2.6
 
 **소스 원본:** `F:\ComfyUI_workflows\WAN 2.2 *.json`  
 **Human SSOT (이 폴더):** 검증·재export용 UI 스냅샷  
-**Agent 실행:** `workflows/agent/presets/*.api.json` + port patch (가능 시)
+**Agent 실행:** `workflows/agent/presets/*.api.json` + 런타임 inject
 
 원칙: 커뮤니티 팩의 **서브그래프(UUID) + Set/Get/UE** 는 에이전트가 직접 돌리기 어렵다.  
-→ **쓸 만한 것만 보관**하고, 본선은 **API 평탄 프리셋**으로 고정한다.
+→ **쓸 만한 것만 보관**하고, 본선은 **API 평탄 프리셋**으로 고정한다.  
+→ **거대 All-in-one Wan** 은 넣지 않는다 (LTX AIO + 얇은 Wan 레인).
 
 ---
 
-## 1. 선별 결과
+## 0. 정책 (고정)
 
-| 파일 (이 폴더) | 원본 이름 | 판정 | 역할 | 에이전트 상태 |
-|----------------|-----------|------|------|----------------|
-| `wan22_i2v.json` | WAN 2.2 I2V | **폴백** | 단일 이미지→영상 (Kijai WanVideoWrapper) | agent `i2v_wan22_a14b` — **품질 본선은 LTX AIO** (A/B 2026-07-17) |
-| `wan22_i2v_start_end.json` | WAN 2.2 I2V StartEnd Frames | **폴백 FLF** | First/Last frame | agent `i2v_wan22_a14b_flf`; **품질 FLF 본선 = `ltx23_aio_flf`** |
-| `wan22_face_enhance.json` | WAN 2.2 FaceEnhance | **채택** | 클립 얼굴 보정 (CLIPSeg + Wan refine) | planned — post-I2V polish |
-| `wan22_upscale.json` | WAN 2.2 UPSCALE | **채택** | Wan diffusion 영상 업스케일 | planned — opt-in quality lane |
-| `wan22_upscale_face_enhance.json` | WAN 2.2 UPSCALE + FACE ENHANCE | **채택** | 업스케일+얼굴 연속 | planned — hero 마감 |
-| `wan22_animate.json` | WAN ANIMATE 2.2 | **채택 (장르)** | 레퍼 모션→캐릭 (pose/SAM2) | planned — dance_challenge |
-| `wan22_flf2v_native.json` | wan22_flf2v | **참고** | 네이티브 FLF (서브그래프 적음) | FLF API 후보 |
-| `wan22_i2v_lightning_native.json` | Wan2.2-I2V-…lightning | **참고** | 네이티브 4step lightning | 경량 I2V 후보 |
+| 항목 | 값 |
+|------|-----|
+| 에피소드 기본 I2V | `ltx23_aio_i2v` |
+| 에피소드 기본 FLF | `ltx23_aio_flf` |
+| Wan 역할 | 폴백 · 명시 · 텍스처/카메라 무게 · LoRA/장르 · FINISH |
+| 효율 스택 | High/Low MoE GGUF + lightx2v + 4–8 step + **CFG=1 강제** + sageattn |
+| 속도 프로필 | `preview` / **`deliver`** / `quality` (`generate_i2v --profile`) |
+| Tea/Mag cache | deliver **off** (품질 탈락 이력) |
+| 튜닝 CLI | `--wan-scheduler` · `--wan-shift` · `--lora-strength-high/low` · `--wan-boundary` · `--wan-quant` |
+| inject SSOT | `lib/wan22_i2v_inject.py` (로더 역할=샘플러 배선) |
 
-### 의도적으로 넣지 않음
+A/B: [wan_vs_ltx_i2v_ab_2026-07-17.md](../../../docs/wan_vs_ltx_i2v_ab_2026-07-17.md)
+
+---
+
+## 1. 이 폴더 선별표
+
+| 파일 | 판정 | 레인 | 에이전트 |
+|------|------|------|----------|
+| `wan22_i2v.json` | **폴백 MOTION** | I2V | **ready** `i2v_wan22_a14b` · `--backend wan22` |
+| `wan22_i2v_start_end.json` | **폴백 FLF** | first+last | **ready** `i2v_wan22_a14b_flf` · `--backend wan22_flf` |
+| `wan22_face_enhance.json` | **FINISH** | 얼굴 스미어 | **ready_experimental** `generate_wan22_face_enhance` |
+| `wan22_upscale.json` | **FINISH opt-in** | Wan 확산 업스케일 | **ready_experimental** `generate_wan22_upscale` |
+| `wan22_upscale_face_enhance.json` | **planned** | 업스케일+얼굴 | Human only · API 미배선 |
+| `wan22_animate.json` | **planned 장르** | pose/SAM2 리타겟 | `video_backends.wan22_animate` planned |
+| `wan22_flf2v_native.json` | **참고** | 네이티브 FLF | 재export 후보 |
+| `wan22_i2v_lightning_native.json` | **참고** | 네이티브 4step | 경량 참고 |
+
+### 의도적으로 안 넣은 원본
 
 | 원본 | 이유 |
 |------|------|
-| **WAN 2.2 UPSCALE BATCH** | 폴더 크롤 배치 UX. 에피소드 배치는 `episode_upscale` / CLI 루프가 SSOT |
-| **AllInOne-wan2.2** | 163노드 AIO·중복. LTX AIO + 본선 Wan I2V로 역할 분담 |
-| **WAN 2.2 S2V** | 립 본선은 InfiniteTalk / LTX AIO. 이중 스택 유지 비용 |
-| **FunCamera / FASTWAN 5B / T2I·T2V 배치** | 본선 파이프와 겹치거나 실험용 |
+| **WAN 2.2 UPSCALE BATCH** | 에피 배치 SSOT = `episode_upscale` / CLI 루프 |
+| **AllInOne-wan2.2** | 163노드 중복 · LTX AIO + 얇은 Wan API로 분담 |
+| **WAN 2.2 S2V** | 립 = InfiniteTalk / LTX AIO |
+| **FunCamera / FASTWAN 5B / T2I·T2V 배치** | 본선 겹침·실험 |
 | **LORA COMPARE** | 휴먼 비교 전용 |
+
+별 패밀리: **YAW MoE** → [../yaw_wan22/AGENT_GUIDE.md](../yaw_wan22/AGENT_GUIDE.md) · `generate_yaw_wan22`
 
 ---
 
 ## 2. 서브그래프 해부 (핵심)
 
-### Face Enhance (`e9eacb42-…`)
-- `BatchCLIPSeg` + mask grow → `WanVideoEncode/Sampler/Decode` + `WanVideoEnhanceAVideo`
-- 입력: **영상** (`VHS_LoadVideo`)
-- 용도: I2V/SI2V 후 얼굴 붕괴·스미어 완화 (구조 오류는 업스케일 전에 고칠 것)
+### I2V / StartEnd
+- dual `WanVideoModelLoader` (HighNoise + LowNoise) + lightx2v LoRA  
+- dual `WanVideoSampler` + steps/boundary  
+- StartEnd = LoadImage ×2 → 동일 샘플러 (FLF)
 
-### Upscale (`caefe725-…`)
-- Florence2 캡션 보조 + `WanVideoSampler` 기반 **재생성 업스케일**
-- RTX VSR / SeedVR2와 **별 레인** (느리고 비쌈 → 기본 납품 금지)
-- 기본 납품은 계속 `upscale_backends.json` → `rtx_vsr` / hero `seedvr2`
+### Face Enhance
+- `BatchCLIPSeg` + mask grow → Wan encode/sample/decode + EnhanceAVideo  
+- 입력: **영상** (`VHS_LoadVideo`)  
+- 용도: I2V 후 얼굴 붕괴·스미어 (구조 오류는 업스케일 **전**에 수정)
+
+### Upscale
+- Florence2 캡션 보조 + WanSampler **재생성** 업스케일  
+- 기본 납품 **금지** → `upscale_backends` 의 esrgan / seedvr2 / rtx_vsr
 
 ### Animate
-- PREPROCESSOR: SAM2 + pose + mask  
-- `WanVideoAnimateEmbeds` + 레퍼 비디오 + 캐릭 이미지  
-- `dance_challenge` 파이프와 정합 (설계 문서 P3-1)
-
-### I2V / StartEnd
-- Model Loader 서브그래프: dual `WanVideoModelLoader` + LoRA  
-- StartEnd = LoadImage ×2 → 같은 샘플러 경로 (FLF)
+- SAM2 + pose + mask → `WanVideoAnimateEmbeds`  
+- `dance_challenge` / dance_ref 와 정합 (배선 planned)
 
 ---
 
-## 3. 공장 매핑
+## 3. CLI 치트시트
 
-| 생산 단계 | 사용 |
-|-----------|------|
-| Work I2V (Wan 백엔드) | `generate_i2v --backend wan22` → **API 프리셋** |
-| Work I2V (기본) | LTX AIO `ltx23_aio_i2v` (video_backends default) |
-| FLF / last-frame chain | `wan22_i2v_start_end` 또는 native flf2v → 향후 `generate_i2v --flf` |
-| 얼굴 후처리 | `wan22_face_enhance` (planned CLI) |
-| 납품 업스케일 기본 | `rtx_vsr` / `seedvr2` (기존) |
-| Wan 확산 업스케일 | `wan22_upscale` opt-in only |
-| 댄스 모션 리타겟 | `wan22_animate` + dance_challenge 설계 |
+```bash
+# 폴백 I2V
+python scripts/generate_i2v.py -i key.png -p "gentle head turn, slow push-in" \
+  -o out.mp4 --backend wan22 --profile deliver --seed 42
+
+# FLF (Wan)
+python scripts/generate_i2v.py -i start.png --last end.png -p "..." \
+  -o bridge.mp4 --backend wan22_flf
+
+# 빨간맛 I2V (18+ only) — optional dual NSFW LoRA under models/loras/Wan2.2/nsfw/
+python scripts/generate_wan22_nsfw_i2v.py -i adult_key.png -p "adult woman..." -o nsfw.mp4
+python scripts/generate_wan22_nsfw_i2v.py --list-loras
+
+# 얼굴 / 업스케일 (FINISH)
+python scripts/generate_wan22_face_enhance.py -i clip.mp4 -o face.mp4
+python scripts/generate_wan22_upscale.py -i clip.mp4 -o up.mp4
+
+# 쉬운 MoE (다른 폴더)
+python scripts/generate_yaw_wan22.py --task i2v -i key.png -p "..." -o yaw.mp4
+```
+
+### 3.1 NSFW 정책
+
+| | |
+|--|--|
+| 도구 | `generate_wan22_nsfw_i2v` · backend id `wan22_nsfw_i2v` |
+| 연령 | **18+ only** · age 키워드 차단 exit 11 |
+| **기본 UNet** | **Remix NSFW High/Low fp8** (빨간맛 전용 모델 — base GGUF 아님) |
+| lightx2v | 속도용 distill 유지 |
+| LoRA | remix 기본 off · `--with-lora` / `--lora-preset` 로 추가 |
+| 폴백 | `--unet-profile base` = GGUF + General LoRA |
+| LTX 대안 | `generate_ltx_nsfw_i2v` (10Eros) |
+
+프로필·BlockSwap·cache: [wan22_i2v_speed_research.md](../../../docs/wan22_i2v_speed_research.md) · 맵 §3.
 
 ---
 
-## 4. API export 절차 (서브그래프 팩)
+## 4. API export 절차
 
-1. ComfyUI에 해당 JSON 로드  
-2. 필요 입력 채운 뒤 **Save (API Format)** 또는 agent `graphToPrompt` export  
+1. ComfyUI에 해당 Human JSON 로드  
+2. 입력 채운 뒤 **Save (API Format)** 또는 graphToPrompt  
 3. `workflows/agent/presets/<name>.api.json` + `.ports.json`  
-4. catalog 등록 · `process.md` 한 줄  
+4. [wan22_workflow_map.md](../../../docs/wan22_workflow_map.md) 표 갱신 · backends · `process.md`  
 
 **금지:** 서브그래프 UUID 노드를 Python으로 재조립.
 
 ---
 
-## 5. 관련 코드
+## 5. 관련 경로
 
 | 항목 | 경로 |
 |------|------|
-| Wan I2V API | `workflows/agent/presets/i2v_wan22_a14b.api.json` |
-| UI 소스 (재export) | `workflows/agent/I2V-wan22-a14b.json` |
-| CLI | `scripts/generate_i2v.py` |
+| 맵 SSOT | `docs/wan22_workflow_map.md` |
+| I2V API | `workflows/agent/presets/i2v_wan22_a14b.api.json` |
+| FLF API | `workflows/agent/presets/i2v_wan22_a14b_flf.api.json` |
+| UI 변환 원본 | `workflows/agent/I2V-wan22-a14b.json` |
+| CLI | `scripts/generate_i2v.py` · `generate_wan22_*.py` · `generate_yaw_wan22.py` |
 | Backends | `video_backends.json` · `upscale_backends.json` |
-| FLF 로드맵 | `docs/flf2v_f2f_roadmap.md` |
-| 업스케일 정책 | `docs/upscale_research_and_design.md` |
+| 프롬프트 | `skills/generation-prompt/references/wan22_i2v.md` |

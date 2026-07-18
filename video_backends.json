@@ -211,31 +211,42 @@
   "backends": {
     "wan22": {
       "status": "ready",
+      "family": "wan22",
       "engine": "Wan2.2 I2V A14B GGUF",
       "workflow": "i2v_wan22_a14b",
       "workflow_api": "presets/i2v_wan22_a14b.api.json",
+      "human_ui": "workflows/human/wan22/wan22_i2v.json",
+      "cli": "scripts/generate_i2v.py --backend wan22",
+      "stack": "dual High/Low GGUF Q4_K_M + lightx2v 4step LoRA + sageattn + profiles preview/deliver/quality",
       "strengths": [
         "character_i2v",
-        "general_cinematic"
+        "general_cinematic",
+        "camera_weight",
+        "texture_detail"
       ],
-      "notes": "GGUF dual high/low + lightx2v. A/B 2026-07-17 vs LTX: LTX preferred for motion/film quality. Use wan22 only as fallback or explicit --backend wan22. Default I2V = ltx23_aio_i2v.",
-      "quality_tier": "fallback"
+      "notes": "Fallback I2V only. Map: docs/wan22_workflow_map.md. A/B 2026-07-17: LTX preferred for motion/film. Default I2V = ltx23_aio_i2v.",
+      "quality_tier": "fallback",
+      "speed_profiles": ["preview", "deliver", "quality"]
     },
     "wan22_flf": {
       "status": "ready",
+      "family": "wan22",
       "engine": "Wan2.2 I2V A14B FLF (start+end)",
       "workflow": "i2v_wan22_a14b_flf",
       "workflow_api": "presets/i2v_wan22_a14b_flf.api.json",
+      "human_ui": "workflows/human/wan22/wan22_i2v_start_end.json",
+      "cli": "scripts/generate_i2v.py --backend wan22_flf",
       "strengths": [
         "first_last_frame",
         "one_take_bridge",
         "flf2v"
       ],
-      "notes": "Wan FLF API preset. Quality default FLF = ltx23_aio_flf. Keep wan22_flf as opt-in fallback.",
+      "notes": "Wan FLF fallback. Quality default FLF = ltx23_aio_flf. See docs/wan22_workflow_map.md.",
       "quality_tier": "fallback"
     },
     "wan22_animate": {
       "status": "planned",
+      "family": "wan22",
       "kind": "v2v_motion",
       "engine": "WAN Animate 2.2",
       "human_ui": "workflows/human/wan22/wan22_animate.json",
@@ -243,7 +254,55 @@
         "dance_challenge",
         "pose_retarget"
       ],
-      "notes": "Motion transfer (SAM2+pose). Wire with dance_challenge pipeline later."
+      "notes": "Motion transfer (SAM2+pose). Planned wire with dance_challenge / dance_ref. Map: docs/wan22_workflow_map.md."
+    },
+    "wan22_nsfw_i2v": {
+      "status": "ready",
+      "family": "wan22",
+      "kind": "i2v",
+      "engine": "Wan2.2 Remix NSFW High/Low fp8 + lightx2v (default); GGUF+LoRA fallback",
+      "workflow": "i2v_wan22_a14b",
+      "workflow_api": "presets/i2v_wan22_a14b.api.json",
+      "cli": "scripts/generate_wan22_nsfw_i2v.py",
+      "human_ui": "workflows/human/wan22/wan22_i2v.json",
+      "quality_tier": "nsfw",
+      "policy": "adult_18_plus_only",
+      "default_speed_profile": "quality",
+      "default_unet_profile": "remix",
+      "strengths": [
+        "nsfw_i2v",
+        "erotic_motion",
+        "adult_clip",
+        "wan_texture"
+      ],
+      "nsfw_loras": {
+        "high": "Wan2.2\\nsfw\\Wan2.2_I2V_General_NSFW_HIGH_e8.safetensors",
+        "low": "Wan2.2\\nsfw\\Wan2.2_I2V_General_NSFW_LOW_e8.safetensors",
+        "strength_high": 0.85,
+        "strength_low": 0.9,
+        "notes": "Default: lopi999 General NSFW I2V pair (2026-07-18). Alt: DR34ML4Y_I2V_14B_HIGH/LOW in same folder. Auto-discover scans Wan2.2/nsfw/."
+      },
+      "nsfw_lora_presets": {
+        "general": {
+          "high": "Wan2.2\\nsfw\\Wan2.2_I2V_General_NSFW_HIGH_e8.safetensors",
+          "low": "Wan2.2\\nsfw\\Wan2.2_I2V_General_NSFW_LOW_e8.safetensors",
+          "strength_high": 0.85,
+          "strength_low": 0.9
+        },
+        "dr34ml4y": {
+          "high": "Wan2.2\\nsfw\\DR34ML4Y_I2V_14B_HIGH.safetensors",
+          "low": "Wan2.2\\nsfw\\DR34ML4Y_I2V_14B_LOW.safetensors",
+          "strength_high": 0.75,
+          "strength_low": 0.85
+        }
+      },
+      "nsfw_unet_remix": {
+        "status": "ready_on_disk",
+        "high": "Wan2.2\\nsfw_remix\\Wan2.2_Remix_NSFW_i2v_14b_HIGH_fp8_v3.0.safetensors",
+        "low": "Wan2.2\\nsfw_remix\\Wan2.2_Remix_NSFW_i2v_14b_LOW_fp8_v3.0.safetensors",
+        "notes": "FX-FeiHou wan2.2-Remix NSFW I2V fp8 e4m3fn v3.0 (~14GB each) installed 2026-07-18. Default tool path remains base GGUF + General LoRA (VRAM-friendly). Remix UNet swap = future --unet-profile remix."
+      },
+      "notes": "Adult 18+ only. Default UNet = Remix NSFW High/Low fp8 (dedicated). Optional style LoRA via --with-lora / --lora-preset. Fallback --unet-profile base = GGUF + General LoRA. SFW → ltx23_aio_i2v. Alt LTX → generate_ltx_nsfw_i2v."
     },
     "ltx23": {
       "status": "ready",
@@ -498,7 +557,35 @@
       "Higher encode bitrate and perceived detail in motion",
       "WAN GGUF 4–6step lightx2v looks sharper freeze-frame but flatter motion"
     ],
-    "wan22_role": "fallback / FLF experiment / low-VRAM only — not quality default"
+    "wan22_role": "fallback / FLF experiment / texture-camera retry / low-VRAM option — not quality default",
+    "map": "docs/wan22_workflow_map.md",
+    "research": "docs/wan22_workflow_research_and_design.md"
+  },
+  "wan22_family": {
+    "description": "Wan 2.2 toolbox lane map (not episode quality default). Full SSOT: docs/wan22_workflow_map.md",
+    "quality_default_i2v": "ltx23_aio_i2v",
+    "quality_default_flf": "ltx23_aio_flf",
+    "efficiency_stack": "dual High/Low MoE + lightx2v + 4-8 step CFG1 + sageattn + GGUF + BlockSwap",
+    "motion": {
+      "wan22": "ready fallback I2V",
+      "wan22_flf": "ready fallback FLF",
+      "wan22_nsfw_i2v": "ready adult 18+ I2V (optional NSFW LoRA pair)",
+      "yaw_wan22": "ready easy MoE T2V/I2V via generate_yaw_wan22",
+      "wan22_animate": "planned pose/SAM2 retarget"
+    },
+    "finish": {
+      "wan22_face_enhance": "ready_experimental — generate_wan22_face_enhance",
+      "wan22_upscale": "ready_experimental opt-in — generate_wan22_upscale (not deliver default)",
+      "wan22_upscale_face": "planned"
+    },
+    "excluded": [
+      "AllInOne-wan2.2 giant pack",
+      "WAN S2V (lip = InfiniteTalk/LTX)",
+      "UPSCALE BATCH folder crawl",
+      "FunCamera / FASTWAN 5B / T2I batch"
+    ],
+    "human_pack": "workflows/human/wan22/",
+    "yaw_pack": "workflows/human/yaw_wan22/"
   },
   "ltx_quality_profiles": {
     "description": "Agent LTX draft/work/hero tiers. Default work = 720p (2026-07-18). Research: docs/ltx23_quality_research_and_improvement.md. CLI: --ltx-profile",

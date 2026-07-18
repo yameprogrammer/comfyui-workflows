@@ -2,7 +2,7 @@
 """
 Image-to-Video via ComfyUI (multi-backend entry).
 
-Default backend: wan22 (Wan2.2 I2V A14B GGUF + lightx2v).
+Default backend: ltx23_aio_i2v (video_backends.json). Wan2.2 fallback: --backend wan22 (GGUF dual + lightx2v).
 Presets / backends SSOT: video_backends.json (see docs/video_delivery_and_backends.md).
 
 Delivery policy:
@@ -46,6 +46,7 @@ from lib.video_backends import (
     resolve_i2v_job,
 )
 from lib.workflow_paths import resolve_workflow
+from lib import wan22_i2v_inject as wan_inj
 
 DEFAULT_NEGATIVE = (
     "static, still image, blurry, low quality, worst quality, deformed, "
@@ -58,7 +59,7 @@ COMFY_TEMP_DIR = r"F:\ComfyUI_windows_portable\ComfyUI\temp"
 
 
 def _find_nodes(api_prompt: dict, class_type: str) -> list[str]:
-    return [nid for nid, n in api_prompt.items() if n.get("class_type") == class_type]
+    return wan_inj.find_nodes(api_prompt, class_type)
 
 
 def _snap_dim(n: int, multiple: int = 16) -> int:
@@ -81,9 +82,7 @@ def _snap_frames(n: int) -> int:
 
 def _link_node_id(val) -> str | None:
     """Comfy link input is [node_id, slot] or bare value."""
-    if isinstance(val, list) and len(val) >= 1:
-        return str(val[0])
-    return None
+    return wan_inj.link_node_id(val)
 
 
 def resolve_wan_attention(explicit: str | None = None) -> str:
@@ -152,11 +151,7 @@ def _apply_max_long_edge(width: int, height: int, max_long_edge: int | None) -> 
 
 
 def _apply_wan22_block_swap(api_prompt: dict, blocks_to_swap: int) -> dict:
-    blocks = max(0, int(blocks_to_swap))
-    ids = _find_nodes(api_prompt, "WanVideoBlockSwap")
-    for nid in ids:
-        api_prompt[nid]["inputs"]["blocks_to_swap"] = blocks
-    return {"blocks_to_swap": blocks, "node_ids": ids}
+    return wan_inj.apply_block_swap(api_prompt, blocks_to_swap)
 
 
 def _apply_wan22_cache(
@@ -218,54 +213,11 @@ def _apply_wan22_cache(
     }
 
 
-def _apply_wan22_steps_and_boundary(api_prompt: dict, steps: int) -> dict:
-    """Wire total steps + dual high/low boundary (steps//2) into INTConstants / samplers.
-
-    WF pattern: both WanVideoSampler share steps INTConstant; boundary INT feeds
-    high end_step and low start_step.
-    """
-    steps_n = max(1, int(steps))
-    boundary = max(1, steps_n // 2)
-    steps_const: set[str] = set()
-    boundary_const: set[str] = set()
-
-    for nid in _find_nodes(api_prompt, "WanVideoSampler"):
-        inp = api_prompt[nid]["inputs"]
-        sid = _link_node_id(inp.get("steps"))
-        if sid:
-            steps_const.add(sid)
-        else:
-            inp["steps"] = steps_n
-        for key in ("start_step", "end_step"):
-            raw = inp.get(key)
-            bid = _link_node_id(raw)
-            if bid:
-                boundary_const.add(bid)
-
-    for sid in steps_const:
-        node = api_prompt.get(sid)
-        if node and node.get("class_type") == "INTConstant":
-            node["inputs"]["value"] = steps_n
-
-    for bid in boundary_const:
-        node = api_prompt.get(bid)
-        if node and node.get("class_type") == "INTConstant":
-            node["inputs"]["value"] = boundary
-
-    # Legacy: older graphs used a lone INTConstant(30) as step count
-    for nid in _find_nodes(api_prompt, "INTConstant"):
-        if nid in steps_const or nid in boundary_const:
-            continue
-        val = api_prompt[nid]["inputs"].get("value")
-        if val == 30:
-            api_prompt[nid]["inputs"]["value"] = steps_n
-
-    return {
-        "steps": steps_n,
-        "boundary": boundary,
-        "steps_const_ids": sorted(steps_const),
-        "boundary_const_ids": sorted(boundary_const),
-    }
+def _apply_wan22_steps_and_boundary(
+    api_prompt: dict, steps: int, boundary: int | None = None
+) -> dict:
+    """Wire total steps + dual high/low boundary (default steps//2)."""
+    return wan_inj.apply_steps_and_boundary(api_prompt, steps, boundary=boundary)
 
 
 def _is_wan22_family(backend_id: str, wf_path: str = "") -> bool:
@@ -330,6 +282,21 @@ def generate_i2v(
     block_swap: int | None = None,
     apply_profile_long_edge: bool = True,
     end_image_path: str | None = None,
+    wan_quant: str | None = "q4",
+    wan_scheduler: str | None = None,
+    wan_shift: float | None = None,
+    lora_strength_high: float | None = 1.0,
+    lora_strength_low: float | None = 1.0,
+    wan_boundary: int | None = None,
+    extra_lora_high: str | None = None,
+    extra_lora_low: str | None = None,
+    extra_lora_strength_high: float = 0.85,
+    extra_lora_strength_low: float = 0.9,
+    wan_model_high: str | None = None,
+    wan_model_low: str | None = None,
+    wan_unet_profile: str | None = None,
+    tool_policy: str | None = None,
+    tool_name: str | None = None,
 ):
     if not os.path.exists(input_image_path):
         print(f"Error: input image not found: {input_image_path}")
@@ -518,18 +485,19 @@ def generate_i2v(
                 f"{ow}x{oh} -> {width}x{height}"
             )
 
-    eng = ensure_engine(
-        family_for_i2v_backend(backend_id),
-        server_address,
-        caller=f"generate_i2v:{backend_id}",
-    )
-    if not eng.get("ok"):
-        return fail_result(
-            error=eng.get("error") or "ENGINE_SESSION",
-            message=eng.get("message") or "comfy engine free/gate failed",
-            engine_session=eng,
-            backend=backend_id,
+    if not dry_run:
+        eng = ensure_engine(
+            family_for_i2v_backend(backend_id),
+            server_address,
+            caller=f"generate_i2v:{backend_id}",
         )
+        if not eng.get("ok"):
+            return fail_result(
+                error=eng.get("error") or "ENGINE_SESSION",
+                message=eng.get("message") or "comfy engine free/gate failed",
+                engine_session=eng,
+                backend=backend_id,
+            )
 
     # WanVideoSampler fails when latent spatial dims disagree (classic 960x540:
     # 540 % 16 != 0). Snap both axes; also normalize frame count to 4n+1.
@@ -618,40 +586,50 @@ def generate_i2v(
     wan_step_info: dict = {}
     wan_cache_info: dict = {}
     wan_swap_info: dict = {}
+    wan_tune_info: dict = {}
+    wan_model_info: dict = {}
+    wan_lora_info: dict = {}
+    wan_extra_lora_info: dict = {}
+    wan_dead_removed: list[str] = []
     vhs_prefix = f"agent_i2v_{int(time.time())}"
 
     # --- wan22 / wan22_flf graph patch (API preset preferred) ---
     if _is_wan22_family(backend_id, wf_path):
-        model_high = r"Wan2.2\Wan2.2-I2V-A14B-HighNoise-Q4_K_M.gguf"
-        model_low = r"Wan2.2\Wan2.2-I2V-A14B-LowNoise-Q4_K_M.gguf"
-        lora_high = r"Wan2.2\Wan_2_2_I2V_A14B_HIGH_lightx2v_4step_lora_260412_rank_64_fp16.safetensors"
-        lora_low = r"Wan2.2\Wan_2_2_I2V_A14B_LOW_lightx2v_4step_lora_260412_rank_64_fp16.safetensors"
-        loaders = _find_nodes(api_prompt, "WanVideoModelLoader")
-        # Never use fp16_fast — needs torch nightly allow_fp16_accumulation
-        for lid in loaders:
-            li = api_prompt[lid].setdefault("inputs", {})
-            li["base_precision"] = "bf16"
-            li["quantization"] = "disabled"
-            li.pop("compile_args", None)
-        if len(loaders) >= 2:
-            api_prompt[loaders[0]]["inputs"]["model"] = model_high
-            api_prompt[loaders[0]]["inputs"]["attention_mode"] = wan_attention
-            api_prompt[loaders[1]]["inputs"]["model"] = model_low
-            api_prompt[loaders[1]]["inputs"]["attention_mode"] = wan_attention
-        elif len(loaders) == 1:
-            api_prompt[loaders[0]]["inputs"]["attention_mode"] = wan_attention
-        loras = _find_nodes(api_prompt, "WanVideoLoraSelect")
-        for nid in loras:
-            cur = str(api_prompt[nid]["inputs"].get("lora", ""))
-            if "LOW" in cur.upper() or "low" in cur:
-                api_prompt[nid]["inputs"]["lora"] = lora_low
-            else:
-                api_prompt[nid]["inputs"]["lora"] = lora_high
-            api_prompt[nid]["inputs"]["merge_loras"] = False
-        for nid in _find_nodes(api_prompt, "WanVideoVAELoader"):
-            api_prompt[nid]["inputs"]["model_name"] = "wan_2.1_vae.safetensors"
-        for nid in _find_nodes(api_prompt, "LoadWanVideoT5TextEncoder"):
-            api_prompt[nid]["inputs"]["model_name"] = "umt5-xxl-enc-bf16.safetensors"
+        # Strip disconnected CLIP encode path (TextEncode T5 is the live path)
+        wan_dead_removed = wan_inj.strip_dead_clip_path(api_prompt)
+
+        try:
+            wan_model_info = wan_inj.apply_models_and_attention(
+                api_prompt,
+                quant=wan_quant or "q4",
+                attention_mode=wan_attention,
+                model_high=wan_model_high,
+                model_low=wan_model_low,
+                unet_profile=wan_unet_profile,
+            )
+        except ValueError as e:
+            return fail_result(error="BAD_WAN_QUANT", message=str(e), backend=backend_id)
+
+        wan_inj.apply_support_models(api_prompt)
+        wan_lora_info = wan_inj.apply_loras(
+            api_prompt,
+            strength_high=float(
+                lora_strength_high if lora_strength_high is not None else 1.0
+            ),
+            strength_low=float(
+                lora_strength_low if lora_strength_low is not None else 1.0
+            ),
+        )
+        # Optional style/NSFW LoRAs chained after lightx2v (prev_lora)
+        if extra_lora_high or extra_lora_low:
+            wan_extra_lora_info = wan_inj.chain_extra_loras(
+                api_prompt,
+                lora_high=extra_lora_high,
+                lora_low=extra_lora_low,
+                strength_high=float(extra_lora_strength_high),
+                strength_low=float(extra_lora_strength_low),
+            )
+            print(f"  wan extra LoRA chain: {wan_extra_lora_info}")
 
         start_load, end_load = _pick_load_image_nodes(api_prompt)
         if start_load:
@@ -702,16 +680,27 @@ def generate_i2v(
                 if "168" in api_prompt and not inp.get("end_image"):
                     inp["end_image"] = ["168", 0]
 
-        for nid in _find_nodes(api_prompt, "WanVideoSampler"):
-            inp = api_prompt[nid]["inputs"]
-            if not (isinstance(inp.get("seed"), list) and len(inp.get("seed") or []) == 2):
-                inp["seed"] = new_seed
-            if not (isinstance(inp.get("cfg"), list) and len(inp.get("cfg") or []) == 2):
-                inp["cfg"] = cfg
+        # Scheduler / shift: optional CLI; if scheduler set without shift, use helper default
+        _sched = (wan_scheduler or "").strip() or None
+        _shift = wan_shift
+        if _sched and _shift is None:
+            _shift = wan_inj.default_shift_for_scheduler(_sched)
 
-        # P0 W0: steps + dual-pass boundary (was only patching INTConstant==30 → no-op)
-        wan_step_info = _apply_wan22_steps_and_boundary(api_prompt, int(steps))
+        # Force scalar CFG=cfg on BOTH samplers (was: high linked to CFG schedule @2)
+        wan_tune_info = wan_inj.apply_sampler_tuning(
+            api_prompt,
+            cfg=float(cfg),
+            seed=int(new_seed),
+            scheduler=_sched,
+            shift=_shift,
+        )
+
+        # Steps + dual-pass boundary (optional asymmetric --wan-boundary)
+        wan_step_info = _apply_wan22_steps_and_boundary(
+            api_prompt, int(steps), boundary=wan_boundary
+        )
         steps = int(wan_step_info["steps"])
+        boundary = int(wan_step_info["boundary"])
 
         # P1: BlockSwap + TeaCache/MagCache on both high/low samplers
         wan_swap_info = _apply_wan22_block_swap(api_prompt, blocks)
@@ -725,6 +714,15 @@ def generate_i2v(
             )
         except ValueError as e:
             return fail_result(error="BAD_CACHE", message=str(e), backend=backend_id)
+
+        print(
+            f"  wan inject: quant={wan_model_info.get('quant')} "
+            f"cfg={wan_tune_info.get('cfg')} sched={wan_tune_info.get('scheduler')} "
+            f"shift={wan_tune_info.get('shift')} "
+            f"lora_h/l={wan_lora_info.get('strength_high')}/"
+            f"{wan_lora_info.get('strength_low')} "
+            f"boundary={boundary} dead_clip_removed={len(wan_dead_removed)}"
+        )
 
         # Unique prefix avoids Comfy execution_cache returning empty outputs +
         # picking an older agent_i2v_*.mp4 by mtime (false "2s" successes).
@@ -782,6 +780,16 @@ def generate_i2v(
             "cfg": cfg,
             "frame_rate": frame_rate,
             "attention_mode": wan_attention,
+            "wan_quant": (wan_model_info or {}).get("quant"),
+            "wan_scheduler": (wan_tune_info or {}).get("scheduler"),
+            "wan_shift": (wan_tune_info or {}).get("shift"),
+            "lora_strength_high": (wan_lora_info or {}).get("strength_high"),
+            "lora_strength_low": (wan_lora_info or {}).get("strength_low"),
+            "wan_cfg_was_linked": (wan_tune_info or {}).get("cfg_was_linked"),
+            "dead_clip_removed": wan_dead_removed or None,
+            "extra_loras": wan_extra_lora_info or None,
+            "policy": tool_policy,
+            "tool": tool_name,
             "dry_run": True,
             "created_at": utc_now_iso(),
         }
@@ -937,6 +945,17 @@ def generate_i2v(
         "speed_profile": speed_prof["name"],
         "cache": wan_cache_info or {"cache": cache_mode},
         "block_swap": wan_swap_info or {"blocks_to_swap": blocks},
+        "wan_quant": (wan_model_info or {}).get("quant"),
+        "wan_models": wan_model_info or None,
+        "wan_scheduler": (wan_tune_info or {}).get("scheduler"),
+        "wan_shift": (wan_tune_info or {}).get("shift"),
+        "lora_strength_high": (wan_lora_info or {}).get("strength_high"),
+        "lora_strength_low": (wan_lora_info or {}).get("strength_low"),
+        "wan_tune": wan_tune_info or None,
+        "dead_clip_removed": wan_dead_removed or None,
+        "extra_loras": wan_extra_lora_info or None,
+        "policy": tool_policy,
+        "tool": tool_name,
         "elapsed_sec": elapsed,
         "source_image": os.path.abspath(input_image_path),
         "output_path": os.path.abspath(output_filename),
@@ -977,15 +996,15 @@ def _build_parser() -> argparse.ArgumentParser:
         backends = list_backend_ids(cfg)
         presets = list_preset_ids(cfg)
         formats = list_format_ids(cfg)
-        default_backend = cfg.get("default_backend", "wan22")
+        default_backend = cfg.get("default_backend", "ltx23_aio_i2v")
         # None → resolve_i2v_job applies default_format from JSON
         default_format = None
         default_preset = None
     except Exception:
-        backends = ["wan22", "ltx23"]
-        presets = ["work_16x9_540"]
+        backends = ["ltx23_aio_i2v", "wan22", "ltx23"]
+        presets = ["work_16x9_540", "work_16x9_720"]
         formats = ["cinematic_16x9", "shorts_9x16", "classic_4x3", "portrait_3x4"]
-        default_backend = "wan22"
+        default_backend = "ltx23_aio_i2v"
         default_format = None
         default_preset = None
 
@@ -1116,6 +1135,51 @@ def _build_parser() -> argparse.ArgumentParser:
         help=(
             "WanVideoModelLoader attention_mode (default: sageattn via AGENT_WAN_ATTENTION). "
             "Examples: sageattn, sdpa, flash_attn_2"
+        ),
+    )
+    parser.add_argument(
+        "--wan-quant",
+        default="q4",
+        choices=["q4", "q5"],
+        help=(
+            "Wan I2V GGUF tier: q4 (default, on disk) | q5 (needs "
+            "Wan2.2-I2V-A14B-*-Q5_K_M.gguf under models). Hero texture option."
+        ),
+    )
+    parser.add_argument(
+        "--wan-scheduler",
+        default=None,
+        help=(
+            "WanVideoSampler scheduler override (both high/low). "
+            "Examples: dpm++_sde (graph default), euler (lightx2v), res_multistep. "
+            "If set without --wan-shift, shift auto: euler→5, dpm++_sde/res→8."
+        ),
+    )
+    parser.add_argument(
+        "--wan-shift",
+        type=float,
+        default=None,
+        help="WanVideoSampler shift override (both high/low). lightx2v often uses 5 with euler.",
+    )
+    parser.add_argument(
+        "--lora-strength-high",
+        type=float,
+        default=1.0,
+        help="lightx2v HIGH LoRA strength (default 1.0; try 0.6–0.8 if motion feels slow/stiff)",
+    )
+    parser.add_argument(
+        "--lora-strength-low",
+        type=float,
+        default=1.0,
+        help="lightx2v LOW LoRA strength (default 1.0)",
+    )
+    parser.add_argument(
+        "--wan-boundary",
+        type=int,
+        default=None,
+        help=(
+            "High→Low expert switch step (default steps//2). "
+            "E.g. steps=12 --wan-boundary 4 → 4 high + 8 low for style LoRAs."
         ),
     )
     parser.add_argument(
@@ -1285,5 +1349,11 @@ if __name__ == "__main__":
         block_swap=args.block_swap,
         apply_profile_long_edge=not args.no_profile_long_edge,
         end_image_path=args.end_image,
+        wan_quant=getattr(args, "wan_quant", "q4"),
+        wan_scheduler=getattr(args, "wan_scheduler", None),
+        wan_shift=getattr(args, "wan_shift", None),
+        lora_strength_high=getattr(args, "lora_strength_high", 1.0),
+        lora_strength_low=getattr(args, "lora_strength_low", 1.0),
+        wan_boundary=getattr(args, "wan_boundary", None),
     )
     sys.exit(0 if result.get("ok") else 1)

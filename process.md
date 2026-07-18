@@ -60,6 +60,39 @@
 - Switches lib + runner + CLI `generate_ltx23_latentheart` · catalog `ltx23_latentheart_aio` (**ready**)
 - Smoke OK: `stories/_tool_smoke/ltx23_lh_gguf_smoke.mp4` (seed 42, distilled Q4, video-only)
 - Host fixes kept: DualCLIP remap, missing LoRA rewire, MelBand mute, Director widget remap, AV-separate skip, showAnything drop
+## 2026-07-18 — Wan Remix NSFW smoke OK (+ install WanVideoWrapper)
+- Installed missing `ComfyUI-WanVideoWrapper` (kijai) — was causing missing_node_type WanVideoModelLoader
+- Smoke: `generate_wan22_nsfw_i2v --require-remix` preview 272×480 · 17f · 6step · swap20 · sage
+- Result OK ~**58.4s** → `stories/_tool_smoke/wan22_nsfw_remix_smoke.mp4` (Remix HIGH/LOW fp8)
+## 2026-07-18 — Wan NSFW tool uses Remix UNet (not base GGUF)
+- `generate_wan22_nsfw_i2v` default `--unet-profile remix` → dedicated High/Low fp8 NSFW models
+- LoRA opt-in on remix (`--with-lora` / `--lora-preset`); base GGUF path still + General LoRA
+- inject: `apply_models_and_attention(model_high/low|unet_profile=remix)`
+## 2026-07-18 — Wan 2.2 NSFW weights installed
+- LoRAs → `F:\model\loras\Wan2.2\nsfw\`:
+  - General HIGH/LOW (`Wan2.2_I2V_General_NSFW_*_e8`) default for `generate_wan22_nsfw_i2v`
+  - DR34ML4Y I2V HIGH/LOW (`--lora-preset dr34ml4y`)
+- Full UNet Remix NSFW fp8 v3.0 → `F:\model\diffusion_models\Wan2.2\nsfw_remix\` HIGH+LOW (~13.3GB each) ready_on_disk
+- backends.wan22_nsfw_i2v.nsfw_loras + nsfw_lora_presets wired; --list-loras shows pair
+## 2026-07-18 — Wan 2.2 NSFW I2V tool (빨간맛)
+- CLI `generate_wan22_nsfw_i2v` · backend `wan22_nsfw_i2v` · policy adult_18_plus_only
+- Stack: same wan22 dual GGUF+lightx2v; optional HIGH/LOW NSFW LoRA via `chain_extra_loras` (prev_lora)
+- Resolve: backends.nsfw_loras · env AGENT_WAN_NSFW_LORA_* · auto scan models/loras/Wan2.2/nsfw/
+- Local note: no NSFW LoRA pair on disk yet → base-only with WARN; --require-lora for gate
+- Docs: wan22_workflow_map · tool_catalog · wan22 AGENT_GUIDE · lib/wan22_nsfw.py · lib/adult_policy.py
+## 2026-07-18 — Wan 2.2 inject improvements (CFG/role/CLI)
+- `lib/wan22_i2v_inject.py`: high/low by sampler wiring; scalar CFG=1; strip dead CLIP path
+- CLI: `--wan-quant q4|q5` · `--wan-scheduler` · `--wan-shift` · `--lora-strength-high/low` · `--wan-boundary`
+- Presets cleaned: `i2v_wan22_a14b(.flf).api.json` (no CLIP bridge / CFG schedule)
+- Docs: map §3 + research §4.4 status; dry-run smoke OK
+## 2026-07-18 — Wan 2.2 workflow family map (정리)
+- SSOT map: `docs/wan22_workflow_map.md` — MOTION/FINISH/참고/제외 · CLI · 정책 · 파일 트리
+- Refresh: `workflows/human/wan22/AGENT_GUIDE.md` · yaw guide link · tool_catalog §2.4 · `video_backends.wan22_family`
+- Research remains: `docs/wan22_workflow_research_and_design.md` · speed: `wan22_i2v_speed_research.md`
+## 2026-07-18 — Wan 2.2 efficient workflow research (SSOT)
+- Internet / official Comfy / lightx2v / Civitai / LTX-vs-Wan community: dual high/low MoE + lightx2v 4–8 step CFG1 + sage + GGUF is the efficiency backbone
+- Our `wan22` already matches that structure; episode quality default remains LTX (A/B 07-17)
+- Doc: `docs/wan22_workflow_research_and_design.md` (no default code change; optional A/B backlog scheduler/LoRA strength/Q5)
 ## 2026-07-17 — YAW Wan 2.2 MoE v0.50 (T2V/I2V tool)
 - Civitai 2008892 boobkake22: easy T2V+I2V Wan 2.2 MoE template
 - Real UI SSOT `workflows/human/yaw_wan22/yetAnotherWorkflowEasyT2vI2v_v050Moe.json`
