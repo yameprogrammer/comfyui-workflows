@@ -1,0 +1,37 @@
+{
+  "tool": "character_consistency",
+  "cli": "scripts/generate_character_consistent.py",
+  "status": "ready",
+  "version": "1.0",
+  "description": "Research-backed character identity orchestration for stills (lock/soft/remix/anchor/pack/angle/pose).",
+  "research": "docs/character_consistency_research.md",
+  "guide": "workflows/human/character_consistency/AGENT_GUIDE.md",
+  "backends": {
+    "lock": "generate_moody_i2i_lock → lonecat_i2i_identity",
+    "soft": "generate_moody_i2i_lock → lonecat_i2i_identity",
+    "remix": "generate_moody_i2i_lock → lonecat_i2i_identity",
+    "anchor": "generate_moody → lonecat_t2i_turbo",
+    "pack": "repeated lock + contact_sheet",
+    "angle": "generate_qwen_angle",
+    "pose": "generate_moody_controlnet → zimage_fun_union_controlnet"
+  },
+  "modes": ["lock", "soft", "remix", "anchor", "pack", "angle", "pose"],
+  "denoise_policy": {
+    "soft": {"default": 0.45, "max": 0.58},
+    "lock": {"default": 0.52, "max": 0.58},
+    "remix": {"default": 0.62, "max": 0.72},
+    "pose": {"default": 0.70, "max": 0.85}
+  },
+  "not_included": [
+    "InstantID / PuLID custom graphs",
+    "SD1.5 IP-Adapter FaceID inject (experimental separate CLI)",
+    "character LoRA training",
+    "full A→B→C cast package (use character_full_sheet)"
+  ],
+  "agent_policy": {
+    "prefer_reference_image": true,
+    "change_only_prompts_on_i2i": true,
+    "fixed_seed_for_variant_compare": true,
+    "promote_to_characters_package_when_shipping": true
+  }
+}

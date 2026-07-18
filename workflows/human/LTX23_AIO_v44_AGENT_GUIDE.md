@@ -1,5 +1,10 @@
 # LTX 2.3 All-In-One v44 — Agent feature selection
 
+> **Toolbox shelf:** MOTION  
+> **CLI:** `generate_i2v` · `generate_s2v` · `generate_flf2v` · `run_ltx_aio_features.py --list`  
+> **Alternatives:** fast experiment → wan22 / `generate_yaw_wan22` · talking lip hero → `generate_s2v --backend infinitetalk` · adult → `generate_ltx_nsfw_i2v`  
+> **Catalog:** [docs/tool_catalog.md](../../docs/tool_catalog.md) §2.4
+
 Source UI: `workflows/human/ltx23AllInOneWorkflowForRTX_v44.json`
 
 This AIO is **not** a single linear graph. Agents pick a **Select options** combination
@@ -8,14 +13,58 @@ This AIO is **not** a single linear graph. Agents pick a **Select options** comb
 ## How to choose
 
 1. Decide mode: T2V / I2V / FLF / FML / V2V (± Audio)
-2. Call `generate_s2v` with matching `--backend ltx23_aio_*` **or** `--ltx-mode <mode>`
-3. Pass required media: `-i` / `--last` / `--mid` / `-a` / `--video`
-4. Do **not** build mini graphs; do **not** rename `[[P:]]` tags
+2. Pick **quality tier** (`--ltx-profile`): `draft` | `work` (default) | `hero`
+3. Call `generate_s2v` / `generate_i2v` with matching `--backend ltx23_aio_*` **or** `--ltx-mode <mode>`
+4. Pass required media: `-i` / `--last` / `--mid` / `-a` / `--video`
+5. Do **not** build mini graphs; do **not** rename `[[P:]]` tags
 
-List features:
+List features / profiles:
 ```bash
 python scripts/run_ltx_aio_features.py --list
+python scripts/generate_s2v.py --list-ltx-profiles
 ```
+
+### Quality profiles (why YouTube ≠ agent default)
+
+| Profile | Long edge | Face detailer | Max pure I2V | When |
+|---------|-----------|---------------|--------------|------|
+| `draft` | ~960 (~540p) | 0.5 | ~3s | 러프·초고속 |
+| **`work`** | **~1280 (720p)** | 0.55 | ~5s | **기본 배치·에피 (2026-07-18)** |
+| `hero` | **~1920 (~1080 work)** | 0.65 | ~4s | 히어로 1컷 · 더 무거움 |
+
+Research + backlog: [docs/ltx23_quality_research_and_improvement.md](../../docs/ltx23_quality_research_and_improvement.md)  
+Face melt: [docs/ltx_face_stability.md](../../docs/ltx_face_stability.md)
+
+```bash
+# Work (default practical)
+python scripts/generate_i2v.py -i key.png -o out.mp4 -p "slow push in" --ltx-profile work
+
+# Hero (slower, higher gen res — not batch default)
+python scripts/generate_i2v.py -i key.png -o hero.mp4 -p "gentle head turn, eyes hold lens" \
+  --ltx-profile hero --frames 73
+```
+
+**Hard rules:** short clips for faces · motion-only prompts · fix still before I2V · lips CU → InfiniteTalk.
+
+### Default models + LoRA tune (2026-07-18)
+
+| Slot | File / setting |
+|------|----------------|
+| **UNET** | `diffusion_models/LTX2.3/ltx-2.3-22b-dev-Q6_K.gguf` |
+| **Pipeline** | **2-stage already ON** (stage1 → spatial x2 → stage2) |
+| Distill fro09 | **@ 0.7** (work; was 0.9 UI / 0.6 hard face) |
+| Detailer IC-LoRA | **ON @ 0.55** (work) · hero 0.62 |
+| Upscale IC-LoRA | **ON @ 0.45** (supports 2-stage; env can OFF) |
+| OmniNFT | **@ 0.45** |
+| TE / VAE | Gemma3 + projection · LTX23 video/audio VAE |
+
+```bash
+python scripts/generate_i2v.py -i key.png -o out.mp4 -p "slow push in" --ltx-profile work
+# stronger face/detail
+python scripts/generate_i2v.py -i key.png -o h.mp4 -p "..." --ltx-profile hero --frames 73
+```
+
+Legacy Q4 on disk: `ltx-2.3-22b-dev-Q4_K_M.gguf`.
 
 ## Select options → agent mode
 

@@ -55,9 +55,18 @@
           "shot_type": { "type": "string" },
           "action": { "type": "string" },
           "motion_prompt": { "type": "string" },
+          "motion_preset": {
+            "type": "string",
+            "description": "I2V motion intent id (idle, push_in, talk_gesture, …). See generate_i2v --list-motion-presets. episode_i2v composes with motion_prompt."
+          },
+          "i2v_motion_preset": {
+            "type": "string",
+            "description": "Alias of motion_preset"
+          },
+          "negative_motion": { "type": "string" },
           "motion_driver": {
             "type": "string",
-            "enum": ["i2v", "si2v", "still", "flf2v"]
+            "enum": ["i2v", "si2v", "still", "flf2v", "v2v_camera", "v2v_motion", "v2v_style"]
           },
           "character_ids": {
             "type": "array",

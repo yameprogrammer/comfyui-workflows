@@ -143,6 +143,79 @@ def build_esrgan_image_prompt(
     }
 
 
+def build_seedvr2_image_prompt(
+    image_name: str,
+    *,
+    resolution: int,
+    dit_model: str = "seedvr2_ema_7b_fp8_e4m3fn_mixed_block35_fp16.safetensors",
+    vae_model: str = "ema_vae_fp16.safetensors",
+    seed: int = 42,
+    color_correction: str = "lab",
+    encode_tiled: bool = False,
+    decode_tiled: bool = False,
+    prefix: str = "ups_seedvr2",
+) -> dict:
+    """Comfy API graph for SeedVR2 still upscale (batch_size=1)."""
+    return {
+        "1": {
+            "class_type": "LoadImage",
+            "inputs": {"image": image_name},
+        },
+        "2": {
+            "class_type": "SeedVR2LoadDiTModel",
+            "inputs": {
+                "model": dit_model,
+                "device": "cuda:0",
+                "blocks_to_swap": 0,
+                "swap_io_components": False,
+                "offload_device": "none",
+                "cache_model": False,
+                "attention_mode": "sdpa",
+            },
+        },
+        "3": {
+            "class_type": "SeedVR2LoadVAEModel",
+            "inputs": {
+                "model": vae_model,
+                "device": "cuda:0",
+                "encode_tiled": bool(encode_tiled),
+                "encode_tile_size": 1024,
+                "encode_tile_overlap": 128,
+                "decode_tiled": bool(decode_tiled),
+                "decode_tile_size": 1024,
+                "decode_tile_overlap": 128,
+                "tile_debug": "false",
+                "offload_device": "none",
+                "cache_model": False,
+            },
+        },
+        "4": {
+            "class_type": "SeedVR2VideoUpscaler",
+            "inputs": {
+                "image": ["1", 0],
+                "dit": ["2", 0],
+                "vae": ["3", 0],
+                "seed": int(seed),
+                "resolution": int(resolution),
+                "max_resolution": 0,
+                "batch_size": 1,
+                "uniform_batch_size": False,
+                "color_correction": color_correction,
+                "temporal_overlap": 0,
+                "prepend_frames": 0,
+                "input_noise_scale": 0.0,
+                "latent_noise_scale": 0.0,
+                "offload_device": "cpu",
+                "enable_debug": False,
+            },
+        },
+        "5": {
+            "class_type": "SaveImage",
+            "inputs": {"images": ["4", 0], "filename_prefix": prefix},
+        },
+    }
+
+
 def _rtx_resize_inputs(width: int, height: int, quality: str = "ULTRA") -> dict:
     """RTXVideoSuperResolution uses COMFY_DYNAMICCOMBO_V3 for resize_type.
 

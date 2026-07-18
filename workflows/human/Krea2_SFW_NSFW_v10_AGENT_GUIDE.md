@@ -1,5 +1,10 @@
 # krea2SFWNSFWUncensoredImageTo_v10 — Agent 선택 가이드
 
+> **Toolbox shelf:** GENERATE  
+> **CLI:** `generate_krea` · **`generate_krea_nsfw`** (18+)  
+> **Alternatives:** SFW story still → `generate_moody` · ID from ref → `generate_character_consistent` · typography → ideogram/boogu  
+> **Catalog:** [docs/tool_catalog.md](../../docs/tool_catalog.md) §2.1
+
 **원본:** `F:\ComfyUI_workflows\krea2SFWNSFWUncensoredImageTo_v10.json`  
 **기계 가독:** `Krea2_SFW_NSFW_v10_CAPABILITIES.json`  
 **ready 프리셋:** `krea2_t2i_v10` · **NSFW 별칭:** `krea2_nsfw_t2i`  

@@ -10,21 +10,31 @@ AIO v44 기본 세팅에서 **IC-LoRA detailer (`ltx-2-19b-ic-lora-detailer`)가
 
 ## 공장 기본 완화 (자동)
 
-`lib/ltx_aio_workflow_runner.build_aio_switched_api` — `face_stability` 기본 ON (i2v/flf/fml/v2v*):
+`lib/ltx_aio_workflow_runner.build_aio_switched_api` — `face_stability` 기본 ON (i2v/flf/fml/v2v*)  
++ `--ltx-profile` LoRA 스택 (2026-07-18 품질 튜닝).
 
-1. **Detailer IC-LoRA ON** @ strength **0.55** (env `AGENT_LTX_DETAILER_STRENGTH`)  
-2. 모션 프롬프트 접미: `keep facial identity stable, natural micro expression only, no face morph…`  
-3. Negative 추가: `morphing face, identity shift, face melt, deformed face…`
+| 노브 | work 기본 | env |
+|------|-----------|-----|
+| Detailer IC-LoRA | **ON @ 0.55** | `AGENT_LTX_DETAILER_STRENGTH` |
+| Distill fro09 | **0.7** (was UI 0.9 / old face 0.6) | `AGENT_LTX_DISTILL_STRENGTH` |
+| Upscale IC-LoRA | **ON @ 0.45** (2-stage 지원; was hard-OFF) | `AGENT_LTX_UPSCALE_IC=0` 끄기 · `…_STRENGTH` |
+| OmniNFT | **0.45** | `AGENT_LTX_OMNI_STRENGTH` |
+| 프롬프트 접미 | identity stable / no face morph | — |
+| Negative | morphing face, identity shift… | — |
 
-끄기:
+끄기 / 튜닝:
 
 ```bash
 # env
 set AGENT_LTX_FACE_STABILITY=0
+set AGENT_LTX_DISTILL_STRENGTH=0.7
+set AGENT_LTX_UPSCALE_IC=1
+set AGENT_LTX_UPSCALE_IC_STRENGTH=0.45
+set AGENT_LTX_DETAILER_STRENGTH=0.55
 
 # CLI
 python scripts/generate_s2v.py --backend ltx23_aio_i2v --no-face-stability ...
-python scripts/generate_s2v.py --detailer-strength 0.7 ...   # 더 세게
+python scripts/generate_s2v.py --detailer-strength 0.7 --ltx-profile hero ...
 ```
 
 ## 연출/프롬프트 (더 중요)

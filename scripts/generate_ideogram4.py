@@ -52,9 +52,10 @@ UNET_UNCOND = r"Ideogram4\ideogram4_unconditional_fp8_scaled.safetensors"
 CLIP_NAME = "qwen3vl_8b_fp8_scaled.safetensors"
 VAE_NAME = "flux2-vae.safetensors"
 
+# Shared model library (extra_model_paths.yaml base_path). Override with COMFYUI_MODELS.
 COMFY_MODELS = os.environ.get(
     "COMFYUI_MODELS",
-    r"F:\ComfyUI_windows_portable\ComfyUI\models",
+    r"F:\model",
 )
 
 

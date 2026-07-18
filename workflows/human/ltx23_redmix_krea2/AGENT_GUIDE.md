@@ -1,5 +1,10 @@
 # LTX2.3 REDMix Krea2 I2V — Agent 가이드
 
+> **Toolbox shelf:** MOTION  
+> **CLI:** `python scripts/generate_ltx23_redmix_i2v.py`  
+> **Alternatives:** general I2V → `generate_i2v` · still from Krea/Ideogram/Boogu first then any I2V  
+> **Catalog:** [docs/tool_catalog.md](../../../docs/tool_catalog.md) §2.4
+
 **출처 컬렉션:** [[NEW] Krea2 & LTX2.3 & ideogram 4 WF](https://civitai.red/models/579280/newkrea2-and-ltx23-and-ideogram-4-wf-in-collection)  
 **이 파일 버전:** **LTX2.3REDMixKrea2** (`NEWKrea2LTX23Ideogram4_ltx23redmixkrea2.json`)  
 **제작 계열:** RedCraft / AiMetatron 컬렉션  

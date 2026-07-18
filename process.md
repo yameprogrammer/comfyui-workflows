@@ -1,3 +1,43 @@
+## 2026-07-18 — YouTube ref ingest tools (implement)
+- `lib/youtube_ingest.py` · `scripts/youtube_ingest.py` · `scripts/youtube_highlights.py`
+- Caps: meta (yt-dlp -J) · captions/auto-subs · extractive summary · highlights · optional whisper/media/ffmpeg cuts
+- Package: dumps/yt_ref_* → meta.json, transcript.*, summary.md, highlights.json, SOURCE.md, clips/
+- Catalog §2.0 INGEST · tool_intent youtube_ref_ingest · research doc updated
+- Policy: internal reference only; not for re-upload of source
+## 2026-07-18 — YouTube ref ingest research (pre-impl)
+- Doc: `docs/youtube_ref_ingest_research.md`
+## 2026-07-18 — LTX quality LoRA tune (post Q6 + 720p + 2-stage confirmed)
+- AIO already 2-stage (Sampler×2 + LTXVLatentUpsampler spatial) — no switch needed
+- Profile LoRA SSOT: distill **0.7** · detailer **ON 0.55** · upscale IC **ON 0.45** · omni **0.45** (work)
+- Was: UI distill 0.9; face path distill 0.6 + upscale IC hard-OFF (hurt stage2)
+- `build_aio_switched_api(ltx_profile=…)` always applies stack; env overrides kept
+- UI WF Power Lora widgets aligned to work defaults
+## 2026-07-18 — LTX default UNET Q4 → Q6 (4090 balance)
+- Download: `F:\model\diffusion_models\LTX2.3\ltx-2.3-22b-dev-Q6_K.gguf` (~16.6GB, vantagewithai HF)
+- AIO human/agent WF + CAPABILITIES: GGUFLoader path → `ltx-2.3-22b-dev-Q6_K.gguf`
+- `lib/ltx_s2v.DEFAULT_UNET_GGUF` → same Q6; legacy Q4 + distilled constants kept
+- Policy: community 24GB balance = dev Q6 + distill LoRA + 720p (2-stage still optional next)
+## 2026-07-18 — Default work resolution → 720p
+- Policy: 4090 can run 720p LTX as daily default; low-540 was caution/batch habit not hard limit
+- `video_backends.json`: `default_work_preset=work_16x9_720`; all formats → `work_*_720`
+- New presets: `work_9x16_720` (720×1280), `work_4x3_720`, `work_3x4_720`, `work_1x1_720`
+- Legacy `work_*_540` kept for draft/fast
+- LTX profiles: draft≈960 · **work=1280** · hero≈1920; runner default longer_edge 1280
+- Docs: video_delivery · ltx research · AGENT_GUIDE · agent_rules
+## 2026-07-18 — LTX 2.3 quality research + draft/work/hero profiles
+- Research: `docs/ltx23_quality_research_and_improvement.md` (web/YT/community vs factory gap)
+- Why YT ≠ agent: work ~540 short-edge vs showcase 720–1080 gen; clip length; prompt; still QA
+- SSOT: `video_backends.json` → `ltx_quality_profiles` · `lib/ltx_quality_profiles.py`
+- CLI: `generate_i2v` / `generate_s2v --ltx-profile draft|work|hero` · `--list-ltx-profiles`
+- Hero ≈ longer_edge 1280 + detailer 0.65; work default 960 + 0.55
+- Docs: LTX AIO AGENT_GUIDE · tool_catalog §2.4 · tooling_todo L4–L12 backlog
+## 2026-07-18 — Upscale agent selector (classify + recommend)
+- Goal: agents pick upscaler by media/job (not guess backend)
+- SSOT enrich: `upscale_backends.json` v3 — `backends[].agent` ranks/when, `agent_matrix`, `agent_goals`, hard_rules
+- Lib: `recommend_upscale` · `format_recommendation` · `list_backend_cards` · matrix table
+- CLI: `scripts/upscale_recommend.py` pick|matrix|list|scenarios|goals (no Comfy)
+- tool_intent FINISH: `upscale_pick` · `upscale` · `upscale_video` · `upscale_hero`
+- Docs: tool_catalog §2.6 matrix · AGENT_GUIDE pick table · TOOLS.md · research §3.1
 ## 2026-07-17 — Illustrious Standard_V37 (anime XL tool)
 - Civitai pack 1386234 V37 — **Standard only** (Advanced TIPO/IPA/OpenPose not in this JSON)
 - **Source-first:** card purpose “Workflow for XL/Illustrious/NoobAI”; pack roles Advanced>Standard>Basic + Detailer; Clip Skip 2; Fabricated XL suggested
@@ -113,6 +153,91 @@
 - Agent Wan I2V: `presets/i2v_wan22_a14b.api.json` (convert once from I2V-wan22-a14b UI); `generate_i2v` prefers API format (no convert)
 - catalog v2: legacy mini → `_legacy/`; planned wan22_* entries; video/upscale_backends planned backends
 - Guide: `workflows/human/wan22/AGENT_GUIDE.md`
+## 2026-07-18 — failure_note before-gen (mistake prevention UX)
+- `failure_note.py before` — PREVENT-first preflight; empty query = recent high/critical
+- `format_note_prevention` · `before_gen_checklist` in lib/failure_notes.py
+- `tool_intent` search attaches related failure notes (unless --no-failures)
+- TOOLS / tool_catalog / AGENTS / failure_notes_system wired for before→gen→add loop
+## 2026-07-18 — toolbox card standard (eg + alternatives)
+- docs/toolbox_card_standard.md: one-line CLI + failure alternatives contract
+- lib/tool_intent.py: every INTENT_TOOLS card has examples[] + alternatives[{if,use,cli}]
+- tool_intent search output shows "if fail / wrong tool → try" with copy-paste CLIs
+- tool_catalog §5 + human README header template updated
+## 2026-07-18 — tool_intent intent→CLI search (discovery)
+- `lib/tool_intent.py` keyword index · `scripts/tool_intent.py` search|list|shelves
+- No Comfy; complements docs/tool_catalog.md for agents
+- Registered catalog tool_intent_router · TOOLS/AGENTS entry points
+## 2026-07-18 — generate_dance_ref v1 (dance / ref motion)
+- `lib/dance_ref.py` · `scripts/generate_dance_ref.py`
+- mode=ref → generate_v2v intent=motion; mode=i2v → dance style dialect I2V
+- optional --hook-sec trim; guide human/dance_ref · catalog dance_ref
+- Full multi-shot challenge pipe still design-only (dance_challenge_pipeline_design.md)
+## 2026-07-18 — generate_idle_loop (idle + pingpong/roundtrip)
+- `lib/idle_loop.py` · `scripts/generate_idle_loop.py`
+- modes: idle (I2V) · pingpong (I2V+reverse seamless) · roundtrip (I2V+FLF return)
+- needs Comfy + ffmpeg; guide workflows/human/idle_loop · catalog idle_loop
+## 2026-07-18 — generate_camera_move first-class CLI
+- Wrapper: `scripts/generate_camera_move.py` → motion_presets + generate_i2v (Comfy)
+- Guide: workflows/human/camera_move/* · catalog camera_move · tool_catalog MOTION
+- --list-presets / --dry-run; same ids as i2v/episode_i2v --motion-preset
+## 2026-07-18 — One-shot ref_pack as first-class tool
+- Already had CLI; polished: manifest.json primary_ref, pack README, AGENT_GUIDE/CAPABILITIES under workflows/human/ref_pack/
+- catalog guide link + tool_catalog card; CLI prints primary_ref + next tools
+## 2026-07-18 — Viewpoint / depth camera tool (Comfy)
+- Research: Qwen multi-angle h/v/zoom + cine high/low/bird/worm intents
+- `lib/viewpoint.py` · `scripts/generate_viewpoint.py` (engine=angle|edit)
+- Docs: viewpoint_research · human/viewpoint AGENT_GUIDE · catalog viewpoint_camera
+## 2026-07-18 — Style transfer tool (research → factory)
+- Research: Qwen multi-image style tutorials, IPAdapter Style lineage, InstantStyle/Flux notes
+- Policy: default **Qwen edit** (instruction + optional style ref image); named presets; look cores; opt-in Lonecat I2I
+- New: `lib/style_transfer.py` · `scripts/generate_style_transfer.py`
+- Docs: `docs/style_transfer_research.md` · `workflows/human/style_transfer/*`
+- Catalog `style_transfer` · tool_catalog TRANSFORM · TOOLS/scripts README
+## 2026-07-18 — shot fields + ref_pack profiles
+- `docs/toolbox_shot_fields.md` · commission schema `motion_preset` · audio_motion §2.3b
+- `episode_i2v`: also reads `shots.json` root `default_motion_preset`
+- `generate_ref_pack --profile copy|quick|default|full` · `--list-profiles`
+- stories/_template: default_motion_preset + README; default_backend_i2v → ltx23_aio_i2v
+## 2026-07-18 — episode_i2v motion-preset + ref_pack smoke
+- `episode_i2v --motion-preset` + per-shot `motion_preset` / `i2v_motion_preset` → `lib.motion_presets.compose_motion_prompt`
+- `--list-motion-presets` without --episode
+- Smoke: `generate_ref_pack --no-angles` → dumps/park_avatar_v1/ref_pack_smoke (master+expr+contact OK)
+## 2026-07-18 — Toolbox capabilities B1–B3
+- **MOTION presets:** `lib/motion_presets.py` · `generate_i2v --motion-preset` / `--list-motion-presets`
+- **Reframe:** `lib/reframe.py` · `scripts/generate_reframe.py` (PIL shot sizes, no Comfy)
+- **Ref pack lite:** `lib/ref_pack.py` · `scripts/generate_ref_pack.py` (master+angles+expr, no characters/)
+- Catalog + TOOLS + tool_catalog + scripts/README updated
+## 2026-07-18 — Tool space reorg phase 2 (scripts + guides)
+- `scripts/README.md` rebuilt by intent shelves (all public CLIs mapped)
+- `workflows/human/README.md` shelf index; standard AGENT_GUIDE header (shelf/CLI/alternatives/catalog)
+- Tagged main AGENT_GUIDEs: Lonecat, Krea, Illustrious, character_consistency, Qwen inpaint, LTX AIO/redmix/latentheart/nsfw, yaw, wan22, boogu, qwen3_tts, upscale
+- `agent_rules.md` consumer steps → intent shelves first
+## 2026-07-18 — Tool space reorg: intent-first toolbox docs
+- User intent: agents freely pick tools for the video they need (not fixed CREATIVE→assemble rail)
+- Rewrote `docs/tool_catalog.md`: shelves GENERATE/TRANSFORM/CAMERA/MOTION/VOICE/FINISH/ASSETS/BUNDLE
+- `TOOLS.md` entry + shelf map; `AGENTS.md` / `README.md` / `docs/README.md` language aligned
+- `workflows/agent/catalog.json`: toolbox metadata block (intent_shelves, optional_rails)
+- Episode/character package docs stay available as **optional** (§2.7–2.8), not default path
+## 2026-07-18 — Character consistency tool (research → factory)
+- Research: ComfyUI identity ladder (Mickmumpitz sheets, ThinkDiffusion Flux sheet, SD Art methods, community InstantID/IPA notes)
+- New tool: `scripts/generate_character_consistent.py` + `lib/character_consistency.py`
+- Modes: lock/soft/remix/anchor/pack/angle/pose on validated backends (Lonecat I2I lock, T2I, Qwen angle, Fun Union CN)
+- Docs: `docs/character_consistency_research.md` · `workflows/human/character_consistency/*`
+- Catalog: `character_consistency` · tool_catalog B1b
+## 2026-07-18 — Agent Comfy launch = run_nvidia_gpu.bat SSOT
+- User bat: `F:\ComfyUI_windows_portable\run_nvidia_gpu.bat`
+  - `python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build`
+  - `--output/input/temp-directory` → `F:\ComfyUI_data\...`
+  - **no** `--fast fp16_accumulation`, **no** `--disable-smart-memory`
+- Agent was inventing fast-bat flags + wrong default bat name
+- Fix: `DEFAULT_LAUNCH_BAT=run_nvidia_gpu.bat`; `parse_comfy_launch_args_from_bat` / `build_comfy_launch_args` so autostart argv matches bat text
+## 2026-07-18 — I2I broken: input dir mismatch after ComfyUI_data move
+- Symptom: `generate_moody_i2i` exit 1 / NO_OUTPUT; Comfy history “success” but no SaveImage images
+- Cause: portable bat now uses `--input-directory F:\ComfyUI_data\input` (and output/temp under `F:\ComfyUI_data`), but agent still copied LoadImage sources to `F:\ComfyUI_windows_portable\ComfyUI\input`
+- Comfy log: `Invalid image file: wf_api_…` → SaveImage path skipped; only showAnything nodes ran
+- Fix: `lib/comfy_client.py` — `get_comfy_input_dir()` probes live `/system_stats` argv; `COMFYUI_INPUT_DIR` PathLike; autostart passes same data-layer flags as bat; `queue_prompt` raises on `node_errors`
+- `workflow_api_runner.apply_ports` uses `get_comfy_input_dir()`; factory_cleanup defaults aligned
+- Smoke: `generate_moody_i2i` → `dumps/park_avatar_v1/i2i_smoke_test.png` OK
 ## 2026-07-17 — shot_compose pipeline smoke S01 (Lonecat I2I)
 - `shot_compose -e sonagi_mv_v3 -s S01 --force` OK (~27s)
 - engine=ipadapter name → `lonecat_i2i_identity` workflow_api (not mini I2I-moody)

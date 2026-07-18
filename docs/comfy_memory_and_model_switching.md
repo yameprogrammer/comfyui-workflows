@@ -47,16 +47,20 @@
 
 ### 2.2 Comfy 런타임 플래그 (환경 — 2순위)
 
-`system_stats.argv` 실측:
+`system_stats.argv` 실측 (수동/에이전트 공통 SSOT = `run_nvidia_gpu.bat`):
 
 ```text
-ComfyUI\main.py --windows-standalone-build --fast fp16_accumulation --disable-smart-memory
+ComfyUI\main.py --windows-standalone-build
+  --output-directory F:\ComfyUI_data\output
+  --input-directory  F:\ComfyUI_data\input
+  --temp-directory   F:\ComfyUI_data\temp
 ```
 
-| 플래그 | 의미(실무) |
-|--------|------------|
-| `--disable-smart-memory` | 모델 교체 시 VRAM을 공격적으로 비우기보다, **오프로드·캐시를 유지**하는 경향. 수동 AIO 단일 세션에는 유리할 수 있으나, **에이전트 이종 엔진 연타에는 불리**. |
-| hang 로그 | `0 models unloaded` / partial unload ~47MB only while TE residual ~15GB |
+| 플래그 / 경로 | 의미(실무) |
+|---------------|------------|
+| data-layer dirs | 입·출력·temp를 portable 트리 밖 `F:\ComfyUI_data\*` 로 고정. 에이전트 LoadImage 복사는 **이 input** 과 일치해야 함. |
+| (과거) `--fast fp16_accumulation` / `--disable-smart-memory` | `run_nvidia_gpu_fast_fp16_accumulation.bat` 전용. **현재 기본 런처에는 없음**. 필요 시 `AGENT_COMFY_LAUNCH_BAT`로 fast bat 지정. |
+| hang 로그 (구 플래그 세션) | `0 models unloaded` / partial unload ~47MB only while TE residual ~15GB |
 | 중단 후 | `Using RAM pressure cache.` — 시스템 RAM 압박 경로 진입 |
 
 ### 2.3 모델 스택 자체의 무게 (3순위 — “한 방” 비용)

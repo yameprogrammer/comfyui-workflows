@@ -1,0 +1,22 @@
+{
+  "tool": "idle_loop",
+  "cli": "scripts/generate_idle_loop.py",
+  "status": "ready",
+  "version": "1.0",
+  "shelf": "MOTION",
+  "description": "Idle micro-motion I2V plus optional loop packaging: pingpong (seamless reverse) or roundtrip (FLF return to start).",
+  "guide": "workflows/human/idle_loop/AGENT_GUIDE.md",
+  "runner": "lib/idle_loop.py",
+  "modes": ["idle", "pingpong", "roundtrip"],
+  "default_mode": "pingpong",
+  "backends": {
+    "forward": "generate_i2v + motion_presets",
+    "pingpong": "ffmpeg reverse + concat",
+    "roundtrip": "generate_i2v FLF last→start + concat"
+  },
+  "requires": ["ComfyUI for I2V", "ffmpeg for pingpong/roundtrip"],
+  "not_included": [
+    "Perfect diffusion seamless forward loop guarantee",
+    "Audio bed generation"
+  ]
+}

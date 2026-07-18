@@ -1,0 +1,30 @@
+{
+  "tool": "ref_pack",
+  "cli": "scripts/generate_ref_pack.py",
+  "status": "ready",
+  "version": "1.1",
+  "shelf": ["TRANSFORM", "ASSETS"],
+  "description": "One-shot identity ref pack from a single face image without characters/ package. Profiles copy|quick|default|full. Emits manifest.primary_ref for downstream tools.",
+  "guide": "workflows/human/ref_pack/AGENT_GUIDE.md",
+  "runner": "lib/ref_pack.py",
+  "profiles": ["copy", "quick", "default", "full"],
+  "outputs": [
+    "master_face.png",
+    "master_clean.png",
+    "angle_*.png",
+    "expr_*.png",
+    "contact_sheet.png",
+    "manifest.json",
+    "ref_pack.meta.json",
+    "README.md"
+  ],
+  "backends": {
+    "soft": "generate_moody_i2i_lock / lonecat_i2i_identity",
+    "angles": "generate_qwen_angle / qwen_multiangle_image"
+  },
+  "not_included": [
+    "characters/<id> package creation",
+    "wardrobe bible lock",
+    "episode stories/ binding"
+  ]
+}

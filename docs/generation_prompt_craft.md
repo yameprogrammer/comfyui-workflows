@@ -6,7 +6,9 @@
   에이전트가 **고품질·구체·단일 의도** 프롬프트를 쓰도록 고정한다.  
 - **이 공장 스택**: Moody / Z-Image-Turbo (Flow Matching) T2I·I2I · Wan2.2 I2V · InfiniteTalk/LTX SI2V · (선택) Grok 네이티브  
 - **관련**: [moody_workflow_guide.md](moody_workflow_guide.md) · [video_director_master_persona.md](video_director_master_persona.md) · [image_cut_verification_gate.md](image_cut_verification_gate.md) · [agent_rules.md](../agent_rules.md) **Rule 7.5** · [AGENTS.md](../AGENTS.md)  
-- **에이전트 스킬 (실행 강제)**: [skills/generation-prompt/SKILL.md](../skills/generation-prompt/SKILL.md) — SHOT→PROMPT_PACK · 생성 직전 equip
+- **에이전트 스킬 (실행 강제)**: [skills/generation-prompt/SKILL.md](../skills/generation-prompt/SKILL.md) — SHOT→PROMPT_PACK · 생성 직전 equip  
+- **모델별 방언 (v1.2+)**: [skills/generation-prompt/references/model_prompt_matrix.md](../skills/generation-prompt/references/model_prompt_matrix.md) — Krea / Z-Image / Illustrious / Qwen / Ideogram / Wan / LTX  
+- **리서치 로그**: [skills/generation-prompt/RESEARCH.md](../skills/generation-prompt/RESEARCH.md)
 
 ---
 

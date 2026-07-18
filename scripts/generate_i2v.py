@@ -322,6 +322,7 @@ def generate_i2v(
     attention_mode: str | None = None,
     dry_run: bool = False,
     profile: str | None = "deliver",
+    ltx_profile: str | None = None,
     cache: str | None = None,
     teacache_thresh: float | None = None,
     magcache_thresh: float | None = None,
@@ -375,19 +376,46 @@ def generate_i2v(
         from generate_s2v import generate_s2v
         from lib.video_backends import resolve_i2v_job as _resolve_sizes
 
+        # Size: LTX quality profile (hero→720p-class) unless explicit WxH
         try:
-            job = _resolve_sizes(
-                backend="wan22",  # size/preset only; LTX does not use Wan graph
-                format_id=format_id,
-                preset=preset,
+            from lib.ltx_quality_profiles import apply_ltx_quality_profile
+
+            _qp = apply_ltx_quality_profile(
+                profile_name=ltx_profile,
                 width=width,
                 height=height,
+                format_id=format_id,
+                fps=float(frame_rate or 24),
+                num_frames=num_frames,
+                has_audio=False,
+                user_explicit_size=bool(width and height),
             )
-            width = int(job["width"])
-            height = int(job["height"])
+            _pid = str(_qp.get("profile_id") or "work")
+            _tedge = int(_qp.get("longer_edge") or 1280)
+            if not (width and height):
+                width = int(_qp["width"])
+                height = int(_qp["height"])
+            elif _pid in ("hero", "work") and max(int(width), int(height)) + 32 < _tedge:
+                # lift legacy 540 / below-profile sizes to tier default
+                if _pid == "hero" or max(int(width), int(height)) <= 960:
+                    width = int(_qp["width"])
+                    height = int(_qp["height"])
+            for _w in _qp.get("warnings") or []:
+                print(f"[ltx-profile WARN] {_w}")
         except Exception:
-            width = int(width or 960)
-            height = int(height or 544)
+            try:
+                job = _resolve_sizes(
+                    backend="wan22",  # size/preset only; LTX does not use Wan graph
+                    format_id=format_id,
+                    preset=preset,
+                    width=width,
+                    height=height,
+                )
+                width = int(job["width"])
+                height = int(job["height"])
+            except Exception:
+                width = int(width or 1280)
+                height = int(height or 720)
 
         if _be_early in ("ltx23", "ltx23_aio", "ltx23_aio_i2v", ""):
             s2v_backend = "ltx23_aio_i2v"
@@ -399,7 +427,8 @@ def generate_i2v(
             s2v_backend = "ltx23_aio_flf"
         print(
             f"I2V → LTX AIO real WF backend={s2v_backend} "
-            f"{width}x{height} (ltx23AllInOneWorkflowForRTX_v44)"
+            f"{width}x{height} ltx_profile={ltx_profile or 'work'} "
+            f"(ltx23AllInOneWorkflowForRTX_v44)"
             + (f" last={end_image_path}" if end_image_path else "")
         )
         if dry_run:
@@ -408,6 +437,7 @@ def generate_i2v(
                 backend=s2v_backend,
                 width=width,
                 height=height,
+                ltx_profile=ltx_profile or "work",
                 message="ltx_aio dry-run",
             )
         return generate_s2v(
@@ -428,6 +458,8 @@ def generate_i2v(
             server_address=server_address,
             timeout_sec=timeout_sec,
             meta_out=meta_out,
+            ltx_profile=ltx_profile,
+            format_id=format_id,
         )
 
     try:
@@ -964,8 +996,26 @@ def _build_parser() -> argparse.ArgumentParser:
         )
     )
     parser.add_argument("--input", "-i", required=True, help="Keyframe image path")
-    parser.add_argument("--prompt", "-p", default=None, help="Motion / scene prompt")
+    parser.add_argument(
+        "--prompt",
+        "-p",
+        default=None,
+        help="Motion / scene prompt (combined with --motion-preset if set)",
+    )
     parser.add_argument("--prompt-file", default=None)
+    parser.add_argument(
+        "--motion-preset",
+        default=None,
+        help=(
+            "Motion intent preset id (idle, push_in, pan_left, talk_gesture, …). "
+            "See --list-motion-presets. Composed with -p as extra action."
+        ),
+    )
+    parser.add_argument(
+        "--list-motion-presets",
+        action="store_true",
+        help="Print I2V motion intent presets and exit",
+    )
     parser.add_argument("--negative", default=DEFAULT_NEGATIVE)
     parser.add_argument("--negative-file", default=None)
     parser.add_argument("--output", "-o", default=None)
@@ -1018,7 +1068,20 @@ def _build_parser() -> argparse.ArgumentParser:
         "--profile",
         choices=list(I2V_SPEED_PROFILES.keys()),
         default="deliver",
-        help="Speed profile preview|deliver|quality (default deliver)",
+        help="Wan speed profile preview|deliver|quality (default deliver; LTX ignores)",
+    )
+    parser.add_argument(
+        "--ltx-profile",
+        default=None,
+        help=(
+            "LTX quality tier draft|work|hero (default work=720p). "
+            "draft≈540 · work≈1280 · hero≈1920. docs/ltx23_quality_research_and_improvement.md"
+        ),
+    )
+    parser.add_argument(
+        "--list-ltx-profiles",
+        action="store_true",
+        help="Print LTX quality profiles and exit",
     )
     parser.add_argument(
         "--cache",
@@ -1104,7 +1167,14 @@ if __name__ == "__main__":
     parser = _build_parser()
     # allow --list-* without --input
     if any(
-        a in ("--list-presets", "--list-backends", "--list-formats", "--list-profiles")
+        a in (
+            "--list-presets",
+            "--list-backends",
+            "--list-formats",
+            "--list-profiles",
+            "--list-motion-presets",
+            "--list-ltx-profiles",
+        )
         for a in sys.argv[1:]
     ):
         pre = argparse.ArgumentParser(add_help=False)
@@ -1112,7 +1182,19 @@ if __name__ == "__main__":
         pre.add_argument("--list-backends", action="store_true")
         pre.add_argument("--list-formats", action="store_true")
         pre.add_argument("--list-profiles", action="store_true")
+        pre.add_argument("--list-motion-presets", action="store_true")
+        pre.add_argument("--list-ltx-profiles", action="store_true")
         pre_args, _ = pre.parse_known_args()
+        if pre_args.list_motion_presets:
+            from lib.motion_presets import format_motion_presets_help
+
+            print(format_motion_presets_help())
+            sys.exit(0)
+        if getattr(pre_args, "list_ltx_profiles", False):
+            from lib.ltx_quality_profiles import format_ltx_profiles_table
+
+            print(format_ltx_profiles_table())
+            sys.exit(0)
         cfg = load_video_backends()
         if pre_args.list_backends:
             for bid in list_backend_ids(cfg):
@@ -1145,9 +1227,27 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     prompt = load_text(args.prompt_file) if args.prompt_file else (args.prompt or "")
-    if not prompt:
-        parser.error("--prompt or --prompt-file required")
+    motion_preset_id = None
+    if getattr(args, "motion_preset", None):
+        from lib.motion_presets import compose_motion_prompt, resolve_motion_preset_id
+
+        motion_preset_id = resolve_motion_preset_id(args.motion_preset)
+        if not motion_preset_id:
+            parser.error(
+                f"Unknown --motion-preset {args.motion_preset!r} "
+                f"(use --list-motion-presets)"
+            )
+        prompt, neg_extra = compose_motion_prompt(motion_preset_id, prompt)
+        if not prompt:
+            parser.error("motion preset produced empty prompt")
+    elif not prompt:
+        parser.error("--prompt or --prompt-file or --motion-preset required")
+    else:
+        neg_extra = None
+
     negative = load_text(args.negative_file) if args.negative_file else args.negative
+    if neg_extra:
+        negative = f"{negative}, {neg_extra}" if negative else neg_extra
 
     if (args.width is None) ^ (args.height is None):
         parser.error("Provide both --width and --height, or neither (use --format/--preset)")
@@ -1177,6 +1277,7 @@ if __name__ == "__main__":
         attention_mode=args.attention,
         dry_run=bool(args.dry_run),
         profile=args.profile,
+        ltx_profile=getattr(args, "ltx_profile", None),
         cache=args.cache,
         teacache_thresh=args.teacache_thresh,
         magcache_thresh=args.magcache_thresh,

@@ -1,5 +1,10 @@
 # Standard_V37 — Agent 선택 가이드
 
+> **Toolbox shelf:** GENERATE (I2I switches → TRANSFORM)  
+> **CLI:** `python scripts/generate_illustrious_standard.py` (`--list-features`)  
+> **Alternatives:** photoreal → `generate_moody` · mask inpaint → `generate_qwen_inpaint`  
+> **Catalog:** [docs/tool_catalog.md](../../../docs/tool_catalog.md) §2.1
+
 **출처(필수 읽기):** [ComfyUI Image Workflows — Legendaer · Civitai](https://civitai.red/models/1386234/comfyui-image-workflows)  
 **공식 가이드 아티클:** [articles/17339](https://civitai.red/articles/17339) (로그인 필요할 수 있음)  
 **SSOT UI:** `Standard_V37.json` (팩 그대로)  

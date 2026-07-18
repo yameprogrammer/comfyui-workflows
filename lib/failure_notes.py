@@ -198,3 +198,32 @@ def format_note_brief(note: dict[str, Any]) -> str:
         f"  cause:   {note.get('root_cause')}\n"
         f"  prevent: {note.get('prevention')}"
     )
+
+
+def format_note_prevention(note: dict[str, Any]) -> str:
+    """Before-gen focused card: prevention first (mistake prevention)."""
+    tags = ", ".join(note.get("tags") or [])
+    return (
+        f"{note.get('id')} [{note.get('severity')}/{note.get('stage')}] ({tags})\n"
+        f"  DO NOT: {note.get('symptom')}\n"
+        f"  PREVENT: {note.get('prevention')}\n"
+        f"  (cause was: {note.get('root_cause')})"
+    )
+
+
+def before_gen_checklist(query: str | None, *, limit: int = 8) -> list[dict[str, Any]]:
+    """
+    Search failure notes for a before-generation preflight.
+    Empty query → recent high/critical notes.
+    """
+    q = (query or "").strip()
+    if q:
+        return search_notes(q, limit=limit)
+    # no query: surface severe recent lessons
+    notes = list_notes(limit=40)
+    severe = [
+        n
+        for n in notes
+        if str(n.get("severity") or "").lower() in ("critical", "high")
+    ]
+    return severe[: max(1, int(limit))]

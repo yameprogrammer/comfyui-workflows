@@ -1,0 +1,21 @@
+{
+  "tool": "viewpoint",
+  "cli": "scripts/generate_viewpoint.py",
+  "status": "ready",
+  "version": "1.0",
+  "shelf": "CAMERA",
+  "description": "Depth/viewpoint exaggeration: high/low/bird/worm eye, wide vs tight via Qwen multi-angle h/v/zoom; optional instruction edit.",
+  "research": "docs/viewpoint_research.md",
+  "guide": "workflows/human/viewpoint/AGENT_GUIDE.md",
+  "engines": ["angle", "edit"],
+  "default_engine": "angle",
+  "backends": {
+    "angle": "generate_qwen_angle / qwen_multiangle_image",
+    "edit": "generate_qwen_edit instruction"
+  },
+  "not_included": [
+    "PIL crop reframe (use generate_reframe)",
+    "Depth ControlNet structure lock as default",
+    "True 3D camera / NeRF"
+  ]
+}

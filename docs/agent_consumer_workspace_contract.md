@@ -106,7 +106,7 @@ lip_status: pending|approved (SI2V)
 | `--export-workspace` / `--export-dest` / `--no-export-workspace` | CLI 오버라이드 |
 | `AGENT_CUSTOM_ROOT` | 도구 레포 루트 (드물게 필요) |
 | `AGENT_COMFY_AUTOSTART` | 기본 on. `0`/`false`/`off` 이면 Comfy 다운 시 기동하지 않고 실패 |
-| `AGENT_COMFY_LAUNCH_BAT` | Comfy 기동 bat (기본 `F:\ComfyUI_windows_portable\run_nvidia_gpu_fast_fp16_accumulation.bat`) |
+| `AGENT_COMFY_LAUNCH_BAT` | Comfy 기동 bat (기본 `F:\ComfyUI_windows_portable\run_nvidia_gpu.bat`) |
 | `AGENT_COMFY_READY_TIMEOUT_SEC` | 기동 후 API ready 대기 초 (기본 180) |
 
 ```bash

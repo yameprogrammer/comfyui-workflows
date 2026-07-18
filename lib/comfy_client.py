@@ -16,18 +16,137 @@ from typing import Any, TextIO
 
 DEFAULT_SERVER = "127.0.0.1:8188"
 WORKSPACE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-COMFYUI_INPUT_DIR = r"F:\ComfyUI_windows_portable\ComfyUI\input"
 DEFAULT_TIMEOUT_SEC = 600
 POLL_INTERVAL_SEC = 1.0
 
 # Local portable default launcher (override with AGENT_COMFY_LAUNCH_BAT).
-DEFAULT_LAUNCH_BAT = (
-    r"F:\ComfyUI_windows_portable\run_nvidia_gpu_fast_fp16_accumulation.bat"
-)
+# SSOT: user's manual start script (no --fast / no --disable-smart-memory).
+DEFAULT_LAUNCH_BAT = r"F:\ComfyUI_windows_portable\run_nvidia_gpu.bat"
+# External data layer (matches portable bats: --input/output/temp-directory).
+DEFAULT_COMFY_DATA_DIR = r"F:\ComfyUI_data"
+_LEGACY_PORTABLE_INPUT_DIR = r"F:\ComfyUI_windows_portable\ComfyUI\input"
+_LEGACY_PORTABLE_OUTPUT_DIR = r"F:\ComfyUI_windows_portable\ComfyUI\output"
 DEFAULT_READY_TIMEOUT_SEC = 180.0
 DEFAULT_PROBE_TIMEOUT_SEC = 3.0
 # After we spawn a launcher, skip re-spawn for this long even without a live lock.
 DEFAULT_LAUNCH_COOLDOWN_SEC = 120.0
+
+# Process-local cache of dirs probed from a live Comfy process (argv).
+_comfy_dirs_cache: dict[str, dict[str, str]] = {}
+
+
+def _env_path(*names: str) -> str | None:
+    for name in names:
+        raw = os.environ.get(name)
+        if raw is not None and str(raw).strip():
+            return os.path.abspath(os.path.expanduser(str(raw).strip()))
+    return None
+
+
+def _parse_argv_directories(argv: list[Any] | None) -> dict[str, str]:
+    """Parse ComfyUI CLI argv for --input/output/temp-directory."""
+    out: dict[str, str] = {}
+    if not argv:
+        return out
+    flags = {
+        "--input-directory": "input",
+        "--output-directory": "output",
+        "--temp-directory": "temp",
+    }
+    i = 0
+    items = [str(x) for x in argv]
+    while i < len(items):
+        key = flags.get(items[i])
+        if key and i + 1 < len(items):
+            out[key] = os.path.abspath(items[i + 1])
+            i += 2
+            continue
+        i += 1
+    return out
+
+
+def probe_comfy_directories(
+    server_address: str = DEFAULT_SERVER,
+    *,
+    use_cache: bool = True,
+) -> dict[str, str]:
+    """
+    Read live Comfy --input/output/temp-directory from /system_stats argv.
+
+    Returns keys subset of: input, output, temp. Empty dict if unreachable.
+    """
+    server_address = (server_address or DEFAULT_SERVER).strip()
+    if use_cache and server_address in _comfy_dirs_cache:
+        return dict(_comfy_dirs_cache[server_address])
+    try:
+        stats = _http_json(server_address, "/system_stats", timeout=DEFAULT_PROBE_TIMEOUT_SEC)
+        argv = (stats.get("system") or {}).get("argv")
+        dirs = _parse_argv_directories(argv if isinstance(argv, list) else None)
+        if dirs:
+            _comfy_dirs_cache[server_address] = dict(dirs)
+        return dirs
+    except Exception:
+        return {}
+
+
+def get_comfy_data_dir() -> str:
+    return _env_path("AGENT_COMFY_DATA_DIR", "COMFYUI_DATA_DIR") or DEFAULT_COMFY_DATA_DIR
+
+
+def get_comfy_input_dir(server_address: str | None = None) -> str:
+    """
+    Directory LoadImage / uploads must land in.
+
+    Priority:
+      1) AGENT_COMFY_INPUT_DIR / COMFYUI_INPUT_DIR
+      2) live Comfy --input-directory (system_stats argv)
+      3) F:\\ComfyUI_data\\input if data layer exists (current portable bat SSOT)
+      4) legacy portable ComfyUI\\input
+    """
+    env = _env_path("AGENT_COMFY_INPUT_DIR", "COMFYUI_INPUT_DIR")
+    if env:
+        return env
+    probed = probe_comfy_directories(server_address or DEFAULT_SERVER)
+    if probed.get("input"):
+        return probed["input"]
+    data_input = os.path.join(get_comfy_data_dir(), "input")
+    if os.path.isdir(data_input) or os.path.isdir(get_comfy_data_dir()):
+        return data_input
+    return _LEGACY_PORTABLE_INPUT_DIR
+
+
+def get_comfy_output_dir(server_address: str | None = None) -> str:
+    env = _env_path("AGENT_COMFY_OUTPUT_DIR", "COMFYUI_OUTPUT_DIR")
+    if env:
+        return env
+    probed = probe_comfy_directories(server_address or DEFAULT_SERVER)
+    if probed.get("output"):
+        return probed["output"]
+    data_output = os.path.join(get_comfy_data_dir(), "output")
+    if os.path.isdir(data_output) or os.path.isdir(get_comfy_data_dir()):
+        return data_output
+    return _LEGACY_PORTABLE_OUTPUT_DIR
+
+
+class _LazyComfyInputDir(os.PathLike):
+    """PathLike that resolves to the live Comfy input dir on each use.
+
+    Call sites do ``os.path.join(COMFYUI_INPUT_DIR, name)``; that must track
+    ``--input-directory`` (e.g. F:\\ComfyUI_data\\input), not a stale portable path.
+    """
+
+    def __fspath__(self) -> str:
+        return get_comfy_input_dir()
+
+    def __str__(self) -> str:
+        return get_comfy_input_dir()
+
+    def __repr__(self) -> str:
+        return f"<COMFYUI_INPUT_DIR {get_comfy_input_dir()!r}>"
+
+
+# Back-compat: importable name used across scripts. Prefer get_comfy_input_dir().
+COMFYUI_INPUT_DIR = _LazyComfyInputDir()
 
 _AGENT_CACHE_DIR = os.path.join(WORKSPACE_ROOT, ".agent_cache")
 _LAUNCH_LOCK_PATH = os.path.join(_AGENT_CACHE_DIR, "comfy_launch.lock")
@@ -283,15 +402,192 @@ class _LaunchLock:
             self.acquired = False
 
 
+def _default_comfy_cli_dir_args() -> list[str]:
+    """Match portable bat data-layer flags (input/output/temp under ComfyUI_data)."""
+    data = get_comfy_data_dir()
+    input_dir = _env_path("AGENT_COMFY_INPUT_DIR", "COMFYUI_INPUT_DIR") or os.path.join(
+        data, "input"
+    )
+    output_dir = _env_path("AGENT_COMFY_OUTPUT_DIR", "COMFYUI_OUTPUT_DIR") or os.path.join(
+        data, "output"
+    )
+    temp_dir = _env_path("AGENT_COMFY_TEMP_DIR", "COMFYUI_TEMP_DIR") or os.path.join(
+        data, "temp"
+    )
+    for d in (input_dir, output_dir, temp_dir):
+        try:
+            os.makedirs(d, exist_ok=True)
+        except OSError:
+            pass
+    return [
+        "--output-directory",
+        output_dir,
+        "--input-directory",
+        input_dir,
+        "--temp-directory",
+        temp_dir,
+    ]
+
+
+def _join_bat_logical_lines(text: str) -> list[str]:
+    """Join cmd caret-continued lines (^ at EOL) into logical commands."""
+    logical: list[str] = []
+    buf = ""
+    for line in text.splitlines():
+        raw = line.rstrip("\r\n")
+        stripped_end = raw.rstrip()
+        if stripped_end.endswith("^"):
+            buf += stripped_end[:-1].rstrip() + " "
+            continue
+        buf += stripped_end
+        logical.append(buf.strip())
+        buf = ""
+    if buf.strip():
+        logical.append(buf.strip())
+    return logical
+
+
+def _tokenize_win_cmd_line(line: str) -> list[str]:
+    """Lightweight Windows-ish tokenizer (quoted segments + whitespace)."""
+    import re
+
+    return [p for p in re.findall(r'"([^"]*)"|(\S+)', line) for p in p if p]
+
+
+def parse_comfy_launch_args_from_bat(bat_path: str) -> list[str] | None:
+    """
+    Extract the ComfyUI python argv from a portable ``.bat``.
+
+    Expects a line (possibly caret-continued) like::
+
+        .\\python_embeded\\python.exe -s ComfyUI\\main.py --windows-standalone-build ^
+          --output-directory F:\\ComfyUI_data\\output ^
+          ...
+
+    Returns absolute argv, or None if the bat cannot be parsed.
+    """
+    bat_path = os.path.abspath(bat_path)
+    cwd = os.path.dirname(bat_path) or os.getcwd()
+    try:
+        with open(bat_path, "r", encoding="utf-8", errors="replace") as f:
+            text = f.read()
+    except OSError:
+        return None
+
+    for line in _join_bat_logical_lines(text):
+        if not line or line.lstrip().startswith("@"):
+            # allow "@echo off" skip; real cmds rarely start with @
+            low0 = line.lstrip().lower()
+            if low0.startswith("@echo") or low0.startswith("@"):
+                # still allow @python... rare
+                if "main.py" not in low0:
+                    continue
+        low = line.lower()
+        if low.startswith("rem ") or low.startswith("echo ") or low.startswith("pause"):
+            continue
+        if low.startswith("cd ") or low.startswith("set "):
+            continue
+        if "main.py" not in low:
+            continue
+        # strip optional leading @
+        if line.lstrip().startswith("@"):
+            line = line.lstrip()[1:].lstrip()
+
+        tokens = _tokenize_win_cmd_line(line)
+        if not tokens:
+            continue
+
+        # Resolve python.exe and ComfyUI\main.py relative to bat dir
+        args: list[str] = []
+        for i, tok in enumerate(tokens):
+            t = tok.strip('"')
+            # Relative path resolution for first tokens that look like files
+            if i == 0 or t.lower().endswith(".py") or t.lower().endswith(".exe"):
+                cand = t
+                if not os.path.isabs(cand):
+                    cand = os.path.normpath(os.path.join(cwd, cand))
+                if i == 0 and not os.path.isfile(cand):
+                    # bat may say .\python_embeded\python.exe
+                    alt = os.path.join(cwd, "python_embeded", "python.exe")
+                    if os.path.isfile(alt):
+                        cand = alt
+                args.append(cand)
+            else:
+                args.append(t)
+
+        if len(args) < 2:
+            continue
+        # Ensure main.py exists when present
+        main_tok = next((a for a in args if a.lower().endswith("main.py")), None)
+        if main_tok and not os.path.isfile(main_tok):
+            alt_main = os.path.join(cwd, "ComfyUI", "main.py")
+            if os.path.isfile(alt_main):
+                args = [alt_main if a == main_tok else a for a in args]
+            else:
+                continue
+        return args
+    return None
+
+
+def build_comfy_launch_args(bat_path: str) -> list[str]:
+    """
+    Build argv for agent autostart — **same command as the user's bat**.
+
+    1) Parse bat contents (preferred)
+    2) Fallback: portable layout matching ``run_nvidia_gpu.bat``
+       (``--windows-standalone-build`` + data-layer dirs; no ``--fast``)
+    """
+    bat_path = os.path.abspath(bat_path)
+    cwd = os.path.dirname(bat_path) or os.getcwd()
+
+    parsed = parse_comfy_launch_args_from_bat(bat_path)
+    if parsed:
+        # Ensure data dirs from bat exist (input/output/temp)
+        i = 0
+        while i < len(parsed) - 1:
+            if parsed[i] in (
+                "--input-directory",
+                "--output-directory",
+                "--temp-directory",
+            ):
+                try:
+                    os.makedirs(parsed[i + 1], exist_ok=True)
+                except OSError:
+                    pass
+                i += 2
+                continue
+            i += 1
+        return parsed
+
+    py = os.path.join(cwd, "python_embeded", "python.exe")
+    main_py = os.path.join(cwd, "ComfyUI", "main.py")
+    if os.path.isfile(py) and os.path.isfile(main_py):
+        # Fallback mirrors run_nvidia_gpu.bat (user SSOT), not the fast variant.
+        return [
+            py,
+            "-s",
+            main_py,
+            "--windows-standalone-build",
+            *_default_comfy_cli_dir_args(),
+        ]
+    # Last resort: execute the bat itself
+    if sys.platform == "win32":
+        return ["cmd.exe", "/c", bat_path]
+    return [bat_path]
+
+
 def _launch_comfy_process(bat_path: str) -> int:
-    """Start Comfy exactly like the portable bat — no start/startfile wrappers.
+    """Start Comfy with the **same argv as the launch bat** (no inventing flags).
 
-    Default bat (``run_nvidia_gpu_fast_fp16_accumulation.bat``) is literally:
+    Default bat ``run_nvidia_gpu.bat`` is::
 
-        .\\python_embeded\\python.exe -s ComfyUI\\main.py ^
-            --windows-standalone-build --fast fp16_accumulation --disable-smart-memory
+        .\\python_embeded\\python.exe -s ComfyUI\\main.py --windows-standalone-build ^
+          --output-directory F:\\ComfyUI_data\\output ^
+          --input-directory  F:\\ComfyUI_data\\input ^
+          --temp-directory   F:\\ComfyUI_data\\temp
 
-    We run that same command with cwd = portable root (the bat's folder).
+    We parse that bat (or fall back to the same layout). cwd = bat directory.
+    ``start`` / ``startfile`` / nested wrappers are forbidden.
     """
     bat_path = os.path.abspath(bat_path)
     if not os.path.isfile(bat_path):
@@ -300,23 +596,7 @@ def _launch_comfy_process(bat_path: str) -> int:
             f"(set AGENT_COMFY_LAUNCH_BAT to override)"
         )
     cwd = os.path.dirname(bat_path) or os.getcwd()
-
-    # Same command line as the bat (absolute paths so cwd is unambiguous).
-    py = os.path.join(cwd, "python_embeded", "python.exe")
-    main_py = os.path.join(cwd, "ComfyUI", "main.py")
-    if os.path.isfile(py) and os.path.isfile(main_py):
-        args = [
-            py,
-            "-s",
-            main_py,
-            "--windows-standalone-build",
-            "--fast",
-            "fp16_accumulation",
-            "--disable-smart-memory",
-        ]
-    else:
-        # Unknown bat layout: still just "run the bat from its directory".
-        args = ["cmd.exe", "/c", bat_path] if sys.platform == "win32" else [bat_path]
+    args = build_comfy_launch_args(bat_path)
 
     if sys.platform == "win32":
         # New console window; do not pass stdin/stdout/stderr (avoids broken agent pipes).
@@ -769,9 +1049,36 @@ def memory_snapshot(server_address: str = DEFAULT_SERVER) -> dict[str, Any]:
     }
 
 
+def _format_node_errors(node_errors: dict[str, Any]) -> str:
+    parts: list[str] = []
+    for node_id, info in (node_errors or {}).items():
+        if not isinstance(info, dict):
+            parts.append(f"node {node_id}: {info}")
+            continue
+        cls = info.get("class_type") or "?"
+        errs = info.get("errors") or []
+        if not errs:
+            parts.append(f"node {node_id} ({cls})")
+            continue
+        for err in errs:
+            if isinstance(err, dict):
+                detail = err.get("details") or err.get("message") or str(err)
+            else:
+                detail = str(err)
+            parts.append(f"node {node_id} ({cls}): {detail}")
+    return "; ".join(parts) if parts else str(node_errors)
+
+
 def queue_prompt(server_address: str, api_prompt: dict) -> str:
-    """Submit workflow; auto-starts local ComfyUI if needed (see ensure_comfy_running)."""
+    """Submit workflow; auto-starts local ComfyUI if needed (see ensure_comfy_running).
+
+    Raises RuntimeError if Comfy returns node_errors (e.g. LoadImage missing file
+    because input was copied to the wrong directory). Silent partial success is
+    treated as failure — otherwise I2I can finish with empty history images.
+    """
     ensure_comfy_running(server_address)
+    # Clear dir cache so get_comfy_input_dir sees this process's argv after launch.
+    _comfy_dirs_cache.pop((server_address or DEFAULT_SERVER).strip(), None)
     payload = json.dumps({"prompt": api_prompt}).encode("utf-8")
 
     def _post() -> str:
@@ -782,10 +1089,21 @@ def queue_prompt(server_address: str, api_prompt: dict) -> str:
         )
         with urllib.request.urlopen(req, timeout=30) as response:
             res_data = json.loads(response.read().decode("utf-8"))
-            return res_data["prompt_id"]
+            node_errors = res_data.get("node_errors") or {}
+            if node_errors:
+                raise RuntimeError(
+                    "ComfyUI rejected prompt (node_errors): "
+                    + _format_node_errors(node_errors)
+                )
+            prompt_id = res_data.get("prompt_id")
+            if not prompt_id:
+                raise RuntimeError(f"ComfyUI /prompt missing prompt_id: {res_data!r}")
+            return str(prompt_id)
 
     try:
         return _post()
+    except RuntimeError:
+        raise
     except urllib.error.HTTPError as e:
         body = ""
         try:

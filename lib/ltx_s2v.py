@@ -10,14 +10,19 @@ from __future__ import annotations
 
 from typing import Any
 
-# Local portable inventory (relative to Comfy models/)
-DEFAULT_UNET_GGUF = r"LTX2.3\LTX-2.3-22B-distilled-1.1-Q4_K_M.gguf"
+# Local portable inventory (relative to Comfy models/ / F:\model via extra_model_paths)
+# AIO default diffusion (2026-07-18): dev Q6 for 4090 quality/perf balance.
+# Distilled Q4 remains available for draft/fast mini-graph experiments.
+DEFAULT_UNET_GGUF = r"LTX2.3\ltx-2.3-22b-dev-Q6_K.gguf"
+DEFAULT_UNET_GGUF_DRAFT = r"LTX2.3\LTX-2.3-22B-distilled-1.1-Q4_K_M.gguf"
+DEFAULT_UNET_GGUF_LEGACY_Q4 = r"LTX2.3\ltx-2.3-22b-dev-Q4_K_M.gguf"
 DEFAULT_DISTILL_LORA = r"LTX2.3\ltx-2.3-22b-distilled-lora-384.safetensors"
 # Align with user All-in-One v44 Power Lora stack (primary distilled dynamic)
 AIO_DISTILL_LORA = (
     r"LTX2.3\ltx-2.3-22b-distilled-1.1_lora-dynamic_fro09_avg_rank_111_bf16.safetensors"
 )
-AIO_DISTILL_LORA_STRENGTH = 0.9
+# Default for mini-graph / legacy; AIO face path uses AGENT_LTX_DISTILL_STRENGTH (0.6).
+AIO_DISTILL_LORA_STRENGTH = 0.6
 AIO_DEFAULT_FPS = 24.0
 # Real AIO UI workflow (agent copy). Runtime uses ltx_aio_workflow_runner + [[P:]] mutes.
 AIO_SOURCE_UI_WORKFLOW = (

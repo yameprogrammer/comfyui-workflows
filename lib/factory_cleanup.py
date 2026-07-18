@@ -44,14 +44,28 @@ SMOKE_NAME_RE = re.compile(
     r")"
 )
 
-COMFY_INPUT_DIR = Path(
-    os.environ.get("COMFYUI_INPUT_DIR")
-    or r"F:\ComfyUI_windows_portable\ComfyUI\input"
-)
-COMFY_OUTPUT_DIR = Path(
-    os.environ.get("COMFYUI_OUTPUT_DIR")
-    or r"F:\ComfyUI_windows_portable\ComfyUI\output"
-)
+def _resolve_comfy_cleanup_dirs() -> tuple[Path, Path]:
+    """Prefer live/data-layer paths (same SSOT as lib.comfy_client)."""
+    try:
+        from lib.comfy_client import get_comfy_input_dir, get_comfy_output_dir
+
+        return Path(get_comfy_input_dir()), Path(get_comfy_output_dir())
+    except Exception:
+        data = os.environ.get("AGENT_COMFY_DATA_DIR") or r"F:\ComfyUI_data"
+        inp = (
+            os.environ.get("COMFYUI_INPUT_DIR")
+            or os.environ.get("AGENT_COMFY_INPUT_DIR")
+            or os.path.join(data, "input")
+        )
+        out = (
+            os.environ.get("COMFYUI_OUTPUT_DIR")
+            or os.environ.get("AGENT_COMFY_OUTPUT_DIR")
+            or os.path.join(data, "output")
+        )
+        return Path(inp), Path(out)
+
+
+COMFY_INPUT_DIR, COMFY_OUTPUT_DIR = _resolve_comfy_cleanup_dirs()
 
 # temp_* copies agents drop into Comfy input
 COMFY_INPUT_TEMP_RE = re.compile(r"(?i)^(temp_|wf_api_|agent_)")

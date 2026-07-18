@@ -1,5 +1,10 @@
 # LTX 2.3 Kenpechi v2.0 NSFW (빨간맛 video) — Agent guide
 
+> **Toolbox shelf:** MOTION · **18+ only**  
+> **CLI:** `generate_ltx_nsfw_i2v` · `generate_ltx_nsfw_director`  
+> **Alternatives:** SFW motion → `generate_i2v` / LTX AIO  
+> **Catalog:** [docs/tool_catalog.md](../../docs/tool_catalog.md) §2.4
+
 **Use the real UI workflows.** No mini graphs. No node deletion for “cleanup.”
 
 | Role | UI SSOT |

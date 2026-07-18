@@ -8,6 +8,32 @@
 이 문서는 “나중에 하면 좋겠다”를 **작업 단위로 고정**한 것이다.  
 구현 시 `process.md` 이력 + 해당 CLI/기본값 변경을 남긴다.
 
+### INGEST — 유튜브 레퍼 (2026-07-18 구상)
+
+리서치: **[youtube_ref_ingest_research.md](youtube_ref_ingest_research.md)**
+
+| 단계 | 내용 | 상태 |
+|------|------|------|
+| 리서치 | 자막·요약·하이라이트 클립 실현성 | ✅ |
+| P0 | `youtube_ingest` URL→meta+transcript+summary | ✅ |
+| P1 | highlights + ffmpeg 클립 | ✅ |
+| P2 | 검색 API / 바이럴 클리퍼급 | 📋 후순위 |
+
+### LTX 품질 (2026-07-18)
+
+SSOT 리서치·백로그: **[ltx23_quality_research_and_improvement.md](ltx23_quality_research_and_improvement.md)**  
+CLI: `--ltx-profile draft|work|hero` · `generate_s2v.py --list-ltx-profiles`
+
+| ID | 작업 | 상태 |
+|----|------|------|
+| L0–L3 | 리서치 문서 + draft/work/hero 프로필 + CLI | ✅ |
+| L4 | Hero 2-stage upsample AIO 스위치 | 📋 |
+| L5 | Hero 1280–1536 실측·OOM 가드 | 📋 |
+| L6 | Pure I2V max duration hard cap 옵션 | 📋 (경고만 현재) |
+| L7 | 모션 프롬프트 dialect 경고 | 📋 |
+| L8 | failure_note `ltx_face` preflight 묶음 | 📋 |
+| L9–L12 | Q6/dev · LatentHeart 카드 · episode draft→hero · SeedVR2 체인 | 📋 |
+
 ---
 
 ## 0. 설계 원칙 (합의)

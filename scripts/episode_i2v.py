@@ -87,7 +87,12 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         description="Run I2V for episode keyframes (approved by default)"
     )
-    parser.add_argument("--episode", "-e", required=True)
+    parser.add_argument(
+        "--episode",
+        "-e",
+        default=None,
+        help="Episode id (required unless --list-motion-presets)",
+    )
     parser.add_argument(
         "--shots",
         default="all_approved",
@@ -103,6 +108,20 @@ def main(argv=None) -> int:
     parser.add_argument("--steps", type=int, default=6)
     parser.add_argument("--cfg", type=float, default=1.0)
     parser.add_argument("--timeout", type=int, default=1800)
+    parser.add_argument(
+        "--motion-preset",
+        default=None,
+        help=(
+            "Default motion intent for all shots (idle, push_in, talk_gesture, …). "
+            "Overridden per-shot by shot.motion_preset. See: "
+            "python scripts/generate_i2v.py --list-motion-presets"
+        ),
+    )
+    parser.add_argument(
+        "--list-motion-presets",
+        action="store_true",
+        help="Print motion intent presets and exit",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument(
         "--stop-on-error",
@@ -123,6 +142,16 @@ def main(argv=None) -> int:
 
     add_export_workspace_args(parser)
     args = parser.parse_args(argv)
+
+    if args.list_motion_presets:
+        from lib.motion_presets import format_motion_presets_help
+
+        print(format_motion_presets_help())
+        return EXIT_OK
+
+    if not args.episode:
+        print("[ERROR] code=2 --episode/-e required", file=sys.stderr)
+        return EXIT_USAGE
 
     if not validate_episode_id(args.episode):
         print("[ERROR] code=2 invalid episode id", file=sys.stderr)
@@ -192,8 +221,31 @@ def main(argv=None) -> int:
         clip_path = story.path(*clip_rel.replace("\\", "/").split("/"))
         os.makedirs(os.path.dirname(clip_path), exist_ok=True)
 
-        motion = (shot.get("motion_prompt") or "").strip() or "gentle natural motion"
+        motion_raw = (shot.get("motion_prompt") or "").strip()
         neg = (shot.get("negative_motion") or "").strip()
+        # Per-shot motion_preset > CLI --motion-preset > plain motion_prompt / default
+        from lib.motion_presets import (
+            compose_motion_prompt,
+            resolve_motion_preset_id,
+        )
+
+        preset_name = (
+            (shot.get("motion_preset") or shot.get("i2v_motion_preset") or "")
+            or (args.motion_preset or "")
+            or (story.doc.get("default_motion_preset") or "")
+            or ""
+        ).strip() or None
+        preset_id = resolve_motion_preset_id(preset_name) if preset_name else None
+        if preset_name and not preset_id:
+            print(
+                f"  WARN unknown motion_preset={preset_name!r} — using motion_prompt only"
+            )
+        if preset_id:
+            motion, neg_extra = compose_motion_prompt(preset_id, motion_raw)
+            if neg_extra:
+                neg = f"{neg}, {neg_extra}" if neg else neg_extra
+        else:
+            motion = motion_raw or "gentle natural motion"
         duration = float(shot.get("duration_sec") or 4)
         frames = _frames_for_shot(duration, fps)
         meta_path = story.path("meta", f"{sid}_i2v.json")
@@ -216,6 +268,8 @@ def main(argv=None) -> int:
         elif use_flf:
             print("  WARN flf2v without keyframe_end — will fail FLF unless end frame exists")
         print(f"  out={clip_path}")
+        if preset_id:
+            print(f"  motion_preset={preset_id}")
         print(f"  motion={motion[:100]}")
 
         if not os.path.isfile(kf_path):

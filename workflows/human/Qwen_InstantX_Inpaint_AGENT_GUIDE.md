@@ -1,5 +1,10 @@
 # Qwen InstantX Inpainting ControlNet — Agent guide
 
+> **Toolbox shelf:** TRANSFORM  
+> **CLI:** `python scripts/generate_qwen_inpaint.py`  
+> **Alternatives:** no mask whole-image edit → `generate_qwen_edit` · full-scene ID remix → `generate_character_consistent` / i2i  
+> **Catalog:** [docs/tool_catalog.md](../../docs/tool_catalog.md) §2.2
+
 **Use the real UI workflow.** No mini graph rebuild.
 
 | Item | Path |

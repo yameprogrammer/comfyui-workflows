@@ -16,11 +16,11 @@ from pathlib import Path
 from typing import Any
 
 from lib.comfy_client import (
-    COMFYUI_INPUT_DIR,
     DEFAULT_SERVER,
     download_image,
     extract_first_image,
     fail_result,
+    get_comfy_input_dir,
     ok_result,
     queue_prompt,
     utc_now_iso,
@@ -279,13 +279,16 @@ def apply_ports(
             raise KeyError(f"Port {port_name}: node {node_id} missing from API graph")
         val = merged[port_name]
         # image: copy into Comfy input dir, set filename only
+        # Must match live Comfy --input-directory (often F:\ComfyUI_data\input),
+        # NOT the legacy portable ComfyUI\input path.
         if spec.get("copy_to_input_dir") and isinstance(val, str) and os.path.isfile(val):
             if copy_images:
-                os.makedirs(COMFYUI_INPUT_DIR, exist_ok=True)
+                input_dir = get_comfy_input_dir()
+                os.makedirs(input_dir, exist_ok=True)
                 base = os.path.basename(val)
                 # unique-ish to avoid collisions
                 dest_name = f"wf_api_{port_name}_{base}"
-                dest = os.path.join(COMFYUI_INPUT_DIR, dest_name)
+                dest = os.path.join(input_dir, dest_name)
                 shutil.copy2(val, dest)
                 val = dest_name
             else:

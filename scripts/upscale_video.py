@@ -38,6 +38,7 @@ def upscale_video(
     short_edge: int | None = None,
     fps: float = 16.0,
     two_pass: bool | None = None,
+    style: str | None = None,
     esrgan_model: str | None = None,
     server: str = DEFAULT_SERVER,
     timeout_sec: int = 14400,
@@ -48,20 +49,26 @@ def upscale_video(
     if not os.path.isfile(input_path):
         return fail_result(error="SOURCE_MISSING", message=input_path)
 
-    job = resolve_upscale_job(
-        backend=backend,
-        preset=preset,
-        format_id=format_id,
-        aspect=aspect,
-        width=width,
-        height=height,
-        short_edge=short_edge,
-    )
+    try:
+        job = resolve_upscale_job(
+            backend=backend,
+            preset=preset,
+            format_id=format_id,
+            aspect=aspect,
+            width=width,
+            height=height,
+            short_edge=short_edge,
+            style=style,
+            esrgan_model=esrgan_model,
+        )
+    except Exception as e:
+        return fail_result(error="UPSCALE_JOB_RESOLVE", message=str(e))
     be = job["backend"]
     backend_id = job["backend_id"]
     w, h = job["width"], job["height"]
     se = job["short_edge"]
     cfg = job["config"]
+    resolved_model = job.get("esrgan_model") or esrgan_model
 
     if output_path is None:
         base, _ext = os.path.splitext(input_path)
@@ -82,7 +89,7 @@ def upscale_video(
     def _one_pass(src: str, dst: str, short: int, width_: int, height_: int) -> dict:
         runner = be.get("runner")
         if runner == "comfy_api" and backend_id == "esrgan":
-            model = esrgan_model or be.get("model_name") or "RealESRGAN_x4plus.pth"
+            model = resolved_model or be.get("model_name") or "RealESRGAN_x4plus.pth"
             api = build_esrgan_video_prompt(
                 os.path.abspath(src), model, width_, height_, fps
             )
@@ -148,6 +155,8 @@ def upscale_video(
     meta = {
         "mode": "upscale_video",
         "backend": backend_id,
+        "style": job.get("style"),
+        "esrgan_model": resolved_model,
         "preset": job["preset_id"],
         "format": job.get("format_id"),
         "aspect": job.get("aspect"),
@@ -192,6 +201,11 @@ if __name__ == "__main__":
     p.add_argument("--input", "-i", required=True)
     p.add_argument("--output", "-o", default=None)
     p.add_argument("--backend", default=None, help="esrgan | rtx_vsr | seedvr2 | seedvr2_max")
+    p.add_argument(
+        "--style",
+        default=None,
+        help="esrgan style: photo | photo_sharp | anime | anime_fast | general | …",
+    )
     p.add_argument("--preset", default=None, help="deliver_1080 | deliver_1440 | deliver_2160")
     p.add_argument("--format", dest="format_id", default=None)
     p.add_argument("--aspect", default=None)
@@ -225,6 +239,7 @@ if __name__ == "__main__":
         short_edge=args.short_edge,
         fps=args.fps,
         two_pass=two,
+        style=args.style,
         esrgan_model=args.esrgan_model,
         timeout_sec=args.timeout,
         meta_out=args.meta_out,

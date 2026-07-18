@@ -1,0 +1,21 @@
+{
+  "tool": "camera_move",
+  "cli": "scripts/generate_camera_move.py",
+  "status": "ready",
+  "version": "1.0",
+  "shelf": "MOTION",
+  "description": "First-class camera/motion-intent I2V wrapper. Presets from lib/motion_presets.py; executes generate_i2v on Comfy.",
+  "guide": "workflows/human/camera_move/AGENT_GUIDE.md",
+  "runner": "lib/motion_presets.py",
+  "used_by": ["scripts/generate_camera_move.py"],
+  "backends": ["generate_i2v / video_backends.json"],
+  "aliases": {
+    "generate_i2v --motion-preset": "same preset ids",
+    "episode_i2v --motion-preset": "batch + shot.motion_preset"
+  },
+  "not_included": [
+    "Still viewpoint change (generate_viewpoint)",
+    "PIL reframe crop",
+    "True 3D camera path"
+  ]
+}

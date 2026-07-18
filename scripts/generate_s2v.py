@@ -555,6 +555,9 @@ def generate_s2v(
     trim_start_sec: float = 0.0,
     face_stability: bool | None = None,
     detailer_strength: float | None = None,
+    ltx_profile: str | None = None,
+    format_id: str | None = None,
+    apply_ltx_profile_size: bool = True,
 ) -> dict:
     # T2V / pure V2V may omit still; still required for classic I2V/SI2V paths.
     if input_image_path and not os.path.isfile(input_image_path):
@@ -605,7 +608,58 @@ def generate_s2v(
     if audio_required and (not audio_path or not os.path.isfile(audio_path)):
         return fail_result(error="AUDIO_MISSING", message=audio_path or "(none)")
 
+    ltx_prof_meta: dict | None = None
     if is_ltx_backend(backend):
+        from lib.ltx_quality_profiles import apply_ltx_quality_profile
+
+        # Stock CLI default 640x640 = unset → profile fills size
+        user_size = bool(
+            width and height and not (int(width) == 640 and int(height) == 640)
+        )
+        try:
+            ltx_prof_meta = apply_ltx_quality_profile(
+                profile_name=ltx_profile,
+                width=width,
+                height=height,
+                format_id=format_id,
+                face_stability=face_stability,
+                detailer_strength=detailer_strength,
+                fps=fps,
+                num_frames=num_frames,
+                has_audio=bool(audio_path),
+                user_explicit_size=False,
+            )
+            pid = str(ltx_prof_meta.get("profile_id") or "work")
+            target_edge = int(ltx_prof_meta.get("longer_edge") or 1280)
+            cur_edge = max(int(width or 0), int(height or 0))
+            # Apply size: unset → profile; hero if caller below target; draft never forces down
+            if apply_ltx_profile_size:
+                if not user_size:
+                    width = int(ltx_prof_meta["width"])
+                    height = int(ltx_prof_meta["height"])
+                elif pid == "hero" and cur_edge + 32 < target_edge:
+                    width = int(ltx_prof_meta["width"])
+                    height = int(ltx_prof_meta["height"])
+                elif pid == "work" and cur_edge + 32 < target_edge and cur_edge <= 960:
+                    # legacy 540 callers without explicit intent → lift to 720p default
+                    width = int(ltx_prof_meta["width"])
+                    height = int(ltx_prof_meta["height"])
+            if face_stability is None:
+                face_stability = bool(ltx_prof_meta.get("face_stability"))
+            if detailer_strength is None:
+                detailer_strength = float(ltx_prof_meta.get("detailer_strength") or 0.55)
+            fps = float(ltx_prof_meta.get("fps") or fps or 24)
+            for w in ltx_prof_meta.get("warnings") or []:
+                print(f"[ltx-profile WARN] {w}", file=sys.stderr)
+            print(
+                f"[ltx-profile] {pid} "
+                f"size={width}x{height} edge={max(int(width), int(height))} "
+                f"face={face_stability} det={detailer_strength} "
+                f"({ltx_prof_meta.get('summary') or ''})"
+            )
+        except Exception as e:
+            print(f"[ltx-profile] skip apply: {e}", file=sys.stderr)
+
         width = snap_ltx_dim(width, 32)
         height = snap_ltx_dim(height, 32)
         if fps is None or fps <= 0:
@@ -781,7 +835,7 @@ def generate_s2v(
                 vdur = None
         edge = max(int(width), int(height))
         if edge < 512:
-            edge = 1024
+            edge = 1280
         aspect = "9:16" if int(height) >= int(width) else "16:9"
         # Match runner default: audio+1.5 then ceil (S02 bench preferred for lip/prop).
         # Tight: AGENT_LTX_CLIP_TIGHT=1 or AGENT_LTX_CLIP_PAD_SEC=0
@@ -827,8 +881,25 @@ def generate_s2v(
                     prompt=prompt,
                     negative=negative or "animation, cartoon, text",
                     seed=int(seed),
+                    # Pure I2V: pass frames-derived clip_sec as duration (not only v2v).
+                    # Previously audio_duration_sec was None for i2v → runner forced 3s trim.
                     audio_duration_sec=float(adur) if adur else (
-                        float(clip_sec) if clip_sec and mode in ("v2v", "v2v_audio") else None
+                        float(clip_sec)
+                        if clip_sec
+                        and mode
+                        in (
+                            "i2v",
+                            "i2v_audio",
+                            "flf",
+                            "flf_audio",
+                            "fml",
+                            "fml_audio",
+                            "v2v",
+                            "v2v_audio",
+                            "t2v",
+                            "t2v_audio",
+                        )
+                        else None
                     ),
                     clip_length_sec=clip_sec,
                     trim_start_sec=float(trim_start_sec or 0.0),
@@ -838,16 +909,33 @@ def generate_s2v(
                     filename_prefix="agent_ltx_aio",
                     face_stability=face_stability,
                     detailer_strength=detailer_strength,
+                    ltx_profile=ltx_profile,
                 )
                 ltx_runner = "ltx_aio_workflow_runner"
                 lora_use = "PowerLora(from_AIO_workflow)"
-                lora_str = 0.9
                 fl = (live_meta or {}).get("face_lora") or {}
+                dist = fl.get("distilled") if isinstance(fl, dict) else None
+                lora_str = (
+                    float(dist.get("strength"))
+                    if isinstance(dist, dict) and dist.get("strength") is not None
+                    else 0.6
+                )
                 det = fl.get("detailer") if isinstance(fl, dict) else None
+                ups = fl.get("upscale_ic") if isinstance(fl, dict) else None
                 if det:
                     print(
                         f"  face_stability detailer on={det.get('on')} "
                         f"strength={det.get('strength')} lora={det.get('lora')}"
+                    )
+                if dist:
+                    print(
+                        f"  face_stability distill on={dist.get('on')} "
+                        f"strength={dist.get('strength')} lora={dist.get('lora')}"
+                    )
+                if ups is not None:
+                    print(
+                        f"  face_stability upscale_ic on={ups.get('on')} "
+                        f"strength={ups.get('strength')} lora={ups.get('lora')}"
                     )
                 print(
                     f"generate_s2v backend={backend} mode={mode} "
@@ -1225,6 +1313,17 @@ def generate_s2v(
         "output_path": os.path.abspath(output_filename),
         "comfy_prompt_id": prompt_id,
         "created_at": utc_now_iso(),
+        "ltx_profile": (ltx_prof_meta or {}).get("profile_id") if is_ltx_backend(backend) else None,
+        "ltx_profile_meta": (
+            {
+                "profile_id": (ltx_prof_meta or {}).get("profile_id"),
+                "summary": (ltx_prof_meta or {}).get("summary"),
+                "longer_edge": (ltx_prof_meta or {}).get("longer_edge"),
+                "warnings": (ltx_prof_meta or {}).get("warnings"),
+            }
+            if ltx_prof_meta
+            else None
+        ),
     }
     mp = resolve_meta_out(output_filename, meta_out)
     if mp:
@@ -1241,6 +1340,14 @@ def generate_s2v(
 
 
 def main(argv=None) -> int:
+    # Early list (no -i required)
+    _raw = list(argv) if argv is not None else sys.argv[1:]
+    if "--list-ltx-profiles" in _raw:
+        from lib.ltx_quality_profiles import format_ltx_profiles_table
+
+        print(format_ltx_profiles_table())
+        return 0
+
     p = argparse.ArgumentParser(description="SI2V multi-backend (InfiniteTalk / LTX AIO modes)")
     p.add_argument(
         "--input",
@@ -1293,6 +1400,26 @@ def main(argv=None) -> int:
         type=float,
         default=None,
         help="LTX IC-LoRA detailer strength (default 0.55; env AGENT_LTX_DETAILER_STRENGTH)",
+    )
+    p.add_argument(
+        "--ltx-profile",
+        default=None,
+        help=(
+            "LTX quality tier: draft | work | hero (default work=720p). "
+            "draft≈540 · work≈1280 · hero≈1920 + stronger detailer. "
+            "See docs/ltx23_quality_research_and_improvement.md"
+        ),
+    )
+    p.add_argument(
+        "--list-ltx-profiles",
+        action="store_true",
+        help="Print LTX quality profiles and exit",
+    )
+    p.add_argument(
+        "--format",
+        dest="format_id",
+        default=None,
+        help="Aspect format id (cinematic_16x9, shorts_9x16, …) for LTX profile sizing",
     )
     p.add_argument("--output", "-o", default=None)
     p.add_argument(
@@ -1447,6 +1574,8 @@ def main(argv=None) -> int:
         trim_start_sec=float(args.trim_start or 0.0),
         face_stability=args.face_stability,
         detailer_strength=args.detailer_strength,
+        ltx_profile=args.ltx_profile,
+        format_id=args.format_id,
     )
     if r.get("ok"):
         print(f"OK {r.get('output_path') or '(dry-run)'}")

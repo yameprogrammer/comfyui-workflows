@@ -1,5 +1,10 @@
 # WAN 2.2 워크플로 팩 — 선별 가이드 (agent_custom)
 
+> **Toolbox shelf:** MOTION · FINISH (face/upscale helpers)  
+> **CLI:** `generate_i2v --backend wan22` · `generate_wan22_face_enhance` · `generate_wan22_upscale`  
+> **Alternatives:** quality default I2V → LTX `generate_i2v` · easy MoE UI → `generate_yaw_wan22`  
+> **Catalog:** [docs/tool_catalog.md](../../docs/tool_catalog.md) §2.4 · §2.6
+
 **소스 원본:** `F:\ComfyUI_workflows\WAN 2.2 *.json`  
 **Human SSOT (이 폴더):** 검증·재export용 UI 스냅샷  
 **Agent 실행:** `workflows/agent/presets/*.api.json` + port patch (가능 시)

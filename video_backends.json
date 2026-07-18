@@ -4,7 +4,7 @@
   "default_backend": "ltx23_aio_i2v",
   "default_backend_s2v": "ltx23_aio",
   "default_format": "cinematic_16x9",
-  "default_work_preset": "work_16x9_540",
+  "default_work_preset": "work_16x9_720",
   "default_deliver_tier": "deliver_1080",
   "formats": {
     "cinematic_16x9": {
@@ -15,9 +15,9 @@
         "cinema",
         "web_horizontal"
       ],
-      "default_work_preset": "work_16x9_540",
+      "default_work_preset": "work_16x9_720",
       "default_deliver_tier": "deliver_1080",
-      "notes": "Wide landscape; common default when no format specified"
+      "notes": "Wide landscape; default work = 720p (2026-07-18)"
     },
     "shorts_9x16": {
       "aspect": "9:16",
@@ -28,9 +28,9 @@
         "tiktok",
         "stories"
       ],
-      "default_work_preset": "work_9x16_540",
+      "default_work_preset": "work_9x16_720",
       "default_deliver_tier": "deliver_1080",
-      "notes": "Vertical short-form"
+      "notes": "Vertical short-form; default work = 720 short-edge"
     },
     "classic_4x3": {
       "aspect": "4:3",
@@ -40,9 +40,9 @@
         "presentation",
         "retro"
       ],
-      "default_work_preset": "work_4x3_540",
+      "default_work_preset": "work_4x3_720",
       "default_deliver_tier": "deliver_1080",
-      "notes": "Traditional 4:3 landscape"
+      "notes": "Traditional 4:3 landscape; default work 720p-class"
     },
     "portrait_3x4": {
       "aspect": "3:4",
@@ -52,9 +52,9 @@
         "print_like",
         "app_vertical"
       ],
-      "default_work_preset": "work_3x4_540",
+      "default_work_preset": "work_3x4_720",
       "default_deliver_tier": "deliver_1080",
-      "notes": "Soft vertical (less tall than 9:16)"
+      "notes": "Soft vertical (less tall than 9:16); default work 720p-class"
     },
     "square_1x1": {
       "aspect": "1:1",
@@ -63,9 +63,9 @@
         "feed_square",
         "smoke_test"
       ],
-      "default_work_preset": "work_1x1_smoke",
+      "default_work_preset": "work_1x1_720",
       "default_deliver_tier": "deliver_1080",
-      "notes": "Square; also used for legacy smoke tests"
+      "notes": "Square feed; smoke still has work_1x1_smoke"
     }
   },
   "deliver_aliases": {
@@ -90,42 +90,70 @@
       "height": 544,
       "aspect": "16:9",
       "stage": "work",
-      "notes": "default work for cinematic_16x9; 960x544 (not 540) so H%16==0 for Wan I2V"
+      "notes": "legacy/fast work (~540 short); draft/scout. Default is work_16x9_720."
     },
     "work_16x9_720": {
       "width": 1280,
       "height": 720,
       "aspect": "16:9",
       "stage": "work",
-      "notes": "higher quality when VRAM allows"
+      "notes": "DEFAULT work (2026-07-18): 720p cinematic; H/W friendly for LTX/Wan"
     },
     "work_9x16_540": {
       "width": 544,
       "height": 960,
       "aspect": "9:16",
       "stage": "work",
-      "notes": "vertical shorts work; W multiple of 16 for Wan"
+      "notes": "vertical fast/legacy; default is work_9x16_720"
+    },
+    "work_9x16_720": {
+      "width": 720,
+      "height": 1280,
+      "aspect": "9:16",
+      "stage": "work",
+      "notes": "DEFAULT shorts work: 720 short-edge / 1280 long"
     },
     "work_4x3_540": {
       "width": 720,
       "height": 544,
       "aspect": "4:3",
       "stage": "work",
-      "notes": "classic 4:3 work (~short edge 544, multiple of 16)"
+      "notes": "classic 4:3 fast/legacy (~short edge 544)"
+    },
+    "work_4x3_720": {
+      "width": 960,
+      "height": 720,
+      "aspect": "4:3",
+      "stage": "work",
+      "notes": "DEFAULT 4:3 work 720p-class (short edge 720)"
     },
     "work_3x4_540": {
       "width": 544,
       "height": 720,
       "aspect": "3:4",
       "stage": "work",
-      "notes": "portrait 3:4 work; W multiple of 16 for Wan"
+      "notes": "portrait 3:4 fast/legacy"
+    },
+    "work_3x4_720": {
+      "width": 720,
+      "height": 960,
+      "aspect": "3:4",
+      "stage": "work",
+      "notes": "DEFAULT 3:4 work 720p-class"
     },
     "work_1x1_smoke": {
       "width": 640,
       "height": 640,
       "aspect": "1:1",
       "stage": "work",
-      "notes": "square smoke / feed"
+      "notes": "square smoke / fastest"
+    },
+    "work_1x1_720": {
+      "width": 720,
+      "height": 720,
+      "aspect": "1:1",
+      "stage": "work",
+      "notes": "DEFAULT square work 720"
     },
     "deliver_16x9_1080": {
       "width": 1920,
@@ -171,6 +199,13 @@
       "deprecated": true,
       "alias_tier": "deliver_1080",
       "notes": "DEPRECATED"
+    },
+    "work_16x9_1080": {
+      "width": 1920,
+      "height": 1088,
+      "aspect": "16:9",
+      "stage": "work",
+      "notes": "high-quality work; 1920x1088 so H%16==0 for Wan/LTX"
     }
   },
   "backends": {
@@ -464,5 +499,62 @@
       "WAN GGUF 4–6step lightx2v looks sharper freeze-frame but flatter motion"
     ],
     "wan22_role": "fallback / FLF experiment / low-VRAM only — not quality default"
+  },
+  "ltx_quality_profiles": {
+    "description": "Agent LTX draft/work/hero tiers. Default work = 720p (2026-07-18). Research: docs/ltx23_quality_research_and_improvement.md. CLI: --ltx-profile",
+    "default": "work",
+    "profiles": {
+      "draft": {
+        "summary": "빠른 탐색 · ~540 work · 짧은 클립",
+        "longer_edge": 960,
+        "work_preset_16x9": "work_16x9_540",
+        "work_preset_9x16": "work_9x16_540",
+        "fps": 24,
+        "face_stability": true,
+        "detailer_strength": 0.5,
+        "max_pure_i2v_sec": 3.0,
+        "prefer_speed": true,
+        "notes": "scout/fast only; not default deliver quality",
+        "detailer_on": true,
+        "distill_strength": 0.75,
+        "upscale_ic_on": true,
+        "upscale_ic_strength": 0.4,
+        "omni_strength": 0.4
+      },
+      "work": {
+        "summary": "에이전트 실무 기본 = 720p 생성",
+        "longer_edge": 1280,
+        "work_preset_16x9": "work_16x9_720",
+        "work_preset_9x16": "work_9x16_720",
+        "fps": 24,
+        "face_stability": true,
+        "detailer_strength": 0.55,
+        "max_pure_i2v_sec": 5.0,
+        "prefer_speed": false,
+        "notes": "DEFAULT: Q6+720p+2-stage; distill 0.7 · detailer 0.55 · upscale IC 0.45",
+        "detailer_on": true,
+        "distill_strength": 0.7,
+        "upscale_ic_on": true,
+        "upscale_ic_strength": 0.45,
+        "omni_strength": 0.45
+      },
+      "hero": {
+        "summary": "히어로 ~1080 work 급 (느림 · 소수 컷)",
+        "longer_edge": 1920,
+        "work_preset_16x9": "work_16x9_1080",
+        "work_preset_9x16": "work_9x16_720",
+        "fps": 24,
+        "face_stability": true,
+        "detailer_strength": 0.62,
+        "max_pure_i2v_sec": 4.0,
+        "prefer_speed": false,
+        "notes": "Above default 720p; short clips; optional SeedVR2 after",
+        "detailer_on": true,
+        "distill_strength": 0.65,
+        "upscale_ic_on": true,
+        "upscale_ic_strength": 0.5,
+        "omni_strength": 0.5
+      }
+    }
   }
 }

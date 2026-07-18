@@ -1,6 +1,27 @@
 {
   "version": 2,
-  "description": "Tool aliases for agent CLIs. Human-readable selection guide: docs/tool_catalog.md (features, when to use, how to call). This JSON is the machine index only.",
+  "description": "Machine index of tool aliases/presets. Agent selection is intent-first (toolbox), not a fixed production line. Human guide: docs/tool_catalog.md (shelves: GENERATE/TRANSFORM/CAMERA/MOTION/VOICE/FINISH/ASSETS/BUNDLE). Entry: TOOLS.md. Episode/character package helpers are optional recipes, not prerequisites.",
+  "toolbox": {
+    "model": "intent_shelves",
+    "entry": "TOOLS.md",
+    "catalog_ssot": "docs/tool_catalog.md",
+    "intent_search_cli": "scripts/tool_intent.py",
+    "intent_index": "lib/tool_intent.py",
+    "shelves": [
+      "GENERATE",
+      "TRANSFORM",
+      "CAMERA",
+      "MOTION",
+      "VOICE",
+      "FINISH",
+      "ASSETS",
+      "BUNDLE"
+    ],
+    "optional_rails": [
+      "stories_episode_helpers",
+      "character_location_look_packages"
+    ]
+  },
   "workflows": {
     "t2i_moody": {
       "file": "_legacy/T2I-moody.json",
@@ -126,10 +147,58 @@
       "format": "api",
       "role": "video_upscale",
       "status": "ready_experimental",
-      "notes": "GGUF remapped; opt-in only. Default deliver still rtx_vsr.",
+      "notes": "GGUF remapped; opt-in only. Default still deliver = esrgan styles.",
       "scripts": [
         "scripts/generate_wan22_upscale.py"
       ]
+    },
+    "ups_image_esrgan": {
+      "file": "presets/ups_image_esrgan.api.json",
+      "ports": "presets/ups_image_esrgan.ports.json",
+      "format": "api",
+      "role": "image_upscale",
+      "family": "upscale",
+      "status": "ready",
+      "description": "FAST still upscale — ESRGAN family with photo/anime style models under F:\\model\\upscale_models",
+      "human_ui": "workflows/human/image_upscale_dual/image_upscale_dual.json",
+      "guide": "workflows/human/image_upscale_dual/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/image_upscale_dual/CAPABILITIES.json",
+      "used_by": [
+        "scripts/upscale_image.py"
+      ]
+    },
+    "ups_image_seedvr2": {
+      "file": "presets/ups_image_seedvr2.api.json",
+      "ports": "presets/ups_image_seedvr2.ports.json",
+      "format": "api",
+      "role": "image_upscale_hero",
+      "family": "upscale",
+      "status": "ready",
+      "description": "HERO still upscale — SeedVR2 7B FP8 via Comfy nodes (weights F:\\model\\SEEDVR2)",
+      "human_ui": "workflows/human/image_upscale_dual/image_upscale_dual.json",
+      "guide": "workflows/human/image_upscale_dual/AGENT_GUIDE.md",
+      "used_by": [
+        "scripts/upscale_image.py"
+      ]
+    },
+    "image_upscale_dual": {
+      "file": null,
+      "format": "ui_pack",
+      "role": "image_upscale",
+      "family": "upscale",
+      "status": "ready",
+      "description": "Dual-lane still upscale pack: FAST ESRGAN styles + HERO SeedVR2",
+      "source_ui": "workflows/human/image_upscale_dual/image_upscale_dual.json",
+      "guide": "workflows/human/image_upscale_dual/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/image_upscale_dual/CAPABILITIES.json",
+      "agent_presets": [
+        "ups_image_esrgan",
+        "ups_image_seedvr2"
+      ],
+      "used_by": [
+        "scripts/upscale_image.py"
+      ],
+      "notes": "Research 2025-2026 community best: UltraSharp/AnimeSharp/RealWebPhoto + SeedVR2 hero"
     },
     "wan22_upscale_face_enhance": {
       "file": null,
@@ -327,6 +396,184 @@
       "scripts": [
         "scripts/run_workflow_api.py"
       ]
+    },
+    "character_consistency": {
+      "file": null,
+      "format": "orchestrator",
+      "role": "character_identity_stills",
+      "family": "zimage",
+      "status": "ready",
+      "description": "Research-backed character consistency stills: lock/soft/remix/anchor/pack/angle/pose. Orchestrates Lonecat I2I identity, T2I anchor, Qwen angle, Fun Union ControlNet.",
+      "purpose": "Keep the same person across scenes/expressions/wardrobe/angles without free-T2I drift",
+      "runner": "lib/character_consistency.py",
+      "guide": "workflows/human/character_consistency/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/character_consistency/CAPABILITIES.json",
+      "research": "docs/character_consistency_research.md",
+      "used_by": [
+        "scripts/generate_character_consistent.py"
+      ],
+      "backends": [
+        "lonecat_i2i_identity",
+        "lonecat_t2i_turbo",
+        "qwen_multiangle_image",
+        "zimage_fun_union_controlnet"
+      ],
+      "notes": "Policy tool (not a new Comfy graph). Identity ladder from public ComfyUI practice + factory denoise caps."
+    },
+    "motion_presets": {
+      "file": null,
+      "format": "policy",
+      "role": "i2v_motion_intent",
+      "status": "ready",
+      "description": "I2V motion intent library (idle, push_in, pan, talk_gesture, …). First-class CLI: generate_camera_move; also generate_i2v/episode_i2v --motion-preset.",
+      "runner": "lib/motion_presets.py",
+      "used_by": [
+        "scripts/generate_camera_move.py",
+        "scripts/generate_i2v.py",
+        "scripts/episode_i2v.py"
+      ],
+      "shelf": "MOTION"
+    },
+    "camera_move": {
+      "file": null,
+      "format": "orchestrator",
+      "role": "camera_motion_i2v",
+      "status": "ready",
+      "description": "Camera/motion-intent I2V wrapper. --preset push_in|pan_left|idle|… → generate_i2v on Comfy.",
+      "purpose": "Agent-friendly camera move without freehand motion prose",
+      "runner": "lib/motion_presets.py",
+      "guide": "workflows/human/camera_move/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/camera_move/CAPABILITIES.json",
+      "used_by": [
+        "scripts/generate_camera_move.py"
+      ],
+      "shelf": "MOTION",
+      "backends": [
+        "generate_i2v"
+      ],
+      "notes": "Same preset ids as generate_i2v --motion-preset and shot.motion_preset"
+    },
+    "idle_loop": {
+      "file": null,
+      "format": "orchestrator",
+      "role": "idle_and_loop_video",
+      "status": "ready",
+      "description": "Idle micro-motion I2V + loop packaging: idle | pingpong (seamless reverse) | roundtrip (FLF return).",
+      "purpose": "Breathing/wait loops for B-roll and ambient character holds",
+      "runner": "lib/idle_loop.py",
+      "guide": "workflows/human/idle_loop/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/idle_loop/CAPABILITIES.json",
+      "used_by": [
+        "scripts/generate_idle_loop.py"
+      ],
+      "shelf": "MOTION",
+      "backends": [
+        "generate_i2v",
+        "ffmpeg"
+      ],
+      "notes": "Default mode=pingpong for reliable seamless loops. roundtrip needs FLF backend."
+    },
+    "tool_intent_router": {
+      "file": null,
+      "format": "discovery",
+      "role": "intent_to_cli_search",
+      "status": "ready",
+      "description": "Search which factory CLI matches agent intent (keywords KO/EN). No Comfy. lib/tool_intent.py + scripts/tool_intent.py",
+      "purpose": "Agent asks what tool to use; returns ranked CLI cards",
+      "runner": "lib/tool_intent.py",
+      "used_by": [
+        "scripts/tool_intent.py"
+      ],
+      "shelf": "META",
+      "notes": "Human SSOT remains docs/tool_catalog.md; this is machine search over intent index"
+    },
+    "dance_ref": {
+      "file": null,
+      "format": "orchestrator",
+      "role": "dance_reference_motion",
+      "status": "ready",
+      "description": "One-shot dance/ref motion: character still + optional dance video. Default V2V intent=motion; i2v dance styles without video.",
+      "purpose": "Retarget reference choreography/gesture onto channel character still",
+      "runner": "lib/dance_ref.py",
+      "guide": "workflows/human/dance_ref/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/dance_ref/CAPABILITIES.json",
+      "research": "docs/dance_challenge_pipeline_design.md",
+      "used_by": [
+        "scripts/generate_dance_ref.py"
+      ],
+      "shelf": "MOTION",
+      "backends": [
+        "generate_v2v",
+        "generate_i2v"
+      ],
+      "notes": "v1 one-shot only. Full multi-shot dance challenge pipe remains design doc."
+    },
+    "reframe_shot_size": {
+      "file": null,
+      "format": "local_geometry",
+      "role": "still_reframe",
+      "status": "ready",
+      "description": "Shot-size reframe (wide/MCU/CU) via PIL crop/zoom. No Comfy. generate_reframe.py",
+      "runner": "lib/reframe.py",
+      "used_by": [
+        "scripts/generate_reframe.py"
+      ],
+      "shelf": "CAMERA"
+    },
+    "ref_pack_lite": {
+      "file": null,
+      "format": "orchestrator",
+      "role": "identity_ref_pack",
+      "status": "ready",
+      "description": "One-shot identity ref pack from a single face (no characters/ package). Profiles copy|quick|default|full. Writes manifest.primary_ref + contact sheet.",
+      "purpose": "Quick shared identity board for lock/i2v/style without cast pipeline",
+      "runner": "lib/ref_pack.py",
+      "guide": "workflows/human/ref_pack/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/ref_pack/CAPABILITIES.json",
+      "used_by": [
+        "scripts/generate_ref_pack.py"
+      ],
+      "shelf": "TRANSFORM",
+      "backends": [
+        "lonecat_i2i_identity",
+        "qwen_multiangle_image"
+      ],
+      "notes": "Optional ASSETS-lite. Not a characters/ SSOT. Use primary_ref as -i downstream."
+    },
+    "viewpoint_camera": {
+      "file": null,
+      "format": "orchestrator",
+      "role": "camera_viewpoint",
+      "status": "ready",
+      "description": "Depth/viewpoint exaggeration (high/low/bird/worm eye, wide/tight) via Qwen multi-angle h/v/zoom or instruction edit.",
+      "runner": "lib/viewpoint.py",
+      "guide": "workflows/human/viewpoint/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/viewpoint/CAPABILITIES.json",
+      "research": "docs/viewpoint_research.md",
+      "used_by": ["scripts/generate_viewpoint.py"],
+      "shelf": "CAMERA",
+      "backends": ["qwen_multiangle_image", "qwen_edit_2509"]
+    },
+    "style_transfer": {
+      "file": null,
+      "format": "orchestrator",
+      "role": "image_style_transfer",
+      "status": "ready",
+      "description": "Content-preserving style transfer: Qwen multi-ref (style image) or named presets / look cores. Optional Lonecat I2I engine.",
+      "purpose": "Photo→anime/paint/comic/noir or moodboard style ref without full IPA/Flux InstantStyle stack",
+      "runner": "lib/style_transfer.py",
+      "guide": "workflows/human/style_transfer/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/style_transfer/CAPABILITIES.json",
+      "research": "docs/style_transfer_research.md",
+      "used_by": [
+        "scripts/generate_style_transfer.py"
+      ],
+      "shelf": "TRANSFORM",
+      "backends": [
+        "qwen_edit_2509",
+        "lonecat_i2i_identity"
+      ],
+      "notes": "Default Qwen instruction/multi-image. Research: Qwen edit style tutorials + IPAdapter lineage (not default graph)."
     },
     "krea2_i2i_v10": {
       "file": "presets/krea2_i2i_v10.api.json",

@@ -10,8 +10,10 @@ import json
 import sys
 
 from lib.failure_notes import (
+    before_gen_checklist,
     create_note,
     format_note_brief,
+    format_note_prevention,
     list_notes,
     load_tags,
     rebuild_index,
@@ -68,11 +70,49 @@ def cmd_search(args: argparse.Namespace) -> int:
     if not notes:
         print("No matching failure notes.")
         print("Tip: python scripts/failure_note.py list --limit 20")
+        print("Tip: python scripts/failure_note.py before \"freeze OR feet\"")
         return EXIT_OK
     print(f"matches={len(notes)}")
     for n in notes:
         print(format_note_brief(n))
         print("---")
+    return EXIT_OK
+
+
+def cmd_before(args: argparse.Namespace) -> int:
+    """Before-gen preflight: print prevention first (mistake prevention)."""
+    q = " ".join(args.query) if args.query else None
+    notes = before_gen_checklist(q, limit=args.limit)
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "mode": "before_gen",
+                    "query": q,
+                    "count": len(notes),
+                    "notes": notes,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return EXIT_OK
+    print("=== BEFORE GEN — prior agent failures (do not repeat) ===")
+    if q:
+        print(f'query: "{q}"')
+    else:
+        print("query: (recent high/critical)")
+    print("")
+    if not notes:
+        print("No matching notes. Proceed carefully; still open files for QA.")
+        print("After FAIL: python scripts/failure_note.py add ...")
+        return EXIT_OK
+    for n in notes:
+        print(format_note_prevention(n))
+        print("---")
+    print("")
+    print("Adopt PREVENT lines before generate. After FAIL → failure_note.py add")
+    print("Docs: docs/failure_notes_system.md · Rule 7.4")
     return EXIT_OK
 
 
@@ -142,6 +182,19 @@ def main(argv=None) -> int:
     p_se.add_argument("--limit", type=int, default=20)
     p_se.add_argument("--json", action="store_true")
     p_se.set_defaults(func=cmd_search)
+
+    p_bf = sub.add_parser(
+        "before",
+        help="Before-gen preflight: search notes, print PREVENT first (mistake prevention)",
+    )
+    p_bf.add_argument(
+        "query",
+        nargs="*",
+        help='Keywords e.g. freeze feet framing (empty = recent high/critical)',
+    )
+    p_bf.add_argument("--limit", type=int, default=8)
+    p_bf.add_argument("--json", action="store_true")
+    p_bf.set_defaults(func=cmd_before)
 
     p_li = sub.add_parser("list", help="List recent notes")
     p_li.add_argument("--limit", type=int, default=20)

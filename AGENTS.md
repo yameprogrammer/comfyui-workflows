@@ -4,19 +4,24 @@ This is **not** your film project folder and **not** a fixed production line.
 It is a **collection of media tools** (still / edit / I2V / TTS / …) driven by local ComfyUI.
 
 ```text
-Project owns story & pipeline  →  pick tools from the catalog  →  call scripts/
+Your goal (the video you need)
+  → pick intents from the catalog shelves (GENERATE / TRANSFORM / MOTION / …)
+  → call scripts/ as you like, in any order that fits the job
+  → copy outputs into YOUR project
 ```
 
 | Do | Don’t |
 |----|--------|
-| Start at **[docs/tool_catalog.md](docs/tool_catalog.md)** or **[TOOLS.md](TOOLS.md)** | Treat CREATIVE→assemble as mandatory for every job |
-| Read **when / when not** + CLI, then call one tool | Ignore per-tool limits (mask, VRAM, 18+, ref length) |
+| Start at **[TOOLS.md](TOOLS.md)** or `python scripts/tool_intent.py "…"`, then **[docs/tool_catalog.md](docs/tool_catalog.md)** | Treat CREATIVE→assemble as mandatory for every job |
+| Match **intent → tool** (`tool_intent` search or catalog shelves); read when / when not + CLI | Ignore per-tool limits (mask, VRAM, 18+, ref length) |
+| Before heavy gen: `python scripts/failure_note.py before "…"`; on FAIL: `failure_note.py add` | Repeat known factory failures (freeze, feet, mass approve, …) |
+| Combine tools freely for *this* video | Assume character package / QA gate is required for one-off cuts |
 | Copy results into **your** project | Leave “finished” work only here if you have a consumer workspace |
 | Use `stories/` + approve + assemble **only if you choose that recipe** | Confuse optional episode helpers with “the only way” |
 
 **Provider vs consumer:** we maintain tools + specs; **you pick wisely for your project.**
 
-Maintainers: [agent_rules.md](agent_rules.md) · history: [process.md](process.md)
+Catalog SSOT: intent-first **[docs/tool_catalog.md](docs/tool_catalog.md)** · Maintainers: [agent_rules.md](agent_rules.md) · history: [process.md](process.md)
 
 ---
 

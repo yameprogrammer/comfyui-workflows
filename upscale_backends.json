@@ -1,12 +1,14 @@
 {
-  "version": 1,
-  "description": "Image/video upscale SSOT for RTX 4090. Deliver tiers are short-edge only (deliver_1080/1440/2160); pair with episode format aspect from video_backends.json. Legacy deliver_16x9_1080 → deliver_1080 via video_backends.deliver_aliases.",
+  "version": 3,
+  "description": "Image/video upscale SSOT for RTX 4090. Deliver tiers are short-edge only (deliver_1080/1440/2160). Still styles map ESRGAN models under F:\\model\\upscale_models. SeedVR2 weights under F:\\model\\SEEDVR2. Agent selection: scripts/upscale_recommend.py + lib/upscale_backends.recommend_upscale.",
   "hardware_profile": "rtx4090",
-  "default_backend": "rtx_vsr",
+  "default_backend": "esrgan",
   "default_preset": "deliver_1080",
+  "default_style": "photo",
   "comfy_python": "F:\\ComfyUI_windows_portable\\python_embeded\\python.exe",
   "seedvr2_cli": "F:\\ComfyUI_windows_portable\\ComfyUI\\custom_nodes\\seedvr2_videoupscaler\\inference_cli.py",
-  "seedvr2_model_dir": "F:\\ComfyUI_windows_portable\\ComfyUI\\models\\SEEDVR2",
+  "seedvr2_model_dir": "F:\\model\\SEEDVR2",
+  "upscale_models_dir": "F:\\model\\upscale_models",
   "presets": {
     "deliver_720": {
       "short_edge": 720,
@@ -29,45 +31,113 @@
       "notes": "4K master (optional)"
     }
   },
+  "styles": {
+    "photo": {
+      "model": "4xRealWebPhoto_v4_dat2.pth",
+      "domain": "photoreal",
+      "notes": "Best default photoreal / web-photo stills (local inventory pick)",
+      "when": "실사·웹포토 키프레임 기본 FAST"
+    },
+    "photo_sharp": {
+      "model": "4x-UltraSharp.pth",
+      "domain": "photoreal",
+      "notes": "Community favorite general sharp (UltraSharp)",
+      "when": "더 날카로운 실사 디테일 (피부 과샤프 주의)"
+    },
+    "anime": {
+      "model": "4x-AnimeSharp.pth",
+      "domain": "anime",
+      "notes": "Kim2091 AnimeSharp — linework / cel / Illustrious stills",
+      "when": "애니·일루스·라인아트 기본"
+    },
+    "anime_fast": {
+      "model": "RealESRGAN_x4plus_anime_6B.pth",
+      "domain": "anime",
+      "notes": "Lighter/faster anime RealESRGAN 6B",
+      "when": "애니 배치 대량·속도 우선"
+    },
+    "general": {
+      "model": "4x_NMKD-Siax_200k.pth",
+      "domain": "general",
+      "notes": "Balanced general sharp",
+      "when": "도메인 애매·혼합 소스"
+    },
+    "remacri": {
+      "model": "4x_foolhardy_Remacri.pth",
+      "domain": "general",
+      "notes": "Remacri — softer detail, less harsh",
+      "when": "과샤프 피하고 부드럽게"
+    },
+    "realesrgan": {
+      "model": "RealESRGAN_x4plus.pth",
+      "domain": "photoreal",
+      "notes": "Classic RealESRGAN x4plus",
+      "when": "호환성·레거시 비교 A/B"
+    }
+  },
   "backends": {
     "esrgan": {
       "status": "ready",
-      "media": [
-        "image",
-        "video"
-      ],
+      "media": ["image", "video"],
       "kind": "cnn",
       "speed": "fast",
       "quality": "good",
       "runner": "comfy_api",
       "model_name": "4xRealWebPhoto_v4_dat2.pth",
-      "alt_models": {
-        "photo": "4xRealWebPhoto_v4_dat2.pth",
-        "general": "RealESRGAN_x4plus.pth",
-        "anime": "4x-AnimeSharp.pth",
-        "sharp": "4x_foolhardy_Remacri.pth"
-      },
-      "notes": "Stable classic 4x + ImageScale to target. Best for previews."
+      "workflow_preset": "ups_image_esrgan",
+      "human_ui": "workflows/human/image_upscale_dual/image_upscale_dual.json",
+      "notes": "Default still FAST lane. Pick model via --style. Models: F:\\model\\upscale_models.",
+      "agent": {
+        "lane": "FAST",
+        "rank_speed": 4,
+        "rank_quality": 2,
+        "rank_restore": 1,
+        "latency_class": "seconds",
+        "vram_note": "low–mid; safe for batch",
+        "domains": ["photo", "anime", "general"],
+        "source_pref": ["clean", "normal"],
+        "when": "키프레임·배치·에피소드 기본 납품 해상도 (1080 기본)",
+        "when_not": "심하게 뭉개진 소스 복원·최종 히어로 4K 마스터",
+        "best_for": [
+          "still keyframe batch",
+          "episode deliver_1080",
+          "anime linework via --style anime",
+          "preview before hero pass"
+        ],
+        "avoid_for": [
+          "fix hands/anatomy",
+          "heavy blur restoration",
+          "hero poster only (prefer seedvr2)"
+        ]
+      }
     },
     "rtx_vsr": {
-      "status": "ready",
-      "media": [
-        "image",
-        "video"
-      ],
+      "status": "optional",
+      "media": ["image", "video"],
       "kind": "hardware",
       "speed": "very_fast",
       "quality": "good_on_clean",
       "runner": "comfy_api",
       "quality_mode": "ULTRA",
-      "notes": "NVIDIA RTX Video Super Resolution. Prefer clean sources; blurry inputs → seedvr2."
+      "notes": "NVIDIA RTX Video Super Resolution when node present. Prefer clean sources.",
+      "agent": {
+        "lane": "SPEED",
+        "rank_speed": 5,
+        "rank_quality": 2,
+        "rank_restore": 1,
+        "latency_class": "seconds",
+        "vram_note": "Tensor cores; node must be loaded",
+        "domains": ["photo", "general"],
+        "source_pref": ["clean"],
+        "when": "클린 work 클립 초고속 확인·프리뷰 (노드 있을 때)",
+        "when_not": "블러·AI 아티팩트 복원 / 노드 미설치 시",
+        "best_for": ["clean I2V clip preview", "fast video deliver check"],
+        "avoid_for": ["blurry source", "anime line art preference", "batch without node"]
+      }
     },
     "seedvr2": {
       "status": "ready",
-      "media": [
-        "image",
-        "video"
-      ],
+      "media": ["image", "video"],
       "kind": "diffusion_restore",
       "speed": "slow",
       "quality": "best_default",
@@ -80,14 +150,58 @@
       "attention_mode": "sdpa",
       "blocks_to_swap": 0,
       "vae_tile_short_edge_threshold": 1440,
-      "notes": "Quality lane only (7B FP8). NOT default — ~1min+/sec of video; use for hero finals, not batch."
+      "notes": "Hero quality via official CLI. Weights F:\\model\\SEEDVR2. NOT default for batch.",
+      "agent": {
+        "lane": "HERO",
+        "rank_speed": 2,
+        "rank_quality": 4,
+        "rank_restore": 4,
+        "latency_class": "minutes",
+        "vram_note": "7B FP8; video batch 5 default; OOM → lower batch",
+        "domains": ["photo", "anime", "general"],
+        "source_pref": ["normal", "blurry", "ai_artifacts"],
+        "when": "최종 히어로 스틸·AI 클립 디테일 복원·납품 마스터 (opt-in)",
+        "when_not": "50+ 배치 기본 경로 / 구조 버그 미수정 상태",
+        "best_for": [
+          "hero still",
+          "AI I2V deliver polish",
+          "blurry source restore",
+          "poster / thumbnail master"
+        ],
+        "avoid_for": ["full episode batch default", "seconds-budget preview"]
+      }
+    },
+    "seedvr2_comfy": {
+      "status": "ready",
+      "media": ["image"],
+      "kind": "diffusion_restore",
+      "speed": "slow",
+      "quality": "best_default",
+      "runner": "comfy_api_seedvr2",
+      "dit_model": "seedvr2_ema_7b_fp8_e4m3fn_mixed_block35_fp16.safetensors",
+      "vae_model": "ema_vae_fp16.safetensors",
+      "workflow_preset": "ups_image_seedvr2",
+      "human_ui": "workflows/human/image_upscale_dual/image_upscale_dual.json",
+      "color_correction": "lab",
+      "notes": "Same SeedVR2 quality via Comfy API graph (image only).",
+      "agent": {
+        "lane": "HERO",
+        "rank_speed": 2,
+        "rank_quality": 4,
+        "rank_restore": 4,
+        "latency_class": "minutes",
+        "vram_note": "Comfy graph; image only",
+        "domains": ["photo", "anime", "general"],
+        "source_pref": ["normal", "blurry", "ai_artifacts"],
+        "when": "히어로 스틸을 Comfy API 경로로 (CLI 대신)",
+        "when_not": "영상 업스케일 (video → seedvr2 CLI)",
+        "best_for": ["still hero via Comfy session"],
+        "avoid_for": ["video"]
+      }
     },
     "seedvr2_max": {
       "status": "ready",
-      "media": [
-        "image",
-        "video"
-      ],
+      "media": ["image", "video"],
       "kind": "diffusion_restore",
       "speed": "very_slow",
       "quality": "hero",
@@ -100,63 +214,313 @@
       "attention_mode": "sdpa",
       "blocks_to_swap": 0,
       "force_vae_tiled": true,
-      "notes": "Hero/4K master. FP16 7B + VAE tiling."
+      "notes": "Hero/4K master. FP16 7B + VAE tiling.",
+      "agent": {
+        "lane": "HERO_MAX",
+        "rank_speed": 1,
+        "rank_quality": 5,
+        "rank_restore": 5,
+        "latency_class": "tens_of_minutes",
+        "vram_note": "FP16 7B + VAE tile; batch 1",
+        "domains": ["photo", "anime", "general"],
+        "source_pref": ["normal", "blurry", "ai_artifacts"],
+        "when": "최종 4K 마스터·최대 복원 1–소수 컷",
+        "when_not": "배치·프리뷰·시간 예산 부족",
+        "best_for": ["4K master still/clip", "one-off hero"],
+        "avoid_for": ["episode-wide", "preview"]
+      }
     },
     "wan22_upscale": {
       "status": "ready_experimental",
-      "media": [
-        "video"
-      ],
+      "media": ["video"],
       "kind": "wan_diffusion_upscale",
       "speed": "slow",
       "quality": "good_detail",
       "runner": "comfy_workflow_api",
       "human_ui": "workflows/human/wan22/wan22_upscale.json",
-      "notes": "WAN 2.2 UPSCALE pack (Florence2+Wan sampler). Opt-in only — not default deliver. Export API before wiring CLI.",
-      "workflow": "wan22_upscale"
+      "notes": "WAN 2.2 UPSCALE pack. Opt-in only.",
+      "workflow": "wan22_upscale",
+      "agent": {
+        "lane": "EXPERIMENTAL",
+        "rank_speed": 2,
+        "rank_quality": 3,
+        "rank_restore": 3,
+        "latency_class": "minutes",
+        "vram_note": "WAN diffusion; experimental",
+        "domains": ["photo", "general"],
+        "source_pref": ["normal", "ai_artifacts"],
+        "when": "WAN 클립 디퓨전 업스케일 실험·A/B (opt-in)",
+        "when_not": "기본 납품 경로 (esrgan/seedvr2 우선)",
+        "best_for": ["wan-native detail experiment"],
+        "avoid_for": ["default delivery", "batch"]
+      }
     },
     "wan22_upscale_face": {
       "status": "planned",
-      "media": [
-        "video"
-      ],
+      "media": ["video"],
       "kind": "wan_diffusion_upscale_face",
       "speed": "very_slow",
       "quality": "hero_face",
       "runner": "comfy_workflow_api",
       "human_ui": "workflows/human/wan22/wan22_upscale_face_enhance.json",
-      "notes": "WAN 2.2 UPSCALE + FACE ENHANCE combined. Hero polish after motion approve."
+      "notes": "WAN 2.2 UPSCALE + FACE ENHANCE. Hero polish.",
+      "agent": {
+        "lane": "EXPERIMENTAL",
+        "rank_speed": 1,
+        "rank_quality": 4,
+        "rank_restore": 4,
+        "latency_class": "tens_of_minutes",
+        "vram_note": "planned",
+        "domains": ["photo"],
+        "source_pref": ["ai_artifacts"],
+        "when": "얼굴 히어로 폴리시 (planned — 아직 기본 사용 금지)",
+        "when_not": "ready 백엔드 우선",
+        "best_for": [],
+        "avoid_for": ["production default"]
+      }
     },
     "wan22_face_enhance": {
       "status": "ready_experimental",
-      "media": [
-        "video"
-      ],
+      "media": ["video"],
       "kind": "wan_face_refine",
       "speed": "medium",
       "quality": "face_fix",
       "runner": "comfy_workflow_api",
       "human_ui": "workflows/human/wan22/wan22_face_enhance.json",
-      "notes": "Face-only refine (CLIPSeg+Wan). Use when lips/face smear after I2V; does not replace keyframe QA.",
-      "workflow": "wan22_face_enhance"
+      "notes": "Face-only refine after I2V.",
+      "workflow": "wan22_face_enhance",
+      "agent": {
+        "lane": "FACE",
+        "rank_speed": 3,
+        "rank_quality": 3,
+        "rank_restore": 3,
+        "latency_class": "minutes",
+        "vram_note": "face refine only; not full-frame upscale",
+        "domains": ["photo"],
+        "source_pref": ["ai_artifacts"],
+        "when": "I2V 후 얼굴 스미어·붕괴 수정 (해상도 키우기 아님)",
+        "when_not": "전체 프레임 업스케일만 필요 / 구조 정상 얼굴",
+        "best_for": ["post-I2V face smear"],
+        "avoid_for": ["replace esrgan/seedvr2 for resolution"]
+      }
     }
   },
   "heuristics": {
-    "preview": "rtx_vsr",
-    "default_delivery": "rtx_vsr",
-    "batch_or_episode": "rtx_vsr",
+    "preview": "esrgan",
+    "default_delivery": "esrgan",
+    "batch_or_episode": "esrgan",
+    "still_photo": "esrgan",
+    "still_anime": "esrgan",
     "hero_or_4k": "seedvr2",
     "hero_max_quality": "seedvr2_max",
     "blurry_source": "seedvr2",
-    "clean_source_fast": "rtx_vsr",
-    "notes": "Legacy measured: SeedVR2 CLI ~10min+ for ~12s work@540→1080 (unusable as default). RTX VSR/ESRGAN via Comfy for normal delivery; SeedVR2 opt-in hero only. Wan22 upscale/face packs are planned Comfy workflows — not default.",
+    "clean_source_fast": "esrgan",
+    "clean_video_hardware": "rtx_vsr",
     "face_smear_after_i2v": "wan22_face_enhance",
-    "wan_diffusion_upscale_optin": "wan22_upscale"
+    "wan_diffusion_upscale_optin": "wan22_upscale",
+    "notes": "2026-07-18: agent recommend via upscale_recommend.py. Default still/video batch = esrgan+style. SeedVR2 hero opt-in. rtx_vsr optional clean-only. Fix structure before any upscale."
   },
+  "agent_goals": {
+    "preview": {
+      "summary": "빠른 확인·러프 프리뷰",
+      "default_preset": "deliver_720",
+      "prefer_speed": true
+    },
+    "batch": {
+      "summary": "에피소드/다컷 기본 납품",
+      "default_preset": "deliver_1080",
+      "prefer_speed": true
+    },
+    "delivery": {
+      "summary": "일반 납품 1080–1440",
+      "default_preset": "deliver_1080",
+      "prefer_speed": false
+    },
+    "hero": {
+      "summary": "히어로 1컷·포스터·최종 마스터",
+      "default_preset": "deliver_1080",
+      "prefer_speed": false
+    },
+    "master_4k": {
+      "summary": "4K 마스터 (2-pass 권장)",
+      "default_preset": "deliver_2160",
+      "prefer_speed": false
+    },
+    "face_fix": {
+      "summary": "I2V 후 얼굴만 고침 (해상도 아님)",
+      "default_preset": null,
+      "prefer_speed": false
+    }
+  },
+  "agent_matrix": [
+    {
+      "id": "still_preview_photo",
+      "media": "image",
+      "goal": "preview",
+      "domain": "photo",
+      "source": "normal",
+      "backend": "esrgan",
+      "style": "photo",
+      "preset": "deliver_720",
+      "why": "초고속 실사 프리뷰"
+    },
+    {
+      "id": "still_batch_photo",
+      "media": "image",
+      "goal": "batch",
+      "domain": "photo",
+      "source": "normal",
+      "backend": "esrgan",
+      "style": "photo",
+      "preset": "deliver_1080",
+      "why": "키프레임 배치 기본 FAST"
+    },
+    {
+      "id": "still_batch_anime",
+      "media": "image",
+      "goal": "batch",
+      "domain": "anime",
+      "source": "normal",
+      "backend": "esrgan",
+      "style": "anime",
+      "preset": "deliver_1080",
+      "why": "일루스/애니 라인 유지 FAST"
+    },
+    {
+      "id": "still_delivery_photo",
+      "media": "image",
+      "goal": "delivery",
+      "domain": "photo",
+      "source": "normal",
+      "backend": "esrgan",
+      "style": "photo",
+      "preset": "deliver_1080",
+      "why": "일반 스틸 납품"
+    },
+    {
+      "id": "still_delivery_anime",
+      "media": "image",
+      "goal": "delivery",
+      "domain": "anime",
+      "source": "normal",
+      "backend": "esrgan",
+      "style": "anime",
+      "preset": "deliver_1080",
+      "why": "애니 스틸 납품"
+    },
+    {
+      "id": "still_hero_photo",
+      "media": "image",
+      "goal": "hero",
+      "domain": "photo",
+      "source": "normal",
+      "backend": "seedvr2",
+      "style": null,
+      "preset": "deliver_1080",
+      "why": "히어로 실사 복원/디테일"
+    },
+    {
+      "id": "still_hero_blurry",
+      "media": "image",
+      "goal": "hero",
+      "domain": "photo",
+      "source": "blurry",
+      "backend": "seedvr2",
+      "style": null,
+      "preset": "deliver_1080",
+      "why": "뭉개진 AI 스틸 복원"
+    },
+    {
+      "id": "still_master_4k",
+      "media": "image",
+      "goal": "master_4k",
+      "domain": "photo",
+      "source": "normal",
+      "backend": "seedvr2_max",
+      "style": null,
+      "preset": "deliver_2160",
+      "why": "4K 마스터 (소수 컷)"
+    },
+    {
+      "id": "video_preview_clean",
+      "media": "video",
+      "goal": "preview",
+      "domain": "photo",
+      "source": "clean",
+      "backend": "esrgan",
+      "style": "photo",
+      "preset": "deliver_720",
+      "alt_backend": "rtx_vsr",
+      "why": "클린 클립 빠른 확인 (rtx_vsr optional)"
+    },
+    {
+      "id": "video_batch_delivery",
+      "media": "video",
+      "goal": "batch",
+      "domain": "photo",
+      "source": "normal",
+      "backend": "esrgan",
+      "style": "photo",
+      "preset": "deliver_1080",
+      "why": "에피소드 클립 기본 납품"
+    },
+    {
+      "id": "video_delivery_blurry",
+      "media": "video",
+      "goal": "delivery",
+      "domain": "photo",
+      "source": "blurry",
+      "backend": "seedvr2",
+      "style": null,
+      "preset": "deliver_1080",
+      "why": "AI I2V 뭉개짐 복원 납품"
+    },
+    {
+      "id": "video_hero",
+      "media": "video",
+      "goal": "hero",
+      "domain": "photo",
+      "source": "normal",
+      "backend": "seedvr2",
+      "style": null,
+      "preset": "deliver_1080",
+      "why": "히어로 클립 품질"
+    },
+    {
+      "id": "video_master_4k",
+      "media": "video",
+      "goal": "master_4k",
+      "domain": "photo",
+      "source": "normal",
+      "backend": "seedvr2",
+      "style": null,
+      "preset": "deliver_2160",
+      "two_pass": true,
+      "why": "4K: 1080→2160 2-pass 권장"
+    },
+    {
+      "id": "video_face_smear",
+      "media": "video",
+      "goal": "face_fix",
+      "domain": "photo",
+      "source": "ai_artifacts",
+      "backend": "wan22_face_enhance",
+      "style": null,
+      "preset": null,
+      "why": "해상도 전 얼굴 스미어 수정; 이후 esrgan/seedvr2"
+    }
+  ],
   "two_pass_4k": {
     "enabled_default": true,
     "pass1_preset": "deliver_1080",
     "pass2_preset": "deliver_2160",
     "notes": "Community + Comfy handbook: gradual 1080 then 4K more stable than single jump."
-  }
+  },
+  "agent_hard_rules": [
+    "I2V/T2I runs at work resolution; upscale is a finish layer only.",
+    "Never use upscale to fix hands/face identity/anatomy — edit/inpaint first.",
+    "Keep aspect from format profile (16:9 / 9:16 / …).",
+    "Default batch path = esrgan + --style; SeedVR2 is hero opt-in.",
+    "4K prefer two-pass: deliver_1080 then deliver_2160 for seedvr2 family."
+  ]
 }

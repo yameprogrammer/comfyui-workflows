@@ -3,6 +3,16 @@
 Factory: Wan2.2 I2V · InfiniteTalk / LTX SI2V · episode_* batch  
 SSOT: `docs/generation_prompt_craft.md` · video-direction camera + sound_to_picture
 
+**Model-specific depth:**
+
+| Backend | Read |
+|---------|------|
+| LTX 2.3 (default `generate_i2v`) | `ltx23_video.md` — chronological events, optional audio |
+| Wan 2.2 (`generate_yaw_wan22`) | `wan22_i2v.md` — motion→camera lexicon, T2V longer form |
+| Routing | `model_prompt_matrix.md` |
+
+Shared rules below always apply; dialect files add backend flavor.
+
 ---
 
 ## 1. I2V — image defines scene

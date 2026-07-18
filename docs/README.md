@@ -1,15 +1,17 @@
 # docs/ — 설계·스펙 · 도구 문서
 
-`agent_custom` = ComfyUI **미디어 도구 모음**.  
+`agent_custom` = ComfyUI **미디어 공구함** (의도별 도구를 골라 조합).  
+고정 양산 공정 문서 모음이 **아님**.  
 실행 규칙·이력: 루트 `README.md` · `AGENTS.md` · `agent_rules.md` · `process.md`.
 
 **정리 원칙**
 
 | 구역 | 의미 |
 |------|------|
-| **도구 명세 (1순위)** | [tool_catalog.md](tool_catalog.md) — 무엇을 골라 쓸지 |
-| **활성** | 도구 계약·백엔드·옵션 레시피 SSOT |
+| **도구 명세 (1순위)** | [tool_catalog.md](tool_catalog.md) — **의도 선반** · 무엇을 골라 쓸지 |
+| **활성** | 도구 계약·백엔드 SSOT |
 | **참고** | 설계 배경. 충돌 시 **코드 + tool_catalog** 우선 |
+| **옵션 레일** | 에피소드/`stories/` · 캐릭 패키지 — **쓸 때만** |
 | **`archive/`** | 만료 세션·일회성 — [archive/README.md](archive/README.md) |
 
 ---
@@ -18,8 +20,11 @@
 
 | 우선 | 문서 | 역할 | 상태 |
 |------|------|------|------|
-| **0** | **[tool_catalog.md](tool_catalog.md)** · [../TOOLS.md](../TOOLS.md) | **도구 특징·사용법·선택 트리 (제공 SSOT)** | ✅ **입구** |
-| 1 | [agent_consumer_workspace_contract.md](agent_consumer_workspace_contract.md) | 도구 레포 vs 프로젝트 작업대 · export | ✅ |
+| **0** | **[tool_catalog.md](tool_catalog.md)** · [../TOOLS.md](../TOOLS.md) | **의도→CLI 공구함 SSOT** (GENERATE/TRANSFORM/MOTION…) | ✅ **입구** |
+| 0b | [toolbox_shot_fields.md](toolbox_shot_fields.md) | 옵션 샷 필드 (`motion_preset` 등) · ref_pack/reframe | ✅ |
+| 0c | [style_transfer_research.md](style_transfer_research.md) | 스타일 전이 리서치 → `generate_style_transfer` | ✅ |
+| 0d | [toolbox_card_standard.md](toolbox_card_standard.md) | 한 줄 예시 + 실패 시 대안 카드 표준 | ✅ |
+| 1 | [agent_consumer_workspace_contract.md](agent_consumer_workspace_contract.md) | 공구함 vs 프로젝트 작업대 · export | ✅ |
 | 2 | [video_delivery_and_backends.md](video_delivery_and_backends.md) | format / work·deliver / I2V 백엔드 | ✅ |
 | 3 | [generation_prompt_craft.md](generation_prompt_craft.md) | 프롬프트 품질 (쓸 때) | ✅ |
 | 4 | [failure_notes_system.md](failure_notes_system.md) | 실패 노트 공유 | ✅ |
@@ -27,16 +32,17 @@
 | 6 | [comfy_memory_and_model_switching.md](comfy_memory_and_model_switching.md) | VRAM · 모델 전환 | ✅ |
 | — | [agent_video_tooling_todo.md](agent_video_tooling_todo.md) | 툴 백로그 | 📋 |
 
-### 옵션 — 에피소드/`stories/` 레일을 쓸 때만
+### 옵션 — 에피소드/`stories/` 레일 또는 장기 자산을 **쓸 때만**
 
 | 문서 | 역할 |
 |------|------|
-| [../skills/video-direction/SKILL.md](../skills/video-direction/SKILL.md) | 연출 스킬 |
+| [../skills/video-direction/SKILL.md](../skills/video-direction/SKILL.md) | 연출 스킬 (장편·뮤비 기획 시) |
 | [video_director_master_persona.md](video_director_master_persona.md) | 컷 문법 |
 | [image_cut_verification_gate.md](image_cut_verification_gate.md) | 키프레임·클립 QA |
 | [production_asset_pipeline.md](production_asset_pipeline.md) | 캐릭·로케·스토리 통합 지도 |
 | [audio_motion_production_modes.md](audio_motion_production_modes.md) | SI2V · mix |
 | [creative_brief_autonomy_design.md](creative_brief_autonomy_design.md) | 기획 SOP (선택) |
+| [character_casting_pipeline.md](character_casting_pipeline.md) | 캐릭 패키지 A→B→C (자산 쌓을 때) |
 
 ---
 
@@ -66,8 +72,12 @@
 | [ideogram4_typography_tool.md](ideogram4_typography_tool.md) | Ideogram 4 타이포/간판/타이틀 카드 (전 구간 T2I 아님) | ✅ 1차 |
 | [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md) | LTX AIO 백엔드 매핑 | ✅ |
 | [ltx23_aio_ia2v_agent_usage.md](ltx23_aio_ia2v_agent_usage.md) | LTX IA2V 에이전트 사용법 | ✅ |
+| [ltx23_quality_research_and_improvement.md](ltx23_quality_research_and_improvement.md) | LTX 품질 리서치·갭·프로필 백로그 | ✅ |
+| [ltx_face_stability.md](ltx_face_stability.md) | LTX 얼굴 붕괴 완화 | ✅ |
+| [wan_vs_ltx_i2v_ab_2026-07-17.md](wan_vs_ltx_i2v_ab_2026-07-17.md) | Wan vs LTX I2V A/B | ✅ |
 | [comfy_memory_and_model_switching.md](comfy_memory_and_model_switching.md) | VRAM·모델 패밀리 전환 | ✅ |
 | [upscale_research_and_design.md](upscale_research_and_design.md) | ≤4K 업스케일 | ✅ |
+| [youtube_ref_ingest_research.md](youtube_ref_ingest_research.md) | 유튜브 레퍼 인제스트 · CLI 구현 | ✅ |
 | [flf2v_f2f_roadmap.md](flf2v_f2f_roadmap.md) | FLF/원테이크 이음 | ✅ chain_one_take · shot_compose --from-prev-shot |
 | [v2v_intent_pipeline_design.md](v2v_intent_pipeline_design.md) | **V2V 의도** camera/motion/style · generate_v2v | 📋 P0 · experimental |
 | [shorts_subtitles.md](shorts_subtitles.md) | 쇼츠 SRT + soft burn | ✅ |

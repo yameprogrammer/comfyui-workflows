@@ -22,8 +22,8 @@ DEFAULT_TEMPLATE = os.path.join(
     "ltx23_ia2v_from_manual_success_05473dc9.json",
 )
 
-# Manual success used longer_edge=1024, aspect 9:16 → 576x1024
-DEFAULT_LONGER_EDGE = 1024
+# Default longer_edge follows factory work=720p (1280). Legacy note: 1024/9:16 also used.
+DEFAULT_LONGER_EDGE = 1280  # factory default work = 720p class (2026-07-18)
 DEFAULT_FPS = 24
 
 

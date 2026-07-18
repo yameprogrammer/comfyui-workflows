@@ -9,7 +9,8 @@ agent_custom = ComfyUI 미디어 생성 도구 모음 (toolbox)
             ≠ 정형화된 영상 양산 공정 / 단일 파이프라인 강제
 ```
 
-* **도구 명세·선택:** [docs/tool_catalog.md](docs/tool_catalog.md)  
+* **도구 명세·선택 (의도 선반 SSOT):** [docs/tool_catalog.md](docs/tool_catalog.md) · 입구 [TOOLS.md](TOOLS.md)  
+
 * **소비자 진입:** [AGENTS.md](AGENTS.md)  
 * 각 미디어 **프로젝트**가 공정·스토리를 정하고, 여기서는 **도구를 골라** 쓴다.  
 * `stories/` + approve + assemble 은 **옵션 레시피** (프로젝트 선택 시만 Rule 7.x 게이트 적용).
@@ -37,12 +38,13 @@ agent_custom/
 
 ## 📌 소비자 에이전트 (도구만 호출할 때)
 
-1. [docs/tool_catalog.md](docs/tool_catalog.md) 에서 도구를 고른다.  
-2. cwd = `agent_custom` 루트에서 `python scripts/...` 실행.  
+1. [TOOLS.md](TOOLS.md) → [docs/tool_catalog.md](docs/tool_catalog.md) 에서 **의도 선반**을 고른다  
+   (GENERATE / TRANSFORM / CAMERA / MOTION / VOICE / FINISH · ASSETS·BUNDLE은 옵션).  
+2. when / when not · 대안 CLI 확인 후, cwd = 레포 루트에서 `python scripts/...` 실행.  
 3. 출력은 `-o` / 로컬 경로 / 또는 프로젝트로 **복사**.  
-4. 에피소드 패키지(`stories/`)를 쓸 때만 export 계약 적용:  
-   `export_episode_to_workspace.py --dest <프로젝트>`  
-5. 단일 still/I2V/inpaint 호출만으로도 **완료 가능** (전체 영상 공정 불필요).
+4. 에피소드 패키지(`stories/`)·캐릭 패키지를 **쓸 때만** 해당 계약·게이트 적용.  
+5. 단일 still / I2V / inpaint / TTS 호출만으로도 **완료 가능** (전체 영상 공정 불필요).  
+6. 스크립트 목록(선반별): [scripts/README.md](scripts/README.md).
 
 ---
 
@@ -59,6 +61,7 @@ agent_custom/
   - I2I·CN: `generate_moody_i2i*` / `generate_moody_controlnet`
   - Qwen: `generate_qwen_edit` · `generate_qwen_inpaint` · `generate_qwen_angle`
   - video: `generate_i2v` / `generate_s2v` (LTX AIO 기본, Wan fallback) · `generate_flf2v`
+  - LTX 품질 티어: `--ltx-profile draft|work|hero` (기본 work; 히어로 컷만 hero). 리서치: `docs/ltx23_quality_research_and_improvement.md`
   - NSFW video: `generate_ltx_nsfw_i2v` / `generate_ltx_nsfw_director` (18+)
   - TTS: `generate_qwen3_tts` (custom/design/**clone**) · `voice_register` — 클론 ref **≤~30s** · 감정 `--instruct` · 가이드 `workflows/human/qwen3_tts/AGENT_GUIDE.md`
   - 타이포 파이프: `generate_boogu_typo` — Boogu→Ideogram4→Krea2 (`NEWKrea2BooguIdeogram4_booguKrea2`) · 가이드 `workflows/human/NEWKrea2BooguIdeogram4_AGENT_GUIDE.md`
@@ -106,10 +109,11 @@ agent_custom/
 ### Rule 4. 경로 무결성 보존
 * ComfyUI 경로(`F:\ComfyUI_windows_portable\ComfyUI\`) 등 드라이브 하드코딩이 있다. 이전 시 주의.
 * **Comfy 미기동 시**: `lib/comfy_client.ensure_comfy_running` 이 기본 런처 bat으로 자동 기동한다.
-  - 기본 bat: `F:\ComfyUI_windows_portable\run_nvidia_gpu_fast_fp16_accumulation.bat`
-  - **기동 SSOT**: `_launch_comfy_process` 만 사용 — bat과 **동일한 명령**을 portable 루트 cwd로 실행:  
-    `python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build --fast fp16_accumulation --disable-smart-memory`  
-    (`run_nvidia_gpu_fast_fp16_accumulation.bat` 내용). `start`/`startfile`/중첩 cmd **금지**.
+  - 기본 bat: `F:\ComfyUI_windows_portable\run_nvidia_gpu.bat` (수동 기동 SSOT)
+  - **기동 SSOT**: `_launch_comfy_process` → bat **내용을 파싱**해 동일 argv 실행 (cwd = portable 루트).  
+    `run_nvidia_gpu.bat` 예:  
+    `python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build --output-directory F:\ComfyUI_data\output --input-directory F:\ComfyUI_data\input --temp-directory F:\ComfyUI_data\temp`  
+    (`--fast` / `--disable-smart-memory` **없음**). `start`/`startfile`/중첩 cmd **금지**. 다른 bat은 `AGENT_COMFY_LAUNCH_BAT`로 지정.
   - 생성 스크립트는 **`queue_prompt` / `comfy_ensure.py`** 경로만 (예: `generate_krea.py`도 동일). raw `/prompt` POST 금지.
   - 중복 기동 방지: API probe + launch lock + launch_state cooldown
   - 끄기: `AGENT_COMFY_AUTOSTART=0` · 사전 점검: `python scripts/comfy_ensure.py`
@@ -189,11 +193,11 @@ agent_custom/
 
 ### Rule 7. 영상 해상도·백엔드 규약
 * **format** = 종횡비 (`cinematic_16x9` …). 16:9 고정 아님. SSOT: `video_backends.json`.
-* **work 프리셋** = format별 픽셀 (`work_16x9_540` …). I2V 생성용.
+* **work 프리셋** = format별 픽셀 (**기본 `work_*_720`** 2026-07-18; draft/fast = `work_*_540`). I2V 생성용.
 * **deliver 티어** = 짧은 변만 (`deliver_1080` / `deliver_1440` / `deliver_2160`). SSOT: **`upscale_backends.json`**. aspect는 format이 담당.
 * 구 ID `deliver_16x9_1080` 등은 **deprecated** (`deliver_aliases` → `deliver_1080`).
-* I2V: work 해상도. 납품: `scripts/upscale_* --preset deliver_1080 --format …`.
-* 업스케일 **기본 = rtx_vsr**. seedvr2는 히어로 opt-in (실무 배치 비권장). [docs/upscale_research_and_design.md](docs/upscale_research_and_design.md).
+* I2V: work 해상도 **기본 720p** (`--ltx-profile work`; draft≈540 · hero≈1080 gen). 납품: `scripts/upscale_* --preset deliver_1080 --format …`.
+* 업스케일 **기본 = esrgan** (`--style photo|anime|…`). seedvr2는 히어로 opt-in (실무 배치 비권장). rtx_vsr은 노드 있을 때 optional. **엔진 모름 →** `python scripts/upscale_recommend.py --media … --goal …` (matrix/scenarios). 팩: [image_upscale_dual](workflows/human/image_upscale_dual/AGENT_GUIDE.md) · [docs/upscale_research_and_design.md](docs/upscale_research_and_design.md).
 * **Wan2.2 `block_swap` (BlockSwap)**: VRAM↔속도 조절. **만능 고정값 아님 — 작업 크기·VRAM에 따라 `--block-swap` 조절.**  
   일상 출발 deliver≈10 · 큰 해상/긴 클립/OOM → 20+ · 여유 시 0. 품질 스킵(Tea/Mag)과 무관.  
   SSOT: [docs/wan22_i2v_speed_research.md](docs/wan22_i2v_speed_research.md) §4.1.

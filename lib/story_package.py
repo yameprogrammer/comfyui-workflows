@@ -167,6 +167,8 @@ class StoryPackage:
                 "appearance_prompt": "",
                 "motion_prompt": fields.get("motion_prompt")
                 or "gentle natural motion, cinematic camera",
+                "motion_preset": fields.get("motion_preset")
+                or fields.get("i2v_motion_preset"),
                 "negative_motion": fields.get("negative_motion")
                 or "warp, identity morph, flicker, morphing face",
                 "board_panel": f"boards/panels/{shot_id}.png",

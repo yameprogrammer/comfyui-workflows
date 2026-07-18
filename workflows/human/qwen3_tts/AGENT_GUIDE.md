@@ -1,5 +1,10 @@
 # Qwen3-TTS 도구 가이드 (음성 복제 · 감정 · 프리셋)
 
+> **Toolbox shelf:** VOICE  
+> **CLI:** `generate_qwen3_tts` · `voice_register` · (batch) `episode_tts`  
+> **Alternatives:** no speech needed → skip · BGM only → `generate_bgm` · lip motion after TTS → `generate_s2v`  
+> **Catalog:** [docs/tool_catalog.md](../../../docs/tool_catalog.md) §2.5
+
 ComfyUI **Qwen3-TTS** 노드를 에이전트 CLI로 호출합니다.  
 이 레포의 다른 도구와 같이 **골라 쓰는 TTS 도구**이며, 영상 파이프라인 전체가 필수이지 않습니다.
 

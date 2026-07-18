@@ -1,0 +1,27 @@
+{
+  "tool": "style_transfer",
+  "cli": "scripts/generate_style_transfer.py",
+  "status": "ready",
+  "version": "1.0",
+  "shelf": "TRANSFORM",
+  "description": "Content-preserving style transfer via Qwen multi-image edit or named style presets; optional Lonecat I2I engine.",
+  "research": "docs/style_transfer_research.md",
+  "guide": "workflows/human/style_transfer/AGENT_GUIDE.md",
+  "modes": ["ref", "preset", "look"],
+  "engines": ["qwen", "i2i"],
+  "default_engine": "qwen",
+  "backends": {
+    "qwen": "generate_qwen_edit (workflow_api / multi-ref image2)",
+    "i2i": "generate_moody_i2i lonecat identity path"
+  },
+  "not_included": [
+    "SDXL IPAdapter Style graph as default",
+    "Flux InstantStyle pack",
+    "Gatys neural style transfer"
+  ],
+  "agent_policy": {
+    "prefer_qwen_for_ref": true,
+    "identity_lock_default": true,
+    "look_package_for_series_tone": true
+  }
+}

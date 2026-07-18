@@ -30,12 +30,17 @@
 
 ---
 
-## 2. 생성 전 (before-gen)
+## 2. 생성 전 (before-gen) — 실수 방지
 
-영상·캐릭·로케 본선 전:
+영상·캐릭·로케 본선 전 **반드시** 관련 교훈을 읽는다.
 
 ```bash
-# 키워드
+# 권장: PREVENT 먼저 (mistake prevention)
+python scripts/failure_note.py before "freeze OR feet OR car OR framing"
+python scripts/failure_note.py before "i2v"
+python scripts/failure_note.py before   # 최근 high/critical
+
+# 키워드 검색 (전체 필드)
 python scripts/failure_note.py search "freeze OR feet OR car"
 
 # 태그
@@ -43,9 +48,12 @@ python scripts/failure_note.py search --tag freeze_pad --tag anatomy_feet
 
 # 최근 N개
 python scripts/failure_note.py list --limit 15
+
+# 도구 고르면서 같이 보기
+python scripts/tool_intent.py "키프레임 freeze"
 ```
 
-에이전트는 검색 결과 1–3줄을 작업 메모에 남긴다 (“FN-… 예방: …”).
+에이전트는 결과의 **PREVENT** 1–3줄을 작업 메모에 남긴다 (“FN-… 예방: …”).
 
 ---
 

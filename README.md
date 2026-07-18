@@ -1,16 +1,16 @@
-# agent_custom — ComfyUI 미디어 **도구 모음**
+# agent_custom — ComfyUI 미디어 **공구함**
 
-로컬 ComfyUI를 에이전트·사람이 **CLI로 호출**하는 **도구 상자**입니다.  
+로컬 ComfyUI를 에이전트·사람이 **CLI로 호출**하는 **의도 중심 도구 상자**입니다.  
 정형화된 영상 양산 공장(한 가지 공정으로 찍어내기)이 **아닙니다.**
 
 | 이 레포 | 각 미디어 프로젝트 |
 |---------|-------------------|
 | Comfy 워크플로 + `scripts/generate_*` 도구 | 자기 스토리·파이프라인·납품 구조 |
-| 특징 명세 → **골라 씀** | 필요한 도구만 호출 |
-| `stories/` 에피소드 레일 | **옵션** (쓰면 게이트 따름) |
+| **의도 선반** → 필요한 능력만 **골라 조합** | 목표 영상에 맞게 호출 |
+| `stories/` 에피소드 레일 · 캐릭 패키지 | **옵션** (쓰면 그때의 규칙 따름) |
 
 **시작 (프로젝트 에이전트):** **[TOOLS.md](TOOLS.md)** → **[docs/tool_catalog.md](docs/tool_catalog.md)**  
-(기능·언제 씀·CLI·선택 트리 — 골라서 `scripts/generate_*.py` 호출)
+(GENERATE / TRANSFORM / MOTION … → when/when-not → `scripts/*.py`)
 
 소비자 계약: [AGENTS.md](AGENTS.md)
 

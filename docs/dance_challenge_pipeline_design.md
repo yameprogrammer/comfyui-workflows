@@ -1,7 +1,9 @@
 # 댄스 챌린지 쇼츠 공정 설계 (초안 · 미착수)
 
 - **작성**: 2026-07-14  
-- **상태**: 📋 **설계 메모 / 백로그** — 구현 전. **현재 카페 토킹 에피(`cafe_gomin_ep01`)와 별 트랙**  
+- **상태**: 📋 풀 에피 공정은 백로그 · ✅ **v1 원샷 도구** `generate_dance_ref` (2026-07-18)  
+- **원샷 CLI:** [workflows/human/dance_ref/AGENT_GUIDE.md](../workflows/human/dance_ref/AGENT_GUIDE.md) · `python scripts/generate_dance_ref.py`  
+
 - **목적**: 특정 댄스 챌린지를 **레퍼런스**로 두고, 채널 캐릭터로 정교한 9:16 쇼츠를 **반복 가능한 공장 파이프**로 만들기  
 - **관련**: [agent_video_tooling_todo.md](agent_video_tooling_todo.md) P3-1 · [audio_motion_production_modes.md](audio_motion_production_modes.md) · [production_asset_pipeline.md](production_asset_pipeline.md)
 

@@ -1,5 +1,10 @@
 # LatentHeart LTX2.3 AIO (Director) — Agent 가이드
 
+> **Toolbox shelf:** MOTION  
+> **CLI:** `python scripts/generate_ltx23_latentheart.py`  
+> **Alternatives:** simple I2V → `generate_i2v` · modular only when you need CN/detailer/upscale switches  
+> **Catalog:** [docs/tool_catalog.md](../../../docs/tool_catalog.md) §2.4
+
 **출처:** [LTX2.3 All in one SFW/NSFW — LTX Director + ID LoRA + ControlNet + Detailer + Upscaler + Interpolator](https://civitai.red/models/2553704/ltx23-all-in-one-sfw-nsfw-ltx-director-id-lora-controlnet-detailer-upscaler-interpolator)  
 **제작:** LatentHeart · base **LTXV 2.3** · v4.0 zip `LTX23_v4.zip`  
 **로컬 SSOT:**

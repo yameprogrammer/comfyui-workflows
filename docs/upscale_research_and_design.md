@@ -1,6 +1,6 @@
 # 이미지·영상 업스케일 리서치 및 에이전트 설계
 
-- **작성일**: 2026-07-11  
+- **작성일**: 2026-07-11 · **갱신**: 2026-07-17 (still dual pack + F:\model 배치)  
 - **목표**: RTX **4090 (24GB)** 로컬에서 **선택 해상도 ~4K** 까지, 품질/속도 단계별 업스케일  
 - **범위**: 웹·공식 문서·Reddit·X(SNS)·GitHub·로컬 인벤토리
 
@@ -10,13 +10,13 @@
 
 | 우선순위 | 용도 | 엔진 | 비고 |
 |----------|------|------|------|
-| **P0 기본 납품 (속도)** | 에피소드 배치·일반 납품 | **RTX VSR** (Comfy API) / 대안 **ESRGAN** | 실무 기본. ~12s work→1080 수 초~수십 초급 |
-| **P1 히어로 품질** | 최종 마스터·블러 소스 | **SeedVR2 7B** CLI (opt-in) | 품질은 좋으나 **실측 ~10분+/12s** — 기본값 금지 |
-| **P1 단계 납품** | work → 1080 → (선택) 4K | 기본은 RTX; 히어로만 SeedVR2 2-pass | |
+| **P0 기본 스틸 (속도)** | 키프레임·배치 납품 | **ESRGAN family + `--style`** | 실사 `photo` / 애니 `anime` · `F:\model\upscale_models` |
+| **P0 영상 고속 (옵션)** | 클린 클립 빠른 납품 | **RTX VSR** (노드 있을 때) | optional |
+| **P1 히어로 품질** | 최종 마스터·블러 소스 | **SeedVR2 7B** CLI/Comfy (opt-in) | `F:\model\SEEDVR2` · 기본값 금지 |
+| **P1 단계 납품** | work → 1080 → (선택) 4K | FAST→hero 2-pass | |
 | **비권장(로컬 미보유/API)** | Magnific, Topaz, HitPaw 클라우드 | 품질 참고용 | 로컬 에이전트 SSOT 밖 |
 
-**실측 (2026-07-11, mina_cafe_ep01 ~12s / 4090):** SeedVR2 CLI 기본 레인으로는 납품 불가 수준 지연. `default_backend` = **`rtx_vsr`**.
-
+**갱신 (2026-07-17):** still `default_backend` = **`esrgan`** + style. 팩 **`image_upscale_dual`**. SeedVR2는 히어로.
 **불변 규칙**
 
 1. I2V/T2I는 **work 해상도**에서 돌리고, 업스케일은 **마감 층**.  
@@ -85,16 +85,54 @@
 ```text
 속도 ──────────────────────────────────────── 품질/복원
 ESRGAN 4x    RTX VSR ULTRA    SeedVR2 7B FP8    SeedVR2 7B FP16
-(프리뷰)      (클린 소스 고속)   (기본 납품)        (히어로/4K 마스터)
+(프리뷰·배치)  (클린 소스 고속)   (히어로 납품)        (4K 마스터)
 ```
 
 | 입력 상태 | 추천 |
 |-----------|------|
 | work 클립 깨끗, 빠른 확인 | `rtx_vsr` 또는 `esrgan` |
+| 키프레임·에피 배치 납품 | **`esrgan` + `--style`** (기본) |
 | AI 생성 키프레임·인물 디테일 | `seedvr2` (이미지 batch=1) |
-| AI I2V 클립 납품 | `seedvr2` + batch 5~9 + color lab |
+| AI I2V 클립 히어로 납품 | `seedvr2` + batch 5~9 + color lab |
 | 심하게 뭉개진 소스 | SeedVR2 복원; 필요 시 사전 denoise/edit |
-| 애니/라인아트 | ESRGAN `4x-AnimeSharp` 또는 SeedVR2 A/B |
+| 애니/라인아트 | ESRGAN `4x-AnimeSharp` (`--style anime`) 또는 SeedVR2 A/B |
+
+### 3.1 에이전트 선택 CLI (2026-07-18)
+
+```bash
+python scripts/upscale_recommend.py --media image|video \
+  --goal preview|batch|delivery|hero|master_4k|face_fix \
+  --domain photo|anime|general \
+  --source clean|normal|blurry|ai_artifacts
+
+python scripts/upscale_recommend.py matrix      # 성능 표
+python scripts/upscale_recommend.py scenarios  # media×goal 매트릭스
+python scripts/upscale_recommend.py list       # backend when/when_not 카드
+```
+
+- **SSOT:** `upscale_backends.json` → `backends[].agent` · `agent_matrix` · `agent_goals`
+- **Lib:** `lib/upscale_backends.recommend_upscale()` · `format_recommendation()`
+- **tool_intent:** `upscale_pick` / `upscale` / `upscale_video` / `upscale_hero`
+- **Catalog:** [tool_catalog.md](tool_catalog.md) §2.6
+
+### 2.6 Still dual pack (2026-07-17)
+
+커뮤니티·공식 핸드북 재조사 후 채택:
+
+| 레인 | 기술 | 모델 / 설정 | 평가 근거 |
+|------|------|-------------|-----------|
+| FAST photo | CNN 4× | `4xRealWebPhoto_v4_dat2` · `4x-UltraSharp` | OpenModelDB/커뮤니티 실사 표준 |
+| FAST anime | CNN 4× | `4x-AnimeSharp` · `RealESRGAN_x4plus_anime_6B` | Kim2091 + RealESRGAN anime |
+| HERO | SeedVR2 7B FP8 | `seedvr2_ema_7b_fp8…` + VAE | Comfy Handbook conservative · Reddit 속도/안정성 > SUPIR |
+| 보류 | SUPIR · Ultimate SD | SDXL 의존 / 체크포인트 종속 | 히어로 2순위 · Illustrious 팩에 USDU 옵션 유지 |
+
+**팩 경로**
+
+- Human UI: `workflows/human/image_upscale_dual/`
+- Agent API: `presets/ups_image_esrgan` · `presets/ups_image_seedvr2`
+- CLI: `scripts/upscale_image.py --style …`
+
+**모델 루트 (정리 후 SSOT):** `F:\model` via `extra_model_paths.yaml` (`upscale_models`, `SEEDVR2`).
 
 ---
 
@@ -185,8 +223,11 @@ python scripts/upscale_video.py -i work.mp4 -o preview.mp4 --preset deliver_1080
 | U1 | `upscale_backends.json` + `lib/upscale_backends.py` | ✅ |
 | U2 | `upscale_image.py` (esrgan / rtx / seedvr2) | ✅ |
 | U3 | `upscale_video.py` (+ two-pass 4K) | ✅ |
-| U4 | agent 워크플로 JSON 스냅샷 + catalog | ⬜ (API는 코드 생성; SeedVR 예제 로컬 노드 패키지 보유) |
+| U4 | agent 워크플로 JSON 스냅샷 + catalog | ✅ `image_upscale_dual` + `ups_image_esrgan` / `ups_image_seedvr2` |
 | U5 | delivery 문서·Rule 연동 | ✅ 문서/CLI; 장기 벤치 로그는 실측 시 갱신 |
+| U6 | still `--style` + source-aspect preserve | ✅ 2026-07-17 |
+| U7 | models under `F:\model` | ✅ upscale_models + SEEDVR2 |
+| U8 | agent recommend matrix + CLI | ✅ `upscale_recommend.py` + agent fields in JSON (2026-07-18) |
 
 ---
 

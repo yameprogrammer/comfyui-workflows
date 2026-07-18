@@ -1,0 +1,53 @@
+{
+  "pack": "image_upscale_dual",
+  "version": "1.0.0",
+  "role": "still_image_upscale",
+  "status": "ready",
+  "description": "Dual-lane still upscale: FAST ESRGAN-family (style models) + HERO SeedVR2. Community best-of 2025–2026 for local ComfyUI.",
+  "research_basis": [
+    "Comfy Org Upscaling Handbook (2026-02): SeedVR2 conservative quality; gradual 1080→4K",
+    "r/comfyui / r/StableDiffusion: SeedVR2 preferred over SUPIR for speed/reliability; SUPIR still strong for creative restore",
+    "OpenModelDB / community: 4x-UltraSharp (photo/sharp), 4x-AnimeSharp (anime linework), RealESRGAN_x4plus(+anime_6B)",
+    "Factory inventory: F:\\model\\upscale_models + F:\\model\\SEEDVR2 via extra_model_paths"
+  ],
+  "lanes": {
+    "fast_cnn": {
+      "nodes": ["UpscaleModelLoader", "ImageUpscaleWithModel", "ImageScale"],
+      "speed": "fast",
+      "quality": "good",
+      "when": "preview, batch, clean sources, anime line fidelity"
+    },
+    "hero_seedvr2": {
+      "nodes": ["SeedVR2LoadDiTModel", "SeedVR2LoadVAEModel", "SeedVR2VideoUpscaler"],
+      "speed": "slow",
+      "quality": "best_local_open",
+      "when": "hero keyframes, blurry AI stills, archival restore"
+    }
+  },
+  "style_models": {
+    "photo": "4xRealWebPhoto_v4_dat2.pth",
+    "photo_sharp": "4x-UltraSharp.pth",
+    "anime": "4x-AnimeSharp.pth",
+    "anime_fast": "RealESRGAN_x4plus_anime_6B.pth",
+    "general": "4x_NMKD-Siax_200k.pth",
+    "remacri": "4x_foolhardy_Remacri.pth",
+    "realesrgan": "RealESRGAN_x4plus.pth"
+  },
+  "local_paths": {
+    "upscale_models": "F:\\model\\upscale_models",
+    "seedvr2": "F:\\model\\SEEDVR2"
+  },
+  "agent": {
+    "cli": "scripts/upscale_image.py",
+    "presets": [
+      "workflows/agent/presets/ups_image_esrgan.api.json",
+      "workflows/agent/presets/ups_image_seedvr2.api.json"
+    ],
+    "backends_ssot": "upscale_backends.json"
+  },
+  "not_included": [
+    "SUPIR (heavy SDXL restore — optional later; SeedVR2 preferred default hero)",
+    "Ultimate SD Upscale (needs matching diffusion checkpoint; use Illustrious pack --ultimate-upscale for anime XL)",
+    "Cloud Magnific / Topaz / HitPaw (outside local SSOT)"
+  ]
+}

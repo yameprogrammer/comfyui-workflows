@@ -379,7 +379,7 @@
     },
     "1799": {
       "inputs": {
-        "model_name": "LTX2.3\\ltx-2.3-22b-dev-Q4_K_M.gguf",
+        "model_name": "LTX2.3\\ltx-2.3-22b-dev-Q6_K.gguf",
         "extra_model_name": "none",
         "dequant_dtype": "default",
         "patch_dtype": "default",

@@ -1,0 +1,22 @@
+{
+  "tool": "dance_ref",
+  "cli": "scripts/generate_dance_ref.py",
+  "status": "ready",
+  "version": "1.0",
+  "shelf": "MOTION",
+  "description": "One-shot dance/reference motion: character still + optional ref video. Default V2V intent=motion; fallback I2V dance styles.",
+  "guide": "workflows/human/dance_ref/AGENT_GUIDE.md",
+  "runner": "lib/dance_ref.py",
+  "modes": ["ref", "i2v"],
+  "default_mode": "ref",
+  "backends": {
+    "ref": "generate_v2v intent=motion (LTX AIO true V2V)",
+    "i2v": "generate_i2v + dance style dialect"
+  },
+  "full_pipeline": "docs/dance_challenge_pipeline_design.md (not this CLI)",
+  "not_included": [
+    "Beat analysis / multi-shot challenge assemble",
+    "OpenPose sequence retarget",
+    "Copyright clearance"
+  ]
+}

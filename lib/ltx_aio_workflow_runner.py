@@ -66,7 +66,10 @@ def _set(api: dict[str, Any], nid: str, key: str, value: Any) -> None:
 # Default negative append for pure visual I2V/FLF (face drift is LTX's weak spot)
 FACE_STABILITY_NEGATIVE = (
     "morphing face, identity shift, face melt, deformed face, asymmetric eyes, "
-    "changing facial features, plastic skin, warped mouth, extra teeth"
+    "changing facial features, plastic skin, warped mouth, extra teeth, "
+    # wet-skin / ECU chroma artifacts (red freckle bloom, "bloody" rain)
+    "red spots on skin, acne, blood, bloody rain, red droplets, rosacea, "
+    "inflamed skin, rash, pus, open sores, unnatural red blemishes"
 )
 
 # Motion-prompt suffix: stability only — do not re-describe wardrobe/face beauty essay
@@ -82,14 +85,27 @@ def apply_ltx_face_stability_loras(
     enable_detailer: bool = True,
     detailer_strength: float = 0.55,
     distilled_strength: float | None = None,
+    upscale_ic: bool | None = None,
+    upscale_ic_strength: float | None = None,
+    omni_strength: float | None = None,
+    omni_on: bool | None = None,
 ) -> dict[str, Any]:
     """
-    Tune Power Lora Loader (node 211) for face/identity stability.
+    Tune Power Lora Loader (node 211) for quality + face stability.
 
-    AIO ships ``ltx-2-19b-ic-lora-detailer`` **OFF** by default — turning it on
-    is the main face-collapse mitigation available without a second pass.
+    AIO ships detailer **OFF** and distill often **0.9** in raw UI — agent profiles
+    pull distill into ~0.65–0.75 and turn detailer on. Upscale IC is kept **mild ON**
+    to support built-in 2-stage (was hard-OFF; hurt stage2 detail).
+
+    Community: distill 0.6–0.8 · detailer ~0.5–0.65 · avoid max upscale IC on faces.
     """
-    report: dict[str, Any] = {"detailer": None, "distilled": None, "slots": []}
+    report: dict[str, Any] = {
+        "detailer": None,
+        "distilled": None,
+        "upscale_ic": None,
+        "omni": None,
+        "slots": [],
+    }
     node = api.get("211")
     if not isinstance(node, dict):
         report["error"] = "power_lora_node_211_missing"
@@ -100,18 +116,54 @@ def apply_ltx_face_stability_loras(
             continue
         name = str(val.get("lora") or "")
         low = name.lower().replace("\\", "/")
-        slot = {"key": key, "lora": name, "on": val.get("on"), "strength": val.get("strength")}
+        slot = {
+            "key": key,
+            "lora": name,
+            "on": val.get("on"),
+            "strength": val.get("strength"),
+        }
         if "detailer" in low:
             if enable_detailer:
                 val["on"] = True
                 val["strength"] = float(detailer_strength)
+            else:
+                val["on"] = False
             slot["on"] = val.get("on")
             slot["strength"] = val.get("strength")
             report["detailer"] = slot
-        if distilled_strength is not None and "distilled" in low:
+        # distill dynamic fro09 / distilled-lora (not upscale/detailer)
+        is_distill = (
+            "distilled" in low or "fro09" in low or "distill_lora" in low
+        ) and "upscale" not in low and "detailer" not in low
+        if distilled_strength is not None and is_distill:
+            val["on"] = True
             val["strength"] = float(distilled_strength)
+            slot["on"] = val.get("on")
             slot["strength"] = val.get("strength")
             report["distilled"] = slot
+        if "upscale" in low and ("ic" in low or "ic-lora" in low or "ic_lora" in low):
+            if upscale_ic is False:
+                val["on"] = False
+            elif upscale_ic is True:
+                val["on"] = True
+            if upscale_ic_strength is not None and val.get("on"):
+                val["strength"] = float(upscale_ic_strength)
+            slot["on"] = val.get("on")
+            slot["strength"] = val.get("strength")
+            report["upscale_ic"] = slot
+        # OmniNFT RL — light physics / adherence helper
+        if "omni" in low or "omnift" in low:
+            if omni_on is False:
+                val["on"] = False
+            elif omni_on is True:
+                val["on"] = True
+            if omni_strength is not None and val.get("on", True):
+                val["on"] = True if omni_on is not False else val.get("on")
+                if val.get("on"):
+                    val["strength"] = float(omni_strength)
+            slot["on"] = val.get("on")
+            slot["strength"] = val.get("strength")
+            report["omni"] = slot
         report["slots"].append(slot)
     return report
 
@@ -138,6 +190,7 @@ def build_aio_switched_api(
     object_info: dict[str, Any] | None = None,
     face_stability: bool | None = None,
     detailer_strength: float | None = None,
+    ltx_profile: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Apply mode switches on real AIO UI WF, expand to API, inject run params."""
     ui = _load_ui(ui_workflow_path)
@@ -158,8 +211,13 @@ def build_aio_switched_api(
     api = expand_ui_workflow_to_api(ui, object_info=object_info)
 
     # lengths
+    # Pure I2V (no audio): use clip_length_sec / audio_duration_sec — do NOT force 3s.
+    # Historical bug: no-audio path always set trim_dur=3.0, so generate_i2v without
+    # audio produced ~3s previews regardless of --frames / shot duration_sec.
     if audio_duration_sec is not None and audio_duration_sec > 0:
         trim_dur = float(audio_duration_sec)
+    elif clip_length_sec is not None and float(clip_length_sec) > 0:
+        trim_dur = float(clip_length_sec)
     else:
         trim_dur = 3.0
     if clip_length_sec is None or clip_length_sec <= 0:
@@ -191,7 +249,10 @@ def build_aio_switched_api(
         else:
             clip_length_sec = trim_dur
     clip_i = max(1, min(20, int(math.ceil(float(clip_length_sec) - 1e-9))))
-    edge = int(longer_edge or 1024)
+    # Keep VHS/trim duration aligned with resolved clip length (pure I2V included)
+    if clip_i > 0 and (audio_duration_sec is None or float(audio_duration_sec or 0) <= 0):
+        trim_dur = float(clip_i)
+    edge = int(longer_edge or 1280)  # default work 720p-class
     edge = max(512, min(2048, int(round(edge / 64.0) * 64)))
     if aspect is None:
         aspect = "9:16"
@@ -287,6 +348,56 @@ def build_aio_switched_api(
     prompt_final = prompt or ""
     neg_final = negative or "animation, cartoon, text"
     face_lora_report: dict[str, Any] | None = None
+
+    # Quality profile LoRA stack (draft/work/hero) — always applied on agent path
+    qprof: dict[str, Any] = {}
+    try:
+        from lib.ltx_quality_profiles import resolve_ltx_quality_profile
+
+        qprof = resolve_ltx_quality_profile(ltx_profile)
+    except Exception:
+        qprof = {}
+
+    def _env_float(name: str, default: float) -> float:
+        try:
+            return float(_os.environ.get(name) or default)
+        except ValueError:
+            return default
+
+    # Defaults from profile; env / explicit args override
+    d_str = float(
+        detailer_strength
+        if detailer_strength is not None
+        else _env_float(
+            "AGENT_LTX_DETAILER_STRENGTH",
+            float(qprof.get("detailer_strength") or 0.55),
+        )
+    )
+    distill_str = _env_float(
+        "AGENT_LTX_DISTILL_STRENGTH",
+        float(qprof.get("distill_strength") or 0.7),
+    )
+    upscale_str = _env_float(
+        "AGENT_LTX_UPSCALE_IC_STRENGTH",
+        float(qprof.get("upscale_ic_strength") or 0.45),
+    )
+    omni_str = _env_float(
+        "AGENT_LTX_OMNI_STRENGTH",
+        float(qprof.get("omni_strength") or 0.45),
+    )
+    # Upscale IC: profile default ON (supports 2-stage); env can force off
+    upscale_env = (_os.environ.get("AGENT_LTX_UPSCALE_IC") or "").strip().lower()
+    if upscale_env in ("0", "false", "off", "no"):
+        upscale_on = False
+    elif upscale_env in ("1", "true", "on", "yes"):
+        upscale_on = True
+    else:
+        upscale_on = bool(qprof.get("upscale_ic_on", True))
+    detailer_on = bool(qprof.get("detailer_on", True))
+    if face_stability is False:
+        # explicit off: still apply mild distill for AIO schedule, leave detailer to profile
+        pass
+
     if face_stability:
         # motion prompt: append stability clause once
         if prompt_final and "identity stable" not in prompt_final.lower() and "face morph" not in prompt_final.lower():
@@ -297,19 +408,28 @@ def build_aio_switched_api(
         for token in FACE_STABILITY_NEGATIVE.split(", "):
             if token and token.lower() not in neg_final.lower():
                 neg_final = (neg_final.rstrip(", ") + ", " + token) if neg_final else token
-        try:
-            d_str = float(
-                detailer_strength
-                if detailer_strength is not None
-                else (_os.environ.get("AGENT_LTX_DETAILER_STRENGTH") or "0.55")
-            )
-        except ValueError:
-            d_str = 0.55
-        face_lora_report = apply_ltx_face_stability_loras(
-            api,
-            enable_detailer=True,
-            detailer_strength=d_str,
-        )
+        detailer_on = True
+
+    face_lora_report = apply_ltx_face_stability_loras(
+        api,
+        enable_detailer=detailer_on,
+        detailer_strength=d_str,
+        distilled_strength=distill_str,
+        upscale_ic=upscale_on,
+        upscale_ic_strength=upscale_str if upscale_on else None,
+        omni_strength=omni_str,
+        omni_on=True,
+    )
+    if face_lora_report is not None:
+        face_lora_report["ltx_profile"] = qprof.get("id")
+        face_lora_report["tune"] = {
+            "distill": distill_str,
+            "detailer": d_str,
+            "detailer_on": detailer_on,
+            "upscale_ic": upscale_on,
+            "upscale_ic_strength": upscale_str if upscale_on else None,
+            "omni": omni_str,
+        }
 
     if prompt_final:
         _set(api, "1797", "text", prompt_final)
@@ -343,6 +463,7 @@ def build_aio_switched_api(
         "image_name": image_name,
         "face_stability": bool(face_stability),
         "face_lora": face_lora_report,
+        "ltx_profile": qprof.get("id"),
         "prompt_final_preview": (prompt_final or "")[:200],
         "negative_final_preview": (neg_final or "")[:200],
     }

@@ -1,5 +1,10 @@
 # YAW Wan 2.2 MoE v0.50 — Agent 가이드
 
+> **Toolbox shelf:** MOTION  
+> **CLI:** `python scripts/generate_yaw_wan22.py`  
+> **Alternatives:** default quality I2V → `generate_i2v` (LTX) · lip/audio → `generate_s2v`  
+> **Catalog:** [docs/tool_catalog.md](../../../docs/tool_catalog.md) §2.4
+
 **출처:** [Yet Another Workflow: easy t2v + i2v (YAW - Wan 2.2)](https://civitai.red/models/2008892/yet-another-workflow-easy-t2v-i2v-yaw-wan-22)  
 **파일:** `yetAnotherWorkflowEasyT2vI2v_v050Moe.json`  
 **제작:** boobkake22 · 쉬운 T2V+I2V 템플릿 (서브그래프 없음, 컨트롤 노출)  

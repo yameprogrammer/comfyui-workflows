@@ -1,5 +1,10 @@
 # Boogu + Ideogram4 + Krea2 — typography / design pipeline
 
+> **Toolbox shelf:** GENERATE (typography / poster)  
+> **CLI:** `python scripts/generate_boogu_typo.py`  
+> **Alternatives:** light title only → `generate_ideogram4` · plain still without dense text → moody/krea  
+> **Catalog:** [docs/tool_catalog.md](../../docs/tool_catalog.md) §2.1
+
 **UI SSOT:** `workflows/human/NEWKrea2BooguIdeogram4_booguKrea2.json`  
 **Civitai:** [NEW Krea2 & LTX2.3 & ideogram 4 WF — Boogu+Krea2 / Boogu+Ideogram4](https://civitai.red/models/579280/newkrea2-and-ltx23-and-ideogram-4-wf-in-collection?modelVersionId=3066747)  
 **CLI:** `scripts/generate_boogu_typo.py` · runner `lib/boogu_ideogram_krea_runner.py`

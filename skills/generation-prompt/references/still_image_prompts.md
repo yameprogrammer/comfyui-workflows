@@ -3,6 +3,11 @@
 Factory: Moody / Z-Image · `shot_compose` · `generate_moody*`  
 SSOT: `docs/generation_prompt_craft.md`
 
+> **Model routing first:** `references/model_prompt_matrix.md`  
+> - **Krea2** → `krea2_still_prompts.md` (NL paragraph 90–140w)  
+> - **Moody / Z-Image** → this file + `moody_zimage.md`  
+> - **Illustrious** → `illustrious_tags.md` (Danbooru — not this photoreal stack)
+
 ---
 
 ## 1. Master template
@@ -99,6 +104,7 @@ readable gibberish text, logos, watermark, oversharpen, fish-eye unless asked
 
 ## 6. Length & style
 
-- Prefer **comma-linked clauses** or short sentences.  
+- Prefer **comma-linked clauses** or short sentences **for Moody**.  
 - Avoid 50 random tags.  
 - Put **identity + action** before grade adjectives.  
+- **Krea2:** one flowing paragraph (~90–140 words); see `krea2_still_prompts.md`.  

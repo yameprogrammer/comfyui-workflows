@@ -191,6 +191,38 @@ python scripts/generate_s2v.py --backend infinitetalk -i face.png -a drive.wav -
 }
 ```
 
+### 2.3b 샷 필드 — **I2V motion_preset** (공구함 · 에피 옵션 공용)
+
+무음 I2V / `episode_i2v` 경로. 얼굴 재서술 없이 **카메라·동작 의도**만 고를 때.
+
+| 필드 | 의미 |
+|------|------|
+| `motion_preset` | 의도 id (`idle`, `push_in`, `talk_gesture`, …) |
+| `i2v_motion_preset` | 동일 별칭 |
+| `motion_prompt` | 프리셋에 **추가**할 장면 동작 (선택) |
+| 에피 `default_motion_preset` | `shots.json` 루트 — 전 샷 기본 |
+| CLI | `episode_i2v --motion-preset` · `generate_i2v --motion-preset` |
+
+우선순위: **shot.motion_preset > CLI --motion-preset > episode default_motion_preset > motion_prompt only**.
+
+```json
+{
+  "shot_id": "S02",
+  "motion_driver": "i2v",
+  "duration_sec": 4,
+  "motion_preset": "push_in",
+  "motion_prompt": "holding ceramic cup, cafe window light",
+  "negative_motion": "warp, identity morph, flicker"
+}
+```
+
+```bash
+python scripts/generate_i2v.py --list-motion-presets
+python scripts/episode_i2v.py --list-motion-presets
+python scripts/episode_i2v.py -e EP --motion-preset idle
+# SSOT: lib/motion_presets.py
+```
+
 **performance (P0-2)** — TTS instruct + SI2V motion/audio_scale 공유 키.  
 `lib/performance_profiles.py` · `episode_tts --performance` · `episode_s2v --performance`.
 

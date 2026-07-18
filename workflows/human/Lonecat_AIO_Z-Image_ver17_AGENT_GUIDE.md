@@ -1,5 +1,10 @@
 # Lonecat AIO Z-Image ver 17 — Agent 선택 가이드
 
+> **Toolbox shelf:** GENERATE · TRANSFORM (T2I / I2I / CN presets)  
+> **CLI:** `generate_moody` · `generate_moody_i2i` · `generate_moody_i2i_lock` · `generate_moody_controlnet` · `run_workflow_api`  
+> **Alternatives:** anime XL → `generate_illustrious_standard` · NSFW still → `generate_krea_nsfw` · ID orchestration → `generate_character_consistent`  
+> **Catalog:** [docs/tool_catalog.md](../../docs/tool_catalog.md) §2.1–2.2
+
 에이전트는 **UI에서 스위치를 클릭하지 않는다.**
 대신 **feature_id / agent_preset** 을 고르고, 준비된 `*.api.json` 을
 `run_workflow_api` / `workflow_api_runner` 로 호출한다.
