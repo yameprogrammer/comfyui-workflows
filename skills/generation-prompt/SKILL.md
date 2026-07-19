@@ -84,7 +84,7 @@ Full matrix + DO/DON’T: **`references/model_prompt_matrix.md`**.
 
 ## 4. Still recipes (pointers)
 
-### 4a. Krea2 — § see `krea2_still_prompts.md`
+### 4a. Krea2 — **기본 실사 T2I** — § see `krea2_still_prompts.md`
 
 Natural language paragraph · medium-first · materials · positive spatial locks · no NO-spam · no casting-plate merge.
 

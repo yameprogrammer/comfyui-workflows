@@ -55,7 +55,7 @@ Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 
 | 선반 | 하는 일 | 대표 CLI |
 |------|---------|----------|
-| **GENERATE** | 빈 화면 → 그림 | `generate_moody` · `generate_illustrious_standard` · `generate_krea*` |
+| **GENERATE** | 빈 화면 → 그림 (**기본: Krea2**) | `generate_krea` · `generate_krea_nsfw` · `generate_moody` · `generate_illustrious_standard` |
 | **TRANSFORM** | 같은 인물·편집·스타일 | `generate_character_consistent` · `generate_style_transfer` · `generate_qwen_edit` · `generate_qwen_inpaint` |
 | **CAMERA** | 각도·포즈·시점·프레이밍 | `generate_qwen_angle` · `generate_viewpoint` · `generate_moody_controlnet` · `generate_reframe` |
 | **MOTION** | 영상 모션 · 카메라 · 아이들/루프 · 댄스 레퍼 | `generate_camera_move` · `generate_idle_loop` · `generate_dance_ref` · `generate_i2v` · `generate_s2v` |

@@ -114,7 +114,7 @@
 |----|------|--------|------|
 | **L4** | Hero **2-stage upsample** 스위치 (AIO 내 노드 확인 후) | 중 | 공식 two-stage 정렬 |
 | **L5** | Hero longer-edge **1280–1536** 실측 + OOM 가드 | 중 | 4090 벤치 로그 |
-| **L6** | Pure I2V **max duration 강제**(기본 4s, override 플래그) | 하 | face melt 방지 |
+| **L6** | Pure I2V **max 97프레임 (≈4초@24fps) 하드 캡** · 이상 시 last-frame extend 분할 | 하 | ✅ |
 | **L7** | 생성 전 **prompt dialect check** (룩 재서술 경고) | 중 | generation-prompt 연동 |
 | **L8** | `failure_note` 태그 묶음 `ltx_face` / `ltx_soft` preflight | 하 | before-gen |
 
@@ -159,6 +159,16 @@ python scripts/generate_i2v.py -i key.png -o scout.mp4 -p "..." --ltx-profile dr
 python scripts/generate_i2v.py -i key.png -o out.mp4 -p "gentle head turn, eyes hold lens" \
   --ltx-profile hero --frames 73
 ```
+
+### LTX 클립 길이 하드 룰 (2026-07-19)
+
+| 규칙 | 내용 |
+|------|------|
+| **최대 단일 클립** | 97프레임 이내 (24fps 기준 ≈4초) — 이를 넘으면 품질 저하 |
+| **100프레임+ 컷 설계 시** | 선행 클립 마지막 프레임으로 extend · `chain_si2v_last_frame.py` 또는 `chain_one_take.py` 사용 |
+| **분할 단위** | 80–97프레임(3.3–4초) 단위 생성 후 이어붙이기 |
+| **이어붙이기** | `assemble_video.py` 또는 `assemble_single_take.py` |
+| **extend 프롬프트** | 선행 클립 마지막 상태를 이어받는 motion-only 프롬프트 작성 · 얼굴/의상 재서술 금지 |
 
 ---
 

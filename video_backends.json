@@ -2,6 +2,8 @@
   "version": 3,
   "description": "I2V backend + format SSOT. Deliver pixel tiers (deliver_1080/2160…) live in upscale_backends.json; format only picks aspect. See docs/video_delivery_and_backends.md",
   "default_backend": "ltx23_aio_i2v",
+  "ltx_clip_hard_cap_frames": 97,
+  "ltx_clip_hard_cap_note": "Max single LTX generation = 97 frames @24fps. Extend via last-frame chain for longer cuts.",
   "default_backend_s2v": "ltx23_aio",
   "default_format": "cinematic_16x9",
   "default_work_preset": "work_16x9_720",
@@ -606,7 +608,9 @@
         "distill_strength": 0.75,
         "upscale_ic_on": true,
         "upscale_ic_strength": 0.4,
-        "omni_strength": 0.4
+        "omni_strength": 0.4,
+        "max_frames_single_clip": 97,
+        "max_frames_note": "Hard cap at 97 frames (\u22484s@24fps). Use chain_si2v_last_frame for longer cuts."
       },
       "work": {
         "summary": "에이전트 실무 기본 = 720p 생성",
@@ -623,7 +627,9 @@
         "distill_strength": 0.7,
         "upscale_ic_on": true,
         "upscale_ic_strength": 0.45,
-        "omni_strength": 0.45
+        "omni_strength": 0.45,
+        "max_frames_single_clip": 97,
+        "max_frames_note": "Hard cap at 97 frames (\u22484s@24fps). Use chain_si2v_last_frame for longer cuts."
       },
       "hero": {
         "summary": "히어로 ~1080 work 급 (느림 · 소수 컷)",
@@ -640,7 +646,9 @@
         "distill_strength": 0.65,
         "upscale_ic_on": true,
         "upscale_ic_strength": 0.5,
-        "omni_strength": 0.5
+        "omni_strength": 0.5,
+        "max_frames_single_clip": 97,
+        "max_frames_note": "Hard cap at 97 frames (\u22484s@24fps). Use chain_si2v_last_frame for longer cuts."
       }
     }
   }

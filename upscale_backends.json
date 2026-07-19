@@ -112,27 +112,30 @@
       }
     },
     "rtx_vsr": {
-      "status": "optional",
+      "status": "ready",
       "media": ["image", "video"],
       "kind": "hardware",
       "speed": "very_fast",
       "quality": "good_on_clean",
       "runner": "comfy_api",
       "quality_mode": "ULTRA",
-      "notes": "NVIDIA RTX Video Super Resolution when node present. Prefer clean sources.",
+      "node_class": "RTXVideoSuperResolution",
+      "custom_node": "Nvidia_RTX_Nodes_ComfyUI",
+      "python_dep": "nvidia-vfx (pip from https://pypi.nvidia.com → import nvvfx)",
+      "notes": "NVIDIA RTX Video Super Resolution via RTXVideoSuperResolution. Prefer clean sources. Requires nvidia-vfx in python_embeded + Comfy restart after install.",
       "agent": {
         "lane": "SPEED",
         "rank_speed": 5,
         "rank_quality": 2,
         "rank_restore": 1,
         "latency_class": "seconds",
-        "vram_note": "Tensor cores; node must be loaded",
+        "vram_note": "Tensor cores; nvvfx + RTX GPU",
         "domains": ["photo", "general"],
         "source_pref": ["clean"],
-        "when": "클린 work 클립 초고속 확인·프리뷰 (노드 있을 때)",
-        "when_not": "블러·AI 아티팩트 복원 / 노드 미설치 시",
+        "when": "클린 work 클립 초고속 확인·프리뷰·납품",
+        "when_not": "블러·AI 아티팩트 복원 (그때는 seedvr2)",
         "best_for": ["clean I2V clip preview", "fast video deliver check"],
-        "avoid_for": ["blurry source", "anime line art preference", "batch without node"]
+        "avoid_for": ["blurry source", "anime line art preference", "heavy restore"]
       }
     },
     "seedvr2": {

@@ -57,7 +57,8 @@
 ```
 
 **Never** use Illustrious quality tags on Krea/Z-Image photoreal MV stills.  
-**Never** use Krea 140w essay as Wan motion prompt.
+**Never** use Krea 140w essay as Wan motion prompt.  
+**Krea2 = 기본 실사 경로. Moody = I2I·스타일 대안.**
 
 ---
 

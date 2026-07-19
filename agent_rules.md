@@ -334,6 +334,14 @@ agent_custom/
 * **생성 직전 체크**: craft §8 체크리스트.  
 * **FAIL 시**: 프롬프트 보강 재생성 + `failure_note` (`prompt_ignored` 등).
 
+### Rule 7.6 — LTX 클립 길이 하드 캡
+
+- LTX 2.3으로 단일 생성 시 **97프레임(≈4초@24fps) 초과 금지**.
+- 컷 설계가 100프레임 이상인 경우: **`chain_si2v_last_frame.py`** 로 선행 클립 마지막 프레임에서 extend.
+- extend 프롬프트는 **모션·카메라만** (얼굴·의상 재서술 금지 — generation_prompt_craft §3 동일).
+- 완성된 분할 클립은 **`assemble_video.py`** 또는 `assemble_single_take.py` 로 이어붙인다.
+- VRAM 절약 + 품질 유지 모두 이 방식이 단일 장클립보다 우수.
+
 ### Rule 8.0 에이전트 자체 도구·스킬 자율 활용 (전 에이전트 · 영상 작업)
 * **문제**: 유저는 Grok/Claude/Codex 등 **에이전트마다 다른 네이티브 툴·스킬·MCP**를 세세히 알 수 없어 “이때 뭘 쓰세요”라고 지시하기 어렵다.  
   에이전트가 공장 CLI 루틴만 수동적으로 돌리면 **품질·효율 기회**를 버린다.
