@@ -62,10 +62,10 @@ API_PRESET = (
     / "qwen_instantx_inpaint.api.json"
 )
 
-# Pack ships heavy fp8 UNETLoader (~20GB). Agent default = GGUF (same as qwen_edit_2509).
+# Pack ships heavy fp8 UNETLoader (~20GB). Agent default = GGUF (same as qwen_edit_2511).
 UNET_FP8_PACK = r"QwenImage\qwen_image_edit_2509_fp8_e4m3fn.safetensors"
-GGUF_DEFAULT = r"QwenImage\Qwen-Image-Edit-2509-Q5_K_M.gguf"
-GGUF_LIGHT = r"QwenImage\qwen-image-edit-2511-Q4_K_M.gguf"  # lower VRAM fallback
+GGUF_DEFAULT = r"QwenImage\qwen-image-edit-2511-Q4_K_M.gguf"
+GGUF_LIGHT = r"QwenImage\qwen-image-edit-2511-Q2_K.gguf"  # lower VRAM fallback (Q2_K)
 CLIP_DEFAULT = "qwen_2.5_vl_7b_fp8_scaled.safetensors"
 VAE_DEFAULT = "qwen_image_vae.safetensors"
 CN_DEFAULT = "Qwen-Image-InstantX-ControlNet-Inpainting.safetensors"

@@ -1,0 +1,112 @@
+{
+  "preset": "qwen_edit_2511",
+  "workflow_api": "presets/qwen_edit_2511.api.json",
+  "description": "Official image_qwen_image_edit_2509 (Image Edit Qwen 2509 subgraph). enable_turbo_mode switches Lightning 4step vs quality 20/CFG4.",
+  "source_ui": "F:/ComfyUI_windows_portable/ComfyUI/user/default/workflows/image_qwen_image_edit_2509.json",
+  "family": "qwen_edit",
+  "ports": {
+    "input_image": {
+      "node": "78",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "input_image2": {
+      "node": "79",
+      "key": "image",
+      "copy_to_input_dir": true,
+      "optional": true
+    },
+    "input_image3": {
+      "node": "80",
+      "key": "image",
+      "copy_to_input_dir": true,
+      "optional": true
+    },
+    "positive": {
+      "node": "111",
+      "key": "prompt"
+    },
+    "seed": {
+      "node": "3",
+      "key": "seed"
+    },
+    "denoise": {
+      "node": "3",
+      "key": "denoise",
+      "optional": true
+    },
+    "enable_turbo": {
+      "node": "443",
+      "key": "value",
+      "optional": true
+    },
+    "gguf_name": {
+      "node": "37",
+      "key": "gguf_name",
+      "optional": true
+    },
+    "clip_name": {
+      "node": "38",
+      "key": "clip_name",
+      "optional": true
+    },
+    "vae_name": {
+      "node": "39",
+      "key": "vae_name",
+      "optional": true
+    },
+    "lora_name": {
+      "node": "89",
+      "key": "lora_name",
+      "optional": true
+    },
+    "lightning_strength": {
+      "node": "89",
+      "key": "strength_model",
+      "optional": true
+    },
+    "steps_turbo": {
+      "node": "436",
+      "key": "value",
+      "optional": true
+    },
+    "steps_quality": {
+      "node": "438",
+      "key": "value",
+      "optional": true
+    },
+    "cfg_turbo": {
+      "node": "437",
+      "key": "value",
+      "optional": true
+    },
+    "cfg_quality": {
+      "node": "439",
+      "key": "value",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "60",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "enable_turbo": true,
+    "denoise": 1.0,
+    "steps_turbo": 4,
+    "steps_quality": 20,
+    "cfg_turbo": 1.0,
+    "cfg_quality": 4.0,
+    "filename_prefix": "QwenEdit_2509",
+    "gguf_name": "QwenImage\\qwen-image-edit-2511-Q4_K_M.gguf",
+    "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+    "vae_name": "qwen_image_vae.safetensors",
+    "lora_name": "QwenImage\\Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors"
+  },
+  "notes": [
+    "Agent: LoaderGGUF (Q4_K_M) instead of fp8 UNETLoader",
+    "Active path: subgraph Image Edit (Qwen 2511); Raw Latent branch omitted",
+    "Agent --no-lightning maps to enable_turbo=false"
+  ]
+}

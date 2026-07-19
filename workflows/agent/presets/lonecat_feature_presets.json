@@ -130,6 +130,17 @@
       "family": "qwen_edit",
       "status": "ready",
       "source_workflow": "image_qwen_image_edit_2509"
+    },
+    "qwen_edit_2511": {
+      "feature_ids": [
+        "qwen_edit",
+        "qwen_edit_2511"
+      ],
+      "file": "presets/qwen_edit_2511.api.json",
+      "ports": "presets/qwen_edit_2511.ports.json",
+      "family": "qwen_edit",
+      "status": "ready",
+      "source_workflow": "image_qwen_image_edit_2509"
     }
   },
   "select_preset": {
@@ -151,7 +162,7 @@
     },
     "controlnet_default": "zimage_fun_union_controlnet",
     "qwen_angle_default": "qwen_multiangle_image",
-    "qwen_edit_default": "qwen_edit_2509"
+    "qwen_edit_default": "qwen_edit_2511"
   },
   "families": {
     "zimage": {

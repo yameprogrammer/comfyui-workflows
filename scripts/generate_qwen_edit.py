@@ -51,7 +51,7 @@ from lib.workflow_api_runner import (
     run_workflow_api,
 )
 
-DEFAULT_PRESET = "qwen_edit_2509"
+DEFAULT_PRESET = "qwen_edit_2511"
 
 # Official template structure + GGUF (agent: avoid ~20GB fp8 UNETLoader)
 GGUF_2509_Q5 = r"QwenImage\Qwen-Image-Edit-2509-Q5_K_M.gguf"
@@ -171,7 +171,7 @@ def generate_qwen_edit(
     preset: str | None = None,
 ) -> dict:
     backend = _resolve_backend(backend)
-    gguf_name = gguf_name or GGUF_2509_Q5
+    gguf_name = gguf_name or GGUF_2511_Q4
 
     if not os.path.isfile(input_image_path):
         return fail_result(error="SOURCE_MISSING", message=input_image_path)
@@ -411,7 +411,7 @@ def _ok_meta(
     out_abs = r.get("output_path") or os.path.abspath(output_filename)
     base = r.get("meta") or {}
     meta = {
-        "mode": "qwen_edit_2509",
+        "mode": "qwen_edit_2511",
         "engine": "workflow_api",
         "backend": backend,
         "workflow": preset,

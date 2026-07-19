@@ -1,4 +1,71 @@
 {
+  "83": {
+    "class_type": "easy hiresFix",
+    "inputs": {
+      "image": [
+        "28",
+        0
+      ],
+      "vae": [
+        "40",
+        0
+      ],
+      "model_name": "4x_foolhardy_Remacri.pth",
+      "rescale_after_model": true,
+      "rescale_method": "lanczos",
+      "rescale": "by percentage",
+      "percent": 50,
+      "width": 1024,
+      "height": 1024,
+      "longer_side": 1024,
+      "crop": "disabled",
+      "image_output": "Hide",
+      "link_id": 0,
+      "save_prefix": "ComfyUI"
+    }
+  },
+  "73": {
+    "class_type": "VAEEncode",
+    "inputs": {
+      "pixels": [
+        "70",
+        0
+      ],
+      "vae": [
+        "40",
+        0
+      ]
+    }
+  },
+  "72": {
+    "class_type": "PrimitiveInt",
+    "inputs": {
+      "value": 2
+    }
+  },
+  "70": {
+    "class_type": "ImageResizeKJv2",
+    "inputs": {
+      "image": [
+        "50",
+        0
+      ],
+      "width": [
+        "1",
+        0
+      ],
+      "height": [
+        "12",
+        0
+      ],
+      "upscale_method": "nearest-exact",
+      "keep_proportion": "pad_edge",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 1,
+      "device": "cpu"
+    }
+  },
   "55": {
     "class_type": "CLIPSetLastLayer",
     "inputs": {
@@ -67,9 +134,16 @@
       "show_preview": true,
       "custom": "",
       "images": [
-        "27",
-        0
+        "83",
+        1
       ]
+    }
+  },
+  "50": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "load_image.png",
+      "upload": "image"
     }
   },
   "48": {
@@ -233,12 +307,15 @@
         "37",
         0
       ],
-      "select": 1,
-      "sel_mode": false,
-      "input2": [
-        "1",
+      "select": [
+        "72",
         0
-      ]
+      ],
+      "input2": [
+        "73",
+        0
+      ],
+      "sel_mode": false
     }
   },
   "37": {
@@ -301,6 +378,74 @@
     },
     "_meta": {
       "title": "Batch Size"
+    }
+  },
+  "28": {
+    "class_type": "FaceDetailerPipe",
+    "inputs": {
+      "image": [
+        "27",
+        0
+      ],
+      "detailer_pipe": [
+        "16",
+        0
+      ],
+      "max_size": [
+        "19",
+        0
+      ],
+      "seed": [
+        "32",
+        0
+      ],
+      "cfg": [
+        "18",
+        2
+      ],
+      "sampler_name": [
+        "18",
+        3
+      ],
+      "scheduler": [
+        "18",
+        4
+      ],
+      "bbox_crop_factor": [
+        "31",
+        0
+      ],
+      "tiled_encode": [
+        "23",
+        0
+      ],
+      "tiled_decode": [
+        "23",
+        0
+      ],
+      "guide_size": 512,
+      "guide_size_for": true,
+      "steps": 14,
+      "denoise": 0.24,
+      "feather": 16,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.38,
+      "bbox_dilation": 8,
+      "sam_detection_hint": "none",
+      "sam_dilation": 4,
+      "sam_threshold": 0.9000000000000001,
+      "sam_bbox_expansion": 0,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 16,
+      "refiner_ratio": 0.2,
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 64
+    },
+    "_meta": {
+      "title": "EyesDetailer (pipe)"
     }
   },
   "27": {
@@ -400,6 +545,22 @@
       "denoise": 1
     }
   },
+  "16": {
+    "class_type": "EditDetailerPipe",
+    "inputs": {
+      "detailer_pipe": [
+        "6",
+        0
+      ],
+      "bbox_detector": [
+        "11",
+        0
+      ],
+      "wildcard": "[CONCAT] {eyes|eyes,detailed eyes}",
+      "Select to add LoRA": "Select the LoRA to add to the text",
+      "Select to add Wildcard": "Select the Wildcard to add to the text"
+    }
+  },
   "15": {
     "class_type": "EditDetailerPipe",
     "inputs": {
@@ -423,6 +584,12 @@
     },
     "_meta": {
       "title": "Height"
+    }
+  },
+  "11": {
+    "class_type": "UltralyticsDetectorProvider",
+    "inputs": {
+      "model_name": "bbox/Eyeful_v2-Individual.pt"
     }
   },
   "10": {

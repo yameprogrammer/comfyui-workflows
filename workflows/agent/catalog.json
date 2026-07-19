@@ -264,7 +264,11 @@
         "scripts/voice_register.py",
         "scripts/episode_tts.py"
       ],
-      "modes": ["custom", "design", "clone"],
+      "modes": [
+        "custom",
+        "design",
+        "clone"
+      ],
       "guide": "workflows/human/qwen3_tts/AGENT_GUIDE.md"
     },
     "qwen3_tts_voice_clone": {
@@ -280,7 +284,10 @@
         "scripts/generate_qwen3_tts.py"
       ],
       "ref_policy": {
-        "ideal_sec": [5, 15],
+        "ideal_sec": [
+          5,
+          15
+        ],
         "max_sec": 30
       },
       "guide": "workflows/human/qwen3_tts/AGENT_GUIDE.md"
@@ -324,7 +331,11 @@
       "used_by": [
         "scripts/generate_boogu_typo.py"
       ],
-      "modes": ["boogu", "pipeline", "upscale"],
+      "modes": [
+        "boogu",
+        "pipeline",
+        "upscale"
+      ],
       "civitai": "https://civitai.red/models/579280?modelVersionId=3066747"
     },
     "illustrious_standard_v37": {
@@ -349,7 +360,11 @@
       "civitai_guide_article": "https://civitai.red/articles/17339",
       "pack_version": "V37",
       "pack_role": "Standard (more basic version of Advanced)",
-      "pack_siblings": ["Advanced", "Basic", "Detailer"],
+      "pack_siblings": [
+        "Advanced",
+        "Basic",
+        "Detailer"
+      ],
       "notes": "Read source purpose before calling. Not for TIPO/IPA/OpenPose (Advanced) or dedicated in/outpaint Detailer workflow."
     },
     "lonecat_t2i_gguf": {
@@ -550,9 +565,14 @@
       "guide": "workflows/human/viewpoint/AGENT_GUIDE.md",
       "capabilities": "workflows/human/viewpoint/CAPABILITIES.json",
       "research": "docs/viewpoint_research.md",
-      "used_by": ["scripts/generate_viewpoint.py"],
+      "used_by": [
+        "scripts/generate_viewpoint.py"
+      ],
       "shelf": "CAMERA",
-      "backends": ["qwen_multiangle_image", "qwen_edit_2509"]
+      "backends": [
+        "qwen_multiangle_image",
+        "qwen_edit_2509"
+      ]
     },
     "style_transfer": {
       "file": null,
@@ -714,6 +734,18 @@
         ],
         "prefer_single_image": "ltx23_nsfw_i2v"
       }
+    },
+    "qwen_edit_2511": {
+      "file": "presets/qwen_edit_2511.api.json",
+      "ports": "presets/qwen_edit_2511.ports.json",
+      "format": "api",
+      "role": "qwen_instruction_edit",
+      "family": "qwen_edit",
+      "source": "image_qwen_image_edit_2509",
+      "used_by": [
+        "scripts/generate_qwen_edit.py",
+        "scripts/shot_keyframe_edit.py"
+      ]
     }
   }
 }
