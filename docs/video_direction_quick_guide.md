@@ -111,7 +111,43 @@ python scripts/assemble_single_take.py \
 
 ---
 
+## 🤖 5단계: 프롬프트 자동 확장(Expander) 및 교정
+
+Krea2의 자연어 강점(Qwen3-VL 4B)을 극대화하기 위해 에이전트(LLM)는 기획 뼈대를 실제 프롬프트로 쓸 때 **스스로 Prompt Enhancer 역할을 수행**해야 합니다.
+
+1. **기획의 디테일화**: `SHOT_DESIGN.md`에 정의된 컷 정보를 [Krea2 프롬프트 가이드(krea2_prompt_guide.md §3)](file:///F:/ComfyUI_workflows/agent_custom/docs/krea2_prompt_guide.md)의 7레이어 구조에 맞춰 하나의 완성된 영문 산문(90~140단어)으로 자동 확장하여 구성합니다.
+2. **이질적인 태그 제거**: 에이전트 네이티브 확장 도구를 쓸 때는 일러스트용 태그(Danbooru)나 실사에 어색한 왁스칠 느낌의 미사여구를 스스로 제거(Post-processing)하여 `Photoreal cinematic film still` 포맷을 유지합니다.
+
+---
+
+## ⚠️ 6단계: 실패 노트(Failure Note) 예방 및 피드백 루프
+
+이전에 다른 에이전트들이 겪은 퀄리티 붕괴(안면 일그러짐, 모션 왜곡 등)를 되풀이하지 않도록 생성 전후에 실패 노트를 무조건 모니터링합니다.
+
+### 1. 생성 전 (Preflight)
+생성을 시작하기 전, 에이전트는 기획한 컷의 연출 위험 요소(예: 손가락, 자동차 문, 빗속 인물 등)가 있는 키워드로 기존 실패 기록을 검색해 예방 대책을 프롬프트에 반영합니다.
+```bash
+# 비나 손가락 관련 실패 메모 검색
+python scripts/failure_note.py before "rain OR hand OR face"
+```
+
+### 2. 생성 후 (Failure feedback)
+만약 시각적 검수(QA) 도중 결함이나 유저 리젝이 발생한 경우, 에이전트는 즉시 실패 내역을 누적하여 조직 학습을 기록합니다.
+```bash
+python scripts/failure_note.py add \
+  --stage keyframe \
+  --tags "krea2_anatomy_fail" \
+  --symptom "손가락 뭉개짐 및 6개 생성" \
+  --cause "프롬프트에 spatial lock(양손 편의점 컵 잡음) 묘사 누락" \
+  --fix "Qwen inpaint로 손목부터 마스크 잡고 재수정" \
+  --prevention "krea2_prompt_guide.md 의 긍정적 묘사 룰 적용" \
+  --severity high
+```
+
+---
+
 ## 💡 유저 실전 팁 (Tip)
 
 - **기획 단계에서 질답하기**: 에이전트가 올린 `CREATIVE.md`가 평이하다면, "패러독스를 조금 더 쓸쓸하게 바꾸고 모티브에 시든 꽃을 추가해줘"라고 지시하여 뼈대를 다듬으세요.
 - **모션 프롬프트 검수**: I2V 단계에서 에이전트가 "빨간 외투를 입은 여자가 걸어간다"처럼 인물 묘사를 재서술하는 실수를 하면 지적해주세요. 모션 단계는 오직 **움직임(slow push-in, hair drift)**만 서술해야 형태 붕괴가 없습니다.
+- **실패 이력 적극 활용**: 에이전트에게 "생성 전 항상 `failure_note.py before` 명령어로 예방 팁을 찾아보고 프롬프트에 방어 문구를 추가해라"라고 주지시키면 퀄리티 실패율이 극적으로 낮아집니다.
