@@ -2,7 +2,7 @@
 
 **CLI:** `generate_i2v` (default LTX AIO), `generate_flf2v`, `generate_s2v`, `generate_v2v`  
 **Also:** `chain_si2v_last_frame` (extend), `chain_one_take` (one-take chain)  
-**Research:** `docs/ltx23_quality_research_and_improvement.md` · `docs/ltx23_clip_extend_guide.md`
+**Research:** `docs/ltx23_quality_research_and_improvement.md` · `docs/ltx23_clip_extend_guide.md` · `docs/ltx23_prompt_guide.md`
 
 ---
 
