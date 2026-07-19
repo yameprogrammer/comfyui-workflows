@@ -1,0 +1,29 @@
+{
+  "preset": "ups_image_seedvr2",
+  "workflow_api": "presets/ups_image_seedvr2.api.json",
+  "description": "Hero still upscale via SeedVR2 Comfy nodes (7B FP8 default). Auto-downloads weights into models/SEEDVR2 if missing; shared lib is F:\\model\\SEEDVR2.",
+  "source_ui": "workflows/human/image_upscale_dual/image_upscale_dual.json",
+  "ports": {
+    "image": { "node": "1", "key": "image" },
+    "dit_model": { "node": "2", "key": "model" },
+    "vae_model": { "node": "3", "key": "model" },
+    "seed": { "node": "4", "key": "seed" },
+    "resolution": { "node": "4", "key": "resolution" },
+    "batch_size": { "node": "4", "key": "batch_size", "optional": true },
+    "color_correction": { "node": "4", "key": "color_correction", "optional": true },
+    "filename_prefix": { "node": "5", "key": "filename_prefix", "optional": true }
+  },
+  "defaults": {
+    "dit_model": "seedvr2_ema_7b_fp8_e4m3fn_mixed_block35_fp16.safetensors",
+    "vae_model": "ema_vae_fp16.safetensors",
+    "resolution": 1080,
+    "batch_size": 1,
+    "color_correction": "lab",
+    "filename_prefix": "ups_seedvr2"
+  },
+  "notes": [
+    "resolution = short edge (SeedVR2 convention).",
+    "For 4K deliver use resolution=2160 and enable VAE tiling if OOM.",
+    "CLI default hero path remains seedvr2_cli; this preset is seedvr2_comfy runner."
+  ]
+}

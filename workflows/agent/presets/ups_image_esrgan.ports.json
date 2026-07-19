@@ -1,0 +1,31 @@
+{
+  "preset": "ups_image_esrgan",
+  "workflow_api": "presets/ups_image_esrgan.api.json",
+  "description": "Fast CNN still upscale — UpscaleModelLoader + ImageUpscaleWithModel + ImageScale. Style via model_name.",
+  "source_ui": "workflows/human/image_upscale_dual/image_upscale_dual.json",
+  "ports": {
+    "image": { "node": "1", "key": "image" },
+    "model_name": { "node": "2", "key": "model_name" },
+    "width": { "node": "4", "key": "width" },
+    "height": { "node": "4", "key": "height" },
+    "filename_prefix": { "node": "5", "key": "filename_prefix", "optional": true }
+  },
+  "defaults": {
+    "model_name": "4x-UltraSharp.pth",
+    "filename_prefix": "ups_esrgan"
+  },
+  "style_models": {
+    "photo": "4xRealWebPhoto_v4_dat2.pth",
+    "photo_sharp": "4x-UltraSharp.pth",
+    "anime": "4x-AnimeSharp.pth",
+    "anime_fast": "RealESRGAN_x4plus_anime_6B.pth",
+    "general": "4x_NMKD-Siax_200k.pth",
+    "remacri": "4x_foolhardy_Remacri.pth",
+    "realesrgan": "RealESRGAN_x4plus.pth"
+  },
+  "notes": [
+    "Models live in F:\\model\\upscale_models (extra_model_paths shared_models).",
+    "Prefer short-edge deliver presets via scripts/upscale_image.py --style …",
+    "Hero quality: use seedvr2 / seedvr2_comfy backends instead of this graph."
+  ]
+}

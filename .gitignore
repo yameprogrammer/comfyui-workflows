@@ -51,3 +51,77 @@ lib/__pycache__/
 
 .agent_cache/
 
+# Grok & Scratch files
+.grok/
+_tmp_*
+dumps/
+
+# Node dependencies
+node_modules/
+
+# Temp presets
+workflows/agent/presets/_*
+
+# Generated runtime characters/locations/looks/voices (keep templates and standard reference refs)
+# Characters casts/temp files
+characters/casts/*/
+!characters/casts/sonagi_heroine_cast_v1/
+!characters/casts/sonagi_heroine_cast_v2/
+characters/casts/sonagi_heroine_cast_v1/*
+!characters/casts/sonagi_heroine_cast_v1/brief.md
+!characters/casts/sonagi_heroine_cast_v1/negative_cast.txt
+!characters/casts/sonagi_heroine_cast_v1/prompt_cast.txt
+characters/casts/sonagi_heroine_cast_v2/*
+!characters/casts/sonagi_heroine_cast_v2/brief.md
+
+# Ignore all characters except templates and mina_park_v1/sonagi_heroine_v1
+characters/*
+!characters/_template/
+!characters/_template/**
+!characters/mina_park_v1/
+!characters/mina_park_v1/**
+!characters/sonagi_heroine_v1/
+!characters/sonagi_heroine_v1/**
+!characters/pilots/
+!characters/pilots/**
+!characters/casts/
+!characters/schemas/
+!characters/schemas/**
+!characters/README.md
+!characters/profiles.json
+!characters/sheet_presets.json
+
+# sonagi_heroine_v1 runtime files (ignore generated, keep tracked)
+characters/sonagi_heroine_v1/approved/
+characters/sonagi_heroine_v1/dataset/
+characters/sonagi_heroine_v1/exports/
+characters/sonagi_heroine_v1/identity/
+characters/sonagi_heroine_v1/meta/
+characters/sonagi_heroine_v1/refs/
+characters/sonagi_heroine_v1/sheets/
+characters/sonagi_heroine_v1/versions/
+characters/sonagi_heroine_v1/README.md
+
+# Ignore all locations except templates and cafe_seoul_v1
+locations/*
+!locations/_template/
+!locations/_template/**
+!locations/cafe_seoul_v1/
+!locations/cafe_seoul_v1/**
+!locations/schemas/
+!locations/schemas/**
+!locations/README.md
+!locations/profiles.json
+!locations/location_presets.json
+
+# Ignore looks except template and cinematic_moody_v1
+looks/*
+!looks/_template/
+!looks/_template/**
+!looks/cinematic_moody_v1/
+!looks/cinematic_moody_v1/**
+
+# Ignore voices except readme
+voices/*
+!voices/README.md
+
