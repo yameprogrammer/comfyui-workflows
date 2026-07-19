@@ -139,15 +139,15 @@ python scripts/character_qwen_turns.py -e EP -c char_name --angles front,side,ba
 Illustrious(애니/일러스트) 체크포인트로 작업할 때, 캐릭터가 멀리 있는 원경(Distant View) 컷이나 얼굴 이목구비가 뭉개지는 문제 컷은 다음 복원 스택 정책을 따릅니다.
 
 ### 1. 복원 스택 적용 규칙
-- **원경/문제 컷 재생성 시**: Face ADetailer와 Hires(하이레스) 스택을 활성화하여 이목구비를 복원합니다.
-- **기본 명령어**: `generate_illustrious_standard.py` 실행 시 `--face` 및 `--hires-post` (또는 `--hires-pre`) 옵션을 명시적으로 적용합니다.
+- **원경/문제 컷 재생성 시**: Face ADetailer, Eyes ADetailer, Hires(하이레스) 스택을 활성화하여 이목구비를 정교하게 복원합니다.
+- **기본 명령어**: `generate_illustrious_standard.py` 실행 시 `--face --eyes` 및 `--hires-post` (또는 `--hires-pre`) 옵션을 함께 적용합니다.
 
-### 2. `--eyes` (Eyes ADetailer) 실패 및 대체 우회 정책
-- **현상**: 로컬 ComfyUI 환경의 `models/ultralytics/bbox/` 디렉토리에 `Eyeful_v2-Individual.pt` (또는 `Eyeful_v2-Paired.pt`) 모델 파일이 존재하지 않아, `--eyes` 옵션 호출 시 에러가 발생하며 프로세스가 실패합니다.
-- **우회 정책**: 
-  - 원경 얼굴 복원 및 이목구비 재생성 시 **`--eyes` 대신 `--face` 옵션을 적용**합니다.
-  - 얼굴 디테일러(`face_yolov8m.pt` 모델은 정상 가용)와 **Hires 스택(`--hires-post`)의 조합**만으로도 원경 애니 캐릭터의 눈과 얼굴 전반을 충분히 복원할 수 있습니다.
-  - 에이전트는 작업 시 존재하지 않는 eyes 모델을 찾아 에러를 내지 말고, 즉시 `--face --hires-post` 조합을 적용하도록 이 정책을 고정합니다.
+### 2. `--eyes` (Eyes ADetailer) 모델 배치 및 지원 정보
+- **상태**: 로컬 ComfyUI 환경의 `models/ultralytics/bbox/` 디렉토리에 누락되었던 **`Eyeful_v2-Individual.pt`** 및 **`Eyeful_v2-Paired.pt`** 모델 파일이 다운로드 및 배치 완료되었습니다.
+- **가이드**: 
+  - 이제 `--eyes` 옵션이 에러 없이 완벽하게 작동합니다.
+  - 원경 캐릭터나 복합 연출 컷에서 눈동자 초점이 뭉개지는 경우, **`--face --eyes --hires-post` 삼중 스택**을 동시에 적용하여 얼굴 전체 구조와 눈동자의 세부 디테일을 모두 완벽히 살릴 수 있습니다.
+  - 에이전트는 기획서의 지침에 따라 안면과 안구 묘사를 위해 이 세 가지 옵션을 적극 활용하도록 정책을 정의합니다.
 
 ---
 
