@@ -193,6 +193,35 @@ CLI는 기본적으로 identity keep 절을 붙인다 (`--raw-prompt` 로 끔).
 
 짧게: `warp, identity morph, flicker, freeze frame, extra limbs, face melt`
 
+### 3.4 Wan lightx2v 운용 노브 (프롬프트 옆 필수)
+
+프롬프트가 맞아도 **CFG / LoRA strength / High·Low step 분할**이 틀리면 모션이 굳거나 붕괴한다.  
+상세 CLI: [wan22_workflow_map.md](wan22_workflow_map.md) §3 · inject: `lib/wan22_i2v_inject.py`.
+
+| 상황 | CFG | lightx2v LoRA H/L | steps · boundary | 비고 |
+|------|-----|-------------------|------------------|------|
+| **기본 (distill on)** | **1.0** both | **1.0 / 1.0** | profile: deliver **6** (3+3) | scalar CFG 강제; schedule 링크 제거 |
+| 모션 약함 / 슬로모 체감 | 1.0 | **0.6–0.8 / 1.0** | 6–8 | high distill 완화 (커뮤니티 정석 근처) |
+| 스카우트 초고속 | 1.0 | 1.0 / 1.0 | **4** (2+2) · preview | 짧은 클립만; **frames≥81 금지 구간** |
+| 히어로·style LoRA | 1.0 (base) | 0.7–1.0 / 1.0 | **10–12**, 예: `--wan-boundary 4` → 4 high + 8 low | low에 스타일 무게 |
+| CFG 올려 실험 | high 2–3.5 / low 1 | 유지 | 8 (4+4) | **불안정·블러 다수** — 기본 비권장 |
+
+**하드 습관**
+
+- lightx2v **ON이면 CFG=1이 기본**. 프롬프트로 “더 선명”을 사려 하지 말고 LoRA/steps를 먼저 조정.  
+- **frames ≥ 81** (~5s@16fps) + steps<6 → 러너가 **steps=6으로 자동 상향** (`--wan-allow-low-steps`로만 해제).  
+- High/Low **양쪽에 최소 2 step** (steps≥6 시 boundary floor). 1-step expert 붕괴 방지.  
+- 프롬프트는 여전히 **모션·카메라 only** — CFG/LoRA는 CLI, 얼굴·의상 재서술이 아님.
+
+```bash
+# 모션 약할 때 A/B
+python scripts/generate_i2v.py ... --backend wan22 --cfg 1.0 \
+  --lora-strength-high 0.7 --lora-strength-low 1.0 --steps 8
+
+# style LoRA 쪽 무게 (비대칭 High/Low)
+python scripts/generate_i2v.py ... --backend wan22 --steps 12 --wan-boundary 4
+```
+
 ---
 
 ## 4. SI2V (립·보컬)

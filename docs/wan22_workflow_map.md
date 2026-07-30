@@ -102,7 +102,7 @@
 | **`deliver`** (기본) | **6** | **10** | 폴백 본선 |
 | `quality` | 8 | 10 | 히어로 후보 |
 
-**2026-07-18 inject 개선** (`lib/wan22_i2v_inject.py`)
+**2026-07-18 inject 개선** (`lib/wan22_i2v_inject.py`) · **2026-07-31 long-clip / edges**
 
 | 노브 | 기본 | CLI |
 |------|------|-----|
@@ -112,7 +112,39 @@
 | scheduler | 그래프 `dpm++_sde` | `--wan-scheduler euler\|res_multistep\|…` |
 | shift | 그래프 8 · euler 시 auto **5** | `--wan-shift` |
 | lightx2v strength | 1.0 / 1.0 | `--lora-strength-high` · `--lora-strength-low` |
-| boundary | steps//2 | `--wan-boundary N` (비대칭 high/low) |
+| boundary | steps//2 · steps≥6 시 양쪽 ≥2 | `--wan-boundary N` (비대칭 high/low) |
+| long-clip steps | frames≥81 → min steps **6** | `--wan-allow-low-steps` 로 해제 |
+| long/short edge | (없음; width×height 직접) | `--wan-long-edge` + `--wan-short-edge` (소스 종횡비 정렬, ×16 snap) |
+
+### 3.1 CFG × lightx2v LoRA (실무 표)
+
+lightx2v distill **ON**이면 프롬프트 추종을 CFG로 키우지 않는다.  
+SSOT 원리: [wan22_workflow_research_and_design.md](wan22_workflow_research_and_design.md) §2.3 · 프롬프트 옆 요약: [generation_prompt_craft.md](generation_prompt_craft.md) §3.4.
+
+| 레시피 | CFG H/L | LoRA H / L | steps (H+L) | 언제 |
+|--------|---------|------------|-------------|------|
+| **deliver 기본** | 1 / 1 | 1.0 / 1.0 | 6 (3+3) | 폴백 본선 |
+| **모션 살리기** | 1 / 1 | **0.6–0.8 / 1.0** | 6–8 | 슬로모·굳은 모션 |
+| **lightx2v 정석 A/B** | 1 / 1 | 0.7 / 1.0 | 6 + `euler` shift≈5 | 커뮤니티 재현 |
+| **Lightning pure** | 1 / 1 | 1.0 / 1.0 | **4 (2+2)** | preview 스카우트 · **짧은 클립만** |
+| **Hero / style LoRA** | 1 / 1 | 0.7–1.0 / 1.0 | **12** boundary **4** → 4+8 | low에 스타일 무게 |
+| **CFG 실험 (비권장 기본)** | 2–3.5 / 1 | 유지 | 8 (4+4) | 불안정·블러 다수 |
+
+**금지에 가까운 조합**
+
+- frames≥81 + steps 4 (1-step expert 붕괴 위험) → 러너가 **6으로 자동 상향**  
+- lightx2v + CFG 5+ “선명하게” (distill 붕괴)  
+- high LoRA 1.0 고정 + 모션 약함 방치 (strength↓ 먼저)
+
+### 3.2 High/Low step 분할
+
+| total steps | default boundary | High | Low | 비고 |
+|-------------|------------------|------|-----|------|
+| 4 | 2 | 2 | 2 | preview only · long-clip guard 비대상 |
+| 6 | 3 | 3 | 3 | **deliver** |
+| 8 | 4 | 4 | 4 | quality 근처 |
+| 12 | 6 또는 **`--wan-boundary 4`** | 6 또는 4 | 6 또는 8 | style LoRA → low 쪽 늘리기 |
+| ≥6, boundary 생략 | `max(2, min(steps-2, steps//2))` | ≥2 | ≥2 | inject floor |
 
 ```bash
 # 폴백 I2V
@@ -133,6 +165,14 @@ python scripts/generate_i2v.py ... --backend wan22 --wan-scheduler euler \
 
 # 비대칭 steps (예: 4 high + 8 low)
 python scripts/generate_i2v.py ... --backend wan22 --steps 12 --wan-boundary 4
+
+# 긴 클립 (~5s+) — steps 4 넣어도 6으로 상향; 강제 저스텝만 해제 플래그
+python scripts/generate_i2v.py ... --backend wan22 --frames 81 --steps 4
+# → warn + steps=6; override: --wan-allow-low-steps
+
+# 소스 종횡비로 long/short edge (portrait still → 480×848)
+python scripts/generate_i2v.py ... --backend wan22 \
+  --wan-long-edge 848 --wan-short-edge 480
 
 # FLF (Wan 명시)
 python scripts/generate_i2v.py -i start.png --last end.png -p "..." -o bridge.mp4 \
