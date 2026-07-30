@@ -248,19 +248,16 @@ class CharacterPackage:
                 identity["primary_ref"] = rel_dest
 
         self.recompute_missing_mvp()
+        # File presence for all MVP aliases ≠ visual/production L2.
+        # Auto-promote only to pending_review so bulk --auto-approve / mid-lock
+        # cannot silently claim "approved" quality.
         if not self.manifest.get("missing_mvp"):
-            self.bible["status"] = "approved"
-            self.manifest["status"] = "approved"
-            self.manifest["level"] = "L2"
-            # mark active profile export complete
-            from lib.profiles import sync_export_status
-
-            sync_export_status(
-                self.bible,
-                self.active_profile_id(),
-                "approved",
-                utc_now_iso(),
-            )
+            cur = (self.manifest.get("status") or "").lower()
+            if cur in ("", "draft", "expanding", "rejected_quality"):
+                self.manifest["status"] = "pending_review"
+                self.bible["status"] = "pending_review"
+            # Never set level=L2 / export approved here — operator must pass visual QA
+            # (character_full_sheet review grids + explicit finalize if needed).
 
         self.save_bible()
         self.save_manifest()

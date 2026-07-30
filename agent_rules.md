@@ -135,10 +135,13 @@ agent_custom/
 * **B 승격**: `character_promote.py` — 고른 이미지 → 패키지 + `approved/master_front` + core 고정.
 * **C 일관 / 캐릭터 시트**: 업계 **풀 시트**가 공정 본체.
   - 프로필: **`full_sheet`**. `video_ref`는 영상 thin pack 전용 — 시트 완성이 아님.
+  - **on-model costume 본선:** `character_expand_sheets` `engine=krea2_identity` (master_front → 전신, ref_boost≈5.5). OpenPose CN은 몸/포즈 폴백.
+  - **`character_full_sheet --run`:** expand+review; bulk L2 auto-approve **기본 OFF** (`--auto-approve` 옵트인). `missing_mvp=[]` ≠ 시각 QA.
   - **B2 필수 (face 다음)**: 의상·소품 선잠금  
     `python scripts/character_set_wardrobe.py --id <id> --default "..." --alt1 "..." --props "..." --lock`  
     bible: `wardrobe_default` / `wardrobe_alt1` / `props_default` / `wardrobe_locked`.
   - **원샷 C**: `python scripts/character_full_sheet.py --id <id> --run`  
+    (costume 단계 = krea2_identity; 승인 전 review grids 필수)  
     순서: wardrobe 게이트 → master_full → **B2.5 design plates** (off-body flat/callout/prop) → on-model costume → **Qwen turns** → expr/pose/props.hand → grids.  
     미잠금 시 중단 (`--allow-unlocked-wardrobe` 비상만).
   - **B2.5 디자인 플레이트** (사람 없음): `costume.flat_front/back`, `costume.callout`, `props.hero`, `props.turn_3view` (T2I product).  

@@ -320,6 +320,8 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 | **`generate_s2v`** | 이미지+오디오 연동 | 무음 순수 모션 → i2v |
 | `generate_s2v --backend infinitetalk` | 토킹 립 품질 (2026-07-30 스모크 OK) | 호출 전 `tool_health --backend infinitetalk` · 실패 시 **`ltx23_ia2v`** · VRAM·길이 계약 |
 | `tool_health --backend infinitetalk` | SI2V 노드 preflight | Comfy 꺼짐 → exit 40 · Wrapper `.disabled` 금지 |
+| `character_expand_sheets` `krea2_identity` | costume 전신 본선 (master_front→full body) | 얼굴 SSOT 유지 · `--krea-ref-boost` / `--krea-steps` |
+| `character_full_sheet --run` | 풀 시트 expand+review | bulk approve 기본 OFF · `--auto-approve` 옵트인 |
 | `generate_ltx23_latentheart` | Director 모듈 조합 | 단순 I2V면 generate_i2v |
 | `generate_ltx23_redmix_i2v` | Krea/Ideogram 스틸 애니 | |
 | `generate_ltx_nsfw_i2v` | 성인 모션 **18+** (LTX 10Eros) | SFW → 일반 i2v |

@@ -39,19 +39,20 @@ CLI: `--ltx-profile draft|work|hero` · `generate_s2v.py --list-ltx-profiles`
 
 ---
 
-## P0 HOTFIX REQUEST (2026-07-30) — GREEN LIGHTER session
+## P0 HOTFIX REQUEST (2026-07-30) — GREEN LIGHTER session — ✅ mostly done
 
-**SSOT 수정 요청 문서:** [FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md](FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md)  
-**구현 계획:** [superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md](superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md) (Phase 0→4, ~3–5일)
+**SSOT:** [FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md](FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md) · [plan](superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md)
 
 | ID | 이슈 | Failure note | 상태 |
 |----|------|--------------|------|
-| IT-* | InfiniteTalk s2v: missing `WanVideoClipVisionEncode` (Wrapper `.disabled`) | FN-20260729-002 | ✅ fixed (smoke OK) |
-| FS-* | `character_full_sheet` identity/framing/auto-approve | FN-20260729-001 | ✅ mitigated (gates; re-expand optional) |
-| H-* | preflight + catalog honesty (Phase 0, 선행) | — | ✅ |
+| IT-* | InfiniteTalk missing WanVideo* / JWLoadAudio | FN-20260729-002 | ✅ fixed |
+| FS-* | full_sheet identity/framing/auto-approve | FN-20260729-001 | ✅ mitigated |
+| H-* | preflight + catalog honesty | — | ✅ |
+| FS-krea | costume `krea2_identity` expand | — | ✅ |
+| FS-mid | mid-lock best feet_score candidate | — | ✅ |
+| FS-fb | fullbody master via krea2 face expand | — | ✅ |
 
-임시 폴백: 키프레임 `krea2_identity_edit` · 립싱크 `ltx23_ia2v` · 시트 공정 프로덕션 금지.  
-권장 착수: **Phase 0 (preflight + 문서 honesty) 먼저** → IT 복구 / full_sheet 핫픽스 병렬 가능.
+**현재 본선:** costume=`krea2_identity` · keyframe=`krea2_identity_edit` · SI2V default=`ltx23_ia2v` · IT=`tool_health` 후 · full_sheet bulk approve 기본 OFF.
 
 ---
 

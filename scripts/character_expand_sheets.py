@@ -450,6 +450,8 @@ def main(argv=None) -> int:
     success = 0
     failures = 0
     job_index = 0
+    # costume.default mid-lock: rank by framing QA feet score (not last candidate wins)
+    costume_default_cands: list[tuple[float, str]] = []
 
     for pid in expand_ids:
         preset = presets["presets"][pid]
@@ -826,16 +828,17 @@ def main(argv=None) -> int:
             else:
                 qa_fail = False
 
-            # After costume.default lands, use it as dressed body source for later pose/props
+            # Collect costume.default passers; mid-lock best after all candidates
             if pid == "costume.default" and os.path.isfile(out_path) and not qa_fail:
-                fullbody_source = out_path
-                try:
-                    pkg.approve(out_path, "costume_default")
-                    print(f"  mid-lock costume_default ← {os.path.basename(out_path)}")
-                except Exception as e:
-                    print(f"  [warn] mid-lock costume_default: {e}")
+                feet = qa.get("feet") or {}
+                feet_score = float(feet.get("score") or 0.0)
+                costume_default_cands.append((feet_score, out_path))
+                print(
+                    f"  costume.default cand c{c} feet_score={feet_score:.3f} "
+                    f"(mid-lock deferred)"
+                )
             elif pid == "costume.default" and qa_fail:
-                print("  [skip mid-lock] costume.default failed framing QA")
+                print("  [skip mid-lock pool] costume.default failed framing QA")
 
             meta = result.get("meta") or {}
             meta.update(
@@ -881,6 +884,21 @@ def main(argv=None) -> int:
                 print(f"[WARN] counted framing QA fail as partial for {pid} c{c}")
             else:
                 success += 1
+
+        # Best costume.default among this preset's candidates
+        if pid == "costume.default" and costume_default_cands:
+            costume_default_cands.sort(key=lambda x: -x[0])
+            best_score, best_path = costume_default_cands[0]
+            fullbody_source = best_path
+            try:
+                pkg.approve(best_path, "costume_default")
+                print(
+                    f"  mid-lock costume_default ← {os.path.basename(best_path)} "
+                    f"(best feet_score={best_score:.3f} of {len(costume_default_cands)})"
+                )
+            except Exception as e:
+                print(f"  [warn] mid-lock costume_default: {e}")
+            costume_default_cands.clear()
 
     pkg.recompute_missing_mvp(profile_id)
     pkg.save_manifest()
