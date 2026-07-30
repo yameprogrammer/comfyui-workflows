@@ -1,3 +1,12 @@
+## 2026-07-31 — LTX PrunaVAED (decode speed)
+- Weights: `F:\model\vae\pruna_ltx2.3_vae_comfy_bf16.safetensors` (Kijai LTX2.3_comfy convert)
+- Factory: `lib/ltx_video_vae.py` auto-prefer when file present; AIO inject in
+  `build_aio_switched_api`; CLI `--ltx-video-vae` / env `AGENT_LTX_VIDEO_VAE`
+- Comfy 0.28 needs Decoder patch (master): forward channel pre-pass + res_x_y
+  in_channels/out_channels — applied under portable
+  `comfy/ldm/lightricks/vae/causal_video_autoencoder.py` (restart required)
+- Smoke OK: `stories/_tool_smoke/ltx_pruna_vae_smoke.mp4` (draft 25f)
+- Docs: ltx23_quality_research §1.1 · tool_catalog
 ## 2026-07-31 — Wan I2V YouTube-derived guards + LightX2V docs
 - Code: `lib/wan22_i2v_inject.py` — `enforce_long_clip_steps` (frames≥81 → min steps 6),
   `resolve_long_short_edges`, boundary floor both sides ≥2 when steps≥6

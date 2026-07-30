@@ -17,6 +17,20 @@
 
 > **LTX 채택은 타당. 기본값은 매일 돌리는 work 레인. 유튜브급은 hero 프로필·짧은 클립·좋은 still·프롬프트 방언으로 끌어올린다.**
 
+### 1.1 PrunaVAED (디코드 가속 · 2026-07-31)
+
+| 항목 | 내용 |
+|------|------|
+| **무엇** | [PrunaAI/PrunaVAED](https://huggingface.co/PrunaAI/PrunaVAED) — LTX-2.3 **비디오 VAE 디코더** drop-in (encoder/latent 동일) |
+| **Comfy 가중치** | [Kijai/LTX2.3_comfy](https://huggingface.co/Kijai/LTX2.3_comfy) → `vae/pruna_ltx2.3_vae_comfy_bf16.safetensors` → `F:\model\vae\` |
+| **기대 이득** | 디코드 ~**1.7×** · decode peak VRAM ~**50%↓** (HF H100 벤치). **샘플링은 그대로** → e2e는 보통 수~십수 % |
+| **공장 정책** | 파일 있으면 **auto 기본=Pruna** (`lib/ltx_video_vae.py` · AIO inject). 오버라이드: `AGENT_LTX_VIDEO_VAE=stock\|pruna\|file` · CLI `--ltx-video-vae` |
+| **Comfy 패치** | 0.28 기본 `Decoder` 는 Pruna `res_x_y` 의 `in_channels`/`out_channels` 미반영 → shape mismatch. **master와 동일 수정** 필요 (`causal_video_autoencoder.py`: channel pre-pass **forward** + explicit in/out). 0.29+ 또는 로컬 패치 후 **Comfy 재시작**. |
+| **스모크** | `stories/_tool_smoke/ltx_pruna_vae_smoke.mp4` (draft · 25f · 2026-07-31 OK) |
+| **되돌리기** | `--ltx-video-vae stock` 또는 env `AGENT_LTX_VIDEO_VAE=stock` |
+
+참고 영상: Deno [LTX-2.3 PrunaVAED 적용법](https://youtu.be/pzBFv-3lJGQ) (내부: `dumps/yt_ref_pzBFv-3lJGQ/`).
+
 ---
 
 ## 2. 외부 평가 요약

@@ -191,8 +191,12 @@ def build_aio_switched_api(
     face_stability: bool | None = None,
     detailer_strength: float | None = None,
     ltx_profile: str | None = None,
+    video_vae: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Apply mode switches on real AIO UI WF, expand to API, inject run params."""
+    """Apply mode switches on real AIO UI WF, expand to API, inject run params.
+
+    ``video_vae``: pruna|stock|filename|None (None → AGENT_LTX_VIDEO_VAE or auto).
+    """
     ui = _load_ui(ui_workflow_path)
     ui = apply_aio_mode_to_ui_workflow(ui, mode)
     # Fetch object_info once if not provided (widget field names)
@@ -209,6 +213,27 @@ def build_aio_switched_api(
         except Exception:
             object_info = None
     api = expand_ui_workflow_to_api(ui, object_info=object_info)
+
+    # LTX video VAE: prefer PrunaVAED when installed (decode ~1.7×, lower VRAM)
+    video_vae_report: dict[str, Any] = {}
+    try:
+        from lib.ltx_video_vae import apply_ltx_video_vae_to_api
+
+        video_vae_report = apply_ltx_video_vae_to_api(api, prefer=video_vae)
+        if video_vae_report.get("applied"):
+            print(
+                f"[ltx video VAE] {video_vae_report.get('kind')} → "
+                f"{video_vae_report.get('name')} "
+                f"(nodes={video_vae_report.get('patched_node_ids')})"
+            )
+        elif video_vae_report.get("fallback_used"):
+            print(
+                f"[ltx video VAE] fallback {video_vae_report.get('source')} → "
+                f"{video_vae_report.get('name')}"
+            )
+    except Exception as e:
+        video_vae_report = {"error": str(e)}
+        print(f"[WARN] ltx video VAE inject skipped: {e}")
 
     # lengths
     # Pure I2V (no audio): use clip_length_sec / audio_duration_sec — do NOT force 3s.
@@ -464,6 +489,7 @@ def build_aio_switched_api(
         "face_stability": bool(face_stability),
         "face_lora": face_lora_report,
         "ltx_profile": qprof.get("id"),
+        "video_vae": video_vae_report,
         "prompt_final_preview": (prompt_final or "")[:200],
         "negative_final_preview": (neg_final or "")[:200],
     }

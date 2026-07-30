@@ -40,7 +40,14 @@ DEFAULT_GEMMA = "gemma_3_12B_it_fp4_mixed.safetensors"
 DEFAULT_GEMMA_GGUF = "gemma-3-12b-it-UD-Q4_K_XL.gguf"
 DEFAULT_GEMMA_FP8 = "gemma_3_12B_it_fp8_e4m3fn.safetensors"
 DEFAULT_TEXT_PROJ = "ltx-2.3_text_projection_bf16.safetensors"
-DEFAULT_VIDEO_VAE = "LTX23_video_vae_bf16.safetensors"
+# Prefer PrunaVAED when installed (see lib/ltx_video_vae.py); stock otherwise.
+try:
+    from lib.ltx_video_vae import STOCK_VIDEO_VAE as _STOCK_VVAE
+    from lib.ltx_video_vae import resolve_ltx_video_vae as _resolve_vvae
+
+    DEFAULT_VIDEO_VAE = str(_resolve_vvae("auto").get("name") or _STOCK_VVAE)
+except Exception:  # pragma: no cover
+    DEFAULT_VIDEO_VAE = "LTX23_video_vae_bf16.safetensors"
 DEFAULT_AUDIO_VAE = "LTX23_audio_vae_bf16.safetensors"
 
 # Distilled single-pass sigma schedule (community custom-audio / basic GGUF)

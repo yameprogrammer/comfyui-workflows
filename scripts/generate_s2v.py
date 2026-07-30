@@ -556,6 +556,7 @@ def generate_s2v(
     face_stability: bool | None = None,
     detailer_strength: float | None = None,
     ltx_profile: str | None = None,
+    ltx_video_vae: str | None = None,
     format_id: str | None = None,
     apply_ltx_profile_size: bool = True,
 ) -> dict:
@@ -930,6 +931,7 @@ def generate_s2v(
                     face_stability=face_stability,
                     detailer_strength=detailer_strength,
                     ltx_profile=ltx_profile,
+                    video_vae=ltx_video_vae,
                 )
                 ltx_runner = "ltx_aio_workflow_runner"
                 lora_use = "PowerLora(from_AIO_workflow)"
@@ -1436,6 +1438,14 @@ def main(argv=None) -> int:
         help="Print LTX quality profiles and exit",
     )
     p.add_argument(
+        "--ltx-video-vae",
+        default=None,
+        help=(
+            "LTX video VAE: auto|pruna|stock|<filename> "
+            "(default auto=PrunaVAED if installed). Env AGENT_LTX_VIDEO_VAE."
+        ),
+    )
+    p.add_argument(
         "--format",
         dest="format_id",
         default=None,
@@ -1595,6 +1605,7 @@ def main(argv=None) -> int:
         face_stability=args.face_stability,
         detailer_strength=args.detailer_strength,
         ltx_profile=args.ltx_profile,
+        ltx_video_vae=getattr(args, "ltx_video_vae", None),
         format_id=args.format_id,
     )
     if r.get("ok"):
