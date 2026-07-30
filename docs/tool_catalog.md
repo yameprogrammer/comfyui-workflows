@@ -313,6 +313,7 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 | **`generate_i2v`** | 일반 I2V · 자유 모션 문장 (기본 LTX) | 의도 id만 고르면 camera_move가 편함 |
 | **`--ltx-profile`** | `draft`(~540) / **`work`(720p 기본)** / **`hero`(~1080)** | 배치는 work · 러프만 draft |
 | **`--ltx-video-vae`** | `auto`(PrunaVAED if installed) / `pruna` / `stock` / filename | 디코드 ~1.7× · [ltx quality §1.1](ltx23_quality_research_and_improvement.md) · env `AGENT_LTX_VIDEO_VAE` |
+| **`--ltx-vbvr` / `--no-ltx-vbvr`** | Licon VBVR reasoning LoRA (work 기본 ON@0.75) | 모션·시간축 보강 · **FaceID 아님** · [ltx_face_stability](ltx_face_stability.md) · `AGENT_LTX_VBVR` |
 | **`--motion-preset`** | i2v/episode_i2v에 같은 프리셋 연결 | camera_move와 id 공유 |
 | `generate_i2v --backend wan22` | LTX 폴백·카메라/텍스처 재시도 (GGUF+lightx2v) | 에피 기본 I2V 금지 · 모션 평탄할 수 있음 |
 | wan22 노브 | `--cfg` · `--lora-strength-high/low` · `--wan-boundary` · frames≥81→steps≥6 · `--wan-long-edge`+`--wan-short-edge` | CFG×LoRA 표: [wan22_workflow_map](wan22_workflow_map.md) §3 · LX 레시피 §5.1 [speed research](wan22_i2v_speed_research.md) |

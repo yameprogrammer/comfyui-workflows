@@ -1,3 +1,11 @@
+## 2026-07-31 — LTX VBVR reasoning LoRA (motion/temporal)
+- Ref: Mayajin YT Zw_OaYZzA0E — title says face consistency; VBVR = Video Reasoning
+  (physics/trajectory/temporal), not FaceID. Useful alongside detailer/Omni.
+- Weights: `F:\model\loras\LTX2.3\Ltx2.3-Licon-VBVR-I2V-240K-R32.safetensors`
+- Inject Power Lora slot on AIO node 211 (`apply_ltx_vbvr_lora`); profile strengths
+  draft 0.65 / work 0.75 / hero 0.8; CLI `--ltx-vbvr` / `--no-ltx-vbvr` / `--ltx-vbvr-strength`
+- Env: `AGENT_LTX_VBVR` · `AGENT_LTX_VBVR_STRENGTH`
+- Docs: ltx_face_stability.md · tool_catalog
 ## 2026-07-31 — LTX PrunaVAED (decode speed)
 - Weights: `F:\model\vae\pruna_ltx2.3_vae_comfy_bf16.safetensors` (Kijai LTX2.3_comfy convert)
 - Factory: `lib/ltx_video_vae.py` auto-prefer when file present; AIO inject in

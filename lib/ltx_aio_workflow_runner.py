@@ -79,6 +79,130 @@ FACE_STABILITY_PROMPT_SUFFIX = (
 )
 
 
+# Licon VBVR (Video Reasoning) — motion/physics/temporal coherence, not FaceID.
+# File from HF LiconStudio/Ltx2.3-VBVR-lora-I2V (Mayajin WF uses 240K R32).
+DEFAULT_VBVR_LORA = r"LTX2.3\Ltx2.3-Licon-VBVR-I2V-240K-R32.safetensors"
+DEFAULT_VBVR_STRENGTH = 0.75
+
+
+def _lora_file_exists(rel_name: str) -> bool:
+    """True if LoRA path is under F:\\model\\loras (extra_model_paths)."""
+    from pathlib import Path
+
+    n = (rel_name or "").replace("/", "\\").strip()
+    if not n:
+        return False
+    p = Path(n)
+    if p.is_file():
+        return True
+    bases = [
+        Path(r"F:\model\loras"),
+        Path(r"F:\ComfyUI_windows_portable\ComfyUI\models\loras"),
+    ]
+    for b in bases:
+        if (b / n).is_file():
+            return True
+        if (b / Path(n).name).is_file():
+            return True
+    return False
+
+
+def apply_ltx_vbvr_lora(
+    api: dict[str, Any],
+    *,
+    enable: bool = True,
+    strength: float = DEFAULT_VBVR_STRENGTH,
+    lora_path: str = DEFAULT_VBVR_LORA,
+) -> dict[str, Any]:
+    """Enable/disable VBVR reasoning LoRA on Power Lora Loader (node 211).
+
+    If no VBVR-named slot exists and enable=True and file is present, inject
+    the next free ``lora_N`` slot. Does not replace detailer/Omni face stack.
+    """
+    report: dict[str, Any] = {
+        "requested": bool(enable),
+        "strength": float(strength),
+        "lora": lora_path,
+        "applied": False,
+        "exists": _lora_file_exists(lora_path),
+        "slot": None,
+        "action": None,
+    }
+    node = api.get("211")
+    if not isinstance(node, dict):
+        report["error"] = "power_lora_node_211_missing"
+        return report
+    inputs = node.setdefault("inputs", {})
+
+    # Find existing VBVR / reasoning-named slot
+    vbvr_key: str | None = None
+    used_nums: list[int] = []
+    for key, val in list(inputs.items()):
+        if not str(key).startswith("lora_"):
+            continue
+        if isinstance(val, dict):
+            try:
+                used_nums.append(int(str(key).split("_", 1)[1]))
+            except ValueError:
+                pass
+            low = str(val.get("lora") or "").lower().replace("\\", "/")
+            if "vbvr" in low or "licon-vbvr" in low or "licon_vbvr" in low:
+                vbvr_key = str(key)
+                break
+            # Local alternate naming (not ideal FaceID; skip LTX2.3_Reasoning unless path match)
+            if "reasoning" in low and "vbvr" in low:
+                vbvr_key = str(key)
+                break
+
+    if not enable:
+        if vbvr_key and isinstance(inputs.get(vbvr_key), dict):
+            inputs[vbvr_key]["on"] = False
+            report["slot"] = {
+                "key": vbvr_key,
+                "on": False,
+                "strength": inputs[vbvr_key].get("strength"),
+                "lora": inputs[vbvr_key].get("lora"),
+            }
+            report["applied"] = True
+            report["action"] = "disabled"
+        else:
+            report["action"] = "noop_off"
+        return report
+
+    if not report["exists"]:
+        report["action"] = "missing_file"
+        report["error"] = f"VBVR LoRA not found: {lora_path}"
+        return report
+
+    if vbvr_key is None:
+        n = (max(used_nums) + 1) if used_nums else 1
+        vbvr_key = f"lora_{n}"
+        inputs[vbvr_key] = {
+            "on": True,
+            "lora": lora_path.replace("/", "\\"),
+            "strength": float(strength),
+        }
+        report["action"] = "injected"
+    else:
+        slot = inputs.setdefault(vbvr_key, {})
+        if not isinstance(slot, dict):
+            slot = {}
+            inputs[vbvr_key] = slot
+        slot["on"] = True
+        slot["lora"] = lora_path.replace("/", "\\")
+        slot["strength"] = float(strength)
+        report["action"] = "updated"
+
+    report["slot"] = {
+        "key": vbvr_key,
+        "on": True,
+        "strength": float(strength),
+        "lora": lora_path,
+    }
+    report["applied"] = True
+    return report
+
+
 def apply_ltx_face_stability_loras(
     api: dict[str, Any],
     *,
@@ -89,6 +213,9 @@ def apply_ltx_face_stability_loras(
     upscale_ic_strength: float | None = None,
     omni_strength: float | None = None,
     omni_on: bool | None = None,
+    vbvr_on: bool | None = None,
+    vbvr_strength: float | None = None,
+    vbvr_lora: str | None = None,
 ) -> dict[str, Any]:
     """
     Tune Power Lora Loader (node 211) for quality + face stability.
@@ -98,12 +225,15 @@ def apply_ltx_face_stability_loras(
     to support built-in 2-stage (was hard-OFF; hurt stage2 detail).
 
     Community: distill 0.6–0.8 · detailer ~0.5–0.65 · avoid max upscale IC on faces.
+    Optional VBVR (Video Reasoning) LoRA: motion/physics/temporal coherence helper
+    — not a FaceID lock; stacks with detailer/Omni.
     """
     report: dict[str, Any] = {
         "detailer": None,
         "distilled": None,
         "upscale_ic": None,
         "omni": None,
+        "vbvr": None,
         "slots": [],
     }
     node = api.get("211")
@@ -165,6 +295,16 @@ def apply_ltx_face_stability_loras(
             slot["strength"] = val.get("strength")
             report["omni"] = slot
         report["slots"].append(slot)
+
+    # VBVR: after tuning existing slots (may inject new lora_N)
+    if vbvr_on is not None:
+        vstr = float(vbvr_strength if vbvr_strength is not None else DEFAULT_VBVR_STRENGTH)
+        vpath = vbvr_lora or DEFAULT_VBVR_LORA
+        report["vbvr"] = apply_ltx_vbvr_lora(
+            api, enable=bool(vbvr_on), strength=vstr, lora_path=vpath
+        )
+        if report["vbvr"].get("applied") and report["vbvr"].get("slot"):
+            report["slots"].append(report["vbvr"]["slot"])
     return report
 
 
@@ -192,10 +332,13 @@ def build_aio_switched_api(
     detailer_strength: float | None = None,
     ltx_profile: str | None = None,
     video_vae: str | None = None,
+    vbvr: bool | None = None,
+    vbvr_strength: float | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Apply mode switches on real AIO UI WF, expand to API, inject run params.
 
     ``video_vae``: pruna|stock|filename|None (None → AGENT_LTX_VIDEO_VAE or auto).
+    ``vbvr``: enable Licon VBVR reasoning LoRA (None → profile/env auto if file present).
     """
     ui = _load_ui(ui_workflow_path)
     ui = apply_aio_mode_to_ui_workflow(ui, mode)
@@ -423,6 +566,26 @@ def build_aio_switched_api(
         # explicit off: still apply mild distill for AIO schedule, leave detailer to profile
         pass
 
+    # VBVR (Video Reasoning) — motion/temporal; default ON when file present
+    vbvr_env = (_os.environ.get("AGENT_LTX_VBVR") or "").strip().lower()
+    if vbvr is not None:
+        vbvr_enable = bool(vbvr)
+    elif vbvr_env in ("0", "false", "off", "no"):
+        vbvr_enable = False
+    elif vbvr_env in ("1", "true", "on", "yes"):
+        vbvr_enable = True
+    else:
+        # profile default True; still needs file (apply_ltx_vbvr_lora no-ops if missing)
+        vbvr_enable = bool(qprof.get("vbvr_on", True))
+    vbvr_str = float(
+        vbvr_strength
+        if vbvr_strength is not None
+        else _env_float(
+            "AGENT_LTX_VBVR_STRENGTH",
+            float(qprof.get("vbvr_strength") or DEFAULT_VBVR_STRENGTH),
+        )
+    )
+
     if face_stability:
         # motion prompt: append stability clause once
         if prompt_final and "identity stable" not in prompt_final.lower() and "face morph" not in prompt_final.lower():
@@ -444,6 +607,8 @@ def build_aio_switched_api(
         upscale_ic_strength=upscale_str if upscale_on else None,
         omni_strength=omni_str,
         omni_on=True,
+        vbvr_on=vbvr_enable,
+        vbvr_strength=vbvr_str,
     )
     if face_lora_report is not None:
         face_lora_report["ltx_profile"] = qprof.get("id")
@@ -454,7 +619,18 @@ def build_aio_switched_api(
             "upscale_ic": upscale_on,
             "upscale_ic_strength": upscale_str if upscale_on else None,
             "omni": omni_str,
+            "vbvr": vbvr_enable,
+            "vbvr_strength": vbvr_str,
         }
+        vrep = face_lora_report.get("vbvr") or {}
+        if vrep.get("applied"):
+            print(
+                f"  ltx VBVR on={vrep.get('slot', {}).get('on')} "
+                f"strength={vrep.get('slot', {}).get('strength')} "
+                f"lora={vrep.get('lora')} action={vrep.get('action')}"
+            )
+        elif vbvr_enable and vrep.get("action") == "missing_file":
+            print(f"[WARN] VBVR requested but file missing: {vrep.get('lora')}")
 
     if prompt_final:
         _set(api, "1797", "text", prompt_final)

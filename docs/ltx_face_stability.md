@@ -19,8 +19,24 @@ AIO v44 기본 세팅에서 **IC-LoRA detailer (`ltx-2-19b-ic-lora-detailer`)가
 | Distill fro09 | **0.7** (was UI 0.9 / old face 0.6) | `AGENT_LTX_DISTILL_STRENGTH` |
 | Upscale IC-LoRA | **ON @ 0.45** (2-stage 지원; was hard-OFF) | `AGENT_LTX_UPSCALE_IC=0` 끄기 · `…_STRENGTH` |
 | OmniNFT | **0.45** | `AGENT_LTX_OMNI_STRENGTH` |
+| **VBVR** (Video Reasoning LoRA) | **ON @ 0.75** (work; file 있을 때) | `AGENT_LTX_VBVR` · `AGENT_LTX_VBVR_STRENGTH` |
 | 프롬프트 접미 | identity stable / no face morph | — |
 | Negative | morphing face, identity shift… | — |
+
+### VBVR (2026-07-31) — 얼굴 FaceID가 아님
+
+Licon **VBVR** (`Ltx2.3-Licon-VBVR-I2V-240K-R32`) 는 **물리·궤적·시간 축 일관성** LoRA다.  
+제목/커뮤니티에 “얼굴 일관성”으로 묶이지만 **캐릭터 FaceID 고정이 아니다**.  
+detailer/Omni와 **함께** 쓰면 프레임 간 떨림·모션 이상 완화에 도움이 될 수 있다 (Mayajin LTX+VBVR WF 참고).
+
+| profile | VBVR strength |
+|---------|----------------|
+| draft | 0.65 |
+| **work** | **0.75** |
+| hero | 0.8 |
+
+파일: `F:\model\loras\LTX2.3\Ltx2.3-Licon-VBVR-I2V-240K-R32.safetensors`  
+없으면 자동 스킵. strength **1.0은 choppy** 보고 다수 → 기본 ≤0.8.
 
 끄기 / 튜닝:
 
@@ -31,10 +47,14 @@ set AGENT_LTX_DISTILL_STRENGTH=0.7
 set AGENT_LTX_UPSCALE_IC=1
 set AGENT_LTX_UPSCALE_IC_STRENGTH=0.45
 set AGENT_LTX_DETAILER_STRENGTH=0.55
+set AGENT_LTX_VBVR=0
+set AGENT_LTX_VBVR_STRENGTH=0.75
 
 # CLI
 python scripts/generate_s2v.py --backend ltx23_aio_i2v --no-face-stability ...
 python scripts/generate_s2v.py --detailer-strength 0.7 --ltx-profile hero ...
+python scripts/generate_s2v.py --no-ltx-vbvr ...          # VBVR off
+python scripts/generate_s2v.py --ltx-vbvr-strength 0.6 ...
 ```
 
 ## 연출/프롬프트 (더 중요)
@@ -55,6 +75,7 @@ python scripts/generate_s2v.py --detailer-strength 0.7 --ltx-profile hero ...
 | SeedVR2 / face polish | 모션 승인 후 마감 (얼굴 스미어 잔여) |
 | Dual-Character IC-LoRA | 2인 대화 (AIO 슬롯 수동/추가 export) |
 | 키프레임 재생성 | 소스 얼굴이 이미 약할 때 |
+| **Best Face ID / char LoRA** | 진짜 인물 고정이 필요할 때 (별 티켓; VBVR 대체 아님) |
 
 ## A/B (2026-07-17, S01 동일 seed)
 

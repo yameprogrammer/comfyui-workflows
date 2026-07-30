@@ -28,6 +28,9 @@ _DEFAULT_PROFILES: dict[str, dict[str, Any]] = {
         "upscale_ic_on": True,
         "upscale_ic_strength": 0.4,
         "omni_strength": 0.4,
+        # VBVR: weaker on draft (speed); still helps temporal/motion if file present
+        "vbvr_on": True,
+        "vbvr_strength": 0.65,
         "max_pure_i2v_sec": 3.0,
         "prefer_speed": True,
         "notes": "scout/fast only; not default",
@@ -45,9 +48,11 @@ _DEFAULT_PROFILES: dict[str, dict[str, Any]] = {
         "upscale_ic_on": True,
         "upscale_ic_strength": 0.45,
         "omni_strength": 0.45,
+        "vbvr_on": True,
+        "vbvr_strength": 0.75,
         "max_pure_i2v_sec": 5.0,
         "prefer_speed": False,
-        "notes": "DEFAULT: Q6+720p+2-stage; distill 0.7 · detailer 0.55 · upscale IC 0.45",
+        "notes": "DEFAULT: Q6+720p+2-stage; distill 0.7 · detailer 0.55 · upscale IC 0.45 · VBVR 0.75",
     },
     "hero": {
         "summary": "히어로 ~1080 work · 강한 detailer",
@@ -62,9 +67,11 @@ _DEFAULT_PROFILES: dict[str, dict[str, Any]] = {
         "upscale_ic_on": True,
         "upscale_ic_strength": 0.5,
         "omni_strength": 0.5,
+        "vbvr_on": True,
+        "vbvr_strength": 0.8,
         "max_pure_i2v_sec": 4.0,
         "prefer_speed": False,
-        "notes": "Higher res + stronger face/detail; short clips",
+        "notes": "Higher res + stronger face/detail + VBVR 0.8; short clips",
     },
 }
 

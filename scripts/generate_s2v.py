@@ -557,6 +557,8 @@ def generate_s2v(
     detailer_strength: float | None = None,
     ltx_profile: str | None = None,
     ltx_video_vae: str | None = None,
+    ltx_vbvr: bool | None = None,
+    ltx_vbvr_strength: float | None = None,
     format_id: str | None = None,
     apply_ltx_profile_size: bool = True,
 ) -> dict:
@@ -932,6 +934,8 @@ def generate_s2v(
                     detailer_strength=detailer_strength,
                     ltx_profile=ltx_profile,
                     video_vae=ltx_video_vae,
+                    vbvr=ltx_vbvr,
+                    vbvr_strength=ltx_vbvr_strength,
                 )
                 ltx_runner = "ltx_aio_workflow_runner"
                 lora_use = "PowerLora(from_AIO_workflow)"
@@ -1446,6 +1450,21 @@ def main(argv=None) -> int:
         ),
     )
     p.add_argument(
+        "--ltx-vbvr",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help=(
+            "LTX VBVR Video Reasoning LoRA (motion/temporal; not FaceID). "
+            "Default: on when file present. Env AGENT_LTX_VBVR=0 to force off."
+        ),
+    )
+    p.add_argument(
+        "--ltx-vbvr-strength",
+        type=float,
+        default=None,
+        help="VBVR LoRA strength (default profile: draft 0.65 / work 0.75 / hero 0.8)",
+    )
+    p.add_argument(
         "--format",
         dest="format_id",
         default=None,
@@ -1606,6 +1625,8 @@ def main(argv=None) -> int:
         detailer_strength=args.detailer_strength,
         ltx_profile=args.ltx_profile,
         ltx_video_vae=getattr(args, "ltx_video_vae", None),
+        ltx_vbvr=getattr(args, "ltx_vbvr", None),
+        ltx_vbvr_strength=getattr(args, "ltx_vbvr_strength", None),
         format_id=args.format_id,
     )
     if r.get("ok"):
