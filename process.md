@@ -1357,3 +1357,12 @@
 - Comfy patch: text_encoders/ace15.py max_tokens=metadata max_tokens (was min_tokens twice)
 - Sampling restored to temp=0.85 top_p=0.9 (official)
 - Smoke: bgm_cafe_ace.mp3 45s mean~-18.5dB OK
+
+## 2026-07-30
+- OPEN fix request: docs/FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md (full_sheet FN-20260729-001, InfiniteTalk FN-20260729-002). Production: no full_sheet; s2v use ltx23_ia2v until IT nodes restored.
+- Root-cause confirmed + **implementation plan documented** (code not started):
+  - Plan: `docs/superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md` (Phase 0 preflight/docs → 1 IT restore → 2–3 full_sheet → 4 close)
+  - IT: `ComfyUI-WanVideoWrapper.disabled` → all WanVideo* missing; native `WanInfiniteTalkToVideo` unused
+  - FS: positive_core head-and-shoulders bleed + i2i size not passed + high denoise plain i2i + auto_approve file-only
+  - FIX_REQUEST status → PLAN READY; backlog P0 HOTFIX links plan
+

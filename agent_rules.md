@@ -215,7 +215,7 @@ agent_custom/
 * **본선 = Comfy 생성 품질** (키프레임·I2V·SI2V). 외부 편집 monorepo(OpenMontage 등)는 참고만.  
   - 기능 목록·유용도: `docs/openmontage_capability_catalog.md` (공식 연동 SOP 없음 — “이런 게 있다” 수준).  
   - 전체 파이프 대체 금지. 이식 시 얇은 wrapper + 작업대 export 유지.
-* SI2V 기본 백엔드 = **`ltx23_ia2v`**. **`infinitetalk`** = 1급 대안 (v4 center_voicey 실용 립). 폐기 금지.
+* SI2V 기본 백엔드 = **`ltx23_ia2v`**. **`infinitetalk`** = 립 품질 대안 (폐기 금지) — **런타임** `python scripts/tool_health.py --backend infinitetalk` 통과 시에만; 실패 시 IT 호출 금지.
 * SI2V 기본 캔버스 = **square** (얼굴/입); 에피소드 aspect는 deliver/upscale 단계에서.
 * Driving prep 기본 = **`auto`** (demucs → center_voicey).
 * 뮤비 보컬 컷: `audio_bind_driving.py -e <ep> --shot S0x --start … --duration …`

@@ -52,8 +52,15 @@ bible SSOT: `appearance.wardrobe_*`, `props_default`, `wardrobe_locked`.
 
 ### C 캐릭터 시트 (공정 SOP — full_sheet)
 
+> **⚠️ 2026-07-30 P0:** `character_full_sheet --run` 프로덕션 캐스트 잠금 **일시 금지**  
+> (identity drift / framing / silent auto-approve — FN-20260729-001).  
+> 우회: `cast_pool` → promote → **`master_front` only** · 키프레임 `krea2_identity_edit`.  
+> `missing_mvp=[]` = 파일 존재일 뿐 **시각 QA 통과 아님**.  
+> 계획: [superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md](superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md)
+
 ```bash
 # 원샷 (B2 이후) — 단계 순서 고정
+# 수정 후: 기본은 expand + review grids; L2 auto-approve는 --auto-approve 옵트인
 python scripts/character_full_sheet.py --id X --run
 # Phase0 master_full → B2.5 design (flat/callout/prop) → on-model costume
 # → Qwen turns → expr/pose/props.hand

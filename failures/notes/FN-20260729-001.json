@@ -1,0 +1,26 @@
+{
+  "id": "FN-20260729-001",
+  "created_at": "2026-07-29T15:04:46+00:00",
+  "agent": "grok",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "character_sheet",
+  "tags": [
+    "identity_drift",
+    "full_sheet",
+    "auto_approve",
+    "framing",
+    "multi_person",
+    "pose_controlnet"
+  ],
+  "symptom": "full_sheet for green_lighter_idol_v1 drifts face from master_front; costume sheets become face CUs; pose_hands_hips becomes 3 people; footwear detail is face with shoe inset; pipeline auto-approves all junk to L2",
+  "root_cause": "weak i2i identity lock + prompt-driven re-gen; design/costume/pose presets wrong shot size; candidates=1 no human gate; auto_approve maps latest refs without visual QA; controlnet pose invents multi-person",
+  "fix": "do not use full_sheet outputs for MV; keep cast master_front only; rewrite full_sheet with hard face lock, shot-size gates, human approve per phase, ban multi-person",
+  "prevention": "human gate after each phase; fail if face identity drifts; detail sheets must crop POI; pose solitary only; no auto L2 without visual QA",
+  "related_paths": [
+    "characters/green_lighter_idol_v1"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

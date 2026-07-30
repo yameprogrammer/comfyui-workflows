@@ -369,7 +369,7 @@
       "quality_tier": "nsfw"
     },
     "infinitetalk": {
-      "status": "ready",
+      "status": "degraded",
       "kind": "s2v",
       "engine": "Wan 2.1 I2V + InfiniteTalk (WanVideoWrapper)",
       "workflow": "scripts/generate_s2v.py --backend infinitetalk",
@@ -380,7 +380,7 @@
         "face_stability",
         "hero_cut"
       ],
-      "notes": "HERO lips only (not agent default). Best lip lock; full 960@20step ~10–12min/5s on 4090. Use --profile hero (832/16fps/12step, still no lightx2v graph). lightx2v LoRA exists locally but graph wire deferred."
+      "notes": "DEGRADED 2026-07-30: ComfyUI-WanVideoWrapper often .disabled → missing WanVideo* nodes. Preflight: python scripts/tool_health.py --backend infinitetalk. Fallback: --backend ltx23_ia2v. HERO lips when healthy; not agent default. See docs/FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md + plan 2026-07-30-full-sheet-and-infinitetalk-fix."
     },
     "ltx23_ia2v": {
       "status": "ready",

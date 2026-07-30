@@ -75,7 +75,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | “배경만 밤으로” 문장 편집 | `generate_qwen_edit` | 전역 instruction |
 | 옷·손 등 **부위만** | `generate_qwen_inpaint` | **마스크** 필수 |
 | 옆/뒤 등 **각도** | `generate_qwen_angle` | multi-view |
-| 포즈 맵에 맞추기 | `generate_moody_controlnet` | Fun Union CN |
+| 포즈 맵에 맞추기 | **`generate_openpose_pose`** · `generate_moody_controlnet` · `cc --mode pose` | OpenPose → Fun Union CN (**not Qwen**) |
 | 타이틀·간판 글자 | `generate_ideogram4` | 가벼운 타이포 |
 | 잡지·포스터 글자+인물 | `generate_boogu_typo` | Boogu→Ideogram→Krea |
 | 스틸 → 짧은 모션 | `generate_i2v` | LTX I2V 기본 |
@@ -100,7 +100,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 INGEST     밖 레퍼 가져오기        youtube_ingest · youtube_highlights
 GENERATE   빈 화면 → 그림          krea*(기본) · moody · illustrious · ideogram · boogu
 TRANSFORM  있는 그림 고치기         i2i · character_consistent · qwen_edit · inpaint · ref_pack · style_transfer
-CAMERA     각도·포즈·시점·프레이밍   qwen_angle · viewpoint · controlnet · reframe
+CAMERA     각도·포즈·시점·프레이밍   qwen_angle · viewpoint · **openpose_pose** · controlnet · reframe
 MOTION     그림 → 영상             camera_move · idle_loop · dance_ref · i2v · flf · s2v
 VOICE      말·노래 재료            qwen3_tts · voice_register · bgm
 FINISH     키우기·다듬기           upscale_recommend → upscale_* · face_enhance(실험)
@@ -250,9 +250,20 @@ python scripts/generate_style_transfer.py --mode ref \
 |-----|------|------|
 | `generate_qwen_angle` | 동일 인물 멀티뷰 턴 (앞/옆/뒤) | 하이/로우 **과장**만 → viewpoint |
 | **`generate_viewpoint`** | 하이·로우·버즈/웜즈아이·와이드/타이트 히어로 (Comfy) | 크롭만 → reframe · 스타일 매체 → style_transfer |
-| `generate_moody_controlnet` | 포즈/캐니 등 구조 | 얼굴 ID 단독 해결책으로 과신 |
+| **`generate_openpose_pose`** | OpenPose 맵 extract + ControlNet 포즈 생성 (걷기/조깅 키) | Qwen 텍스트로 발 위상 교정 — **불가** |
+| `generate_moody_controlnet` | 포즈/캐니 등 구조 (저수준) | 얼굴 ID 단독 해결책으로 과신 |
 | `character_qwen_turns` | 캐릭 패키지 안 턴 배치 | 패키지 없이 한 장만 필요 → angle |
 | **`generate_reframe`** | 같은 스틸 → wide/MCU/CU 등 **샷 사이즈** (비-Comfy) | 카메라 높이를 다시 그림 → viewpoint |
+
+```bash
+# OpenPose one-stop (preferred for limb-accurate keys)
+python scripts/generate_openpose_pose.py list-templates
+python scripts/generate_openpose_pose.py extract -i char.png -o pose.png
+python scripts/generate_openpose_pose.py generate -i identity.png --template jog_contact \
+  -p "office worker navy suit, cel anime, green screen" -o out.png --strength 0.85
+```
+
+가이드: [openpose_controlnet/AGENT_GUIDE](../workflows/human/openpose_controlnet/AGENT_GUIDE.md)
 
 ```bash
 python scripts/generate_viewpoint.py --list-presets
@@ -307,7 +318,8 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 | **`generate_yaw_wan22`** | Wan 2.2 MoE T2V/I2V 쉬운 실 UI | 립 → s2v · 에피 본선 대체 아님 |
 | **`generate_flf2v`** | 첫·끝 프레임 연결 | 단일 키프레임 모션 → i2v |
 | **`generate_s2v`** | 이미지+오디오 연동 | 무음 순수 모션 → i2v |
-| `generate_s2v --backend infinitetalk` | 토킹 립 품질 | VRAM·길이 계약 주의 |
+| `generate_s2v --backend infinitetalk` | 토킹 립 품질 (헬스 OK 시) | **when-not:** `tool_health --backend infinitetalk` 실패 / WanVideo* 없음 → **`ltx23_ia2v`** · VRAM·길이 계약 |
+| `tool_health --backend infinitetalk` | SI2V 노드 preflight | Comfy 꺼짐 → exit 40 |
 | `generate_ltx23_latentheart` | Director 모듈 조합 | 단순 I2V면 generate_i2v |
 | `generate_ltx23_redmix_i2v` | Krea/Ideogram 스틸 애니 | |
 | `generate_ltx_nsfw_i2v` | 성인 모션 **18+** (LTX 10Eros) | SFW → 일반 i2v |

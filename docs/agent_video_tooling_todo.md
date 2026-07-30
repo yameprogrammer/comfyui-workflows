@@ -36,6 +36,25 @@ CLI: `--ltx-profile draft|work|hero` · `generate_s2v.py --list-ltx-profiles`
 
 ---
 
+
+---
+
+## P0 HOTFIX REQUEST (2026-07-30) — GREEN LIGHTER session
+
+**SSOT 수정 요청 문서:** [FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md](FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md)  
+**구현 계획:** [superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md](superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md) (Phase 0→4, ~3–5일)
+
+| ID | 이슈 | Failure note | 상태 |
+|----|------|--------------|------|
+| IT-* | InfiniteTalk s2v: missing `WanVideoClipVisionEncode` (Wrapper `.disabled`) | FN-20260729-002 | 🟡 PLAN |
+| FS-* | `character_full_sheet` identity/framing/auto-approve | FN-20260729-001 | 🟡 PLAN |
+| H-* | preflight + catalog honesty (Phase 0, 선행) | — | 🟡 PLAN |
+
+임시 폴백: 키프레임 `krea2_identity_edit` · 립싱크 `ltx23_ia2v` · 시트 공정 프로덕션 금지.  
+권장 착수: **Phase 0 (preflight + 문서 honesty) 먼저** → IT 복구 / full_sheet 핫픽스 병렬 가능.
+
+---
+
 ## 0. 설계 원칙 (합의)
 
 1. **모델 추가보다 계약·기본값·검증**이 에이전트 효율에 먼저 온다.  
@@ -233,3 +252,4 @@ Sprint E (P3):  dance_challenge 파이프 설계 확정 → D1–D4 구현
 | 2026-07-14 | **P0-2 performance** 테이블 + episode_tts/s2v 연동 + still 오탐 수정 |
 | 2026-07-14 | **P0-1** 길이 계약 · **Ideogram4** 타이포 1차 |
 | 2026-07-14 | **P3-2 기획 자율** 문서 레일. 기능 필수 아님·가드레일 SOP 합의 반영 |
+

@@ -130,7 +130,7 @@ episode_pipeline … i2v → s2v → (flf2v) → upscale …
 | 백엔드 ID | 상태 | 엔진 | 비고 |
 |-----------|------|------|------|
 | **`ltx23_ia2v`** | ✅ **default** | LTX 2.3 distilled GGUF + **custom audio** AV latent | 속도 우위. Custom-Audio IA2V (미니멀 그래프) |
-| **`infinitetalk`** | ✅ **ready (1급 대안)** | **Wan 2.1 I2V** + InfiniteTalk | 립 품질 대안, **느림**. **폐기 금지** |
+| **`infinitetalk`** | ⚠️ **degraded** (복구 전) | **Wan 2.1 I2V** + InfiniteTalk (WanVideoWrapper) | 립 품질 대안, **느림**. **폐기 금지**. 런타임: `tool_health --backend infinitetalk` 통과 시에만 사용. 실패 시 **`ltx23_ia2v`** |
 | **`ltx23_aio`** (+ `_i2v` `_flf` `_flf_audio` `_fml` `_fml_audio` `_v2v`) | ✅ **ready** | AIO 모드 이식 | Image / FLF / FML / V2V(continue) ± Audio. [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md) |
 | `ltx23_lipdub` | ⬜ blocked | LTX IC-LoRA LipDub (V2V) | 공식 립더빙. **gated HF** |
 | `wan_s2v` | ⬜ planned | WanVideoAddS2VEmbeds | — |
@@ -140,9 +140,10 @@ episode_pipeline … i2v → s2v → (flf2v) → upscale …
 | 상황 | 권장 |
 |------|------|
 | 기본 / 빠른 배치 / 뮤비 보컬 컷 | **`ltx23_ia2v`** |
-| LTX 손·의상 드리프트, 얼굴 클로즈업 고정 우선 | **`infinitetalk`** |
-| 클린 VO 톡킹 헤드 | 둘 다 OK → 먼저 LTX, 불만 시 IT |
-| 품질 비교 | 같은 이미지·driving으로 **양쪽 생성 후 육안** |
+| LTX 손·의상 드리프트, 얼굴 클로즈업 고정 우선 | **`infinitetalk`** — **단** `python scripts/tool_health.py --backend infinitetalk` OK일 때만 |
+| 클린 VO 톡킹 헤드 | 둘 다 OK → 먼저 LTX, 불만 시 IT(헬스 OK 시) |
+| IT 헬스 실패 / missing WanVideo* | **`ltx23_ia2v`만** (IT 호출 금지) |
+| 품질 비교 | 같은 이미지·driving으로 **양쪽 생성 후 육안** (IT는 헬스 후) |
 
 > **메모 (2026-07-12):**  
 > `S02_s2v_smoke_v4_center_voicey(_playable).mp4` — InfiniteTalk + 소나기 **center_voicey**  

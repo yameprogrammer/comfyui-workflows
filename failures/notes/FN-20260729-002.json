@@ -1,0 +1,25 @@
+{
+  "id": "FN-20260729-002",
+  "created_at": "2026-07-29T22:25:54+00:00",
+  "agent": "grok",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "clip",
+  "tags": [
+    "infinitetalk",
+    "missing_node",
+    "s2v",
+    "comfy_node",
+    "lipsync"
+  ],
+  "symptom": "generate_s2v --backend infinitetalk fails QUEUE_FAILED missing_node_type WanVideoClipVisionEncode (node #4); cannot run InfiniteTalk lip-sync on this Comfy install",
+  "root_cause": "InfiniteTalk workflow depends on WanVideo custom nodes (WanVideoClipVisionEncode etc.) that are not loaded/installed in current ComfyUI; factory still advertises infinitetalk as ready backend",
+  "fix": "install/repair ComfyUI-WanVideoWrapper or equivalent providing WanVideoClipVisionEncode; verify object_info; smoke test generate_s2v --backend infinitetalk; until then document LTX ia2v fallback and do not claim IT ready",
+  "prevention": "startup or scripts/tool_health check for required node types per backend; mark backend unavailable if missing; failure_note + catalog when-not",
+  "related_paths": [
+    "scripts/generate_s2v.py"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

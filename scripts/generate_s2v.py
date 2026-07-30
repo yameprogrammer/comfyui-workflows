@@ -47,6 +47,7 @@ from lib.comfy_client import (
 )
 from lib.comfy_engine_session import ensure_engine, family_for_s2v_backend
 from lib.ffmpeg_util import normalize_clip_audio, replace_clip_audio
+from lib.s2v_backend_health import check_backend_nodes
 from lib.ltx_aio_live_template import (
     build_ia2v_live_api,
     is_live_template_available,
@@ -583,6 +584,26 @@ def generate_s2v(
             message=eng.get("message") or "comfy engine free/gate failed",
             engine_session=eng,
         )
+
+    # Fail before queue if required custom nodes are missing (e.g. InfiniteTalk).
+    if not dry_run:
+        health = check_backend_nodes(backend, server=server_address)
+        if not health.get("skipped") and not health.get("ok"):
+            missing = health.get("missing") or []
+            hint = health.get("hint") or ""
+            msg = health.get("message") or f"backend {backend} unavailable"
+            if hint:
+                msg = f"{msg} | {hint}"
+            print(f"[ERROR] BACKEND_UNAVAILABLE: {msg}")
+            if missing:
+                print(f"  missing nodes ({len(missing)}): {', '.join(missing[:12])}")
+            return fail_result(
+                error="BACKEND_UNAVAILABLE",
+                message=msg[:800],
+                backend=backend,
+                missing_nodes=missing,
+                health=health,
+            )
 
     use_aio_switched = False
     use_live_aio_template = False
