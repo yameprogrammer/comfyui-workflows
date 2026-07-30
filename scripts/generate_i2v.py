@@ -288,6 +288,9 @@ def generate_i2v(
     lora_strength_high: float | None = 1.0,
     lora_strength_low: float | None = 1.0,
     wan_boundary: int | None = None,
+    wan_allow_low_steps: bool = False,
+    wan_long_edge: int | None = None,
+    wan_short_edge: int | None = None,
     extra_lora_high: str | None = None,
     extra_lora_low: str | None = None,
     extra_lora_strength_high: float = 0.85,
@@ -437,6 +440,31 @@ def generate_i2v(
     # Profile fills defaults; explicit args win when not None
     if steps is None:
         steps = int(speed_prof["steps"])
+    # Optional long/short edge orientation from source still (before job resolve)
+    if (wan_long_edge is None) ^ (wan_short_edge is None):
+        return fail_result(
+            error="BAD_EDGES",
+            message="pass both --wan-long-edge and --wan-short-edge together",
+        )
+    if wan_long_edge is not None and wan_short_edge is not None:
+        try:
+            from PIL import Image
+
+            with Image.open(input_image_path) as im:
+                sw, sh = im.size
+            ow, oh = wan_inj.resolve_long_short_edges(
+                long_edge=int(wan_long_edge),
+                short_edge=int(wan_short_edge),
+                source_w=int(sw),
+                source_h=int(sh),
+            )
+            width, height = ow, oh
+            print(
+                f"[wan edges] source {sw}x{sh} long={wan_long_edge} short={wan_short_edge} "
+                f"→ {width}x{height}"
+            )
+        except Exception as e:
+            print(f"[WARN] wan long/short edges ignored: {e}")
     cache_mode = (cache if cache is not None else speed_prof["cache"]) or "none"
     tc_thresh = (
         float(teacache_thresh)
@@ -510,6 +538,22 @@ def generate_i2v(
             f"[WARN] I2V snap for Wan: {orig_w}x{orig_h} f={orig_f} "
             f"-> {width}x{height} f={num_frames} (dims %16, frames 4n+1)"
         )
+
+    # Long-clip guard: frames>=81 + lightx2v 4-step → raise to min 6 (community practice)
+    if _is_wan22_family(backend_id, wf_path):
+        en = wan_inj.enforce_long_clip_steps(
+            int(steps),
+            int(num_frames),
+            allow_low_steps=bool(wan_allow_low_steps),
+        )
+        if en.get("bumped"):
+            print(
+                f"[WARN] long-clip steps guard: frames={num_frames}>="
+                f"{en['threshold_frames']} with steps<{en['min_steps']} "
+                f"→ steps={en['steps']} "
+                f"(avoid High/Low 1-step collapse; --wan-allow-low-steps to override)"
+            )
+            steps = int(en["steps"])
 
     if not _is_wan22_family(backend_id, wf_path) and not workflow_path:
         # Only Wan22 family inject path is implemented in this module for now.
@@ -1178,9 +1222,32 @@ def _build_parser() -> argparse.ArgumentParser:
         type=int,
         default=None,
         help=(
-            "High→Low expert switch step (default steps//2). "
+            "High→Low expert switch step (default steps//2, with both sides ≥2 when steps≥6). "
             "E.g. steps=12 --wan-boundary 4 → 4 high + 8 low for style LoRAs."
         ),
+    )
+    parser.add_argument(
+        "--wan-allow-low-steps",
+        action="store_true",
+        help=(
+            "Allow steps<6 when frames≥81 (disables long-clip guard). "
+            "Default: auto-raise to 6 for LightX2V dual-pass stability."
+        ),
+    )
+    parser.add_argument(
+        "--wan-long-edge",
+        type=int,
+        default=None,
+        help=(
+            "With --wan-short-edge: set I2V size by long/short axes oriented from "
+            "source still (portrait → short×long). Snapped to 16."
+        ),
+    )
+    parser.add_argument(
+        "--wan-short-edge",
+        type=int,
+        default=None,
+        help="With --wan-long-edge: shorter axis pixels (e.g. long=848 short=480).",
     )
     parser.add_argument(
         "--workflow",
@@ -1355,5 +1422,8 @@ if __name__ == "__main__":
         lora_strength_high=getattr(args, "lora_strength_high", 1.0),
         lora_strength_low=getattr(args, "lora_strength_low", 1.0),
         wan_boundary=getattr(args, "wan_boundary", None),
+        wan_allow_low_steps=bool(getattr(args, "wan_allow_low_steps", False)),
+        wan_long_edge=getattr(args, "wan_long_edge", None),
+        wan_short_edge=getattr(args, "wan_short_edge", None),
     )
     sys.exit(0 if result.get("ok") else 1)

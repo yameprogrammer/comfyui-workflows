@@ -147,15 +147,92 @@ def strip_dead_clip_path(api_prompt: dict) -> list[str]:
     return removed
 
 
+# Community practice (e.g. LightX2V 4-step tutorials): long clips need more steps.
+# When frames >= 81 (~5s@16fps), keep total steps >= 6 so High/Low each get real work.
+LONG_CLIP_MIN_FRAMES = 81
+LONG_CLIP_MIN_STEPS = 6
+
+
+def enforce_long_clip_steps(
+    steps: int,
+    num_frames: int,
+    *,
+    allow_low_steps: bool = False,
+    min_frames: int = LONG_CLIP_MIN_FRAMES,
+    min_steps: int = LONG_CLIP_MIN_STEPS,
+) -> dict:
+    """Bump steps when clip is long and steps would under-allocate dual High/Low passes.
+
+    Returns dict with steps, bumped, frames, min_steps, threshold_frames.
+    """
+    steps_n = max(1, int(steps))
+    frames_n = max(1, int(num_frames))
+    bumped = False
+    if (
+        not allow_low_steps
+        and frames_n >= int(min_frames)
+        and steps_n < int(min_steps)
+    ):
+        steps_n = int(min_steps)
+        bumped = True
+    return {
+        "steps": steps_n,
+        "bumped": bumped,
+        "frames": frames_n,
+        "min_steps": int(min_steps),
+        "threshold_frames": int(min_frames),
+        "allow_low_steps": bool(allow_low_steps),
+    }
+
+
+def resolve_long_short_edges(
+    *,
+    long_edge: int,
+    short_edge: int,
+    source_w: int,
+    source_h: int,
+    multiple: int = 16,
+) -> tuple[int, int]:
+    """Orient long/short axes from source image aspect (not absolute W×H).
+
+    Portrait source → short×long (e.g. 480×848). Landscape → long×short.
+    Both dims snapped to ``multiple`` (Wan latent).
+    """
+    le = max(int(multiple), int(long_edge))
+    se = max(int(multiple), int(short_edge))
+    if se > le:
+        le, se = se, le
+    sw, sh = max(1, int(source_w)), max(1, int(source_h))
+    if sh >= sw:
+        # portrait / square → height is long axis
+        w, h = se, le
+    else:
+        w, h = le, se
+
+    def _snap(n: int) -> int:
+        if n < multiple:
+            return multiple
+        return max(multiple, int(round(n / multiple) * multiple))
+
+    return _snap(w), _snap(h)
+
+
 def apply_steps_and_boundary(
     api_prompt: dict,
     steps: int,
     boundary: int | None = None,
 ) -> dict:
-    """Wire total steps + high/low boundary (default steps//2)."""
+    """Wire total steps + high/low boundary.
+
+    Default boundary = steps//2. When steps >= 6 and boundary omitted, keep both
+    High and Low sides at least 2 steps (avoids 1-step expert collapse).
+    """
     steps_n = max(1, int(steps))
     if boundary is None:
-        bound = max(1, steps_n // 2)
+        if steps_n >= 6:
+            bound = max(2, min(steps_n - 2, steps_n // 2))
+        else:
+            bound = max(1, steps_n // 2)
     else:
         bound = max(1, min(int(boundary), steps_n))
 
