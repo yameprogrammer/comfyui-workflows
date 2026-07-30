@@ -110,9 +110,26 @@ def core_for_preset(
     elif sheet in ("costume", "pose", "turnaround", "master") and (
         view in ("full", "flat_front", "flat_back", "") or not view.startswith("detail")
     ):
+        # Full plates via OpenPose: keep identity short — long face essays + dark studio
+        # prose push the model into headshot lighting and ignore feet.
+        identity = _short_identity(identity, max_chars=220)
         locks.append(FULLBODY_FRAMING_LOCK)
+        locks.append(
+            "plain light gray seamless studio background, even soft studio lighting, "
+            "full figure centered with head near top and feet near bottom edge"
+        )
     elif sheet == "props" and view not in ("hero", "turn_3view"):
         locks.append(FULLBODY_FRAMING_LOCK)
 
     parts = [p for p in [identity, *locks] if p]
     return ", ".join(parts)
+
+
+def _short_identity(text: str, max_chars: int = 220) -> str:
+    t = (text or "").strip()
+    if len(t) <= max_chars:
+        return t
+    cut = t[:max_chars]
+    if "," in cut:
+        cut = cut.rsplit(",", 1)[0]
+    return cut.strip(" ,")

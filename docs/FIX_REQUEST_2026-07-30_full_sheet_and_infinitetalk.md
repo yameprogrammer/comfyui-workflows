@@ -207,12 +207,13 @@ DO:     ignore / quarantine full_sheet refs under characters/<id>/refs until rew
 | 출력 해상도 full | ✅ 1024×1536 (구 1024×576) |
 | head-and-shoulders 제거 | ✅ 메타 prompt |
 | 의상 잠금 | ✅ mesh jacket + lime + tank |
-| 발 포함 전신 | ⚠️ 종종 허벅지 크롭 (3/4) |
-| identity vs master_front | ⚠️ 보통 (아이돌 톤 드리프트) |
+| 발 포함 전신 (i2i_lock) | ⚠️ 3/4 크롭 잔존 |
+| 발 포함 전신 (**OpenPose CN**) | ✅ head-to-toe + feet (s9620x stand_front) |
+| identity vs master_front | ⚠️ CN empty-latent = 텍스트 identity only → 얼굴 드리프트 |
 | footwear i2i | ❌ 얼굴 CU — Lonecat identity 경로 한계 |
 | footwear t2i product | 🟡 신발 보이지만 lookbook 레이아웃 잔존 |
 
-패키지 `green_lighter_idol_v1` status **`rejected_quality` 유지** — 뮤비 본선은 계속 master_front + krea2.
+패키지 `green_lighter_idol_v1` status **`rejected_quality` 유지** (몸 시트 framing은 개선, 얼굴 SSOT는 계속 master_front + krea2).
 
 ---
 

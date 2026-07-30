@@ -230,9 +230,10 @@ def inject_instruction_for_preset(
     ):
         if default:
             return (
-                f"same exact person, full body standing costume sheet, {wear}, "
-                f"default wardrobe locked: {default}, match approved costume design flat colors "
-                f"and construction, head-to-toe visible, plain studio"
+                f"same exact person, FULL BODY model-sheet standing front, {wear}, "
+                f"default wardrobe locked: {default}, match design flat colors and construction, "
+                f"head-to-toe in frame, feet and shoes fully visible at bottom, entire legs visible, "
+                f"not cropped at thighs or knees, arms slightly away from torso, plain studio"
             )
         return base
 
@@ -242,8 +243,9 @@ def inject_instruction_for_preset(
         outfit = alt1 or default
         if outfit:
             return (
-                f"same exact person, full body standing costume sheet, alternate outfit: "
-                f"{outfit}, fully clothed, head-to-toe visible, plain studio"
+                f"same exact person, FULL BODY standing costume sheet, alternate outfit: "
+                f"{outfit}, fully clothed, head-to-toe, feet and shoes visible at bottom, "
+                f"not cropped at thighs, plain studio"
             )
         return base
 

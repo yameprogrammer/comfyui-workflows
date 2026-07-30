@@ -6,19 +6,61 @@ import os
 from typing import Any
 
 
+def bottom_subject_score(
+    path: str,
+    *,
+    bottom_frac: float = 0.14,
+    bg_threshold: int = 235,
+) -> dict[str, Any]:
+    """Heuristic: structured subject in the bottom band (feet/shoes zone).
+
+    Avoids false positives from full-frame dark backgrounds: require mid-luma
+    structure near the horizontal center (feet under torso), not pure black void.
+    """
+    from PIL import Image
+
+    with Image.open(path) as im:
+        rgb = im.convert("RGB")
+        w, h = rgb.size
+        y0 = max(0, int(h * (1.0 - bottom_frac)))
+        crop = rgb.crop((int(w * 0.2), y0, int(w * 0.8), h))
+        crop.thumbnail((96, 64))
+        pixels = list(crop.getdata())
+    if not pixels:
+        return {"score": 0.0, "n": 0, "mid_frac": 0.0}
+    # mid-luma colored/structured pixels ≈ shoes/legs (not pure black floor, not white)
+    mid = 0
+    for r, g, b in pixels:
+        luma = (r + g + b) / 3.0
+        mx = max(r, g, b)
+        mn = min(r, g, b)
+        if 35 <= luma <= 210 and (mx - mn > 12 or 50 <= luma <= 180):
+            mid += 1
+    score = mid / len(pixels)
+    return {
+        "score": score,
+        "n": len(pixels),
+        "mid_frac": score,
+        "band": [int(w * 0.2), y0, int(w * 0.8), h],
+    }
+
+
 def check_sheet_output(
     path: str,
     preset: dict[str, Any] | None = None,
     size_hint: tuple[int, int] | None = None,
     *,
     tol: int = 32,
+    require_feet: bool | None = None,
+    feet_min_score: float = 0.08,
 ) -> dict[str, Any]:
-    """Return {ok, reasons} for framing / aspect sanity.
+    """Return {ok, reasons} for framing / aspect / feet-zone sanity.
 
-    v1: pixel size vs size_hint + landscape-fullbody ban.
+    v1: pixel size vs size_hint + landscape-fullbody ban + bottom content for full body.
     """
     preset = preset or {}
     reasons: list[str] = []
+    extras: dict[str, Any] = {}
     if not path or not os.path.isfile(path):
         return {"ok": False, "reasons": ["file_missing"], "path": path}
 
@@ -39,21 +81,37 @@ def check_sheet_output(
             reasons.append(f"size_mismatch got={w}x{h} expected≈{ew}x{eh}")
 
     # Full-body plates must be portrait (taller than wide)
-    if sheet in ("costume", "pose", "turnaround", "master") and view in (
+    is_fullbody = sheet in ("costume", "pose", "turnaround", "master") and view in (
         "full",
         "",
-    ):
+    )
+    if is_fullbody:
         if w > h:
             reasons.append(f"fullbody_landscape {w}x{h}")
+        # Auto-enable feet check for full costume/pose unless explicitly disabled
+        if require_feet is None:
+            require_feet = sheet in ("costume", "pose", "master")
+        if require_feet:
+            try:
+                feet = bottom_subject_score(path)
+                extras["feet"] = feet
+                if float(feet.get("score") or 0.0) < feet_min_score:
+                    reasons.append(
+                        f"feet_zone_empty score={feet.get('score'):.3f}<{feet_min_score}"
+                    )
+            except Exception as e:
+                extras["feet_error"] = str(e)
 
     if sheet == "costume" and view.startswith("detail") and w > h * 1.4:
         # extreme landscape detail is often wrong workflow default
         reasons.append(f"detail_extreme_landscape {w}x{h}")
 
-    return {
+    out: dict[str, Any] = {
         "ok": len(reasons) == 0,
         "reasons": reasons,
         "path": path,
         "size": [w, h],
         "size_hint": list(size_hint) if size_hint else None,
     }
+    out.update(extras)
+    return out

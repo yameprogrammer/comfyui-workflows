@@ -579,8 +579,18 @@ def main(argv=None) -> int:
                     control_path = ensure_view_pose(preset.get("view") or "front", width=w, height=h)
                 print(f"Control pose template: {control_path}")
                 use_empty = engine == "controlnet_empty" or bool(preset.get("empty_latent"))
-                # OpenPose: denoise from preset (was hard-min 0.8 → identity wipe). Soft floor only.
+                # OpenPose fullbody: prefer empty-latent CN (structure from pose map).
+                # Soft denoise floor only when not empty-latent.
                 ctrl_pp = (preset.get("control_preprocess") or "auto").lower()
+                sheet_name = str(preset.get("sheet") or "")
+                # Costume/pose full plates: force empty latent so OpenPose defines head-to-toe frame
+                if (
+                    not use_empty
+                    and ctrl_pp in ("openpose", "raw", "dwpose", "pose")
+                    and sheet_name in ("costume", "pose")
+                    and str(preset.get("view") or "") in ("full", "")
+                ):
+                    use_empty = True
                 if use_empty:
                     cn_denoise = 1.0
                 elif ctrl_pp in ("openpose", "raw", "dwpose", "pose"):

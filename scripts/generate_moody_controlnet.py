@@ -202,6 +202,16 @@ def generate_controlnet_image(
             control_preprocess=control_preprocess,
         )
 
+    # Fun Union ImageScaleToTotalPixels uses largest_size as long-edge cap.
+    # Passing only width (e.g. 1024) on a 1024x1536 plate yields ~680x1024.
+    _largest = None
+    if latent_width and latent_height:
+        _largest = max(int(latent_width), int(latent_height))
+    elif latent_width:
+        _largest = int(latent_width)
+    elif latent_height:
+        _largest = int(latent_height)
+
     return _generate_cn_workflow_api(
         input_image_path=input_image_path,
         control_image_path=control_image_path,
@@ -222,7 +232,7 @@ def generate_controlnet_image(
         preset=preset,
         unet_name=unet_name,
         steps=steps,
-        largest_size=latent_width,  # optional max dimension if provided
+        largest_size=_largest,
     )
 
 

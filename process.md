@@ -1369,4 +1369,5 @@
 - **Phase 2–3 shipped:** `lib/sheet_prompt_policy.py` (strip framing core); expand passes width/height; framing QA; sheet_presets i2i_lock + lower denoise; `character_full_sheet` default no bulk auto-approve (`--auto-approve` opt-in); `--stop-between-phases`
 - FN-20260729-002 fixed; FN-20260729-001 mitigated (code gates; package re-expand optional)
 - **Costume re-verify** `green_lighter_idol_v1`: size 1024×1536 PASS; wardrobe OK; still 3/4 not head-to-toe; footwear i2i face-locked → preset t2i product + wardrobe inject fix; status stays `rejected_quality`; log `characters/green_lighter_idol_v1/exports/full_sheet/VERIFY_2026-07-30.md`
+- **OpenPose fullbody costume:** `costume.default` → controlnet `stand_front` strength 0.9; fix CN `largest_size=max(w,h)`; short identity + plain studio core. Regen s9620x **head-to-toe+feet PASS**; face identity still text-only drift → package stays `rejected_quality`
 
