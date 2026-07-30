@@ -2,7 +2,7 @@
 
 | 항목 | 내용 |
 |------|------|
-| **상태** | 🟡 PLAN READY — 구현 전 (코드 수정 미착수) |
+| **상태** | 🟢 IN PROGRESS — Phase 0–3 코드 + IT 스모크 완료; full_sheet 실측 재검증 남음 |
 | **우선순위** | **P0** (실전 뮤비 파이프라인 블로커) |
 | **구현 계획** | **[docs/superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md](superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md)** |
 | **보고 세션** | GREEN LIGHTER 쇼츠 MV (`D:\뮤직비디오 작업\GREEN LIGHTER`) |
@@ -193,11 +193,11 @@ DO:     ignore / quarantine full_sheet refs under characters/<id>/refs until rew
 
 상세 체크리스트·태스크: **[구현 계획 § Acceptance](superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md)**
 
-- [ ] InfiniteTalk: 스모크 s2v exit 0 + 노드 preflight **또는** permanent degraded + native spike 이슈  
-- [ ] full_sheet: sheet-role core + size pass-through + lock/denoise + no silent auto L2 + framing gate  
-- [ ] 카탈로그/when-not/`video_backends.json` 업데이트  
+- [x] InfiniteTalk: 스모크 s2v exit 0 + 노드 preflight (`stories/_tool_smoke/infinitetalk_smoke.mp4`)  
+- [x] full_sheet: sheet-role core + size pass-through + lock/denoise + no silent auto L2 + framing gate (코드; 재생성 육안 선택)  
+- [x] 카탈로그/when-not/`video_backends.json` 업데이트  
 - [ ] `FN-20260729-001` / `FN-20260729-002` 에 fix ref 또는 closed 처리  
-- [ ] `process.md` 에 수정 이력 한 줄
+- [x] `process.md` 에 수정 이력 한 줄
 
 ---
 

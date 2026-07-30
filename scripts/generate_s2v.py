@@ -329,15 +329,14 @@ def build_infinitetalk_api(
                 "ratio": 0.5,
             },
         },
+        # VHS_LoadAudio: native AUDIO type. JWLoadAudio (mtb) currently hits numba
+        # TypingError on this host — do not use for production IT path.
         "5": {
-            "class_type": "JWLoadAudio",
+            "class_type": "VHS_LoadAudio",
             "inputs": {
-                "path": audio_abs_path,
-                "gain_db": 0.0,
-                "offset_seconds": 0.0,
-                "duration_seconds": 0.0,
-                "resample_to_hz": 0.0,
-                "make_stereo": True,
+                "audio_file": audio_abs_path,
+                "seek_seconds": 0.0,
+                "duration": 0.0,
             },
         },
         "6": {

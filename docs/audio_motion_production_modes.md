@@ -130,7 +130,7 @@ episode_pipeline … i2v → s2v → (flf2v) → upscale …
 | 백엔드 ID | 상태 | 엔진 | 비고 |
 |-----------|------|------|------|
 | **`ltx23_ia2v`** | ✅ **default** | LTX 2.3 distilled GGUF + **custom audio** AV latent | 속도 우위. Custom-Audio IA2V (미니멀 그래프) |
-| **`infinitetalk`** | ⚠️ **degraded** (복구 전) | **Wan 2.1 I2V** + InfiniteTalk (WanVideoWrapper) | 립 품질 대안, **느림**. **폐기 금지**. 런타임: `tool_health --backend infinitetalk` 통과 시에만 사용. 실패 시 **`ltx23_ia2v`** |
+| **`infinitetalk`** | ✅ **ready** (2026-07-30 스모크) | **Wan 2.1 I2V** + InfiniteTalk (WanVideoWrapper) | 립 품질 대안, **느림**. **폐기 금지**. 호출 전 `tool_health --backend infinitetalk`. 실패 시 **`ltx23_ia2v`**. 오디오 노드=`VHS_LoadAudio` |
 | **`ltx23_aio`** (+ `_i2v` `_flf` `_flf_audio` `_fml` `_fml_audio` `_v2v`) | ✅ **ready** | AIO 모드 이식 | Image / FLF / FML / V2V(continue) ± Audio. [ltx23_aio_pipeline_integration.md](ltx23_aio_pipeline_integration.md) |
 | `ltx23_lipdub` | ⬜ blocked | LTX IC-LoRA LipDub (V2V) | 공식 립더빙. **gated HF** |
 | `wan_s2v` | ⬜ planned | WanVideoAddS2VEmbeds | — |

@@ -15,12 +15,22 @@
   ],
   "symptom": "full_sheet for green_lighter_idol_v1 drifts face from master_front; costume sheets become face CUs; pose_hands_hips becomes 3 people; footwear detail is face with shoe inset; pipeline auto-approves all junk to L2",
   "root_cause": "weak i2i identity lock + prompt-driven re-gen; design/costume/pose presets wrong shot size; candidates=1 no human gate; auto_approve maps latest refs without visual QA; controlnet pose invents multi-person",
-  "fix": "do not use full_sheet outputs for MV; keep cast master_front only; rewrite full_sheet with hard face lock, shot-size gates, human approve per phase, ban multi-person",
+  "fix": "2026-07-30 code: sheet_prompt_policy strips headshot framing; expand passes width/height; i2i_lock+lower denoise presets; framing QA; full_sheet default no bulk auto-approve (--auto-approve opt-in). Re-run sheet + visual QA still recommended before production refs.",
   "prevention": "human gate after each phase; fail if face identity drifts; detail sheets must crop POI; pose solitary only; no auto L2 without visual QA",
   "related_paths": [
-    "characters/green_lighter_idol_v1"
+    "characters/green_lighter_idol_v1",
+    "lib/sheet_prompt_policy.py",
+    "lib/sheet_qa_heuristics.py",
+    "scripts/character_expand_sheets.py",
+    "scripts/character_full_sheet.py",
+    "characters/sheet_presets.json"
   ],
   "severity": "high",
   "user_visible": true,
-  "refs": []
+  "status": "mitigated",
+  "fixed_at": "2026-07-30",
+  "refs": [
+    "docs/superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md",
+    "docs/FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md"
+  ]
 }

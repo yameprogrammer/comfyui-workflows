@@ -1364,6 +1364,8 @@
   - Plan: `docs/superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md`
   - IT: `ComfyUI-WanVideoWrapper.disabled` → all WanVideo* missing; native `WanInfiniteTalkToVideo` unused
   - FS: positive_core head-and-shoulders bleed + i2i size not passed + high denoise plain i2i + auto_approve file-only
-- **Phase 0 shipped:** `lib/s2v_backend_health.py` + `scripts/tool_health.py`; `generate_s2v` preflight `BACKEND_UNAVAILABLE`; infinitetalk status `degraded` in video_backends/catalog
+- **Phase 0 shipped:** `lib/s2v_backend_health.py` + `scripts/tool_health.py`; `generate_s2v` preflight `BACKEND_UNAVAILABLE`
+- **Phase 1 shipped:** re-enabled `ComfyUI-WanVideoWrapper`; audio load `JWLoadAudio`→`VHS_LoadAudio` (numba); IT smoke OK `stories/_tool_smoke/infinitetalk_smoke.mp4` (~3s); backends.infinitetalk=`ready`
 - **Phase 2–3 shipped:** `lib/sheet_prompt_policy.py` (strip framing core); expand passes width/height; framing QA; sheet_presets i2i_lock + lower denoise; `character_full_sheet` default no bulk auto-approve (`--auto-approve` opt-in); `--stop-between-phases`
+- FN-20260729-002 fixed; FN-20260729-001 mitigated (code gates; package re-expand optional)
 

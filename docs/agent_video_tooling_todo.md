@@ -46,9 +46,9 @@ CLI: `--ltx-profile draft|work|hero` · `generate_s2v.py --list-ltx-profiles`
 
 | ID | 이슈 | Failure note | 상태 |
 |----|------|--------------|------|
-| IT-* | InfiniteTalk s2v: missing `WanVideoClipVisionEncode` (Wrapper `.disabled`) | FN-20260729-002 | 🟡 PLAN |
-| FS-* | `character_full_sheet` identity/framing/auto-approve | FN-20260729-001 | 🟡 PLAN |
-| H-* | preflight + catalog honesty (Phase 0, 선행) | — | 🟡 PLAN |
+| IT-* | InfiniteTalk s2v: missing `WanVideoClipVisionEncode` (Wrapper `.disabled`) | FN-20260729-002 | ✅ fixed (smoke OK) |
+| FS-* | `character_full_sheet` identity/framing/auto-approve | FN-20260729-001 | ✅ mitigated (gates; re-expand optional) |
+| H-* | preflight + catalog honesty (Phase 0, 선행) | — | ✅ |
 
 임시 폴백: 키프레임 `krea2_identity_edit` · 립싱크 `ltx23_ia2v` · 시트 공정 프로덕션 금지.  
 권장 착수: **Phase 0 (preflight + 문서 honesty) 먼저** → IT 복구 / full_sheet 핫픽스 병렬 가능.

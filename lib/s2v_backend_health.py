@@ -24,7 +24,7 @@ INFINITETALK_REQUIRED_NODES: list[str] = [
     "MultiTalkWav2VecEmbeds",
     "DownloadAndLoadWav2VecModel",
     "CLIPVisionLoader",
-    "JWLoadAudio",
+    "VHS_LoadAudio",
     "ImageResizeKJv2",
     "VHS_VideoCombine",
     "LoadImage",

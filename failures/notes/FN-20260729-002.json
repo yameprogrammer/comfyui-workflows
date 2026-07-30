@@ -14,12 +14,20 @@
   ],
   "symptom": "generate_s2v --backend infinitetalk fails QUEUE_FAILED missing_node_type WanVideoClipVisionEncode (node #4); cannot run InfiniteTalk lip-sync on this Comfy install",
   "root_cause": "InfiniteTalk workflow depends on WanVideo custom nodes (WanVideoClipVisionEncode etc.) that are not loaded/installed in current ComfyUI; factory still advertises infinitetalk as ready backend",
-  "fix": "install/repair ComfyUI-WanVideoWrapper or equivalent providing WanVideoClipVisionEncode; verify object_info; smoke test generate_s2v --backend infinitetalk; until then document LTX ia2v fallback and do not claim IT ready",
+  "fix": "2026-07-30: re-enabled ComfyUI-WanVideoWrapper; preflight lib/s2v_backend_health.py + tool_health; swapped JWLoadAudio→VHS_LoadAudio (numba crash); smoke OK stories/_tool_smoke/infinitetalk_smoke.mp4",
   "prevention": "startup or scripts/tool_health check for required node types per backend; mark backend unavailable if missing; failure_note + catalog when-not",
   "related_paths": [
-    "scripts/generate_s2v.py"
+    "scripts/generate_s2v.py",
+    "lib/s2v_backend_health.py",
+    "scripts/tool_health.py",
+    "stories/_tool_smoke/infinitetalk_smoke.mp4"
   ],
   "severity": "high",
   "user_visible": true,
-  "refs": []
+  "status": "fixed",
+  "fixed_at": "2026-07-30",
+  "refs": [
+    "docs/superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md",
+    "docs/FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md"
+  ]
 }

@@ -369,7 +369,7 @@
       "quality_tier": "nsfw"
     },
     "infinitetalk": {
-      "status": "degraded",
+      "status": "ready",
       "kind": "s2v",
       "engine": "Wan 2.1 I2V + InfiniteTalk (WanVideoWrapper)",
       "workflow": "scripts/generate_s2v.py --backend infinitetalk",
@@ -380,7 +380,8 @@
         "face_stability",
         "hero_cut"
       ],
-      "notes": "DEGRADED 2026-07-30: ComfyUI-WanVideoWrapper often .disabled → missing WanVideo* nodes. Preflight: python scripts/tool_health.py --backend infinitetalk. Fallback: --backend ltx23_ia2v. HERO lips when healthy; not agent default. See docs/FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md + plan 2026-07-30-full-sheet-and-infinitetalk-fix."
+      "last_smoke": "2026-07-30",
+      "notes": "Ready after 2026-07-30 restore: re-enable ComfyUI-WanVideoWrapper + VHS_LoadAudio (JWLoadAudio numba crash). Always: python scripts/tool_health.py --backend infinitetalk before hero runs. Default SI2V remains ltx23_ia2v. Smoke: stories/_tool_smoke/infinitetalk_smoke.mp4"
     },
     "ltx23_ia2v": {
       "status": "ready",
