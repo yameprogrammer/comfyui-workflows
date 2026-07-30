@@ -258,13 +258,17 @@ def inject_instruction_for_preset(
         return base
 
     if preset_id == "costume.detail_footwear":
+        # Prefer product crop of shoes — do NOT restate full worn outfit (pulls face/full body).
         if default:
             return (
-                f"same character costume FOOTWEAR detail plate, tight crop lower legs and shoes only, "
-                f"footwear and hem from wardrobe: {default}, product-photo construction detail, "
-                f"no full-body portrait, face not required"
+                f"product photography of FOOTWEAR only, crop from mid-shin down, shoes and hem only, "
+                f"shoes coordinated with this wardrobe palette/materials: {default}, "
+                f"studio seamless background, e-commerce shoe plate, "
+                f"NO face, NO head, NO torso, NO upper body, NO full-body fashion figure"
             )
-        return base
+        return base or (
+            "product photography of footwear only, mid-shin to shoes, no face no torso"
+        )
 
     if preset_id == "costume.detail_accessories":
         if default:

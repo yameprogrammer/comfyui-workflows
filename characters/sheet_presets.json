@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0",
+  "version": "1.5.2",
   "description": "SSOT character sheets. B2.5 off-body design plates (costume flat/callout, prop hero/3view) then on-model. Turns=qwen. Wardrobe/props from bible. | 2026-07-30: i2i_lock costume + lower denoise + multi-person neg (FN-20260729-001)",
   "global": {
     "default_model": "pro",
@@ -481,13 +481,13 @@
       "variant": "default_outfit",
       "mode": "i2i",
       "engine": "i2i_lock",
-      "denoise": 0.55,
+      "denoise": 0.52,
       "cfg": 3.5,
       "refs_subdir": "costume",
       "source_pref": "fullbody",
-      "instruction": "same exact person, full body standing costume sheet, default wardrobe from bible, fully clothed, head-to-toe",
+      "instruction": "same exact person, FULL BODY standing costume sheet head-to-toe, feet clearly visible in frame, shoes visible, entire legs visible, not cropped at thighs, not waist-up, not portrait, orthographic model-sheet distance, default wardrobe from bible, fully clothed, arms slightly away from torso",
       "style_lock": "plain light gray background, even studio lighting, costume reference sheet",
-      "negative_extra": "different face, wrong outfit, heavy accessories overload, busy background, nude",
+      "negative_extra": "close-up, portrait, headshot, cropped feet, cropped legs, waist-up only, thighs cut off, face only, different face, wrong outfit, heavy accessories overload, busy background, nude",
       "notes": "on-model; after design flats when available"
     },
     "costume.alt1": {
@@ -511,27 +511,28 @@
       "variant": "fabric_collar",
       "mode": "i2i",
       "engine": "i2i_lock",
-      "denoise": 0.5,
+      "denoise": 0.62,
       "cfg": 3.5,
       "refs_subdir": "costume",
       "source_pref": "fullbody",
       "instruction": "costume DETAIL plate waist-up crop, fabric collar sleeves fit, not distant full body",
       "style_lock": "plain light gray background, soft product lighting, costume detail reference",
-      "negative_extra": "full body distant shot, nude, different outfit, busy background, feet visible, portrait, headshot, face close-up, head-and-shoulders"
+      "negative_extra": "full body distant shot, nude, different outfit, busy background, feet visible, portrait, headshot, face close-up, head-and-shoulders, upper body, torso, cleavage"
     },
     "costume.detail_footwear": {
       "sheet": "costume",
       "view": "detail_feet",
       "variant": "shoes",
-      "mode": "i2i",
-      "engine": "i2i_lock",
-      "denoise": 0.5,
-      "cfg": 3.5,
+      "mode": "t2i_product",
+      "engine": "t2i",
+      "denoise": null,
+      "cfg": 4.0,
       "refs_subdir": "costume",
-      "source_pref": "fullbody",
-      "instruction": "FOOTWEAR detail plate, lower legs and shoes only, product crop",
+      "source_pref": "none",
+      "instruction": "product photography plate of character footwear only, lower legs and shoes, matching wardrobe: black slim trousers hem and black or dark sneakers/boots with subtle neon-lime edge accent, studio seamless gray background, top-down three-quarter product angle, no face, no head, no torso, no upper body, fashion e-commerce shoe detail",
       "style_lock": "plain light gray background, soft product lighting, footwear detail reference",
-      "negative_extra": "full body portrait, face, barefoot, busy background, portrait, headshot, face close-up, head-and-shoulders"
+      "negative_extra": "face, head, portrait, upper body, torso, hands on hips, person face, barefoot, nude, busy background, text, logo watermark",
+      "product_plate": true
     },
     "costume.detail_accessories": {
       "sheet": "costume",
@@ -539,13 +540,13 @@
       "variant": "minimal_jewelry",
       "mode": "i2i",
       "engine": "i2i_lock",
-      "denoise": 0.5,
+      "denoise": 0.65,
       "cfg": 3.5,
       "refs_subdir": "costume",
       "source_pref": "fullbody",
       "instruction": "ACCESSORIES detail, ears neck wrists, stay clothed in default wardrobe",
       "style_lock": "plain light gray background, soft beauty lighting, accessory detail reference",
-      "negative_extra": "nude, bare shoulders only, heavy jewelry overload, tattoos, busy background, different person, portrait, headshot, face close-up, head-and-shoulders"
+      "negative_extra": "nude, bare shoulders only, heavy jewelry overload, tattoos, busy background, different person, portrait, headshot, face close-up, head-and-shoulders, upper body, torso, cleavage"
     },
     "pose.stand_idle": {
       "sheet": "pose",

@@ -92,15 +92,25 @@ def core_for_preset(
 
     identity = strip_framing_clauses(positive_core)
     locks: list[str] = []
-    if sheet == "costume" and view.startswith("detail"):
+    # Footwear / foot details: long face essays defeat crop intent — use minimal id only.
+    if sheet == "costume" and view in ("detail_feet", "detail_foot", "detail_shoes"):
+        identity = (
+            "same character wardrobe continuity, matching skin tone on legs, "
+            "do not show face or head"
+        )
+        locks.append(
+            "crop from mid-shin or lower only, shoes and feet fill the frame, "
+            "camera looking down at footwear, zero face pixels"
+        )
+    elif sheet == "costume" and view.startswith("detail"):
+        # upper/acc details: keep short identity, hard anti-portrait
+        if len(identity) > 280:
+            identity = identity[:280].rsplit(",", 1)[0]
         locks.append(DETAIL_FRAMING_LOCK)
     elif sheet in ("costume", "pose", "turnaround", "master") and (
         view in ("full", "flat_front", "flat_back", "") or not view.startswith("detail")
     ):
-        if view.startswith("detail"):
-            locks.append(DETAIL_FRAMING_LOCK)
-        else:
-            locks.append(FULLBODY_FRAMING_LOCK)
+        locks.append(FULLBODY_FRAMING_LOCK)
     elif sheet == "props" and view not in ("hero", "turn_3view"):
         locks.append(FULLBODY_FRAMING_LOCK)
 

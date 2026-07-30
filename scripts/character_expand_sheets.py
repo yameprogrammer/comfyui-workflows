@@ -518,9 +518,14 @@ def main(argv=None) -> int:
                     style_lock=preset.get("style_lock", ""),
                     quality_tags=product_quality,
                 )
-                # Light character id only as series tag if present
+                # Light series tag for design flats — not for footwear product crops
+                # (prefix "design sheet" pulls full-body fashion layouts).
                 display = (pkg.bible.get("display_name") or args.id or "").strip()
-                if display:
+                view_l = str(preset.get("view") or "").lower()
+                if display and not view_l.startswith("detail_feet") and view_l not in (
+                    "detail_foot",
+                    "detail_shoes",
+                ):
                     t2i_prompt = f"{display} prop/costume design sheet, {t2i_prompt}"
                 print(f"T2I product plate: {t2i_prompt[:160]}...")
                 result = generate_image(

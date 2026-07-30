@@ -2,7 +2,7 @@
 
 | 항목 | 내용 |
 |------|------|
-| **상태** | 🟢 IN PROGRESS — Phase 0–3 코드 + IT 스모크 완료; full_sheet 실측 재검증 남음 |
+| **상태** | 🟢 MOSTLY DONE — IT 스모크 OK · full_sheet 코드 게이트 OK · costume 재검증 부분 통과 (발/전신 잔여 이슈) |
 | **우선순위** | **P0** (실전 뮤비 파이프라인 블로커) |
 | **구현 계획** | **[docs/superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md](superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md)** |
 | **보고 세션** | GREEN LIGHTER 쇼츠 MV (`D:\뮤직비디오 작업\GREEN LIGHTER`) |
@@ -194,10 +194,25 @@ DO:     ignore / quarantine full_sheet refs under characters/<id>/refs until rew
 상세 체크리스트·태스크: **[구현 계획 § Acceptance](superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md)**
 
 - [x] InfiniteTalk: 스모크 s2v exit 0 + 노드 preflight (`stories/_tool_smoke/infinitetalk_smoke.mp4`)  
-- [x] full_sheet: sheet-role core + size pass-through + lock/denoise + no silent auto L2 + framing gate (코드; 재생성 육안 선택)  
+- [x] full_sheet: sheet-role core + size pass-through + lock/denoise + no silent auto L2 + framing gate (코드)  
+- [x] costume 재검증 (green_lighter): size 1024×1536 PASS · wardrobe OK · 3/4 body 잔여 · footwear i2i 실패→t2i product  
 - [x] 카탈로그/when-not/`video_backends.json` 업데이트  
-- [ ] `FN-20260729-001` / `FN-20260729-002` 에 fix ref 또는 closed 처리  
-- [x] `process.md` 에 수정 이력 한 줄
+- [x] `FN-20260729-001` mitigated / `FN-20260729-002` fixed  
+- [x] `process.md` 수정 이력  
+
+### 재검증 메모 (2026-07-30 costume)
+
+| 항목 | 결과 |
+|------|------|
+| 출력 해상도 full | ✅ 1024×1536 (구 1024×576) |
+| head-and-shoulders 제거 | ✅ 메타 prompt |
+| 의상 잠금 | ✅ mesh jacket + lime + tank |
+| 발 포함 전신 | ⚠️ 종종 허벅지 크롭 (3/4) |
+| identity vs master_front | ⚠️ 보통 (아이돌 톤 드리프트) |
+| footwear i2i | ❌ 얼굴 CU — Lonecat identity 경로 한계 |
+| footwear t2i product | 🟡 신발 보이지만 lookbook 레이아웃 잔존 |
+
+패키지 `green_lighter_idol_v1` status **`rejected_quality` 유지** — 뮤비 본선은 계속 master_front + krea2.
 
 ---
 
