@@ -318,8 +318,8 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 | **`generate_yaw_wan22`** | Wan 2.2 MoE T2V/I2V 쉬운 실 UI | 립 → s2v · 에피 본선 대체 아님 |
 | **`generate_flf2v`** | 첫·끝 프레임 연결 | 단일 키프레임 모션 → i2v |
 | **`generate_s2v`** | 이미지+오디오 연동 | 무음 순수 모션 → i2v |
-| `generate_s2v --backend infinitetalk` | 토킹 립 품질 (헬스 OK 시) | **when-not:** `tool_health --backend infinitetalk` 실패 / WanVideo* 없음 → **`ltx23_ia2v`** · VRAM·길이 계약 |
-| `tool_health --backend infinitetalk` | SI2V 노드 preflight | Comfy 꺼짐 → exit 40 |
+| `generate_s2v --backend infinitetalk` | 토킹 립 품질 (2026-07-30 스모크 OK) | 호출 전 `tool_health --backend infinitetalk` · 실패 시 **`ltx23_ia2v`** · VRAM·길이 계약 |
+| `tool_health --backend infinitetalk` | SI2V 노드 preflight | Comfy 꺼짐 → exit 40 · Wrapper `.disabled` 금지 |
 | `generate_ltx23_latentheart` | Director 모듈 조합 | 단순 I2V면 generate_i2v |
 | `generate_ltx23_redmix_i2v` | Krea/Ideogram 스틸 애니 | |
 | `generate_ltx_nsfw_i2v` | 성인 모션 **18+** (LTX 10Eros) | SFW → 일반 i2v |
