@@ -11,21 +11,56 @@
       "quality_priority": "speed_consistency",
       "default_model": "pro",
       "sizes": {
-        "master_face": [1024, 1024],
-        "master_full_body": [1024, 1536],
-        "expression": [1024, 1024],
-        "turnaround": [1024, 1536],
-        "costume": [1024, 1536],
-        "pose": [1024, 1536],
-        "head": [1024, 1024],
-        "props": [1024, 1024]
+        "master_face": [
+          1024,
+          1024
+        ],
+        "master_full_body": [
+          1024,
+          1536
+        ],
+        "expression": [
+          1024,
+          1024
+        ],
+        "turnaround": [
+          1024,
+          1536
+        ],
+        "costume": [
+          1024,
+          1536
+        ],
+        "pose": [
+          1024,
+          1536
+        ],
+        "head": [
+          1024,
+          1024
+        ],
+        "props": [
+          1024,
+          1024
+        ]
       },
-      "mvp_sheet_groups": ["master", "expression"],
-      "optional_sheet_groups": ["costume", "turnaround", "pose", "head"],
+      "mvp_sheet_groups": [
+        "master",
+        "expression"
+      ],
+      "optional_sheet_groups": [
+        "costume",
+        "turnaround",
+        "pose",
+        "head"
+      ],
       "all_mvp_key": "video_ref_mvp",
       "candidates_master_default": 4,
       "candidates_sheet_default": 2,
-      "upscale": { "enabled": false, "scale": 1 },
+      "upscale": {
+        "enabled": false,
+        "scale": 1
+      },
       "grid_export": false,
       "export_subdir": "exports/video_ref",
       "notes": [
@@ -40,14 +75,38 @@
       "quality_priority": "sheet_completeness",
       "default_model": "pro",
       "sizes": {
-        "master_face": [1024, 1024],
-        "master_full_body": [1024, 1536],
-        "expression": [1024, 1024],
-        "turnaround": [1024, 1536],
-        "costume": [1024, 1536],
-        "pose": [1024, 1536],
-        "head": [1024, 1024],
-        "props": [1024, 1280]
+        "master_face": [
+          1024,
+          1024
+        ],
+        "master_full_body": [
+          1024,
+          1536
+        ],
+        "expression": [
+          1024,
+          1024
+        ],
+        "turnaround": [
+          1024,
+          1536
+        ],
+        "costume": [
+          1024,
+          1536
+        ],
+        "pose": [
+          1024,
+          1536
+        ],
+        "head": [
+          1024,
+          1024
+        ],
+        "props": [
+          1024,
+          1280
+        ]
       },
       "mvp_sheet_groups": [
         "master",
@@ -61,13 +120,17 @@
       "optional_sheet_groups": [],
       "all_mvp_key": "full_pack",
       "candidates_master_default": 2,
-      "candidates_sheet_default": 1,
-      "upscale": { "enabled": false, "scale": 1 },
+      "candidates_sheet_default": 2,
+      "upscale": {
+        "enabled": false,
+        "scale": 1
+      },
       "grid_export": true,
       "export_subdir": "exports/full_sheet",
       "notes": [
         "DEFAULT for character sheet process (casting C)",
-        "Use character_full_sheet.py --run for expand+approve+review grids"
+        "Use character_full_sheet.py --run for expand+approve+review grids",
+        "2026-07-30: candidates_sheet_default=2; no silent auto L2 without --auto-approve"
       ]
     },
     "artbook": {
@@ -77,14 +140,38 @@
       "quality_priority": "detail_print",
       "default_model": "pro",
       "sizes": {
-        "master_face": [1536, 1536],
-        "master_full_body": [1536, 2304],
-        "expression": [1536, 1536],
-        "turnaround": [1536, 2304],
-        "costume": [1536, 2304],
-        "pose": [1536, 2304],
-        "head": [1536, 1536],
-        "props": [1536, 1920]
+        "master_face": [
+          1536,
+          1536
+        ],
+        "master_full_body": [
+          1536,
+          2304
+        ],
+        "expression": [
+          1536,
+          1536
+        ],
+        "turnaround": [
+          1536,
+          2304
+        ],
+        "costume": [
+          1536,
+          2304
+        ],
+        "pose": [
+          1536,
+          2304
+        ],
+        "head": [
+          1536,
+          1536
+        ],
+        "props": [
+          1536,
+          1920
+        ]
       },
       "mvp_sheet_groups": [
         "master",
@@ -95,7 +182,9 @@
         "pose",
         "props"
       ],
-      "optional_sheet_groups": ["color"],
+      "optional_sheet_groups": [
+        "color"
+      ],
       "all_mvp_key": "full_pack",
       "candidates_master_default": 4,
       "candidates_sheet_default": 2,
@@ -198,7 +287,10 @@
     "default": "video_ref",
     "character_sheet_process": "full_sheet",
     "ssot_file": "characters/profiles.json",
-    "bible_fields": ["active_profile", "exports"],
+    "bible_fields": [
+      "active_profile",
+      "exports"
+    ],
     "do_not": [
       "Duplicate Comfy workflow JSON per profile",
       "Claim character sheet complete on video_ref MVP alone"

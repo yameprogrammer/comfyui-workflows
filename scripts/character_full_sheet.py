@@ -9,12 +9,13 @@ Order (production):
   3) on-model costume → body source of truth
   4) Qwen head/body turns
   5) expression / pose / props.hand_item (on-model scale)
-  6) auto-approve + review grids
+  6) review grids; bulk auto-approve only with --auto-approve (opt-in)
 
 Usage:
   python scripts/character_set_wardrobe.py --id X --default "..." --props "..." --lock
   python scripts/character_full_sheet.py --id X --run
   python scripts/character_full_sheet.py --id X --run --phases design
+  python scripts/character_full_sheet.py --id X --run --auto-approve   # opt-in L2 map
 """
 
 from __future__ import annotations
@@ -322,6 +323,19 @@ def main(argv=None) -> int:
             "turns=Qwen, rest=expr/pose/props.hand"
         ),
     )
+    p.add_argument(
+        "--auto-approve",
+        action="store_true",
+        help=(
+            "Opt-in: map refs→approved aliases after expand (default OFF). "
+            "Without this flag, --run only expands + review grids (pending visual QA)."
+        ),
+    )
+    p.add_argument(
+        "--stop-between-phases",
+        action="store_true",
+        help="After each phase block, exit 0 so operator can review before next --phases call",
+    )
     args = p.parse_args(argv)
 
     if not (args.run or args.export_only or args.approve_only):
@@ -428,6 +442,13 @@ def main(argv=None) -> int:
                             print(f"  [warn] {alias}: {e}")
                 pkg.save_manifest()
                 pkg.save_bible()
+                if args.stop_between_phases and args.phases == "all":
+                    print(
+                        "\n[stop-between-phases] design done — review design plates, "
+                        "then: --run --phases costume"
+                    )
+                    export_review_grids(pkg, profile)
+                    return EXIT_OK
 
             # --- Phase 1: on-model costume ---
             if args.phases in ("all", "costume"):
@@ -451,9 +472,18 @@ def main(argv=None) -> int:
                     return code
                 seed += 20
                 pkg = CharacterPackage.load(args.id)
+                # Mid-approve costume_default only for pipeline chaining (body source),
+                # not a claim of full L2 completion.
                 _approve_costume_default(pkg)
                 pkg.save_manifest()
                 pkg.save_bible()
+                if args.stop_between_phases and args.phases == "all":
+                    print(
+                        "\n[stop-between-phases] costume done — review wardrobe, "
+                        "then: --run --phases turns"
+                    )
+                    export_review_grids(pkg, profile)
+                    return EXIT_OK
 
             # --- Phase 2: head + body turns ---
             if args.phases in ("all", "turns") and args.turn_engine != "skip":
@@ -503,6 +533,14 @@ def main(argv=None) -> int:
                         print(f"[ERROR] turn expand exit={code}", file=sys.stderr)
                         return code
                     seed += 20
+                if args.stop_between_phases and args.phases == "all":
+                    print(
+                        "\n[stop-between-phases] turns done — review head/body turns, "
+                        "then: --run --phases rest"
+                    )
+                    pkg = CharacterPackage.load(args.id)
+                    export_review_grids(pkg, profile)
+                    return EXIT_OK
 
             # --- Phase 3: expression + pose + on-model props ---
             if args.phases in ("all", "rest"):
@@ -546,8 +584,15 @@ def main(argv=None) -> int:
 
         pkg = CharacterPackage.load(args.id)
 
-    if args.run or args.approve_only:
+    # Final bulk approve: opt-in only on --run; --approve-only keeps explicit map path.
+    do_auto = args.approve_only or (args.run and args.auto_approve)
+    if do_auto:
         print("\n=== Auto-approve ===")
+        if args.run and args.auto_approve:
+            print(
+                "  [WARN] --auto-approve: file presence only — still open review grids "
+                "before treating package as production L2"
+            )
         fb = _latest_ref(pkg, "master", "full")
         if fb:
             try:
@@ -559,6 +604,28 @@ def main(argv=None) -> int:
         missing = pkg.recompute_missing_mvp(profile_id)
         pkg.save_manifest()
         print(f"missing_mvp ({len(missing)}): {missing}")
+    elif args.run:
+        print(
+            "\n=== Skip bulk auto-approve (default) ===\n"
+            "  Refs expanded under refs/; review grids next.\n"
+            "  Promote good plates: python scripts/character_approve.py --id "
+            f"{args.id} ...\n"
+            "  Or opt-in dump: --auto-approve (not production L2 without visual QA)"
+        )
+        try:
+            man = pkg.manifest
+            if man.get("status") in (None, "draft", "expanding", "approved"):
+                # Do not upgrade rejected_quality packages
+                if man.get("status") != "rejected_quality":
+                    man["status"] = "pending_review"
+                    man["notes"] = list(man.get("notes") or [])
+                    note = "pending_review: expand done without --auto-approve (2026-07-30 policy)"
+                    if note not in man["notes"]:
+                        man["notes"].append(note)
+                    pkg.save_manifest()
+                    print(f"  manifest.status={man.get('status')}")
+        except Exception as e:
+            print(f"  [warn] status update: {e}")
 
     print("\n=== Export review grids ===")
     grids = export_review_grids(pkg, profile)

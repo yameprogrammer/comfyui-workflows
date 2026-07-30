@@ -60,16 +60,17 @@ bible SSOT: `appearance.wardrobe_*`, `props_default`, `wardrobe_locked`.
 
 ```bash
 # 원샷 (B2 이후) — 단계 순서 고정
-# 수정 후: 기본은 expand + review grids; L2 auto-approve는 --auto-approve 옵트인
+# 기본: expand + review grids only (pending_review). L2 map: --auto-approve (opt-in)
 python scripts/character_full_sheet.py --id X --run
 # Phase0 master_full → B2.5 design (flat/callout/prop) → on-model costume
 # → Qwen turns → expr/pose/props.hand
 
-# 페이즈만
+# 페이즈만 / 페이즈 사이 검수
 python scripts/character_full_sheet.py --id X --run --phases design
 python scripts/character_full_sheet.py --id X --run --phases costume
 python scripts/character_full_sheet.py --id X --run --phases turns
 python scripts/character_full_sheet.py --id X --run --phases rest
+python scripts/character_full_sheet.py --id X --run --stop-between-phases
 
 # design_pack만 expand
 python scripts/character_expand_sheets.py --id X --sheets design_pack --require-wardrobe

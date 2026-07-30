@@ -33,6 +33,8 @@ from lib.profiles import (
     size_for_sheet,
 )
 from lib.prompt_assembly import assemble_prompt
+from lib.sheet_prompt_policy import core_for_preset
+from lib.sheet_qa_heuristics import check_sheet_output
 from lib.wardrobe import (
     get_wardrobe_default,
     inject_instruction_for_preset,
@@ -469,6 +471,9 @@ def main(argv=None) -> int:
             cfg = float(preset.get("cfg") if preset.get("cfg") is not None else 3.5)
             strength = float(preset.get("control_strength") if preset.get("control_strength") is not None else 0.75)
 
+            # Sheet-role core: strip cast headshot framing from full/detail plates
+            job_core = core_for_preset(positive_core, preset, preset_id=pid)
+
             # Per-preset source preference (face close-up vs full body)
             pref = (preset.get("source_pref") or "").lower()
             job_source = source_path
@@ -499,6 +504,11 @@ def main(argv=None) -> int:
                 f"\n=== [{profile_id}] {pid} engine={engine} c{c} denoise={denoise} "
                 f"seed={seed} size_hint={w}x{h} src={os.path.basename(job_source or '') or '(t2i)'} ==="
             )
+            if job_core != positive_core:
+                print(
+                    f"  core_policy=identity_only framing_stripped="
+                    f"{('head-and-shoulders' in (positive_core or '').lower())}"
+                )
 
             if engine == "t2i":
                 # Off-body design plate — no character core face lock
@@ -564,14 +574,14 @@ def main(argv=None) -> int:
                     control_path = ensure_view_pose(preset.get("view") or "front", width=w, height=h)
                 print(f"Control pose template: {control_path}")
                 use_empty = engine == "controlnet_empty" or bool(preset.get("empty_latent"))
-                # OpenPose: high denoise for angle change; strength from preset (too high bakes skeleton)
+                # OpenPose: denoise from preset (was hard-min 0.8 → identity wipe). Soft floor only.
                 ctrl_pp = (preset.get("control_preprocess") or "auto").lower()
                 if use_empty:
                     cn_denoise = 1.0
                 elif ctrl_pp in ("openpose", "raw", "dwpose", "pose"):
-                    cn_denoise = max(denoise, 0.8)
+                    cn_denoise = max(denoise, 0.65)
                 else:
-                    cn_denoise = max(denoise, 0.72)
+                    cn_denoise = max(denoise, 0.60)
                 # Goal #1: no guide bones in final render
                 if "no openpose skeleton" not in prompt_instruction.lower():
                     prompt_instruction = (
@@ -590,7 +600,7 @@ def main(argv=None) -> int:
                     output_filename=out_path,
                     seed=seed,
                     negative_text=negative,
-                    core_prefix=positive_core,
+                    core_prefix=job_core,
                     meta_out=meta_path,
                     timeout_sec=args.timeout,
                     empty_latent=use_empty,
@@ -609,10 +619,12 @@ def main(argv=None) -> int:
                     output_filename=out_path,
                     seed=seed,
                     negative_text=negative,
-                    core_prefix=positive_core,
+                    core_prefix=job_core,
                     meta_out=meta_path,
                     timeout_sec=args.timeout,
                     ipa_weight=args.ipa_weight,
+                    width=w,
+                    height=h,
                 )
                 if (
                     not result.get("ok")
@@ -636,9 +648,11 @@ def main(argv=None) -> int:
                         output_filename=out_path,
                         seed=seed,
                         negative_text=negative,
-                        core_prefix=positive_core,
+                        core_prefix=job_core,
                         meta_out=meta_path,
                         timeout_sec=args.timeout,
+                        width=w,
+                        height=h,
                     )
                     engine = "i2i_lock_fallback"
             elif engine == "i2i_lock":
@@ -651,9 +665,11 @@ def main(argv=None) -> int:
                     output_filename=out_path,
                     seed=seed,
                     negative_text=negative,
-                    core_prefix=positive_core,
+                    core_prefix=job_core,
                     meta_out=meta_path,
                     timeout_sec=args.timeout,
+                    width=w,
+                    height=h,
                 )
             else:
                 result = generate_i2i_image(
@@ -665,9 +681,11 @@ def main(argv=None) -> int:
                     output_filename=out_path,
                     seed=seed,
                     negative_text=negative,
-                    core_prefix=positive_core,
+                    core_prefix=job_core,
                     meta_out=meta_path,
                     timeout_sec=args.timeout,
+                    width=w,
+                    height=h,
                 )
 
             if not result.get("ok"):
@@ -678,14 +696,26 @@ def main(argv=None) -> int:
                     return EXIT_COMFY
                 continue
 
+            qa = check_sheet_output(out_path, preset, (w, h))
+            if not qa.get("ok"):
+                print(
+                    f"[WARN] framing_qa FAIL {pid} c{c}: {', '.join(qa.get('reasons') or [])}"
+                )
+                # Keep file for review but do not mid-approve as body source of truth
+                qa_fail = True
+            else:
+                qa_fail = False
+
             # After costume.default lands, use it as dressed body source for later pose/props
-            if pid == "costume.default" and os.path.isfile(out_path):
+            if pid == "costume.default" and os.path.isfile(out_path) and not qa_fail:
                 fullbody_source = out_path
                 try:
                     pkg.approve(out_path, "costume_default")
                     print(f"  mid-lock costume_default ← {os.path.basename(out_path)}")
                 except Exception as e:
                     print(f"  [warn] mid-lock costume_default: {e}")
+            elif pid == "costume.default" and qa_fail:
+                print("  [skip mid-lock] costume.default failed framing QA")
 
             meta = result.get("meta") or {}
             meta.update(
@@ -700,6 +730,10 @@ def main(argv=None) -> int:
                     "engine": engine,
                     "size_hint": [w, h],
                     "seed": result.get("seed", seed),
+                    "core_policy": "identity_only"
+                    if job_core != positive_core
+                    else "full_positive_core",
+                    "framing_qa": qa,
                 }
             )
             write_meta(meta_path, meta)
@@ -718,9 +752,15 @@ def main(argv=None) -> int:
                     "preset_id": pid,
                     "profile": profile_id,
                     "created_at": utc_now_iso(),
+                    "qa_fail": qa_fail,
+                    "qa_reasons": qa.get("reasons") or [],
                 }
             )
-            success += 1
+            if qa_fail:
+                failures += 1
+                print(f"[WARN] counted framing QA fail as partial for {pid} c{c}")
+            else:
+                success += 1
 
     pkg.recompute_missing_mvp(profile_id)
     pkg.save_manifest()

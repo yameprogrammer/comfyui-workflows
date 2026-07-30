@@ -1360,9 +1360,10 @@
 
 ## 2026-07-30
 - OPEN fix request: docs/FIX_REQUEST_2026-07-30_full_sheet_and_infinitetalk.md (full_sheet FN-20260729-001, InfiniteTalk FN-20260729-002). Production: no full_sheet; s2v use ltx23_ia2v until IT nodes restored.
-- Root-cause confirmed + **implementation plan documented** (code not started):
-  - Plan: `docs/superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md` (Phase 0 preflight/docs → 1 IT restore → 2–3 full_sheet → 4 close)
+- Root-cause confirmed + **implementation plan documented**:
+  - Plan: `docs/superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md`
   - IT: `ComfyUI-WanVideoWrapper.disabled` → all WanVideo* missing; native `WanInfiniteTalkToVideo` unused
   - FS: positive_core head-and-shoulders bleed + i2i size not passed + high denoise plain i2i + auto_approve file-only
-  - FIX_REQUEST status → PLAN READY; backlog P0 HOTFIX links plan
+- **Phase 0 shipped:** `lib/s2v_backend_health.py` + `scripts/tool_health.py`; `generate_s2v` preflight `BACKEND_UNAVAILABLE`; infinitetalk status `degraded` in video_backends/catalog
+- **Phase 2–3 shipped:** `lib/sheet_prompt_policy.py` (strip framing core); expand passes width/height; framing QA; sheet_presets i2i_lock + lower denoise; `character_full_sheet` default no bulk auto-approve (`--auto-approve` opt-in); `--stop-between-phases`
 
