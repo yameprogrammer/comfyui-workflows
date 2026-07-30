@@ -14,6 +14,7 @@ from generate_moody_controlnet import generate_controlnet_image
 from generate_moody_i2i import generate_i2i_image
 from generate_moody_i2i_ipadapter import generate_i2i_ipadapter
 from generate_moody_i2i_lock import generate_i2i_lock
+from generate_krea2_identity_edit import run_identity_edit
 from generate_qwen_angle import generate_qwen_angle
 from lib.character_package import (
     CharacterPackage,
@@ -53,6 +54,23 @@ QWEN_VIEW_FALLBACK = {
     "turnaround.side": "body_side",
     "turnaround.back": "body_back",
 }
+
+
+def aspect_ratio_for_size(width: int, height: int) -> str:
+    """Map target sheet size to Krea2 ResolutionSelector aspect labels."""
+    w, h = max(1, int(width)), max(1, int(height))
+    r = w / h
+    if abs(r - 1.0) < 0.08:
+        return "1:1 (Square)"
+    if r < 1.0:
+        # portrait — ResolutionSelector labels on this install
+        if abs(r - 2 / 3) < 0.08 or abs(r - 3 / 4) < 0.08 or abs(r - 9 / 16) < 0.12:
+            return "2:3 (Portrait Photo)"
+        return "2:3 (Portrait Photo)"
+    # landscape
+    if abs(r - 3 / 2) < 0.08:
+        return "3:2 (Photo)"
+    return "3:2 (Photo)"
 
 
 EXIT_OK = 0
@@ -137,13 +155,33 @@ def main(argv=None) -> int:
             "controlnet_empty",
             "qwen",
             "t2i",
+            "krea2_identity",
         ],
         default="auto",
         help=(
-            "auto: per-preset (design flats=t2i, head/turn=qwen, expr=i2i, pose=controlnet); "
-            "t2i: product plates without character; "
-            "qwen / i2i / controlnet*: other paths"
+            "auto: per-preset (design flats=t2i, head/turn=qwen, costume full=krea2_identity, "
+            "expr=i2i, pose=controlnet); "
+            "krea2_identity: master_front → full-body/scene expand (identity LoRA); "
+            "t2i: product plates; qwen / i2i / controlnet*: other paths"
         ),
+    )
+    parser.add_argument(
+        "--krea-steps",
+        type=int,
+        default=14,
+        help="Steps for engine=krea2_identity (default 14)",
+    )
+    parser.add_argument(
+        "--krea-ref-boost",
+        type=float,
+        default=5.5,
+        help="ref_boost for krea2_identity (default 5.5)",
+    )
+    parser.add_argument(
+        "--krea-megapixels",
+        type=float,
+        default=None,
+        help="Override megapixels for krea2_identity (default from sheet size)",
     )
     parser.add_argument(
         "--qwen-steps",
@@ -366,6 +404,8 @@ def main(argv=None) -> int:
             return "controlnet_empty"
         if eng in ("ipadapter", "ipa", "faceid"):
             return "ipadapter"
+        if eng in ("krea2_identity", "krea2_id", "krea2_edit", "krea2"):
+            return "krea2_identity"
         if eng in ("i2i_lock", "identity", "lock"):
             return "i2i_lock"
         return "i2i"
@@ -453,6 +493,7 @@ def main(argv=None) -> int:
                 "i2i_lock",
                 "qwen",
                 "t2i",
+                "krea2_identity",
             ):
                 eng_suffix = f"_{engine}"
             fname = asset_filename(
@@ -477,7 +518,10 @@ def main(argv=None) -> int:
             # Per-preset source preference (face close-up vs full body)
             pref = (preset.get("source_pref") or "").lower()
             job_source = source_path
-            if pref == "face" and face_source and os.path.isfile(face_source):
+            # krea2_identity: always lock pixels from face master (expand body via prompt)
+            if engine == "krea2_identity" and face_source and os.path.isfile(face_source):
+                job_source = face_source
+            elif pref == "face" and face_source and os.path.isfile(face_source):
                 job_source = face_source
             elif pref == "fullbody":
                 sheet_name = str(preset.get("sheet") or "")
@@ -685,6 +729,67 @@ def main(argv=None) -> int:
                     timeout_sec=args.timeout,
                     width=w,
                     height=h,
+                )
+            elif engine == "krea2_identity":
+                if not job_source or not os.path.isfile(job_source):
+                    failures += 1
+                    print(f"[WARN] failed {pid} c{c}: SOURCE_MISSING for krea2_identity")
+                    continue
+                # Face-pixel expand: identity from master_front; body/wardrobe from instruction.
+                face_lock = (
+                    "Exact same person as the input photo, preserve face identity, "
+                    "same eyes nose mouth hair, neon-lime streak if present"
+                )
+                krea_prompt = assemble_prompt(
+                    core=face_lock,
+                    instruction=instruction,
+                    style_lock=preset.get("style_lock", ""),
+                    quality_tags=qtags,
+                )
+                # Light face cues from cast core (framing already stripped when possible)
+                if job_core:
+                    krea_prompt = assemble_prompt(
+                        core=job_core[:280],
+                        instruction=krea_prompt,
+                    )
+                aspect = str(
+                    preset.get("aspect_ratio") or aspect_ratio_for_size(w, h)
+                )
+                mp = (
+                    float(args.krea_megapixels)
+                    if args.krea_megapixels is not None
+                    else float(
+                        preset.get("megapixels")
+                        if preset.get("megapixels") is not None
+                        else max(1.0, (w * h) / (1024.0 * 1024.0))
+                    )
+                )
+                krea_steps = int(preset.get("krea_steps") or args.krea_steps or 14)
+                ref_boost = float(
+                    preset.get("ref_boost")
+                    if preset.get("ref_boost") is not None
+                    else args.krea_ref_boost
+                )
+                krea_denoise = float(
+                    preset.get("denoise") if preset.get("denoise") is not None else 1.0
+                )
+                print(
+                    f"Krea2 identity edit aspect={aspect} mp={mp:.2f} "
+                    f"ref_boost={ref_boost} steps={krea_steps}"
+                )
+                result = run_identity_edit(
+                    input_image=job_source,
+                    prompt=krea_prompt,
+                    output_path=out_path,
+                    seed=seed,
+                    steps=krea_steps,
+                    denoise=krea_denoise,
+                    ref_boost=ref_boost,
+                    aspect_ratio=aspect,
+                    megapixels=mp,
+                    timeout_sec=args.timeout,
+                    meta_out=meta_path,
+                    filename_prefix=f"char_{args.id}_{preset.get('sheet')}",
                 )
             else:
                 result = generate_i2i_image(

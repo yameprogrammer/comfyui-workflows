@@ -52,11 +52,12 @@ bible SSOT: `appearance.wardrobe_*`, `props_default`, `wardrobe_locked`.
 
 ### C 캐릭터 시트 (공정 SOP — full_sheet)
 
-> **⚠️ 2026-07-30 P0:** `character_full_sheet --run` 프로덕션 캐스트 잠금 **일시 금지**  
-> (identity drift / framing / silent auto-approve — FN-20260729-001).  
-> 우회: `cast_pool` → promote → **`master_front` only** · 키프레임 `krea2_identity_edit`.  
-> `missing_mvp=[]` = 파일 존재일 뿐 **시각 QA 통과 아님**.  
-> 계획: [superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md](superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md)
+> **2026-07-30:** full_sheet 게이트 복구 중.  
+> - **on-model costume 본선:** `engine=krea2_identity` (master_front → 전신 확장, identity LoRA)  
+> - 키프레임: `krea2_identity_edit` 동일 스택  
+> - OpenPose CN: 몸/포즈 전용 (`--engine controlnet`) — 얼굴 SSOT 아님  
+> - `missing_mvp=[]` ≠ 시각 QA 통과 · bulk auto-approve 기본 OFF (`--auto-approve` 옵트인)  
+> - 계획: [superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md](superpowers/plans/2026-07-30-full-sheet-and-infinitetalk-fix.md)
 
 ```bash
 # 원샷 (B2 이후) — 단계 순서 고정
@@ -74,6 +75,11 @@ python scripts/character_full_sheet.py --id X --run --stop-between-phases
 
 # design_pack만 expand
 python scripts/character_expand_sheets.py --id X --sheets design_pack --require-wardrobe
+
+# on-model costume (본선: krea2_identity from master_front)
+python scripts/character_expand_sheets.py --id X --sheets wardrobe_pack --require-wardrobe
+# 또는 한 장:
+python scripts/character_expand_sheets.py --id X --only costume.default --require-wardrobe
 
 # 턴만 (body 소스 = costume_default 우선)
 python scripts/character_qwen_turns.py --id X --mode both --approve
