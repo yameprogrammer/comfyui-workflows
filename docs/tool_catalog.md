@@ -314,6 +314,7 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 | **`--ltx-profile`** | `draft`(~540) / **`work`(720p 기본)** / **`hero`(~1080)** | 배치는 work · 러프만 draft |
 | **`--motion-preset`** | i2v/episode_i2v에 같은 프리셋 연결 | camera_move와 id 공유 |
 | `generate_i2v --backend wan22` | LTX 폴백·카메라/텍스처 재시도 (GGUF+lightx2v) | 에피 기본 I2V 금지 · 모션 평탄할 수 있음 |
+| wan22 노브 | `--cfg` · `--lora-strength-high/low` · `--wan-boundary` · frames≥81→steps≥6 · `--wan-long-edge`+`--wan-short-edge` | CFG×LoRA 표: [wan22_workflow_map](wan22_workflow_map.md) §3 · LX 레시피 §5.1 [speed research](wan22_i2v_speed_research.md) |
 | `generate_i2v --backend wan22_flf` | Wan first+last 폴백 | 품질 FLF 본선 = LTX flf |
 | **`generate_yaw_wan22`** | Wan 2.2 MoE T2V/I2V 쉬운 실 UI | 립 → s2v · 에피 본선 대체 아님 |
 | **`generate_flf2v`** | 첫·끝 프레임 연결 | 단일 키프레임 모션 → i2v |

@@ -98,9 +98,11 @@
 
 | profile | steps | block_swap | 용도 |
 |---------|-------|------------|------|
-| `preview` | 4 | 8 | 모션 스카우트 · long_edge cap |
-| **`deliver`** (기본) | **6** | **10** | 폴백 본선 |
-| `quality` | 8 | 10 | 히어로 후보 |
+| `preview` | 4 | 8 | 모션 스카우트 · long_edge cap · ≈ LX-scout |
+| **`deliver`** (기본) | **6** | **10** | 폴백 본선 · ≈ LX-daily |
+| `quality` | 8 | 10 | 히어로 후보 · LX-hero는 steps/boundary CLI |
+
+커뮤니티 LightX2V 레시피 매핑 초안: [wan22_i2v_speed_research.md](wan22_i2v_speed_research.md) §5.1.
 
 **2026-07-18 inject 개선** (`lib/wan22_i2v_inject.py`) · **2026-07-31 long-clip / edges**
 

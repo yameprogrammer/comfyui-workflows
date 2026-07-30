@@ -201,6 +201,53 @@ python scripts/generate_i2v.py ... --profile deliver   # 기본
 python scripts/episode_i2v.py -e EP --profile preview
 ```
 
+### 5.1 LightX2V 커뮤니티 레시피 vs 공장 프로필 (초안 · 2026-07-31)
+
+YouTube/Civitai lightx2v 튜토리얼과 **우리 `preview`/`deliver`/`quality`** 매핑.  
+코드 기본값은 `scripts/generate_i2v.py` `resolve_i2v_speed_profile` · CLI 오버라이드 가능.  
+CFG×LoRA 운용: [wan22_workflow_map.md](wan22_workflow_map.md) §3.1 · 프롬프트: [generation_prompt_craft.md](generation_prompt_craft.md) §3.4.
+
+| 레시피 이름 (초안) | 출처 감각 | steps | boundary | CFG | LoRA H/L | sched / shift | long edge 감 | 공장 대응 | 비고 |
+|--------------------|-----------|-------|----------|-----|----------|---------------|--------------|-----------|------|
+| **LX-scout** | lightx2v pure 4step | 4 | 2 | 1 | 1.0 / 1.0 | euler / 5 | ~480 short | ≈ **`preview`** | frames<81 only; 긴 클립은 가드→6 |
+| **LX-daily** | CG Pixel “8 권장” 중간 | 6–8 | //2 | 1 | 1.0 / 1.0 | dpm++_sde / 8 | work 540 | ≈ **`deliver`** (6) | 본선 기본 |
+| **LX-motion** | 모션 살리기 (H LoRA↓) | 6–8 | //2 | 1 | **0.6–0.8 / 1.0** | euler / 5 | work 540 | deliver + CLI | 슬로모·굳음 시 |
+| **LX-hero** | favorites 비대칭 | 10–12 | **4** (예) | 1 | 0.7–1.0 / 1.0 | res_multistep 등 | 720 long | ≈ **`quality`** + boundary | style LoRA low 무게 |
+| **LX-cfg-probe** | HF “CFG high 2–3.5” | 8 | 4 | 2–3.5 / 1 | 유지 | 실험 | work | **비권장 기본** | 블러·불안정 보고 다수 |
+
+**공장 코드 기본 (deliver)과의 차이 한 줄**
+
+| 축 | lightx2v 공식 힌트 | 공장 deliver | 조치 |
+|----|-------------------|--------------|------|
+| steps | 4 | **6** | 품질 게이트 후 확정; preview만 4 |
+| CFG | 1 | **1** (scalar) | 일치 |
+| scheduler | Euler shift 5 | 그래프 `dpm++_sde` shift 8 | A/B: `--wan-scheduler euler` |
+| LoRA strength | 종종 H↓ | **1.0 / 1.0** | 모션 이슈 시 H 0.7 |
+| 긴 클립 | (튜토리얼 짧음 가정) | frames≥81 → **min steps 6** | `enforce_long_clip_steps` |
+| 해상도 | 480p-class 많음 | work_* + profile long_edge cap | `--wan-long-edge`/`--wan-short-edge` 옵션 |
+
+**아직 프로필 키로 안 넣은 것 (초안 유지)**
+
+- `LX-motion` / `LX-hero` 를 `preview|deliver|quality` 옆 4번째 이름로 고정하지 않음 — CLI 조합으로 충분.  
+- nunchaku / 별도 양자 스택 재작성 **스킵** (별 티켓).  
+- 실측 벤치 후 `video_backends.json` notes 또는 profile dict 승격 검토.
+
+```bash
+# LX-scout
+python scripts/generate_i2v.py ... --backend wan22 --profile preview
+
+# LX-daily
+python scripts/generate_i2v.py ... --backend wan22 --profile deliver
+
+# LX-motion
+python scripts/generate_i2v.py ... --backend wan22 --profile deliver \
+  --lora-strength-high 0.7 --lora-strength-low 1.0 --wan-scheduler euler
+
+# LX-hero
+python scripts/generate_i2v.py ... --backend wan22 --profile quality \
+  --steps 12 --wan-boundary 4
+```
+
 ---
 
 ## 6. 벤치 프로토콜 (구현 전·후 공통)

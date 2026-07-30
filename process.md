@@ -1,3 +1,10 @@
+## 2026-07-31 — Wan I2V YouTube-derived guards + LightX2V docs
+- Code: `lib/wan22_i2v_inject.py` — `enforce_long_clip_steps` (frames≥81 → min steps 6),
+  `resolve_long_short_edges`, boundary floor both sides ≥2 when steps≥6
+- CLI: `generate_i2v --wan-allow-low-steps` · `--wan-long-edge` + `--wan-short-edge`
+- Docs: CFG×LoRA + High/Low tables in `generation_prompt_craft` §3.4 · `wan22_workflow_map` §3.1–3.2
+- Draft LightX2V recipe map vs profiles: `wan22_i2v_speed_research` §5.1 (LX-scout/daily/motion/hero)
+- Skipped: nunchaku stack rewrite
 ## 2026-07-18 — YouTube ref ingest tools (implement)
 - `lib/youtube_ingest.py` · `scripts/youtube_ingest.py` · `scripts/youtube_highlights.py`
 - Caps: meta (yt-dlp -J) · captions/auto-subs · extractive summary · highlights · optional whisper/media/ffmpeg cuts
