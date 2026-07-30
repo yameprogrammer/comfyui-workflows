@@ -1373,4 +1373,5 @@
 - **Hybrid identity win:** `krea2_identity_edit` from **master_front** → full-body costume (`2:3 Portrait Photo`, mp=1.5, ref_boost≈5.5). Dual-ref body+face did **not** replace OpenPose face. CLI `--ref` dual path added. Smoke: `stories/_tool_smoke/hyb_A_face_to_full.png`, `hyb_A2_face_to_full.png`
 - **character_expand engine=`krea2_identity`:** costume.default/alt1 default path; source=master_front; CLI `--krea-steps` / `--krea-ref-boost` / `--krea-megapixels`
 - **Residual functional:** mid-lock best feet_score candidate (not last); `fullbody_source` prefers krea2 from face + feet QA; green_lighter status `pending_review`; FIX_REQUEST/catalog/rules sync
+- **Quality pack 2026-07-31:** footwear=`crop_lower` from costume_default (face CU eliminated); expression=`i2i_lock` denoise band; pose.stand_idle=`krea2_identity`; action poses stay OpenPose CN; face_zone QA on footwear
 

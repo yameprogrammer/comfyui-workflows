@@ -35,7 +35,7 @@ from lib.profiles import (
 )
 from lib.prompt_assembly import assemble_prompt
 from lib.sheet_prompt_policy import core_for_preset
-from lib.sheet_qa_heuristics import check_sheet_output
+from lib.sheet_qa_heuristics import check_sheet_output, extract_lower_body_crop
 from lib.wardrobe import (
     get_wardrobe_default,
     inject_instruction_for_preset,
@@ -156,13 +156,15 @@ def main(argv=None) -> int:
             "qwen",
             "t2i",
             "krea2_identity",
+            "crop_lower",
         ],
         default="auto",
         help=(
             "auto: per-preset (design flats=t2i, head/turn=qwen, costume full=krea2_identity, "
-            "expr=i2i, pose=controlnet); "
-            "krea2_identity: master_front → full-body/scene expand (identity LoRA); "
-            "t2i: product plates; qwen / i2i / controlnet*: other paths"
+            "expr=i2i_lock, pose=controlnet, footwear=crop_lower); "
+            "krea2_identity: master_front → full-body expand; "
+            "crop_lower: deterministic lower-body crop from costume_default; "
+            "t2i/qwen/i2i/controlnet*: other paths"
         ),
     )
     parser.add_argument(
@@ -406,6 +408,8 @@ def main(argv=None) -> int:
             return "ipadapter"
         if eng in ("krea2_identity", "krea2_id", "krea2_edit", "krea2"):
             return "krea2_identity"
+        if eng in ("crop_lower", "footwear_crop", "lower_crop"):
+            return "crop_lower"
         if eng in ("i2i_lock", "identity", "lock"):
             return "i2i_lock"
         return "i2i"
@@ -496,6 +500,7 @@ def main(argv=None) -> int:
                 "qwen",
                 "t2i",
                 "krea2_identity",
+                "crop_lower",
             ):
                 eng_suffix = f"_{engine}"
             fname = asset_filename(
@@ -525,6 +530,12 @@ def main(argv=None) -> int:
                 job_source = face_source
             elif pref == "face" and face_source and os.path.isfile(face_source):
                 job_source = face_source
+            elif pref in ("costume_default", "dressed") or engine == "crop_lower":
+                dressed = prefer_dressed_fullbody_path(pkg)
+                if dressed and os.path.isfile(dressed):
+                    job_source = dressed
+                elif fullbody_source and os.path.isfile(fullbody_source):
+                    job_source = fullbody_source
             elif pref == "fullbody":
                 sheet_name = str(preset.get("sheet") or "")
                 # Costume plates should start from master_full (avoid recycling old outfit).
@@ -556,7 +567,52 @@ def main(argv=None) -> int:
                     f"{('head-and-shoulders' in (positive_core or '').lower())}"
                 )
 
-            if engine == "t2i":
+            result: dict | None = None
+            if engine == "crop_lower":
+                # Deterministic footwear/lower detail from full on-model plate (no face CU risk).
+                crop_src = job_source
+                if not crop_src or not os.path.isfile(crop_src):
+                    dressed = prefer_dressed_fullbody_path(pkg)
+                    crop_src = dressed or find_fullbody_source(pkg)
+                if not crop_src or not os.path.isfile(crop_src):
+                    print(
+                        f"[WARN] crop_lower missing dressed fullbody for {pid}; "
+                        f"fallback t2i product"
+                    )
+                    engine = "t2i"
+                else:
+                    top_frac = float(preset.get("crop_top_frac") or 0.52)
+                    print(
+                        f"Lower-body crop from {os.path.basename(crop_src)} "
+                        f"top_frac={top_frac}"
+                    )
+                    crop_r = extract_lower_body_crop(
+                        crop_src,
+                        out_path,
+                        top_frac=top_frac,
+                        target_size=(w, h),
+                    )
+                    if crop_r.get("ok"):
+                        result = {
+                            "ok": True,
+                            "seed": seed,
+                            "output_path": out_path,
+                            "meta": {
+                                "engine": "crop_lower",
+                                "mode": "deterministic_lower_crop",
+                                "crop_source": crop_src,
+                                "top_frac": top_frac,
+                                "size": crop_r.get("size"),
+                            },
+                        }
+                    else:
+                        result = {
+                            "ok": False,
+                            "error": "CROP_FAILED",
+                            "message": str(crop_r.get("error") or crop_r),
+                        }
+
+            if engine == "t2i" and result is None:
                 # Off-body design plate — no character core face lock
                 t2i_prompt = assemble_prompt(
                     core="",
@@ -585,7 +641,7 @@ def main(argv=None) -> int:
                     meta_out=meta_path,
                     timeout_sec=args.timeout,
                 )
-            elif engine == "qwen":
+            elif engine == "qwen" and result is None:
                 if not job_source or not os.path.isfile(job_source):
                     failures += 1
                     print(f"[WARN] failed {pid} c{c}: SOURCE_MISSING for qwen")
@@ -617,7 +673,7 @@ def main(argv=None) -> int:
                     timeout_sec=args.timeout,
                     meta_out=meta_path,
                 )
-            elif engine in ("controlnet", "controlnet_empty"):
+            elif engine in ("controlnet", "controlnet_empty") and result is None:
                 pose_id = preset.get("pose_template")
                 if pose_id:
                     control_path = ensure_pose_template(pose_id, width=w, height=h)
@@ -669,7 +725,7 @@ def main(argv=None) -> int:
                     latent_height=h,
                     control_preprocess=str(ctrl_pp),
                 )
-            elif engine == "ipadapter":
+            elif engine == "ipadapter" and result is None:
                 print(f"IPAdapter face lock weight={args.ipa_weight}")
                 result = generate_i2i_ipadapter(
                     input_image_path=job_source,
@@ -716,7 +772,7 @@ def main(argv=None) -> int:
                         height=h,
                     )
                     engine = "i2i_lock_fallback"
-            elif engine == "i2i_lock":
+            elif engine == "i2i_lock" and result is None:
                 result = generate_i2i_lock(
                     input_image_path=job_source,
                     prompt_text=prompt_instruction,
@@ -732,7 +788,7 @@ def main(argv=None) -> int:
                     width=w,
                     height=h,
                 )
-            elif engine == "krea2_identity":
+            elif engine == "krea2_identity" and result is None:
                 if not job_source or not os.path.isfile(job_source):
                     failures += 1
                     print(f"[WARN] failed {pid} c{c}: SOURCE_MISSING for krea2_identity")
@@ -793,7 +849,7 @@ def main(argv=None) -> int:
                     meta_out=meta_path,
                     filename_prefix=f"char_{args.id}_{preset.get('sheet')}",
                 )
-            else:
+            elif result is None:
                 result = generate_i2i_image(
                     input_image_path=job_source,
                     prompt_text=prompt_instruction,
@@ -810,10 +866,13 @@ def main(argv=None) -> int:
                     height=h,
                 )
 
-            if not result.get("ok"):
+            if not result or not result.get("ok"):
                 failures += 1
-                err = result.get("error", "UNKNOWN")
-                print(f"[WARN] failed {pid} c{c}: {err} {result.get('message') or ''}")
+                err = (result or {}).get("error", "UNKNOWN")
+                print(
+                    f"[WARN] failed {pid} c{c}: {err} "
+                    f"{(result or {}).get('message') or ''}"
+                )
                 if err == "COMFY_UNREACHABLE":
                     return EXIT_COMFY
                 continue

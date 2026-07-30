@@ -80,6 +80,9 @@ python scripts/character_expand_sheets.py --id X --sheets design_pack --require-
 python scripts/character_expand_sheets.py --id X --sheets wardrobe_pack --require-wardrobe
 # 또는 한 장:
 python scripts/character_expand_sheets.py --id X --only costume.default --require-wardrobe
+# footwear detail: crop_lower from costume_default (no gen face CU)
+# expression: i2i_lock from master_front · stand_idle pose: krea2_identity
+# action poses (walk/sit/…): OpenPose controlnet
 
 # 턴만 (body 소스 = costume_default 우선)
 python scripts/character_qwen_turns.py --id X --mode both --approve
