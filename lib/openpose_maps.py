@@ -335,6 +335,100 @@ def _pose_keypoints(template_id: str) -> List[Optional[Tuple[float, float]]]:
             None,
         ]
 
+    # --- Side-view light-jog cycle (game sprite / A-lite run keys) ---
+    # Right profile: +x = forward (facing right). Indices BODY_18.
+    if tid == "jog_contact":
+        # Front foot plant ahead, rear trail low
+        return [
+            (0.58, 0.10),
+            (0.50, 0.16),
+            (0.50, 0.20),
+            (0.62, 0.32),  # front arm
+            (0.70, 0.42),
+            (0.50, 0.20),
+            (0.40, 0.34),  # back arm
+            (0.34, 0.46),
+            (0.50, 0.46),
+            (0.62, 0.64),  # front hip→knee
+            (0.70, 0.90),  # front foot plant
+            (0.50, 0.46),
+            (0.42, 0.66),  # rear knee
+            (0.34, 0.88),  # rear foot trail
+            (0.56, 0.09),
+            None,
+            (0.48, 0.11),
+            None,
+        ]
+
+    if tid == "jog_recoil":
+        # Weight on front leg, rear knee higher
+        return [
+            (0.58, 0.11),
+            (0.50, 0.17),
+            (0.50, 0.21),
+            (0.60, 0.33),
+            (0.66, 0.40),
+            (0.50, 0.21),
+            (0.42, 0.34),
+            (0.36, 0.44),
+            (0.50, 0.47),
+            (0.60, 0.66),
+            (0.64, 0.90),
+            (0.50, 0.47),
+            (0.40, 0.58),  # rear knee up
+            (0.36, 0.74),
+            (0.56, 0.10),
+            None,
+            (0.48, 0.12),
+            None,
+        ]
+
+    if tid == "jog_pass":
+        # Legs closer under body (passing)
+        return [
+            (0.56, 0.11),
+            (0.50, 0.17),
+            (0.50, 0.21),
+            (0.58, 0.34),
+            (0.62, 0.44),
+            (0.50, 0.21),
+            (0.44, 0.34),
+            (0.40, 0.44),
+            (0.50, 0.48),
+            (0.54, 0.68),
+            (0.56, 0.90),
+            (0.50, 0.48),
+            (0.46, 0.66),
+            (0.44, 0.88),
+            (0.54, 0.10),
+            None,
+            (0.50, 0.12),
+            None,
+        ]
+
+    if tid == "jog_high":
+        # Long open stride: rear high, front reach
+        return [
+            (0.60, 0.10),
+            (0.50, 0.16),
+            (0.50, 0.20),
+            (0.64, 0.30),
+            (0.72, 0.38),
+            (0.50, 0.20),
+            (0.38, 0.32),
+            (0.30, 0.42),
+            (0.50, 0.45),
+            (0.66, 0.62),  # front thigh
+            (0.76, 0.86),  # front foot forward
+            (0.50, 0.45),
+            (0.38, 0.60),  # rear knee
+            (0.28, 0.82),  # rear foot high back
+            (0.58, 0.09),
+            None,
+            (0.48, 0.11),
+            None,
+        ]
+
     if tid == "sit_chair":
         return [
             (0.50, 0.14),
@@ -449,6 +543,10 @@ def ensure_all_openpose_maps(
         "stand_back",
         "stand_idle",
         "walk_side",
+        "jog_contact",
+        "jog_recoil",
+        "jog_pass",
+        "jog_high",
         "sit_chair",
         "hands_hips",
         "wave",
