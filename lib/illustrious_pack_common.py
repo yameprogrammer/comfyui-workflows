@@ -125,7 +125,71 @@ def build_api(
             name = ins.get("ckpt_name")
             if isinstance(name, str) and name in CKPT_REMAP:
                 ins["ckpt_name"] = CKPT_REMAP[name]
+    # ControlNet / IPAdapter filename fallbacks when pack names missing
+    _remap_controlnet_and_ipa(api)
     return api
+
+
+# pack name → preferred local filenames (first that exists wins)
+CN_REMAP = {
+    "noobaiXLControlnet_openposeModel.safetensors": [
+        "controlnet-openpose-sdxl.safetensors",
+        "SDXL\\controlnet-openpose-sdxl.safetensors",
+        "SDXL/controlnet-openpose-sdxl.safetensors",
+    ],
+    "noobaiInpainting_v10.safetensors": [
+        "noobaiInpainting_v10.safetensors",
+        "noobaiInpainting_v10.fp16.safetensors",
+    ],
+}
+IPA_REMAP = {
+    "noobIPAMARK1_mark1.safetensors": [
+        "noobIPAMARK1_mark1.safetensors",
+        "sdxl_models/noobIPAMARK1_mark1.safetensors",
+        "sdxl_models\\noobIPAMARK1_mark1.safetensors",
+    ],
+}
+
+
+def _remap_controlnet_and_ipa(api: dict[str, Any]) -> None:
+    from lib.illustrious_standard_v37_runner import _find_under_models
+
+    def pick(folder: str, candidates: list[str]) -> str | None:
+        for a in candidates:
+            parts = a.replace("\\", "/").split("/")
+            if _find_under_models(folder, *parts):
+                # Comfy dropdown usually wants relative path with backslash on Win
+                return "\\".join(parts)
+        return None
+
+    for n in api.values():
+        ct = n.get("class_type") or ""
+        ins = n.setdefault("inputs", {})
+        if ct == "ControlNetLoader":
+            name = ins.get("control_net_name")
+            if not isinstance(name, str):
+                continue
+            base = name.replace("\\", "/").split("/")[-1]
+            for pack_name, alts in CN_REMAP.items():
+                if base == pack_name or name.endswith(pack_name):
+                    # if pack name missing, swap
+                    if not _find_under_models("controlnet", *name.replace("\\", "/").split("/")):
+                        hit = pick("controlnet", alts)
+                        if hit:
+                            ins["control_net_name"] = hit
+                    break
+        if ct == "IPAdapterModelLoader":
+            name = ins.get("ipadapter_file")
+            if not isinstance(name, str):
+                continue
+            base = name.replace("\\", "/").split("/")[-1]
+            for pack_name, alts in IPA_REMAP.items():
+                if base == pack_name:
+                    if not _find_under_models("ipadapter", *name.replace("\\", "/").split("/")):
+                        hit = pick("ipadapter", alts)
+                        if hit:
+                            ins["ipadapter_file"] = hit
+                    break
 
 
 def set_wildcard(api: dict[str, Any], node_id: str, text: str) -> None:

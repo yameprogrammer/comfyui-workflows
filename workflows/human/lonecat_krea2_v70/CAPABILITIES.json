@@ -379,7 +379,13 @@
       "ui_nodes": [
         "ConditioningKrea2Rebalance"
       ],
-      "status": "planned"
+      "status": "ready",
+      "agent_cli": "python scripts/generate_krea.py -p \"...\" --rebalance --rebalance-mult 2.0 -o out.png",
+      "when_to_use": "NSFW / prompt adherence: reweight Krea2 multi-layer conditioning (needs ComfyUI-Conditioning-Rebalance)",
+      "defaults": {
+        "multiplier": 2.0,
+        "note": "UI pack often uses 4.0 — start lower to avoid overpowering photoreal"
+      }
     },
     {
       "feature_id": "v70_krea2t_enhancer",
@@ -497,10 +503,9 @@
   "status_counts": {
     "ready_via_v10": 2,
     "ready_experimental": 1,
-    "ready": 14,
+    "ready": 15,
     "ready_via_other_tool": 4,
     "documented": 3,
-    "planned": 1,
     "ready_in_v10_preset": 1,
     "ui_only": 1
   }

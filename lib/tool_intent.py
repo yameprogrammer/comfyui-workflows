@@ -32,6 +32,7 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         "examples": [
             'python scripts/generate_krea.py -p "cinematic portrait of a woman" -o out.png --seed 42',
             'python scripts/generate_krea.py -p "..." --lora Krea2\\\\krea2_darkbrush.safetensors --lora-strength 0.7 -o out.png',
+            'python scripts/generate_krea.py -p "..." --rebalance --rebalance-mult 2.0 -o out.png',
             "python scripts/krea2_features.py list --ready",
             "python scripts/krea2_features.py search \"style control detailer\"",
         ],

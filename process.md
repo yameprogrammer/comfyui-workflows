@@ -1,3 +1,10 @@
+## 2026-08-09 — Fetch MISS deps + Krea conditioning rebalance
+- `python scripts/illustrious_fetch_deps.py` — models (noob IPA, openpose alias, inpaint CN)
+- `python scripts/illustrious_fetch_deps.py --nodes` — clone z-tipo-extension, ComfyUI-ppm, ComfyUI-FBCNN (**restart Comfy**)
+- Krea `--rebalance` injects ConditioningKrea2Rebalance (default mult 2.0)
+- CAPABILITIES v70_conditioning_rebalance → ready
+- Smoke: dumps/krea2_rebalance_smoke.png
+
 ## 2026-08-09 — Illustrious health + Detailer mask + Krea Power LoRA
 - Health: `python scripts/illustrious_check.py --pack all|standard|advanced|detailer` (+ CLI `--check-models`)
 - Detailer `--mask mask.png` → alpha on LoadImage (white=edit); auto-inpaint when noobaiInpainting CN present

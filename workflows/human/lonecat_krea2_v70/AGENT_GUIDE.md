@@ -197,6 +197,7 @@ Restart Comfy after updating that file.
 | `generate_krea2_color_match` | strength **0.65** | Real mood/ref photo | Solid-color refs |
 | `generate_krea_draft` | **768²** | Scout only | Ship draft size as final |
 | `generate_krea --lora` | Power Lora slot on `krea2_t2i_v10` | Real LoRA under `models/loras/` | Wrong path / missing file |
+| `generate_krea --rebalance` | ConditioningKrea2Rebalance on positive | ComfyUI-Conditioning-Rebalance installed | mult ≥4 can overpower photoreal |
 
 **QA gold samples** (repo dumps, real-ref smoke):
 
