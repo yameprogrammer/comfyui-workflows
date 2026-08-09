@@ -1,0 +1,73 @@
+{
+  "workflow": "Advanced_V37 (Legendaer Illustrious XL pack)",
+  "version": 1,
+  "purpose": {
+    "one_liner": "Comprehensive XL / Illustrious / NoobAI kitchen — TIPO, IPAdapter, OpenPose, Regional, full ControlNet",
+    "author": "Legendaer",
+    "audience": "When Standard is not enough: pose lock, face/style ref, TIPO tags, regional multi-prompt",
+    "relation_to_standard": "Advanced = Standard daily path + Advanced-only groups (not faked inside Standard)"
+  },
+  "source": {
+    "civitai": "https://civitai.red/models/1386234/comfyui-image-workflows",
+    "human_ui": "workflows/human/illustrious_advanced_v37/Advanced_V37.json",
+    "pack_file": "Advanced_V37.json",
+    "default_checkpoint": "Illustrious\\fabricatedXL_v70.safetensors"
+  },
+  "integration_policy": {
+    "rule": "Real UI only. Toggle Fast Groups via mode 0/4. Expand + port inject. Do not rebuild mini graphs.",
+    "agent_cli": "python scripts/generate_illustrious_advanced.py"
+  },
+  "features": [
+    {"feature_id": "core_t2i", "name": "Control Center T2I", "default": "ON", "toggleable": false},
+    {"feature_id": "face_adetailer", "name": "Face ADetailer", "default": "ON", "cli": "--face / --no-face"},
+    {"feature_id": "hand_adetailer", "name": "Hand ADetailer", "default": "OFF", "cli": "--hand"},
+    {"feature_id": "eyes_adetailer", "name": "Eyes ADetailer", "default": "OFF", "cli": "--eyes"},
+    {"feature_id": "nsfw_adetailer", "name": "NSFW ADetailer", "default": "OFF", "cli": "--nsfw-detailer --i-am-18", "policy": "adults_only"},
+    {"feature_id": "tipo", "name": "Z-TIPO prompt enhancer", "default": "OFF", "cli": "--tipo", "when_to_use": "Tag expansion / structured Illustrious prompts"},
+    {"feature_id": "ipadapter", "name": "IP-Adapter Advanced", "default": "OFF", "cli": "--ipa ref.png", "when_to_use": "Face/identity reference"},
+    {"feature_id": "ipadapter_style", "name": "IP-Adapter Style & Composition", "default": "OFF", "cli": "--style-image / --composition-image"},
+    {"feature_id": "openpose", "name": "OpenPose ControlNet", "default": "OFF", "cli": "--openpose pose.png"},
+    {"feature_id": "any_controlnet", "name": "Any ControlNet + preprocessor", "default": "OFF", "cli": "--controlnet img.png"},
+    {"feature_id": "regional", "name": "Regional Prompting", "default": "OFF", "cli": "--regional", "when_to_use": "Multi-subject / color-region prompts"},
+    {"feature_id": "clip_vision", "name": "Clip Vision unCLIP", "default": "OFF", "cli": "--feature clip_vision"},
+    {"feature_id": "second_sampler", "name": "2ndSampler refine pass", "default": "OFF", "cli": "--second-sampler"},
+    {"feature_id": "mask_detailer", "name": "Mask Detailer", "default": "OFF", "cli": "--feature mask_detailer"},
+    {"feature_id": "any_detailer_sam31", "name": "Any Detailer SAM 3.1", "default": "OFF", "cli": "--feature any_detailer_sam31"},
+    {"feature_id": "rmbg", "name": "Remove Background", "default": "OFF", "cli": "--rmbg"},
+    {"feature_id": "fbcnn", "name": "Compression Removal FBCNN", "default": "OFF", "cli": "--fbcnn"},
+    {"feature_id": "clip_negpip", "name": "CLIP NegPip", "default": "OFF", "cli": "--feature clip_negpip", "note": "Requires CLIPNegPip custom node; leave OFF if missing"},
+    {"feature_id": "hires_pre", "name": "Hires PreDetailer", "default": "OFF", "cli": "--hires-pre"},
+    {"feature_id": "hires_post", "name": "Hires PostDetailer", "default": "OFF", "cli": "--hires-post"},
+    {"feature_id": "ultimate_pre", "name": "Ultimate SD Upscale Pre", "default": "OFF", "cli": "--ultimate-pre"},
+    {"feature_id": "ultimate_post", "name": "Ultimate SD Upscale Post", "default": "OFF", "cli": "--ultimate-post"},
+    {"feature_id": "load_image_i2i", "name": "I2I Load Image", "default": "OFF", "cli": "-i PATH"}
+  ],
+  "agent_presets": {
+    "t2i_face": {
+      "description": "Default Advanced daily (face+sam+clip+negpip)",
+      "features_on": ["face_adetailer", "use_sam", "clip_skip"],
+      "features_off": ["tipo", "ipadapter", "openpose", "regional", "clip_negpip"]
+    },
+    "t2i_tipo": {
+      "description": "TIPO tag enhance + face",
+      "features_on": ["face_adetailer", "use_sam", "clip_skip", "tipo"]
+    },
+    "pose_lock": {
+      "description": "OpenPose structure lock",
+      "features_on": ["face_adetailer", "use_sam", "clip_skip", "openpose"],
+      "requires": ["openpose_image"]
+    },
+    "ipa_face": {
+      "description": "IP-Adapter identity ref",
+      "features_on": ["face_adetailer", "use_sam", "clip_skip", "ipadapter"],
+      "requires": ["ipa_image"]
+    }
+  },
+  "custom_nodes_extra": [
+    "ComfyUI_IPAdapter_plus",
+    "comfyui_controlnet_aux",
+    "TIPO / z-tipo nodes",
+    "AttentionCouple / PPM regional",
+    "FBCNN JPEG artifacts"
+  ]
+}

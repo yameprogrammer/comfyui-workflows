@@ -1,0 +1,810 @@
+{
+  "groups": {
+    "Color Match": {
+      "color": "#3f789e",
+      "bounding": [
+        7070,
+        640,
+        230,
+        210
+      ],
+      "node_ids": [
+        69
+      ],
+      "default_modes": {
+        "69": 4
+      }
+    },
+    "Control Center": {
+      "color": "#444",
+      "bounding": [
+        380,
+        0,
+        1650,
+        1190
+      ],
+      "node_ids": [
+        1,
+        2,
+        3,
+        4,
+        65,
+        76,
+        79,
+        90,
+        91,
+        92,
+        93,
+        94,
+        98,
+        103,
+        104,
+        105,
+        106,
+        111,
+        112,
+        113,
+        114
+      ],
+      "default_modes": {
+        "114": 0,
+        "113": 0,
+        "112": 0,
+        "111": 0,
+        "106": 0,
+        "105": 0,
+        "104": 0,
+        "103": 0,
+        "98": 0,
+        "94": 0,
+        "93": 0,
+        "92": 0,
+        "91": 0,
+        "90": 0,
+        "79": 0,
+        "76": 0,
+        "65": 0,
+        "4": 0,
+        "3": 0,
+        "2": 0,
+        "1": 0
+      }
+    },
+    "HiresFix": {
+      "color": "#3f789e",
+      "bounding": [
+        2900,
+        0,
+        290,
+        320
+      ],
+      "node_ids": [
+        7
+      ],
+      "default_modes": {
+        "7": 4
+      }
+    },
+    "Seperate VAE": {
+      "color": "#3f789e",
+      "bounding": [
+        2090,
+        0,
+        320,
+        130
+      ],
+      "node_ids": [
+        5,
+        19
+      ],
+      "default_modes": {
+        "19": 4,
+        "5": 4
+      }
+    },
+    "Compression Removal": {
+      "color": "#3f789e",
+      "bounding": [
+        7070,
+        890,
+        250,
+        170
+      ],
+      "node_ids": [
+        85
+      ],
+      "default_modes": {
+        "85": 4
+      }
+    },
+    "Mask ADetailer": {
+      "color": "#3f789e",
+      "bounding": [
+        4400,
+        0,
+        340,
+        940
+      ],
+      "node_ids": [
+        12,
+        25,
+        37
+      ],
+      "default_modes": {
+        "37": 0,
+        "25": 0,
+        "12": 0
+      }
+    },
+    "Hand ADetailer": {
+      "color": "#3f789e",
+      "bounding": [
+        5220,
+        0,
+        330,
+        1390
+      ],
+      "node_ids": [
+        14,
+        27,
+        54
+      ],
+      "default_modes": {
+        "54": 4,
+        "27": 4,
+        "14": 4
+      }
+    },
+    "NSFW ADetailer": {
+      "color": "#3f789e",
+      "bounding": [
+        5610,
+        0,
+        330,
+        1390
+      ],
+      "node_ids": [
+        15,
+        28,
+        55
+      ],
+      "default_modes": {
+        "55": 4,
+        "28": 4,
+        "15": 4
+      }
+    },
+    "Face ADetailer": {
+      "color": "#3f789e",
+      "bounding": [
+        6000,
+        0,
+        330,
+        1390
+      ],
+      "node_ids": [
+        16,
+        29,
+        56
+      ],
+      "default_modes": {
+        "56": 0,
+        "29": 0,
+        "16": 0
+      }
+    },
+    "Eyes ADetailer": {
+      "color": "#3f789e",
+      "bounding": [
+        6390,
+        0,
+        330,
+        1390
+      ],
+      "node_ids": [
+        17,
+        30,
+        57
+      ],
+      "default_modes": {
+        "57": 4,
+        "30": 4,
+        "17": 4
+      }
+    },
+    "Image Compare": {
+      "color": "#3f789e",
+      "bounding": [
+        2470,
+        680,
+        370,
+        560
+      ],
+      "node_ids": [
+        72
+      ],
+      "default_modes": {
+        "72": 0
+      }
+    },
+    "Inpaint": {
+      "color": "#3f789e",
+      "bounding": [
+        3250,
+        0,
+        310,
+        810
+      ],
+      "node_ids": [
+        8,
+        21,
+        35,
+        42,
+        48,
+        70,
+        71,
+        74,
+        75,
+        77
+      ],
+      "default_modes": {
+        "77": 4,
+        "75": 4,
+        "74": 4,
+        "71": 4,
+        "70": 4,
+        "48": 4,
+        "42": 4,
+        "35": 4,
+        "21": 4,
+        "8": 4
+      }
+    },
+    "Outpaint": {
+      "color": "#3f789e",
+      "bounding": [
+        3620,
+        0,
+        310,
+        1030
+      ],
+      "node_ids": [
+        9,
+        22,
+        36,
+        43,
+        49,
+        67,
+        83,
+        84,
+        88,
+        89,
+        96
+      ],
+      "default_modes": {
+        "96": 4,
+        "89": 4,
+        "88": 4,
+        "84": 4,
+        "83": 4,
+        "67": 4,
+        "49": 4,
+        "43": 4,
+        "36": 4,
+        "22": 4,
+        "9": 4
+      }
+    },
+    "Remove Watermark": {
+      "color": "#3f789e",
+      "bounding": [
+        2470,
+        0,
+        370,
+        620
+      ],
+      "node_ids": [
+        6,
+        26,
+        46,
+        52,
+        53,
+        58,
+        59,
+        60,
+        61,
+        62
+      ],
+      "default_modes": {
+        "62": 4,
+        "61": 4,
+        "60": 4,
+        "59": 4,
+        "58": 4,
+        "53": 4,
+        "52": 4,
+        "46": 4,
+        "26": 4,
+        "6": 4
+      }
+    },
+    "Ultimate SD Upscale": {
+      "color": "#3f789e",
+      "bounding": [
+        6780,
+        0,
+        450,
+        600
+      ],
+      "node_ids": [
+        18,
+        24,
+        33,
+        34,
+        38,
+        39,
+        40,
+        45,
+        50,
+        51
+      ],
+      "default_modes": {
+        "51": 4,
+        "50": 4,
+        "45": 4,
+        "40": 4,
+        "39": 4,
+        "38": 4,
+        "34": 4,
+        "33": 4,
+        "24": 4,
+        "18": 4
+      }
+    },
+    "Use SAMLoader": {
+      "color": "#3f789e",
+      "bounding": [
+        3250,
+        850,
+        230,
+        160
+      ],
+      "node_ids": [
+        82
+      ],
+      "default_modes": {
+        "82": 0
+      }
+    },
+    "VPred Model?": {
+      "color": "#3f789e",
+      "bounding": [
+        2900,
+        565,
+        230,
+        235
+      ],
+      "node_ids": [
+        63,
+        73
+      ],
+      "default_modes": {
+        "73": 4,
+        "63": 4
+      }
+    },
+    "CLIP Skip": {
+      "color": "#3f789e",
+      "bounding": [
+        2900,
+        380,
+        230,
+        140
+      ],
+      "node_ids": [
+        47
+      ],
+      "default_modes": {
+        "47": 0
+      }
+    },
+    "Notes": {
+      "color": "#444",
+      "bounding": [
+        0,
+        0,
+        300,
+        1190
+      ],
+      "node_ids": [
+        0,
+        41,
+        86
+      ],
+      "default_modes": {
+        "86": 0,
+        "41": 0,
+        "0": 0
+      }
+    },
+    "Image Saver": {
+      "color": "#444",
+      "bounding": [
+        2090,
+        190,
+        320,
+        1050
+      ],
+      "node_ids": [
+        32,
+        87
+      ],
+      "default_modes": {
+        "87": 0,
+        "32": 0
+      }
+    },
+    "Remove Background": {
+      "color": "#3f789e",
+      "bounding": [
+        7070,
+        1100,
+        250,
+        230
+      ],
+      "node_ids": [
+        110
+      ],
+      "default_modes": {
+        "110": 4
+      }
+    },
+    "Epsilon Scaling": {
+      "color": "#3f789e",
+      "bounding": [
+        2900,
+        990,
+        230,
+        140
+      ],
+      "node_ids": [
+        97
+      ],
+      "default_modes": {
+        "97": 4
+      }
+    },
+    "CFGZeroStar": {
+      "color": "#3f789e",
+      "bounding": [
+        2900,
+        840,
+        190,
+        110
+      ],
+      "node_ids": [
+        80
+      ],
+      "default_modes": {
+        "80": 4
+      }
+    },
+    "Apply Signature": {
+      "color": "#3f789e",
+      "bounding": [
+        6780,
+        640,
+        250,
+        750
+      ],
+      "node_ids": [
+        68,
+        78,
+        81,
+        95,
+        100,
+        107,
+        109,
+        117,
+        118,
+        119,
+        120
+      ],
+      "default_modes": {
+        "120": 4,
+        "119": 4,
+        "118": 4,
+        "117": 4,
+        "109": 4,
+        "107": 4,
+        "100": 4,
+        "95": 4,
+        "81": 4,
+        "78": 4,
+        "68": 4
+      }
+    },
+    "Detailer": {
+      "color": "#3f789e",
+      "bounding": [
+        3990,
+        0,
+        340,
+        830
+      ],
+      "node_ids": [
+        10,
+        11,
+        20,
+        23
+      ],
+      "default_modes": {
+        "23": 4,
+        "20": 4,
+        "11": 4,
+        "10": 4
+      }
+    },
+    "Post Processing": {
+      "color": "#444",
+      "bounding": [
+        6060,
+        1430,
+        1260,
+        440
+      ],
+      "node_ids": [
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136
+      ],
+      "default_modes": {
+        "136": 4,
+        "135": 4,
+        "134": 4,
+        "133": 4,
+        "132": 4,
+        "131": 4,
+        "130": 4,
+        "129": 4,
+        "128": 4,
+        "127": 4,
+        "126": 4,
+        "125": 4,
+        "124": 4,
+        "123": 0
+      }
+    },
+    "ImageMorphology": {
+      "color": "#8AA",
+      "bounding": [
+        6320,
+        1470,
+        230,
+        170
+      ],
+      "node_ids": [
+        127
+      ],
+      "default_modes": {
+        "127": 4
+      }
+    },
+    "Edge-Preserving Blur": {
+      "color": "#8AA",
+      "bounding": [
+        6570,
+        1470,
+        240,
+        80
+      ],
+      "node_ids": [
+        125
+      ],
+      "default_modes": {
+        "125": 4
+      }
+    },
+    "ImageQuantize": {
+      "color": "#8AA",
+      "bounding": [
+        6070,
+        1670,
+        230,
+        170
+      ],
+      "node_ids": [
+        130
+      ],
+      "default_modes": {
+        "130": 4
+      }
+    },
+    "Chromatic Aberration": {
+      "color": "#8AA",
+      "bounding": [
+        6570,
+        1570,
+        240,
+        80
+      ],
+      "node_ids": [
+        128
+      ],
+      "default_modes": {
+        "128": 4
+      }
+    },
+    "ImageSharpen": {
+      "color": "#8AA",
+      "bounding": [
+        6320,
+        1670,
+        230,
+        190
+      ],
+      "node_ids": [
+        131
+      ],
+      "default_modes": {
+        "131": 4
+      }
+    },
+    "Film Grain": {
+      "color": "#8AA",
+      "bounding": [
+        6830,
+        1470,
+        145,
+        80
+      ],
+      "node_ids": [
+        126
+      ],
+      "default_modes": {
+        "126": 4
+      }
+    },
+    "VHS TV": {
+      "color": "#8AA",
+      "bounding": [
+        6830,
+        1570,
+        140,
+        80
+      ],
+      "node_ids": [
+        129
+      ],
+      "default_modes": {
+        "129": 4
+      }
+    },
+    "Pixelation": {
+      "color": "#8AA",
+      "bounding": [
+        6570,
+        1670,
+        140,
+        80
+      ],
+      "node_ids": [
+        132
+      ],
+      "default_modes": {
+        "132": 4
+      }
+    },
+    "Glitch": {
+      "color": "#8AA",
+      "bounding": [
+        6730,
+        1670,
+        140,
+        80
+      ],
+      "node_ids": [
+        133
+      ],
+      "default_modes": {
+        "133": 4
+      }
+    },
+    "Night Vision": {
+      "color": "#8AA",
+      "bounding": [
+        6890,
+        1670,
+        150,
+        80
+      ],
+      "node_ids": [
+        134
+      ],
+      "default_modes": {
+        "134": 4
+      }
+    },
+    "Blueprint": {
+      "color": "#8AA",
+      "bounding": [
+        6570,
+        1780,
+        140,
+        80
+      ],
+      "node_ids": [
+        135
+      ],
+      "default_modes": {
+        "135": 4
+      }
+    },
+    "Gameboy": {
+      "color": "#8AA",
+      "bounding": [
+        6730,
+        1780,
+        140,
+        80
+      ],
+      "node_ids": [
+        136
+      ],
+      "default_modes": {
+        "136": 4
+      }
+    },
+    "Contrast": {
+      "color": "#8AA",
+      "bounding": [
+        6070,
+        1470,
+        230,
+        140
+      ],
+      "node_ids": [
+        124
+      ],
+      "default_modes": {
+        "124": 4
+      }
+    },
+    "Any Detailer (SAM 3.1)": {
+      "color": "#3f789e",
+      "bounding": [
+        4820,
+        0,
+        340,
+        1350
+      ],
+      "node_ids": [
+        13,
+        31,
+        44,
+        64,
+        66
+      ],
+      "default_modes": {
+        "66": 4,
+        "64": 4,
+        "44": 4,
+        "31": 4,
+        "13": 4
+      }
+    }
+  },
+  "workflow": "Detailer_V37",
+  "source": "Detailer_V37.json"
+}

@@ -198,17 +198,25 @@ python scripts/generate_moody.py -m pro -p "cinematic portrait..." -o out.png --
 | | |
 |--|--|
 | **언제** | Illustrious/NoobAI 태그 스틸 · Face/Hand/Eyes/Hires/Ultimate 스위치 |
-| **언제 말고** | 실사 → Krea2 · TIPO/IPA/OpenPose → Advanced 팩(미편입) · 마스크 인페 → qwen_inpaint |
-| **CLI** | `generate_illustrious_standard` (`--list-features` · `--check-models`) |
-| **가이드** | [illustrious_standard_v37/AGENT_GUIDE.md](../workflows/human/illustrious_standard_v37/AGENT_GUIDE.md) |
+| **언제 말고** | 실사 → Krea2 · TIPO/IPA/OpenPose → **Advanced** · 기존컷 인페 → **Detailer** |
+| **CLI** | `generate_illustrious_standard` · **`generate_illustrious_advanced`** · **`generate_illustrious_detailer`** |
+| **가이드** | [standard](../workflows/human/illustrious_standard_v37/AGENT_GUIDE.md) · [advanced](../workflows/human/illustrious_advanced_v37/AGENT_GUIDE.md) · [detailer](../workflows/human/illustrious_detailer_v37/AGENT_GUIDE.md) |
 
 ```bash
+# Standard (일상)
 python scripts/generate_illustrious_standard.py --list-features
-python scripts/generate_illustrious_standard.py --check-models
 python scripts/generate_illustrious_standard.py -p "masterpiece, best quality, 1girl, solo, portrait" -o out.png --seed 42
-python scripts/generate_illustrious_standard.py -p "..." --hand --eyes --hires-post -o out.png
-python scripts/generate_illustrious_standard.py -i ref.png -p "..." -d 0.55 -o i2i.png
-python scripts/generate_illustrious_standard.py -p "..." --nsfw-detailer --i-am-18 -o nsfw.png
+
+# Advanced (TIPO / OpenPose / IPAdapter / Regional)
+python scripts/generate_illustrious_advanced.py --list-features
+python scripts/generate_illustrious_advanced.py -p "1girl, ..." --tipo -o out.png
+python scripts/generate_illustrious_advanced.py -p "1girl, ..." --openpose pose.png -o out.png
+python scripts/generate_illustrious_advanced.py -p "1girl, ..." --ipa face.png -o out.png
+
+# Detailer (기존 이미지)
+python scripts/generate_illustrious_detailer.py -i still.png -o polished.png
+python scripts/generate_illustrious_detailer.py -i still.png -o out.png --inpaint -p "fix hands"
+python scripts/generate_illustrious_detailer.py -i still.png -o out.png --outpaint
 ```
 
 #### 타이포 · 포스터

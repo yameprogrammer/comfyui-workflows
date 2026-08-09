@@ -1,3 +1,11 @@
+## 2026-08-09 — Illustrious Advanced_V37 + Detailer_V37 agent tools
+- Packs: `workflows/human/illustrious_advanced_v37/` · `illustrious_detailer_v37/`
+- CLI: `generate_illustrious_advanced` · `generate_illustrious_detailer`
+- Shared expand: `lib/illustrious_pack_common.py` (mode 0/4 + multi-hop bypass)
+- Advanced unique: TIPO, IPAdapter, OpenPose, Regional, Any CN, FBCNN, 2ndSampler, SAM3.1 any-detailer
+- Detailer unique: Inpaint, Outpaint, Remove Watermark, image-first polish
+- tool_intent: still_anime_advanced · still_anime_detailer
+
 ## 2026-08-09 — Illustrious Standard_V37 full switch shelf hardened
 - SSOT UI synced from Comfy `[Anime]Standard_V37.json` · GROUPS.json rebuilt
 - All pale_blue/cyan Fast Groups toggles already on `generate_illustrious_standard` CLI

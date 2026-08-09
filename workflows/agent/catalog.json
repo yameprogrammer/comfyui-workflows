@@ -1087,6 +1087,36 @@
       "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
       "smoke": "dumps/krea2_qa_eyes_sam.png",
       "notes": "Eyes/Spare SAM3 SmartInpainter path"
+    },
+    "illustrious_advanced_v37": {
+      "file": null,
+      "format": "ui_expand",
+      "family": "illustrious_xl",
+      "role": "anime_advanced_t2i",
+      "status": "ready",
+      "source_ui": "workflows/human/illustrious_advanced_v37/Advanced_V37.json",
+      "runner": "lib/illustrious_advanced_v37_runner.py",
+      "guide": "workflows/human/illustrious_advanced_v37/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/illustrious_advanced_v37/CAPABILITIES.json",
+      "groups": "workflows/human/illustrious_advanced_v37/GROUPS.json",
+      "used_by": [
+        "scripts/generate_illustrious_advanced.py"
+      ]
+    },
+    "illustrious_detailer_v37": {
+      "file": null,
+      "format": "ui_expand",
+      "family": "illustrious_xl",
+      "role": "anime_image_detailer",
+      "status": "ready",
+      "source_ui": "workflows/human/illustrious_detailer_v37/Detailer_V37.json",
+      "runner": "lib/illustrious_detailer_v37_runner.py",
+      "guide": "workflows/human/illustrious_detailer_v37/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/illustrious_detailer_v37/CAPABILITIES.json",
+      "groups": "workflows/human/illustrious_detailer_v37/GROUPS.json",
+      "used_by": [
+        "scripts/generate_illustrious_detailer.py"
+      ]
     }
   }
 }

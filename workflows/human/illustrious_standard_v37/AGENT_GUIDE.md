@@ -50,9 +50,12 @@ LoRA · TIPO · Detail Enhancers · ControlNet Upscale · IPAdapter · HiresFix 
 | 🟨 | **Basic** | more basic version of the **Standard** | 더 가벼운 최소 경로 |
 | 🟩 | **Detailer** | detailing **previously generated or existing** images | 이미 있는 이미지 **후처리·인페/아웃페 중심** (V37: Inpaint/Outpaint 갱신) |
 
-**이 레포 도구는 지금 🟦 Standard_V37만 편입.**  
-사용자가 “Standard만으로 대부분 되지 않나?” → **카드 정의상 Standard = Advanced의 축소판 = 일상 T2I 메인** 이 맞다.  
-TIPO·IPA·OpenPose·Regional이 필요하면 **Advanced를 별도 도구로** 편입한다 (Standard에 가짜로 넣지 말 것).
+**이 레포 도구:**  
+- 🟦 **Standard** → `generate_illustrious_standard` (일상 메인)  
+- 🟥 **Advanced** → `generate_illustrious_advanced` (TIPO/IPA/OpenPose/Regional)  
+- 🟩 **Detailer** → `generate_illustrious_detailer` (기존 이미지 인페/아웃페·폴리시)  
+
+Standard에 Advanced 기능을 가짜로 넣지 않는다.
 
 ### 1.3 V37 변경 포인트 (카드 About this version)
 

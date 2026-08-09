@@ -1,0 +1,57 @@
+{
+  "workflow": "Detailer_V37 (Legendaer Illustrious XL pack)",
+  "version": 1,
+  "purpose": {
+    "one_liner": "Detail / inpaint / outpaint previously generated or existing images",
+    "author": "Legendaer",
+    "audience": "Post-process stills — not primary T2I",
+    "relation_to_standard": "Standard embeds adetailers in gen path; Detailer is image-first specialty graph (V37 inpaint/outpaint updates)"
+  },
+  "source": {
+    "civitai": "https://civitai.red/models/1386234/comfyui-image-workflows",
+    "human_ui": "workflows/human/illustrious_detailer_v37/Detailer_V37.json",
+    "pack_file": "Detailer_V37.json",
+    "default_checkpoint": "Illustrious\\fabricatedXL_v70.safetensors"
+  },
+  "integration_policy": {
+    "rule": "Real UI only. Always requires input image. Toggle Fast Groups mode 0/4.",
+    "agent_cli": "python scripts/generate_illustrious_detailer.py -i still.png -o out.png"
+  },
+  "features": [
+    {"feature_id": "face_adetailer", "name": "Face ADetailer", "default": "ON", "cli": "--face / --no-face"},
+    {"feature_id": "hand_adetailer", "name": "Hand ADetailer", "default": "OFF", "cli": "--hand"},
+    {"feature_id": "eyes_adetailer", "name": "Eyes ADetailer", "default": "OFF", "cli": "--eyes"},
+    {"feature_id": "nsfw_adetailer", "name": "NSFW ADetailer", "default": "OFF", "cli": "--nsfw-detailer --i-am-18"},
+    {"feature_id": "mask_adetailer", "name": "Mask ADetailer", "default": "ON", "cli": "--feature mask_adetailer"},
+    {"feature_id": "inpaint", "name": "Inpaint (+ NoobAI inpaint CN)", "default": "OFF", "cli": "--inpaint", "when_to_use": "Masked region regenerate"},
+    {"feature_id": "outpaint", "name": "Outpaint pad + inpaint CN", "default": "OFF", "cli": "--outpaint"},
+    {"feature_id": "rmbg", "name": "Remove Background", "default": "OFF", "cli": "--rmbg"},
+    {"feature_id": "remove_watermark", "name": "Remove Watermark", "default": "OFF", "cli": "--remove-watermark"},
+    {"feature_id": "fbcnn", "name": "Compression Removal", "default": "OFF", "cli": "--fbcnn"},
+    {"feature_id": "hires", "name": "HiresFix", "default": "OFF", "cli": "--hires"},
+    {"feature_id": "ultimate_sd_upscale", "name": "Ultimate SD Upscale", "default": "OFF", "cli": "--ultimate-upscale"},
+    {"feature_id": "any_detailer_sam31", "name": "Any Detailer SAM 3.1", "default": "OFF", "cli": "--feature any_detailer_sam31"}
+  ],
+  "agent_presets": {
+    "face_polish": {
+      "description": "Default face+mask polish on existing still",
+      "features_on": ["face_adetailer", "mask_adetailer", "use_sam", "clip_skip"]
+    },
+    "hand_eyes": {
+      "description": "Face+hand+eyes stack",
+      "features_on": ["face_adetailer", "hand_adetailer", "eyes_adetailer", "use_sam", "clip_skip"]
+    },
+    "inpaint_fix": {
+      "description": "Inpaint path (needs mask wiring in UI defaults)",
+      "features_on": ["inpaint", "face_adetailer", "use_sam", "clip_skip"]
+    },
+    "outpaint_expand": {
+      "description": "Outpaint canvas expand",
+      "features_on": ["outpaint", "use_sam", "clip_skip"]
+    }
+  },
+  "local_models_extra": [
+    "controlnet/noobaiInpainting_v10.safetensors (if present)",
+    "ultralytics/segm/unwantedV10x.pt for watermark path"
+  ]
+}
