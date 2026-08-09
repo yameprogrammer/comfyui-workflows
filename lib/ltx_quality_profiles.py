@@ -14,6 +14,8 @@ from typing import Any
 # Fallback if video_backends.json missing the block
 # LoRA / face knobs (AIO Power Lora node 211) — community 4090 balance after Q6+720p+2-stage.
 # distill 0.6–0.8 sweet; detailer for face; upscale IC mild for stage2 (not max).
+# AIO graph is always half-res → LTXVLatentUpsampler → stage-2 (two_stage=True).
+# Profile knobs only tune upscale IC LoRA strength for that built-in pass.
 _DEFAULT_PROFILES: dict[str, dict[str, Any]] = {
     "draft": {
         "summary": "빠른 탐색 · ~540 work · 짧은 클립",
@@ -25,6 +27,7 @@ _DEFAULT_PROFILES: dict[str, dict[str, Any]] = {
         "detailer_on": True,
         "detailer_strength": 0.5,
         "distill_strength": 0.75,
+        "two_stage": True,
         "upscale_ic_on": True,
         "upscale_ic_strength": 0.4,
         "omni_strength": 0.4,
@@ -45,6 +48,7 @@ _DEFAULT_PROFILES: dict[str, dict[str, Any]] = {
         "detailer_on": True,
         "detailer_strength": 0.55,
         "distill_strength": 0.7,
+        "two_stage": True,
         "upscale_ic_on": True,
         "upscale_ic_strength": 0.45,
         "omni_strength": 0.45,
@@ -55,7 +59,7 @@ _DEFAULT_PROFILES: dict[str, dict[str, Any]] = {
         "notes": "DEFAULT: Q6+720p+2-stage; distill 0.7 · detailer 0.55 · upscale IC 0.45 · VBVR 0.75",
     },
     "hero": {
-        "summary": "히어로 ~1080 work · 강한 detailer",
+        "summary": "히어로 ~1080 work · 강한 detailer + 2-stage IC",
         "longer_edge": 1920,
         "work_preset_16x9": "work_16x9_1080",
         "work_preset_9x16": "work_9x16_720",
@@ -64,14 +68,18 @@ _DEFAULT_PROFILES: dict[str, dict[str, Any]] = {
         "detailer_on": True,
         "detailer_strength": 0.62,
         "distill_strength": 0.65,
+        "two_stage": True,
         "upscale_ic_on": True,
-        "upscale_ic_strength": 0.5,
+        "upscale_ic_strength": 0.55,
         "omni_strength": 0.5,
         "vbvr_on": True,
         "vbvr_strength": 0.8,
         "max_pure_i2v_sec": 4.0,
         "prefer_speed": False,
-        "notes": "Higher res + stronger face/detail + VBVR 0.8; short clips",
+        "notes": (
+            "Higher res + stronger face/detail + upscale IC 0.55 for stage-2; "
+            "short pure clips; optional SeedVR2 post"
+        ),
     },
 }
 
@@ -258,17 +266,27 @@ def apply_ltx_quality_profile(
     num_frames: int | None = None,
     has_audio: bool = False,
     user_explicit_size: bool = False,
+    soft_apply_frame_cap: bool = True,
+    allow_long_i2v: bool = False,
 ) -> dict[str, Any]:
     """
     Merge profile into run knobs. Does not run Comfy.
 
     user_explicit_size=True → keep width/height; only face/detailer/fps/cap hints.
+
+    Pure I2V frame soft-cap (L4/L6):
+      when over max_pure_i2v_sec and soft_apply_frame_cap and not allow_long_i2v,
+      sets out["num_frames"] = num_frames_capped (callers should use it).
+      Pass allow_long_i2v=True / CLI --allow-long-i2v to keep long takes.
     """
     prof = resolve_ltx_quality_profile(profile_name)
     out: dict[str, Any] = {
         "profile_id": prof["id"],
         "profile": prof,
         "warnings": [],
+        "two_stage": bool(prof.get("two_stage", True)),
+        "upscale_ic_on": bool(prof.get("upscale_ic_on", True)),
+        "upscale_ic_strength": float(prof.get("upscale_ic_strength") or 0.45),
     }
 
     if user_explicit_size and width and height:
@@ -319,10 +337,11 @@ def apply_ltx_quality_profile(
     else:
         out["fps"] = float(fps)
 
-    # Pure I2V duration cap (soft): suggest frames if over max and no audio
+    # Pure I2V duration cap: soft-apply by default (warn + reduce frames)
     max_sec = prof.get("max_pure_i2v_sec")
     out["max_pure_i2v_sec"] = max_sec
     out["num_frames"] = num_frames
+    out["frames_soft_capped"] = False
     if (
         not has_audio
         and max_sec
@@ -331,20 +350,28 @@ def apply_ltx_quality_profile(
     ):
         sec = float(num_frames) / float(out["fps"])
         if sec > float(max_sec) + 0.25:
+            import math
+
+            capped = int(math.floor(float(max_sec) * float(out["fps"])))
+            # Prefer LTX-friendly 8k+1 odd cadence when near boundary
+            if capped % 8 != 1:
+                capped = max(17, (capped // 8) * 8 + 1)
+            out["num_frames_capped"] = max(17, capped)
             out["warnings"].append(
                 f"pure I2V ~{sec:.1f}s exceeds {prof['id']} max_pure_i2v_sec={max_sec} "
                 f"(face drift risk). Prefer shorter clip or split shots."
             )
-            # Soft cap frames for draft/hero defaults when clearly over
-            if prof["id"] in ("draft", "hero", "work"):
-                import math
-
-                capped = int(math.floor(float(max_sec) * float(out["fps"])))
-                # LTX frames often 8k+1 style; leave exact snap to caller
-                out["num_frames_capped"] = max(17, capped)
+            if soft_apply_frame_cap and not allow_long_i2v:
+                out["num_frames"] = out["num_frames_capped"]
+                out["frames_soft_capped"] = True
+                out["warnings"].append(
+                    f"soft-applied frames {num_frames} → {out['num_frames_capped']} "
+                    f"(~{max_sec}s @ {out['fps']}fps); pass --allow-long-i2v to force longer"
+                )
+            else:
                 out["warnings"].append(
                     f"suggested frames ≤ {out['num_frames_capped']} "
-                    f"(~{max_sec}s @ {out['fps']}fps); pass --frames to force longer"
+                    f"(~{max_sec}s @ {out['fps']}fps); long take kept (--allow-long-i2v)"
                 )
 
     out["summary"] = prof.get("summary")
@@ -354,18 +381,23 @@ def apply_ltx_quality_profile(
 
 def format_ltx_profiles_table() -> str:
     lines = [
-        f"{'id':8s} {'edge':5s} {'face':5s} {'det':5s} {'maxI2V':6s}  summary",
-        "-" * 72,
+        f"{'id':8s} {'edge':5s} {'2stg':4s} {'ic':5s} {'det':5s} {'maxI2V':6s}  summary",
+        "-" * 78,
     ]
     for pid in list_ltx_quality_profile_ids():
         p = resolve_ltx_quality_profile(pid)
+        ic = p.get("upscale_ic_strength")
         lines.append(
             f"{pid:8s} {str(p.get('longer_edge')):5s} "
-            f"{'on' if p.get('face_stability') else 'off':5s} "
+            f"{'yes' if p.get('two_stage', True) else 'no':4s} "
+            f"{str(ic if ic is not None else '-'):5s} "
             f"{str(p.get('detailer_strength')):5s} "
             f"{str(p.get('max_pure_i2v_sec')):6s}  {p.get('summary') or ''}"
         )
     lines.append("")
     lines.append("CLI: python scripts/generate_i2v.py ... --ltx-profile work|hero|draft")
+    lines.append(
+        "AIO always runs 2-stage (latent upsample); profile tunes upscale IC LoRA strength."
+    )
     lines.append("Docs: docs/ltx23_quality_research_and_improvement.md")
     return "\n".join(lines)

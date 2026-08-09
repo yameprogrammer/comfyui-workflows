@@ -27,12 +27,14 @@ CLI: `--ltx-profile draft|work|hero` · `generate_s2v.py --list-ltx-profiles`
 | ID | 작업 | 상태 |
 |----|------|------|
 | L0–L3 | 리서치 문서 + draft/work/hero 프로필 + CLI | ✅ |
-| L4 | Hero 2-stage upsample AIO 스위치 | 📋 |
+| L4 | Hero 2-stage upsample (AIO 내장 + IC 0.55) | ✅ 2026-08-09 |
 | L5 | Hero 1280–1536 실측·OOM 가드 | 📋 |
-| L6 | Pure I2V max duration hard cap 옵션 | 📋 (경고만 현재) |
-| L7 | 모션 프롬프트 dialect 경고 | 📋 |
-| L8 | failure_note `ltx_face` preflight 묶음 | 📋 |
-| L9–L12 | Q6/dev · LatentHeart 카드 · episode draft→hero · SeedVR2 체인 | 📋 |
+| L6 | Pure I2V max duration soft-cap (`--allow-long-i2v`) | ✅ |
+| L7 | 모션 프롬프트 dialect 경고 | ✅ `clip_quality check-prompt` |
+| L8 | failure_note `ltx_face` preflight 묶음 | ✅ recommend CLI |
+| L11 | Episode draft→work→hero plan | ✅ `clip_quality episode-plan` |
+| L12 | SeedVR2 polish chain | ✅ partial `clip_quality polish` |
+| L9–L10 | Q6/dev · LatentHeart 카드 | 📋 / partial |
 
 ---
 

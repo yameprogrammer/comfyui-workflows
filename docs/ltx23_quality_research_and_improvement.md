@@ -126,9 +126,9 @@
 
 | ID | 작업 | 난이도 | 메모 |
 |----|------|--------|------|
-| **L4** | Hero **2-stage upsample** 스위치 (AIO 내 노드 확인 후) | 중 | 공식 two-stage 정렬 |
+| **L4** | Hero **2-stage upsample** (AIO 내장 + IC 튜닝) | 중 | ✅ AIO always 2-stage; profile `two_stage` + hero IC **0.55** · soft frame cap |
 | **L5** | Hero longer-edge **1280–1536** 실측 + OOM 가드 | 중 | 4090 벤치 로그 |
-| **L6** | Pure I2V **max 97프레임 (≈4초@24fps) 하드 캡** · 이상 시 last-frame extend 분할 | 하 | ✅ |
+| **L6** | Pure I2V **max 97프레임 (≈4초@24fps) 하드 캡** · 이상 시 last-frame extend 분할 | 하 | ✅ + soft-apply `max_pure_i2v_sec` unless `--allow-long-i2v` |
 | **L7** | 생성 전 **prompt dialect check** (룩 재서술 경고) | 중 | ✅ `lib/clip_quality.check_i2v_prompt` · `generate_i2v` WARN · `clip_quality check-prompt` |
 | **L8** | `failure_note` 태그 묶음 `ltx_face` / `ltx_soft` preflight | 하 | ✅ `clip_quality recommend`에 search CLI 포함 |
 
@@ -138,7 +138,7 @@
 |----|------|------|
 | **L9** | Q6/Q8 또는 dev unet hero 경로 | VRAM·시간 trade-off |
 | **L10** | LatentHeart / REDMix을 hero 대안 카드로 tool_intent 정리 | 이미 도구 존재 |
-| **L11** | Episode batch: draft 전샷 → hero 승인컷만 | 파이프 정책 |
+| **L11** | Episode batch: draft 전샷 → hero 승인컷만 | ✅ `clip_quality episode-plan` · `episode_i2v --ltx-profile` |
 | **L12** | 자동 work→SeedVR2 마감 체인 옵션 | ✅ partial: `clip_quality polish --goal delivery --face [--seedvr2]` |
 
 ### 하지 않음 (의도)

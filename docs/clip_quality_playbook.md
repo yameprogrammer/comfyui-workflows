@@ -46,6 +46,28 @@ python scripts/clip_quality.py probe -i out.mp4
 python scripts/clip_quality.py polish -i out.mp4 -o out_1080.mp4 --goal delivery --face
 ```
 
+### 에피소드 draft → work → hero (L11)
+
+```bash
+# Plan only (no Comfy)
+python scripts/clip_quality.py episode-plan -e YOUR_EP --phase full
+
+# Execute by phase
+python scripts/episode_i2v.py -e YOUR_EP --ltx-profile draft --fps 24
+# … open + reject bad motion …
+python scripts/episode_i2v.py -e YOUR_EP --ltx-profile work --fps 24
+# … clip QA + approve showcase cuts …
+python scripts/episode_i2v.py -e YOUR_EP --shots S02,S05 --ltx-profile hero --fps 24
+python scripts/clip_quality.py polish -i stories/YOUR_EP/clips/work/S02.mp4 \
+  -o stories/YOUR_EP/clips/deliver/S02.mp4 --goal delivery --face --seedvr2
+```
+
+| 단계 | 티어 | 대상 |
+|------|------|------|
+| **draft** | `--ltx-profile draft` (~540) | 승인 키프레임 전샷 스카우트 |
+| **work** | `work` (720p 기본) | 본선 배치 |
+| **hero** | `hero` (~1080 + IC 0.55) | 쇼케이스/승인 컷만 재생성 |
+
 ---
 
 ## 3. 티어
@@ -53,8 +75,11 @@ python scripts/clip_quality.py polish -i out.mp4 -o out_1080.mp4 --goal delivery
 | goal | gen | post |
 |------|-----|------|
 | **draft** | LTX draft / Wan preview · 짧은 프레임 | 스킵 또는 light upscale |
-| **work** (기본) | LTX work 720p · ≤4s | face if CU · ESRGAN 1080 납품 |
-| **hero** | LTX hero · 더 짧음 · 좋은 KF | face enhance + SeedVR2 opt-in |
+| **work** (기본) | LTX work 720p · ≤4–5s soft-cap | face if CU · ESRGAN 1080 납품 |
+| **hero** | LTX hero · ≤4s · **2-stage IC 0.55** · 좋은 KF | face enhance + SeedVR2 opt-in |
+
+**2-stage 메모:** LTX AIO 그래프는 항상 half-res → latent upsample → stage-2.  
+별도 스위치 없음 — 프로필이 **upscale IC LoRA 강도**만 조정 (`draft 0.4` / `work 0.45` / `hero 0.55`).
 
 ---
 
@@ -74,13 +99,14 @@ python scripts/clip_quality.py polish -i out.mp4 -o out_1080.mp4 --goal delivery
 
 | 단계 | CLI |
 |------|-----|
-| 계획 | `clip_quality recommend` |
+| 계획 | `clip_quality recommend` · `clip_quality episode-plan -e EP` |
 | 프롬프트 | `clip_quality check-prompt` · `generation-prompt` skill |
-| 생성 | `generate_i2v` · `generate_s2v` · `generate_flf2v` |
-| 얼굴 | `generate_wan22_face_enhance` |
+| 생성 | `generate_i2v` · `generate_s2v` · `episode_i2v --ltx-profile` · `generate_flf2v` |
+| 얼굴 | `generate_wan22_face_enhance` · `clip_quality polish --face` |
 | 해상도 | `upscale_recommend` · `upscale_video` · `upscale_ltx_spatial` |
 | 체인 | `chain_si2v_last_frame` · `chain_one_take` · `assemble_video` |
 | 실패 학습 | `failure_note.py search` |
+| 긴 pure I2V | 기본 soft-cap · 강제 시 `--allow-long-i2v` |
 
 ---
 

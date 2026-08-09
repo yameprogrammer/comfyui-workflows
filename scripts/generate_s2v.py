@@ -563,6 +563,7 @@ def generate_s2v(
     ltx_asian_face_strength: float | None = None,
     format_id: str | None = None,
     apply_ltx_profile_size: bool = True,
+    allow_long_i2v: bool = False,
 ) -> dict:
     # T2V / pure V2V may omit still; still required for classic I2V/SI2V paths.
     if input_image_path and not os.path.isfile(input_image_path):
@@ -653,6 +654,8 @@ def generate_s2v(
                 num_frames=num_frames,
                 has_audio=bool(audio_path),
                 user_explicit_size=False,
+                soft_apply_frame_cap=True,
+                allow_long_i2v=bool(allow_long_i2v),
             )
             pid = str(ltx_prof_meta.get("profile_id") or "work")
             target_edge = int(ltx_prof_meta.get("longer_edge") or 1280)
@@ -674,12 +677,21 @@ def generate_s2v(
             if detailer_strength is None:
                 detailer_strength = float(ltx_prof_meta.get("detailer_strength") or 0.55)
             fps = float(ltx_prof_meta.get("fps") or fps or 24)
+            # Soft-apply pure I2V frame cap from profile (unless --allow-long-i2v)
+            if (
+                ltx_prof_meta.get("frames_soft_capped")
+                and ltx_prof_meta.get("num_frames") is not None
+                and not audio_path
+            ):
+                num_frames = int(ltx_prof_meta["num_frames"])
             for w in ltx_prof_meta.get("warnings") or []:
                 print(f"[ltx-profile WARN] {w}", file=sys.stderr)
             print(
                 f"[ltx-profile] {pid} "
                 f"size={width}x{height} edge={max(int(width), int(height))} "
                 f"face={face_stability} det={detailer_strength} "
+                f"2stage={ltx_prof_meta.get('two_stage', True)} "
+                f"ic={ltx_prof_meta.get('upscale_ic_strength')} "
                 f"({ltx_prof_meta.get('summary') or ''})"
             )
         except Exception as e:
@@ -1436,7 +1448,7 @@ def main(argv=None) -> int:
         default=None,
         help=(
             "LTX quality tier: draft | work | hero (default work=720p). "
-            "draft≈540 · work≈1280 · hero≈1920 + stronger detailer. "
+            "draft≈540 · work≈1280 · hero≈1920 + stronger detailer + 2-stage IC. "
             "See docs/ltx23_quality_research_and_improvement.md"
         ),
     )
@@ -1444,6 +1456,14 @@ def main(argv=None) -> int:
         "--list-ltx-profiles",
         action="store_true",
         help="Print LTX quality profiles and exit",
+    )
+    p.add_argument(
+        "--allow-long-i2v",
+        action="store_true",
+        help=(
+            "Do not soft-cap pure I2V frames to profile max_pure_i2v_sec "
+            "(default: soft-cap draft/work/hero long takes). Audio/SI2V ignores this."
+        ),
     )
     p.add_argument(
         "--ltx-video-vae",
@@ -1649,6 +1669,7 @@ def main(argv=None) -> int:
         ltx_asian_face=getattr(args, "ltx_asian_face", None),
         ltx_asian_face_strength=getattr(args, "ltx_asian_face_strength", None),
         format_id=args.format_id,
+        allow_long_i2v=bool(getattr(args, "allow_long_i2v", False)),
     )
     if r.get("ok"):
         print(f"OK {r.get('output_path') or '(dry-run)'}")

@@ -17,7 +17,7 @@ AIO v44 기본 세팅에서 **IC-LoRA detailer (`ltx-2-19b-ic-lora-detailer`)가
 |------|-----------|-----|
 | Detailer IC-LoRA | **ON @ 0.55** | `AGENT_LTX_DETAILER_STRENGTH` |
 | Distill fro09 | **0.7** (was UI 0.9 / old face 0.6) | `AGENT_LTX_DISTILL_STRENGTH` |
-| Upscale IC-LoRA | **ON @ 0.45** (2-stage 지원; was hard-OFF) | `AGENT_LTX_UPSCALE_IC=0` 끄기 · `…_STRENGTH` |
+| Upscale IC-LoRA | **ON @ 0.45 work / 0.55 hero** (AIO 2-stage 지원; was hard-OFF) | `AGENT_LTX_UPSCALE_IC=0` 끄기 · `…_STRENGTH` |
 | OmniNFT | **0.45** | `AGENT_LTX_OMNI_STRENGTH` |
 | **VBVR** (Video Reasoning LoRA) | **ON @ 0.75** (work; file 있을 때) | `AGENT_LTX_VBVR` · `AGENT_LTX_VBVR_STRENGTH` |
 | **Asian Face** (Deno East Asian Facial Fidelity) | **ON @ 1.0** (file 있을 때) | `AGENT_LTX_ASIAN_FACE` · `AGENT_LTX_ASIAN_FACE_STRENGTH` |

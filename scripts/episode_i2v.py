@@ -104,6 +104,16 @@ def main(argv=None) -> int:
         help="Include non-approved keyframes when selecting by id/all",
     )
     parser.add_argument("--backend", default=None, help="I2V backend (default episode/wan22)")
+    parser.add_argument(
+        "--ltx-profile",
+        default=None,
+        help="LTX quality tier draft|work|hero (passed to generate_i2v; default work)",
+    )
+    parser.add_argument(
+        "--allow-long-i2v",
+        action="store_true",
+        help="Do not soft-cap pure I2V frames to profile max_pure_i2v_sec",
+    )
     parser.add_argument("--fps", type=float, default=None, help="I2V frame rate (default 16)")
     parser.add_argument("--steps", type=int, default=6)
     parser.add_argument("--cfg", type=float, default=1.0)
@@ -205,10 +215,15 @@ def main(argv=None) -> int:
         or "ltx23_aio_i2v"  # quality default (A/B 2026-07-17 vs Wan)
     )
     fps = float(args.fps if args.fps is not None else 16)
+    ltx_profile = getattr(args, "ltx_profile", None) or "work"
+    # LTX path prefers 24fps; keep caller override when explicit
+    if args.fps is None and str(backend).startswith("ltx"):
+        fps = 24.0
 
     print(
         f"episode_i2v episode={args.episode} format={format_id} "
-        f"backend={backend} shots={len(selected)} skipped_other_drivers={len(skipped)} fps={fps}"
+        f"backend={backend} ltx_profile={ltx_profile} "
+        f"shots={len(selected)} skipped_other_drivers={len(skipped)} fps={fps}"
     )
 
     ok = 0
@@ -306,6 +321,8 @@ def main(argv=None) -> int:
             preset=work_preset,
             meta_out=meta_path,
             timeout_sec=args.timeout,
+            ltx_profile=ltx_profile,
+            allow_long_i2v=bool(getattr(args, "allow_long_i2v", False)),
         )
 
         if result.get("ok"):

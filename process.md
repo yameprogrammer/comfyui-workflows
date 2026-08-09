@@ -1,6 +1,12 @@
+## 2026-08-09 — L4/L11 clip quality: hero 2-stage + episode draft→hero
+- L4: AIO always 2-stage; profiles expose `two_stage` + hero **upscale IC 0.55** (was 0.5)
+- Soft-apply pure I2V frame cap (`max_pure_i2v_sec`) unless `--allow-long-i2v`
+- L11: `clip_quality episode-plan -e EP --phase full|draft|work|hero`
+- `episode_i2v --ltx-profile draft|work|hero` (+ `--allow-long-i2v`)
+- Docs: clip_quality_playbook · ltx23 research L4/L6/L11 ✅ · tooling_todo
 ## 2026-08-09 — Clip quality playbook + agent CLI (community research)
 - Research playbook: docs/clip_quality_playbook.md (Wan vs LTX, short takes, motion-only, post chain)
-- CLI: `python scripts/clip_quality.py recommend|check-prompt|probe|polish|playbook`
+- CLI: `python scripts/clip_quality.py recommend|check-prompt|probe|polish|playbook|episode-plan`
 - lib/clip_quality.py — I2V dialect check (L7), gen/post recommend, ffprobe tips
 - generate_i2v: auto WARN on look-redescribe / missing motion verbs
 - tool_intent: clip_quality card · MOTION shelf

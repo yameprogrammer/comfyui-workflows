@@ -275,6 +275,7 @@ def generate_i2v(
     dry_run: bool = False,
     profile: str | None = "deliver",
     ltx_profile: str | None = None,
+    allow_long_i2v: bool = False,
     cache: str | None = None,
     teacache_thresh: float | None = None,
     magcache_thresh: float | None = None,
@@ -359,6 +360,8 @@ def generate_i2v(
                 num_frames=num_frames,
                 has_audio=False,
                 user_explicit_size=bool(width and height),
+                soft_apply_frame_cap=True,
+                allow_long_i2v=bool(allow_long_i2v),
             )
             _pid = str(_qp.get("profile_id") or "work")
             _tedge = int(_qp.get("longer_edge") or 1280)
@@ -370,6 +373,8 @@ def generate_i2v(
                 if _pid == "hero" or max(int(width), int(height)) <= 960:
                     width = int(_qp["width"])
                     height = int(_qp["height"])
+            if _qp.get("frames_soft_capped") and _qp.get("num_frames") is not None:
+                num_frames = int(_qp["num_frames"])
             for _w in _qp.get("warnings") or []:
                 print(f"[ltx-profile WARN] {_w}")
         except Exception:
@@ -430,6 +435,7 @@ def generate_i2v(
             meta_out=meta_out,
             ltx_profile=ltx_profile,
             format_id=format_id,
+            allow_long_i2v=bool(allow_long_i2v),
         )
 
     try:
@@ -1138,13 +1144,22 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help=(
             "LTX quality tier draft|work|hero (default work=720p). "
-            "draft≈540 · work≈1280 · hero≈1920. docs/ltx23_quality_research_and_improvement.md"
+            "draft≈540 · work≈1280 · hero≈1920 + 2-stage IC. "
+            "docs/ltx23_quality_research_and_improvement.md"
         ),
     )
     parser.add_argument(
         "--list-ltx-profiles",
         action="store_true",
         help="Print LTX quality profiles and exit",
+    )
+    parser.add_argument(
+        "--allow-long-i2v",
+        action="store_true",
+        help=(
+            "Keep pure I2V frames longer than profile max_pure_i2v_sec "
+            "(default soft-caps long takes to reduce face drift)"
+        ),
     )
     parser.add_argument(
         "--cache",
@@ -1422,6 +1437,7 @@ if __name__ == "__main__":
         dry_run=bool(args.dry_run),
         profile=args.profile,
         ltx_profile=getattr(args, "ltx_profile", None),
+        allow_long_i2v=bool(getattr(args, "allow_long_i2v", False)),
         cache=args.cache,
         teacache_thresh=args.teacache_thresh,
         magcache_thresh=args.magcache_thresh,

@@ -5,6 +5,7 @@
   python scripts/clip_quality.py check-prompt -p "slow push-in, soft blink"
   python scripts/clip_quality.py probe -i clip.mp4
   python scripts/clip_quality.py polish -i clip.mp4 -o out.mp4 --goal delivery --face
+  python scripts/clip_quality.py episode-plan -e EP --phase full
   python scripts/clip_quality.py playbook
 
 Research: docs/clip_quality_playbook.md · docs/ltx23_quality_research_and_improvement.md
@@ -22,7 +23,9 @@ from pathlib import Path
 
 from lib.clip_quality import (
     check_i2v_prompt,
+    format_episode_plan,
     format_recommendation,
+    plan_episode_quality,
     probe_clip,
     recommend_generation,
     recommend_post,
@@ -161,6 +164,22 @@ def cmd_playbook(_args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_episode_plan(args: argparse.Namespace) -> int:
+    plan = plan_episode_quality(
+        args.episode,
+        phase=args.phase,
+        shots=args.shots,
+        hero_shots=args.hero_shots,
+        face_closeup_ids=args.face_cu_shots,
+        require_approved=not args.allow_draft,
+    )
+    if args.json:
+        print(json.dumps(plan, ensure_ascii=False, indent=2))
+    else:
+        print(format_episode_plan(plan))
+    return 0 if plan.get("ok") else 1
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="Video clip quality for agents")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -199,6 +218,40 @@ def main(argv=None) -> int:
     po.add_argument("--dry-run", action="store_true")
     po.add_argument("--json", action="store_true")
     po.set_defaults(func=cmd_polish)
+
+    pe = sub.add_parser(
+        "episode-plan",
+        help="episode draft → work → hero CLI plan (L11)",
+    )
+    pe.add_argument("--episode", "-e", required=True)
+    pe.add_argument(
+        "--phase",
+        default="full",
+        choices=["draft", "work", "hero", "full"],
+        help="which pipeline phase(s) to plan (default full)",
+    )
+    pe.add_argument(
+        "--shots",
+        default="all_approved",
+        help="all_approved | all | S01,S02,...",
+    )
+    pe.add_argument(
+        "--hero-shots",
+        default=None,
+        help="comma shot ids for hero re-gen (default: clip-approved / quality=hero)",
+    )
+    pe.add_argument(
+        "--face-cu-shots",
+        default=None,
+        help="comma shot ids that need face polish",
+    )
+    pe.add_argument(
+        "--allow-draft",
+        action="store_true",
+        help="include non-approved keyframes",
+    )
+    pe.add_argument("--json", action="store_true")
+    pe.set_defaults(func=cmd_episode_plan)
 
     pb = sub.add_parser("playbook", help="print quality playbook")
     pb.set_defaults(func=cmd_playbook)
