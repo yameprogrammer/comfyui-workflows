@@ -157,12 +157,14 @@ python scripts/tool_intent.py "유튜브 자막"
 
 ```bash
 python scripts/generate_krea.py -p "cinematic portrait..." -o out.png --seed 42
-# Lonecat v7 full-graph feature inventory (style/control/detailer/moodboard…)
+# Lonecat v7 feature inventory
 python scripts/krea2_features.py list --ready
-python scripts/krea2_features.py search "style"
+# Native v7 P0 slices (ready)
+python scripts/generate_krea2_style.py -i style.png -p "cinematic portrait..." -o out.png --seed 42
+python scripts/generate_krea2_control.py -i depth.png -p "hero standing..." -o out.png --seed 42
 ```
 
-> **v7 vs v10:** 에이전트 기본 T2I는 slim **v10 API 프리셋**. Lonecat **v7.0**(478노드·바이패스 다수)은 기능 맵으로 라우팅; 네이티브 스타일/컨트롤/디테일러 프리셋은 planned → UI export 후 승격.
+> **v7 vs v10:** 기본 T2I = slim **v10**. Lonecat **v7** 네이티브 **스타일 레퍼·ControlLoRA** 는 agent 미니 프리셋으로 ready; dual style / detailer / moodboard 는 still planned.
 
 #### Lonecat Z-Image (I2I 대안)
 

@@ -1,3 +1,11 @@
+## 2026-08-09 — Krea2 v7 P0: style ref + ControlLoRA agent tools
+- Presets: `krea2_style_ref_v70` · `krea2_control_v70` (minimal API graphs, not full UI export)
+- CLI: `generate_krea2_style.py` · `generate_krea2_control.py`
+- Smoke OK: dumps/krea2_style_smoke.png · dumps/krea2_control_smoke.png (seed 42/7)
+- Fix: ComfyUI-Krea2-StyleTransfer `**kwargs` on block/attention forward (Comfy 0.30 timestep_zero_index)
+- CAPABILITIES v70_style_ref_1 / v70_controlnet → ready; tool_intent cards TRANSFORM/CAMERA
+- Default control LoRA: `Krea2\\depth-control-lora.safetensors`
+
 ## 2026-08-09 — Lonecat Krea 2 v7.0 capability map for agents
 - Full UI analysis: ~478 nodes / 45 groups / Fast Groups Bypasser matrix
 - Pack: `workflows/human/lonecat_krea2_v70/` (AGENT_GUIDE · CAPABILITIES)

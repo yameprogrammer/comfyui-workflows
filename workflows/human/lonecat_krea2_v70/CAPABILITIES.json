@@ -9,8 +9,15 @@
   "related_simpler_stack": {
     "id": "krea2SFWNSFWUncensoredImageTo_v10",
     "note": "Different pack: slim SFW/NSFW T2I already agent-ready as generate_krea / generate_krea_nsfw. v7 is the full Lonecat pro graph.",
-    "agent_cli": ["scripts/generate_krea.py", "scripts/generate_krea_nsfw.py"],
-    "presets": ["krea2_t2i_v10", "krea2_i2i_v10", "krea2_nsfw_t2i"]
+    "agent_cli": [
+      "scripts/generate_krea.py",
+      "scripts/generate_krea_nsfw.py"
+    ],
+    "presets": [
+      "krea2_t2i_v10",
+      "krea2_i2i_v10",
+      "krea2_nsfw_t2i"
+    ]
   },
   "agent_policy": {
     "clip_type": "krea2",
@@ -24,7 +31,12 @@
       "feature_id": "v70_t2i_core",
       "name": "Text-to-image core (User Settings + Diffusion)",
       "category": "generate",
-      "ui_groups": ["⚙️ User Settings", "Diffusion Model", "GGUF Model", "🧠 Brains"],
+      "ui_groups": [
+        "⚙️ User Settings",
+        "Diffusion Model",
+        "GGUF Model",
+        "🧠 Brains"
+      ],
       "status": "ready_via_v10",
       "agent_cli": "python scripts/generate_krea.py -p \"...\" -o out.png --seed 42",
       "agent_preset": "krea2_t2i_v10",
@@ -44,7 +56,9 @@
       "feature_id": "v70_i2i",
       "name": "Image-to-image (denoise)",
       "category": "transform",
-      "ui_groups": ["#     I2I 🖼️!"],
+      "ui_groups": [
+        "#     I2I 🖼️!"
+      ],
       "status": "ready_experimental",
       "agent_cli": "python scripts/run_workflow_api.py -p krea2_i2i_v10 --positive \"...\" --input-image in.png -o out.png",
       "agent_preset": "krea2_i2i_v10",
@@ -55,7 +69,10 @@
       "feature_id": "v70_img_prompt",
       "name": "Image → prompt (caption / Florence path)",
       "category": "prompt",
-      "ui_groups": ["#     📝 Img Prompt", "#  Qwen 📝🪄"],
+      "ui_groups": [
+        "#     📝 Img Prompt",
+        "#  Qwen 📝🪄"
+      ],
       "status": "planned",
       "agent_cli": null,
       "when_to_use": "Auto-caption reference before T2I",
@@ -65,7 +82,9 @@
       "feature_id": "v70_prompt_enhancer",
       "name": "Qwen VL prompt enhancer",
       "category": "prompt",
-      "ui_nodes": ["AILab_QwenVL_GGUF_PromptEnhancer"],
+      "ui_nodes": [
+        "AILab_QwenVL_GGUF_PromptEnhancer"
+      ],
       "status": "planned",
       "when_to_use": "Expand short prompts via VL LLM",
       "default_for_batch": "OFF"
@@ -74,8 +93,13 @@
       "feature_id": "v70_instruct_edit",
       "name": "Instruct / image reference edit (Qwen Image Edit)",
       "category": "edit",
-      "ui_groups": ["Instruct (Beta)", "Conditioning/ Image Edit / Style Transfer"],
-      "ui_nodes": ["TextEncodeQwenImageEditPlus"],
+      "ui_groups": [
+        "Instruct (Beta)",
+        "Conditioning/ Image Edit / Style Transfer"
+      ],
+      "ui_nodes": [
+        "TextEncodeQwenImageEditPlus"
+      ],
       "status": "ready_via_other_tool",
       "agent_cli": "python scripts/generate_qwen_edit.py -i img.png -p \"change jacket to blue\" -o out.png",
       "when_to_use": "Instruction edit without full Krea2 graph",
@@ -85,17 +109,28 @@
       "feature_id": "v70_style_ref_1",
       "name": "Krea2 style reference (Image 2)",
       "category": "style",
-      "ui_nodes": ["Krea2StyleReference", "Krea2StyleTransfer"],
-      "ui_groups": ["Image 2 Logic", "Conditioning/ Image Edit / Style Transfer"],
-      "status": "planned",
+      "ui_nodes": [
+        "Krea2StyleReference",
+        "Krea2StyleTransfer"
+      ],
+      "ui_groups": [
+        "Image 2 Logic",
+        "Conditioning/ Image Edit / Style Transfer"
+      ],
+      "status": "ready",
       "when_to_use": "Transfer look from style image while generating",
-      "interim_cli": "python scripts/generate_style_transfer.py --mode ref -i content.png --style-image mood.png -o out.png"
+      "agent_cli": "python scripts/generate_krea2_style.py -i style.png -p \"...\" -o out.png --seed 42",
+      "agent_preset": "krea2_style_ref_v70",
+      "gap": "Minimal agent graph (not full v7 UI). Dual style still planned."
     },
     {
       "feature_id": "v70_style_ref_2",
       "name": "Dual style references (Image 2+3)",
       "category": "style",
-      "ui_nodes": ["Krea2TwoStyleReferences", "Krea2TwoStyleTransfer"],
+      "ui_nodes": [
+        "Krea2TwoStyleReferences",
+        "Krea2TwoStyleTransfer"
+      ],
       "status": "planned",
       "when_to_use": "Blend two style refs"
     },
@@ -103,8 +138,13 @@
       "feature_id": "v70_moodboard",
       "name": "Krea Moodboard apply + visual browser",
       "category": "style",
-      "ui_groups": ["Krea Moodboard 📝"],
-      "ui_nodes": ["KreaMoodboardApply", "KreaMoodboardVisualBrowser"],
+      "ui_groups": [
+        "Krea Moodboard 📝"
+      ],
+      "ui_nodes": [
+        "KreaMoodboardApply",
+        "KreaMoodboardVisualBrowser"
+      ],
       "status": "planned",
       "when_to_use": "Pick moodboard tokens/looks from browser UI pack",
       "needs": "moodboard asset pack + apply node ports"
@@ -113,17 +153,27 @@
       "feature_id": "v70_controlnet",
       "name": "Krea2 Control LoRA / ControlNet path",
       "category": "control",
-      "ui_groups": ["#  🥅 Controlnet"],
-      "ui_nodes": ["Krea2ControlLoRALoader", "Krea2ControlApply", "Krea2ControlImageEncode"],
-      "status": "planned",
+      "ui_groups": [
+        "#  🥅 Controlnet"
+      ],
+      "ui_nodes": [
+        "Krea2ControlLoRALoader",
+        "Krea2ControlApply",
+        "Krea2ControlImageEncode"
+      ],
+      "status": "ready",
       "when_to_use": "Pose/structure control on Krea2 stack",
-      "interim_cli": "python scripts/generate_openpose_pose.py generate -i id.png --template jog_contact -o out.png"
+      "agent_cli": "python scripts/generate_krea2_control.py -i depth.png -p \"...\" -o out.png --seed 42",
+      "agent_preset": "krea2_control_v70",
+      "gap": "Default depth-control-lora; pose maps OK if control image is a pose plate."
     },
     {
       "feature_id": "v70_load_image",
       "name": "Load reference images (1/2/3)",
       "category": "io",
-      "ui_groups": ["#      🖼️Load Image!"],
+      "ui_groups": [
+        "#      🖼️Load Image!"
+      ],
       "status": "documented",
       "when_to_use": "Shared image inputs for I2I / style / edit / control"
     },
@@ -131,7 +181,10 @@
       "feature_id": "v70_detailer_face",
       "name": "Face detailer",
       "category": "detailer",
-      "ui_groups": ["🔎 Detailers", "# ::Face 🙂"],
+      "ui_groups": [
+        "🔎 Detailers",
+        "# ::Face 🙂"
+      ],
       "status": "planned",
       "when_to_use": "After T2I face fix pass"
     },
@@ -139,28 +192,40 @@
       "feature_id": "v70_detailer_eyes",
       "name": "Eyes detailer",
       "category": "detailer",
-      "ui_groups": ["# ::Eyes 👀"],
+      "ui_groups": [
+        "# ::Eyes 👀"
+      ],
       "status": "planned"
     },
     {
       "feature_id": "v70_detailer_hands",
       "name": "Hands detailer",
       "category": "detailer",
-      "ui_groups": ["# ::Hands ✋"],
+      "ui_groups": [
+        "# ::Hands ✋"
+      ],
       "status": "planned"
     },
     {
       "feature_id": "v70_detailer_spare",
       "name": "Spare / custom detailer slot",
       "category": "detailer",
-      "ui_groups": ["# ::Spare 🛞"],
+      "ui_groups": [
+        "# ::Spare 🛞"
+      ],
       "status": "planned"
     },
     {
       "feature_id": "v70_nsfw_detailers",
       "name": "NSFW anatomy detailers (18+)",
       "category": "detailer",
-      "ui_groups": ["🚫 NSFW Detaiers", "# ;Female Body", "# ;Vajayjay 🕳️", "# ;Male Junk 🍆", "# ;Breasts 🍒"],
+      "ui_groups": [
+        "🚫 NSFW Detaiers",
+        "# ;Female Body",
+        "# ;Vajayjay 🕳️",
+        "# ;Male Junk 🍆",
+        "# ;Breasts 🍒"
+      ],
       "status": "planned",
       "policy": "adult_18_plus_only",
       "default_for_batch": "OFF"
@@ -169,7 +234,10 @@
       "feature_id": "v70_hires_fix",
       "name": "Hi-rez fix / Ultimate SD Upscale",
       "category": "upscale",
-      "ui_groups": ["Hi Rez fix & Upscale", "#  Hi Rez Fix/ Upscale"],
+      "ui_groups": [
+        "Hi Rez fix & Upscale",
+        "#  Hi Rez Fix/ Upscale"
+      ],
       "status": "ready_via_other_tool",
       "agent_cli": "python scripts/upscale_image.py -i in.png -o out.png --style photo --preset deliver_1080",
       "when_to_use": "Resolution polish after still"
@@ -178,7 +246,10 @@
       "feature_id": "v70_seedvr2",
       "name": "SeedVR2 upscale",
       "category": "upscale",
-      "ui_groups": ["Seed VR2 (ver 6.0 math node update)", "#  Seed VR2 Upscale"],
+      "ui_groups": [
+        "Seed VR2 (ver 6.0 math node update)",
+        "#  Seed VR2 Upscale"
+      ],
       "status": "ready_via_other_tool",
       "agent_cli": "python scripts/upscale_image.py -i in.png -o out.png --backend seedvr2 --preset deliver_1080",
       "default_for_batch": "OFF"
@@ -187,7 +258,11 @@
       "feature_id": "v70_post_suite",
       "name": "Post-processing suite (grade / optical / crop)",
       "category": "post",
-      "ui_groups": ["🎨 Post Processing Suite (updated 260404)", "✂️Crop 📷", "Optical Realism 📷"],
+      "ui_groups": [
+        "🎨 Post Processing Suite (updated 260404)",
+        "✂️Crop 📷",
+        "Optical Realism 📷"
+      ],
       "status": "planned",
       "when_to_use": "LUT-like grade, crop, optical realism polish",
       "note": "v7 ships LUTs in zip under luts/"
@@ -196,15 +271,22 @@
       "feature_id": "v70_rmbg",
       "name": "Remove background",
       "category": "post",
-      "ui_groups": ["#      Remove Background!"],
+      "ui_groups": [
+        "#      Remove Background!"
+      ],
       "status": "planned"
     },
     {
       "feature_id": "v70_draft_mode",
       "name": "Draft / rough vs final",
       "category": "quality",
-      "ui_groups": ["Final vs. Rough Draft", "#Save Draft 📐"],
-      "ui_nodes": ["Fast Muter (rgthree) Draft Mode"],
+      "ui_groups": [
+        "Final vs. Rough Draft",
+        "#Save Draft 📐"
+      ],
+      "ui_nodes": [
+        "Fast Muter (rgthree) Draft Mode"
+      ],
       "status": "planned",
       "when_to_use": "Fast scout then promote seed to final"
     },
@@ -212,7 +294,11 @@
       "feature_id": "v70_save_metadata",
       "name": "Save with metadata / subfolder",
       "category": "io",
-      "ui_groups": ["💾 Save Group", "#Save w/Metadata🗒️", "#Create Subfolder📂"],
+      "ui_groups": [
+        "💾 Save Group",
+        "#Save w/Metadata🗒️",
+        "#Create Subfolder📂"
+      ],
       "status": "documented",
       "when_to_use": "CivitAI-style metadata; agent uses SaveImage + .meta.json instead"
     },
@@ -220,8 +306,18 @@
       "feature_id": "v70_model_selector",
       "name": "Diffusion vs GGUF model selector",
       "category": "model",
-      "ui_groups": ["Diffusion Model", "GGUF Model"],
-      "bypassers": [{"id": 1329, "title": "Model selector", "matchTitle": "Model", "restriction": "always one"}],
+      "ui_groups": [
+        "Diffusion Model",
+        "GGUF Model"
+      ],
+      "bypassers": [
+        {
+          "id": 1329,
+          "title": "Model selector",
+          "matchTitle": "Model",
+          "restriction": "always one"
+        }
+      ],
       "status": "documented",
       "agent_note": "generate_krea --unet-name for alternate UNET; GGUF path not in slim preset"
     },
@@ -229,7 +325,9 @@
       "feature_id": "v70_conditioning_rebalance",
       "name": "ConditioningKrea2Rebalance",
       "category": "model",
-      "ui_nodes": ["ConditioningKrea2Rebalance"],
+      "ui_nodes": [
+        "ConditioningKrea2Rebalance"
+      ],
       "status": "planned"
     },
     {
@@ -250,35 +348,104 @@
       "feature_id": "v70_sdxl_override",
       "name": "SDXL based override path",
       "category": "model",
-      "ui_groups": ["SDXL based Override"],
+      "ui_groups": [
+        "SDXL based Override"
+      ],
       "status": "ui_only",
       "when_to_use": "Advanced dual-stack experiments; not agent default"
     }
   ],
   "bypassers_summary": [
-    {"id": 1329, "title": "Model selector", "matchTitle": "Model", "restriction": "always one"},
-    {"id": 2343, "title": "Bypasser", "matchTitle": "#", "note": "Master group toggles by # prefix"},
-    {"id": 2095, "title": "psst", "matchTitle": "!", "note": "I2I / Img Prompt / Load Image bang groups"},
-    {"id": 2512, "title": "psst", "matchTitle": "::", "note": "Detailer face/eyes/hands/spare"},
-    {"id": 2611, "title": "psst", "matchTitle": "🥅", "note": "ControlNet"},
-    {"id": 1863, "title": "psst", "matchTitle": "#  Seed", "note": "SeedVR2"},
-    {"id": 2306, "title": "psst", "matchTitle": "Hi Rez Fix/ Upscale"},
-    {"id": 1867, "title": "psst", "matchTitle": "📝", "note": "Prompt / Qwen enhancer"},
-    {"id": 2096, "title": "psst", "matchTitle": "📝 Img Prompt"},
-    {"id": 2003, "title": "Group switches", "matchTitle": "📷", "note": "Post / crop / optical"},
-    {"id": 2456, "title": "Conditioning Switch", "restriction": "max one"},
-    {"id": 2695, "title": "Style Transfer"},
-    {"id": 2390, "title": "LLM Prompt Instructions", "restriction": "max one"},
-    {"id": 2632, "title": "Draft Mode", "type": "Fast Muter"},
-    {"id": 2718, "title": "Hide Metadata"}
+    {
+      "id": 1329,
+      "title": "Model selector",
+      "matchTitle": "Model",
+      "restriction": "always one"
+    },
+    {
+      "id": 2343,
+      "title": "Bypasser",
+      "matchTitle": "#",
+      "note": "Master group toggles by # prefix"
+    },
+    {
+      "id": 2095,
+      "title": "psst",
+      "matchTitle": "!",
+      "note": "I2I / Img Prompt / Load Image bang groups"
+    },
+    {
+      "id": 2512,
+      "title": "psst",
+      "matchTitle": "::",
+      "note": "Detailer face/eyes/hands/spare"
+    },
+    {
+      "id": 2611,
+      "title": "psst",
+      "matchTitle": "🥅",
+      "note": "ControlNet"
+    },
+    {
+      "id": 1863,
+      "title": "psst",
+      "matchTitle": "#  Seed",
+      "note": "SeedVR2"
+    },
+    {
+      "id": 2306,
+      "title": "psst",
+      "matchTitle": "Hi Rez Fix/ Upscale"
+    },
+    {
+      "id": 1867,
+      "title": "psst",
+      "matchTitle": "📝",
+      "note": "Prompt / Qwen enhancer"
+    },
+    {
+      "id": 2096,
+      "title": "psst",
+      "matchTitle": "📝 Img Prompt"
+    },
+    {
+      "id": 2003,
+      "title": "Group switches",
+      "matchTitle": "📷",
+      "note": "Post / crop / optical"
+    },
+    {
+      "id": 2456,
+      "title": "Conditioning Switch",
+      "restriction": "max one"
+    },
+    {
+      "id": 2695,
+      "title": "Style Transfer"
+    },
+    {
+      "id": 2390,
+      "title": "LLM Prompt Instructions",
+      "restriction": "max one"
+    },
+    {
+      "id": 2632,
+      "title": "Draft Mode",
+      "type": "Fast Muter"
+    },
+    {
+      "id": 2718,
+      "title": "Hide Metadata"
+    }
   ],
   "status_counts": {
     "ready_via_v10": 2,
-    "ready_via_other_tool": 3,
     "ready_experimental": 1,
-    "ready_in_v10_preset": 1,
-    "planned": 16,
+    "planned": 14,
+    "ready_via_other_tool": 3,
+    "ready": 2,
     "documented": 3,
+    "ready_in_v10_preset": 1,
     "ui_only": 1
   }
 }

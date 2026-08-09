@@ -1,0 +1,64 @@
+{
+  "preset": "krea2_style_ref_v70",
+  "workflow_api": "presets/krea2_style_ref_v70.api.json",
+  "family": "krea2",
+  "description": "Krea2 T2I with native Krea2StyleReference + StyleTransfer (Lonecat v7 feature slice)",
+  "source_note": "Minimal agent graph; not full v7 UI export",
+  "ports": {
+    "positive": {
+      "node": "46",
+      "key": "value"
+    },
+    "seed": {
+      "node": "108",
+      "key": "seed"
+    },
+    "style_image": {
+      "node": "100",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "width": {
+      "node": "11",
+      "key": "width",
+      "optional": true
+    },
+    "height": {
+      "node": "11",
+      "key": "height",
+      "optional": true
+    },
+    "style_strength": {
+      "node": "104",
+      "key": "style_strength",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    },
+    "unet_name": {
+      "node": "2",
+      "key": "unet_name",
+      "optional": true
+    },
+    "steps": {
+      "node": "108",
+      "key": "steps",
+      "optional": true
+    },
+    "cfg": {
+      "node": "108",
+      "key": "cfg",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "width": 1024,
+    "height": 576,
+    "style_strength": 1.0,
+    "filename_prefix": "krea2_style_ref",
+    "unet_name": "Krea2Turbo\\krea2_turbo_fp8_scaled.safetensors"
+  }
+}

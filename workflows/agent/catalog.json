@@ -887,6 +887,34 @@
         "scripts/krea2_features.py"
       ],
       "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md"
+    },
+    "krea2_style_ref_v70": {
+      "file": "presets/krea2_style_ref_v70.api.json",
+      "ports": "presets/krea2_style_ref_v70.ports.json",
+      "format": "api",
+      "role": "t2i_style_reference",
+      "family": "krea2",
+      "status": "ready",
+      "description": "Krea2 StyleReference + StyleTransfer agent slice (Lonecat v7 P0)",
+      "used_by": [
+        "scripts/generate_krea2_style.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "smoke": "dumps/krea2_style_smoke.png"
+    },
+    "krea2_control_v70": {
+      "file": "presets/krea2_control_v70.api.json",
+      "ports": "presets/krea2_control_v70.ports.json",
+      "format": "api",
+      "role": "t2i_control_lora",
+      "family": "krea2",
+      "status": "ready",
+      "description": "Krea2 ControlLoRA + ControlImageEncode/Apply (depth default)",
+      "used_by": [
+        "scripts/generate_krea2_control.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "smoke": "dumps/krea2_control_smoke.png"
     }
   }
 }

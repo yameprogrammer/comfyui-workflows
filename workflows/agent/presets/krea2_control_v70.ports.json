@@ -1,0 +1,64 @@
+{
+  "preset": "krea2_control_v70",
+  "workflow_api": "presets/krea2_control_v70.api.json",
+  "family": "krea2",
+  "description": "Krea2 T2I with native ControlLoRA + ControlImageEncode/Apply (depth control default)",
+  "ports": {
+    "positive": {
+      "node": "46",
+      "key": "value"
+    },
+    "seed": {
+      "node": "209",
+      "key": "seed"
+    },
+    "control_image": {
+      "node": "200",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "control_strength": {
+      "node": "201",
+      "key": "strength",
+      "optional": true
+    },
+    "control_lora": {
+      "node": "201",
+      "key": "lora_name",
+      "optional": true
+    },
+    "width": {
+      "node": "11",
+      "key": "width",
+      "optional": true
+    },
+    "height": {
+      "node": "11",
+      "key": "height",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    },
+    "unet_name": {
+      "node": "2",
+      "key": "unet_name",
+      "optional": true
+    },
+    "steps": {
+      "node": "209",
+      "key": "steps",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "width": 1024,
+    "height": 576,
+    "control_strength": 1.0,
+    "control_lora": "Krea2\\depth-control-lora.safetensors",
+    "filename_prefix": "krea2_control",
+    "unet_name": "Krea2Turbo\\krea2_turbo_fp8_scaled.safetensors"
+  }
+}

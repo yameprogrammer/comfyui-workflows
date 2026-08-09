@@ -49,8 +49,9 @@ Bypass pattern: **purple Fast Groups Bypasser** nodes titled “psst…”, matc
 | `v70_instruct_edit` | `generate_qwen_edit` | ready_via_other_tool |
 | `v70_hires_fix` | `upscale_image` | ready_via_other_tool |
 | `v70_seedvr2` | `upscale_image --backend seedvr2` | ready_via_other_tool |
-| `v70_style_ref_*` | interim: `generate_style_transfer` | planned (native Krea2 style nodes) |
-| `v70_controlnet` | interim: `generate_openpose_pose` / controlnet | planned (Krea2 ControlLoRA) |
+| `v70_style_ref_1` | **`generate_krea2_style`** | **ready** (minimal API slice) |
+| `v70_controlnet` | **`generate_krea2_control`** | **ready** (depth ControlLoRA default) |
+| `v70_style_ref_2` | — | planned (dual style) |
 | `v70_moodboard` | — | planned |
 | `v70_detailer_*` / NSFW detailers | — | planned |
 | `v70_img_prompt` / enhancer | — | planned |
@@ -78,11 +79,14 @@ python scripts/generate_krea_nsfw.py -p "adult woman..." -o nsfw.png --seed 42
 python scripts/run_workflow_api.py -p krea2_i2i_v10 --positive "same person, smile" \
   --input-image face.png -o i2i.png --seed 42
 
+# Native style reference (P0 ready)
+python scripts/generate_krea2_style.py -i style.png -p "cinematic portrait..." -o styled.png --seed 42
+
+# Native ControlLoRA / depth (P0 ready)
+python scripts/generate_krea2_control.py -i depth.png -p "hero standing..." -o controlled.png --seed 42
+
 # Instruction edit (v7 Instruct path analogue)
 python scripts/generate_qwen_edit.py -i still.png -p "change background to night street" -o edit.png
-
-# Style interim (not native Krea2StyleReference yet)
-python scripts/generate_style_transfer.py --mode ref -i content.png --style-image mood.png -o styled.png
 
 # Upscale / SeedVR2 (v7 upscale groups)
 python scripts/upscale_image.py -i out.png -o out_1080.png --style photo --preset deliver_1080
@@ -110,13 +114,23 @@ Do **not** hand-convert the full 478-node UI to API for production.
 
 | Priority | Feature | Why |
 |----------|---------|-----|
-| P0 | Style ref 1 (+ optional dual) API preset | Biggest unique gap vs generate_style_transfer |
-| P0 | ControlLoRA encode+apply preset | Pose/structure on Krea identity |
+| ~~P0~~ | ~~Style ref 1~~ | **done** — `generate_krea2_style` / `krea2_style_ref_v70` |
+| ~~P0~~ | ~~ControlLoRA~~ | **done** — `generate_krea2_control` / `krea2_control_v70` |
+| P1 | Dual style ref | v7 TwoStyle path |
 | P1 | Img→prompt + enhancer presets | Reference-driven T2I |
 | P1 | Face/hands detailer chain | Post-T2I quality without leaving Krea |
 | P2 | Moodboard apply | Needs asset browser contract |
 | P2 | Post suite / RMBG / draft mode | Nice polish; partial via other tools |
 | P3 | NSFW anatomy detailers | 18+ only; careful policy |
+
+### Runtime note (Comfy 0.30+)
+
+`ComfyUI-Krea2-StyleTransfer` used to break all Krea2 sampling after one style/control run
+(`timestep_zero_index` kwargs). Fixed in portable custom node:
+
+`ComfyUI/custom_nodes/ComfyUI-Krea2-StyleTransfer/nodes.py` — patched forwards accept `**kwargs`.
+
+Restart Comfy after updating that file.
 
 ---
 

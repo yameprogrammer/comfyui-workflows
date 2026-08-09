@@ -1,0 +1,211 @@
+{
+  "2": {
+    "inputs": {
+      "unet_name": "Krea2Turbo\\krea2_turbo_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "확산 모델 로드"
+    }
+  },
+  "4": {
+    "class_type": "ComfyUI-Krea2T-Enhancer",
+    "inputs": {
+      "enabled": true,
+      "strength": 1.5,
+      "debug": false,
+      "model": [
+        "2",
+        0
+      ]
+    }
+  },
+  "5": {
+    "inputs": {
+      "vae_name": "qwen_image_vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "VAE 로드"
+    }
+  },
+  "6": {
+    "inputs": {
+      "clip_name": "Huihui-Qwen3-VL-4B-Instruct-abliterated-fp8_scaled.safetensors",
+      "type": "krea2",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "CLIP 로드"
+    }
+  },
+  "11": {
+    "inputs": {
+      "width": 512,
+      "height": 512,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "빈 잠재 이미지"
+    }
+  },
+  "60": {
+    "class_type": "SeedNode",
+    "inputs": {
+      "seed": 42
+    }
+  },
+  "46": {
+    "class_type": "PrimitiveStringMultiline",
+    "inputs": {
+      "value": "placeholder"
+    }
+  },
+  "200": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "control.png"
+    }
+  },
+  "201": {
+    "class_type": "Krea2ControlLoRALoader",
+    "inputs": {
+      "model": [
+        "2",
+        0
+      ],
+      "lora_name": "Krea2\\depth-control-lora.safetensors",
+      "strength": 1.0
+    }
+  },
+  "202": {
+    "class_type": "Krea2ControlImageEncode",
+    "inputs": {
+      "control_image": [
+        "200",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ],
+      "resize": "match_latent_size",
+      "upscale_method": "lanczos",
+      "crop": "center",
+      "channel_mode": "rgb",
+      "normalize": "none",
+      "invert": false,
+      "batch_mode": "independent_images",
+      "latent": [
+        "11",
+        0
+      ]
+    }
+  },
+  "203": {
+    "class_type": "Krea2ControlApply",
+    "inputs": {
+      "model": [
+        "201",
+        0
+      ],
+      "control_latent": [
+        "202",
+        0
+      ]
+    }
+  },
+  "204": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": [
+        "46",
+        0
+      ],
+      "clip": [
+        "6",
+        0
+      ]
+    }
+  },
+  "205": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "204",
+        0
+      ]
+    }
+  },
+  "206": {
+    "class_type": "easy int",
+    "inputs": {
+      "value": 8
+    }
+  },
+  "207": {
+    "class_type": "easy float",
+    "inputs": {
+      "value": 1.0
+    }
+  },
+  "208": {
+    "class_type": "easy float",
+    "inputs": {
+      "value": 1.0
+    }
+  },
+  "209": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 42,
+      "steps": 4,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "203",
+        0
+      ],
+      "positive": [
+        "204",
+        0
+      ],
+      "negative": [
+        "205",
+        0
+      ],
+      "latent_image": [
+        "11",
+        0
+      ]
+    }
+  },
+  "210": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "209",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ]
+    }
+  },
+  "9001": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "krea2_control",
+      "images": [
+        "210",
+        0
+      ]
+    }
+  }
+}
