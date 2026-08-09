@@ -1,3 +1,10 @@
+## 2026-08-09 — Krea2 v7 P1: dual style, img-prompt, face detailer
+- Dual style: preset `krea2_dual_style_v70` · CLI `generate_krea2_style --style-image-2` · smoke dual_style_smoke.png
+- Img→prompt: Florence2 caption → `krea2_t2i_v10` · CLI `generate_krea2_img_prompt` · caption-only OK
+- Face detailer: Impact FaceDetailer + face_yolov8m · `krea2_face_detail_v70` · CLI `generate_krea2_face_detail`
+- tool_intent: krea2_img_prompt · krea2_face_detail · style dual example
+- Hands/moodboard/post suite remain P2
+
 ## 2026-08-09 — Krea2 v7 P0: style ref + ControlLoRA agent tools
 - Presets: `krea2_style_ref_v70` · `krea2_control_v70` (minimal API graphs, not full UI export)
 - CLI: `generate_krea2_style.py` · `generate_krea2_control.py`

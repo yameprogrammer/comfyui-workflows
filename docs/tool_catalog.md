@@ -161,10 +161,13 @@ python scripts/generate_krea.py -p "cinematic portrait..." -o out.png --seed 42
 python scripts/krea2_features.py list --ready
 # Native v7 P0 slices (ready)
 python scripts/generate_krea2_style.py -i style.png -p "cinematic portrait..." -o out.png --seed 42
+python scripts/generate_krea2_style.py -i a.png --style-image-2 b.png -p "fashion" -o dual.png
 python scripts/generate_krea2_control.py -i depth.png -p "hero standing..." -o out.png --seed 42
+python scripts/generate_krea2_img_prompt.py -i ref.png -o from_ref.png
+python scripts/generate_krea2_face_detail.py -i still.png -o face.png --denoise 0.35
 ```
 
-> **v7 vs v10:** 기본 T2I = slim **v10**. Lonecat **v7** 네이티브 **스타일 레퍼·ControlLoRA** 는 agent 미니 프리셋으로 ready; dual style / detailer / moodboard 는 still planned.
+> **v7 vs v10:** 기본 T2I = slim **v10**. Lonecat **v7** 슬라이스: 스타일(1·2)·ControlLoRA·Img→prompt·Face detailer **ready**. Moodboard/hands/post suite 는 P2.
 
 #### Lonecat Z-Image (I2I 대안)
 

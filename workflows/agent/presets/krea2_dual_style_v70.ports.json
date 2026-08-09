@@ -1,0 +1,58 @@
+{
+  "preset": "krea2_dual_style_v70",
+  "workflow_api": "presets/krea2_dual_style_v70.api.json",
+  "family": "krea2",
+  "description": "Krea2 dual StyleReference + TwoStyleTransfer",
+  "ports": {
+    "positive": {
+      "node": "46",
+      "key": "value"
+    },
+    "seed": {
+      "node": "108",
+      "key": "seed"
+    },
+    "style_image": {
+      "node": "100",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "style_image_2": {
+      "node": "110",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "width": {
+      "node": "11",
+      "key": "width",
+      "optional": true
+    },
+    "height": {
+      "node": "11",
+      "key": "height",
+      "optional": true
+    },
+    "style_strength": {
+      "node": "104",
+      "key": "style_strength",
+      "optional": true
+    },
+    "primary_reference": {
+      "node": "104",
+      "key": "primary_reference",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "width": 1024,
+    "height": 576,
+    "style_strength": 1.0,
+    "primary_reference": "1",
+    "filename_prefix": "krea2_dual_style"
+  }
+}

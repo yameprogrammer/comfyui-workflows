@@ -1,0 +1,43 @@
+{
+  "preset": "krea2_face_detail_v70",
+  "workflow_api": "presets/krea2_face_detail_v70.api.json",
+  "family": "krea2",
+  "description": "Impact FaceDetailer on Krea2 stack (Lonecat v7 face detailer analogue)",
+  "ports": {
+    "input_image": {
+      "node": "1",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "positive": {
+      "node": "46",
+      "key": "value",
+      "optional": true
+    },
+    "seed": {
+      "node": "50",
+      "key": "seed"
+    },
+    "denoise": {
+      "node": "50",
+      "key": "denoise",
+      "optional": true
+    },
+    "steps": {
+      "node": "50",
+      "key": "steps",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "denoise": 0.4,
+    "steps": 12,
+    "positive": "detailed face, sharp eyes, natural skin",
+    "filename_prefix": "krea2_face_detail"
+  }
+}

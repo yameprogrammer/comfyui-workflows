@@ -5,6 +5,8 @@ Uses Krea2StyleReference + Krea2StyleTransfer on the Krea2 turbo stack.
 
   python scripts/generate_krea2_style.py -i style.png -p "cinematic portrait..." -o out.png --seed 42
   python scripts/generate_krea2_style.py -i mood.png -p "..." -o out.png --style-strength 0.8 --width 1024 --height 576
+  # Dual style (Lonecat v7 TwoStyleTransfer)
+  python scripts/generate_krea2_style.py -i style_a.png --style-image-2 style_b.png -p "..." -o dual.png
 
 Requires: ComfyUI-Krea2-StyleTransfer (with Comfy 0.30+ kwargs-compatible patch).
 Guide: workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md
@@ -22,7 +24,8 @@ from lib.comfy_engine_session import ensure_engine
 from lib.workflow_api_runner import run_workflow_api
 
 FAMILY = "krea2_still"
-PRESET = "krea2_style_ref_v70"
+PRESET_SINGLE = "krea2_style_ref_v70"
+PRESET_DUAL = "krea2_dual_style_v70"
 
 
 def main(argv=None) -> int:
@@ -34,6 +37,11 @@ def main(argv=None) -> int:
         required=True,
         help="style reference image (color/mood/composition cues)",
     )
+    p.add_argument(
+        "--style-image-2",
+        default=None,
+        help="optional second style image → dual StyleTransfer preset",
+    )
     p.add_argument("--output", "-o", default=None)
     p.add_argument("--seed", type=int, default=None)
     p.add_argument("--width", type=int, default=1024)
@@ -44,6 +52,12 @@ def main(argv=None) -> int:
         default=1.0,
         help="Krea2StyleTransfer style_strength (0 disables ref path)",
     )
+    p.add_argument(
+        "--primary-reference",
+        choices=("1", "2"),
+        default="1",
+        help="dual mode: which ref is primary (default 1)",
+    )
     p.add_argument("--timeout", type=float, default=600)
     p.add_argument("--server", default=DEFAULT_SERVER)
     args = p.parse_args(argv)
@@ -53,21 +67,26 @@ def main(argv=None) -> int:
         print(f"[krea2_style] ENGINE FAIL {eng.get('message')}", file=sys.stderr)
         return 1
 
-    out = args.output or "dumps/krea2_style_out.png"
+    dual = bool(args.style_image_2)
+    preset = PRESET_DUAL if dual else PRESET_SINGLE
+    out = args.output or ("dumps/krea2_dual_style_out.png" if dual else "dumps/krea2_style_out.png")
     ports = {
         "positive": args.prompt,
         "style_image": args.style_image,
         "width": args.width,
         "height": args.height,
         "style_strength": args.style_strength,
-        "filename_prefix": "krea2_style_ref",
+        "filename_prefix": "krea2_dual_style" if dual else "krea2_style_ref",
     }
+    if dual:
+        ports["style_image_2"] = args.style_image_2
+        ports["primary_reference"] = args.primary_reference
     print(
-        f"Krea2 style-ref preset={PRESET} strength={args.style_strength} "
+        f"Krea2 style preset={preset} dual={dual} strength={args.style_strength} "
         f"size={args.width}x{args.height} out={out}"
     )
     r = run_workflow_api(
-        PRESET,
+        preset,
         ports=ports,
         output_path=out,
         seed=args.seed,

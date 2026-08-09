@@ -49,9 +49,11 @@ Bypass pattern: **purple Fast Groups Bypasser** nodes titled “psst…”, matc
 | `v70_instruct_edit` | `generate_qwen_edit` | ready_via_other_tool |
 | `v70_hires_fix` | `upscale_image` | ready_via_other_tool |
 | `v70_seedvr2` | `upscale_image --backend seedvr2` | ready_via_other_tool |
-| `v70_style_ref_1` | **`generate_krea2_style`** | **ready** (minimal API slice) |
-| `v70_controlnet` | **`generate_krea2_control`** | **ready** (depth ControlLoRA default) |
-| `v70_style_ref_2` | — | planned (dual style) |
+| `v70_style_ref_1` | **`generate_krea2_style`** | **ready** |
+| `v70_style_ref_2` | **`generate_krea2_style --style-image-2`** | **ready** (dual) |
+| `v70_controlnet` | **`generate_krea2_control`** | **ready** (depth ControlLoRA) |
+| `v70_img_prompt` | **`generate_krea2_img_prompt`** | **ready** (Florence→T2I) |
+| `v70_detailer_face` | **`generate_krea2_face_detail`** | **ready** (Impact FaceDetailer) |
 | `v70_moodboard` | — | planned |
 | `v70_detailer_*` / NSFW detailers | — | planned |
 | `v70_img_prompt` / enhancer | — | planned |
@@ -85,6 +87,16 @@ python scripts/generate_krea2_style.py -i style.png -p "cinematic portrait..." -
 # Native ControlLoRA / depth (P0 ready)
 python scripts/generate_krea2_control.py -i depth.png -p "hero standing..." -o controlled.png --seed 42
 
+# Dual style (P1)
+python scripts/generate_krea2_style.py -i a.png --style-image-2 b.png -p "fashion portrait" -o dual.png
+
+# Image → caption → T2I (P1)
+python scripts/generate_krea2_img_prompt.py -i ref.png -o from_ref.png --seed 42
+python scripts/generate_krea2_img_prompt.py -i ref.png --caption-only
+
+# Face detailer post (P1)
+python scripts/generate_krea2_face_detail.py -i still.png -o face.png --denoise 0.35
+
 # Instruction edit (v7 Instruct path analogue)
 python scripts/generate_qwen_edit.py -i still.png -p "change background to night street" -o edit.png
 
@@ -114,14 +126,16 @@ Do **not** hand-convert the full 478-node UI to API for production.
 
 | Priority | Feature | Why |
 |----------|---------|-----|
-| ~~P0~~ | ~~Style ref 1~~ | **done** — `generate_krea2_style` / `krea2_style_ref_v70` |
-| ~~P0~~ | ~~ControlLoRA~~ | **done** — `generate_krea2_control` / `krea2_control_v70` |
-| P1 | Dual style ref | v7 TwoStyle path |
-| P1 | Img→prompt + enhancer presets | Reference-driven T2I |
-| P1 | Face/hands detailer chain | Post-T2I quality without leaving Krea |
-| P2 | Moodboard apply | Needs asset browser contract |
-| P2 | Post suite / RMBG / draft mode | Nice polish; partial via other tools |
-| P3 | NSFW anatomy detailers | 18+ only; careful policy |
+| ~~P0~~ | ~~Style ref 1~~ | **done** |
+| ~~P0~~ | ~~ControlLoRA~~ | **done** |
+| ~~P1~~ | ~~Dual style~~ | **done** — `--style-image-2` |
+| ~~P1~~ | ~~Img→prompt~~ | **done** — Florence caption → T2I |
+| ~~P1~~ | ~~Face detailer~~ | **done** — Impact FaceDetailer |
+| P2 | Hands detailer | bbox/hand_yolov8s path |
+| P2 | Moodboard apply | asset browser contract |
+| P2 | Post suite / RMBG / draft | polish |
+| P2 | Qwen VL prompt enhancer GGUF | heavier; Florence covers caption |
+| P3 | NSFW anatomy detailers | 18+ only |
 
 ### Runtime note (Comfy 0.30+)
 

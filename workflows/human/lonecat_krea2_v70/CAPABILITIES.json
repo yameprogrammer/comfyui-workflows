@@ -73,8 +73,8 @@
         "#     📝 Img Prompt",
         "#  Qwen 📝🪄"
       ],
-      "status": "planned",
-      "agent_cli": null,
+      "status": "ready",
+      "agent_cli": "python scripts/generate_krea2_img_prompt.py -i ref.png -o out.png",
       "when_to_use": "Auto-caption reference before T2I",
       "needs": "API preset with Florence/Qwen prompt path + LoadImage port"
     },
@@ -85,9 +85,11 @@
       "ui_nodes": [
         "AILab_QwenVL_GGUF_PromptEnhancer"
       ],
-      "status": "planned",
+      "status": "ready_via_other_tool",
       "when_to_use": "Expand short prompts via VL LLM",
-      "default_for_batch": "OFF"
+      "default_for_batch": "OFF",
+      "agent_cli": "python scripts/generate_krea2_img_prompt.py -i ref.png --caption-only",
+      "note": "Florence caption covers enhancer need for agents; Qwen VL GGUF enhancer still optional"
     },
     {
       "feature_id": "v70_instruct_edit",
@@ -131,8 +133,10 @@
         "Krea2TwoStyleReferences",
         "Krea2TwoStyleTransfer"
       ],
-      "status": "planned",
-      "when_to_use": "Blend two style refs"
+      "status": "ready",
+      "when_to_use": "Blend two style refs",
+      "agent_cli": "python scripts/generate_krea2_style.py -i a.png --style-image-2 b.png -p \"...\" -o dual.png",
+      "agent_preset": "krea2_dual_style_v70"
     },
     {
       "feature_id": "v70_moodboard",
@@ -185,8 +189,10 @@
         "🔎 Detailers",
         "# ::Face 🙂"
       ],
-      "status": "planned",
-      "when_to_use": "After T2I face fix pass"
+      "status": "ready",
+      "when_to_use": "After T2I face fix pass",
+      "agent_cli": "python scripts/generate_krea2_face_detail.py -i still.png -o face.png",
+      "agent_preset": "krea2_face_detail_v70"
     },
     {
       "feature_id": "v70_detailer_eyes",
@@ -441,9 +447,9 @@
   "status_counts": {
     "ready_via_v10": 2,
     "ready_experimental": 1,
-    "planned": 14,
-    "ready_via_other_tool": 3,
-    "ready": 2,
+    "ready": 5,
+    "ready_via_other_tool": 4,
+    "planned": 10,
     "documented": 3,
     "ready_in_v10_preset": 1,
     "ui_only": 1
