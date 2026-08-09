@@ -20,6 +20,10 @@ python scripts/tool_intent.py shelves
 # 인덱스 드리프트 검사 (intent / catalog / backends)
 python scripts/tool_index_check.py
 
+# Krea2 / Lonecat v7 기능 맵 (바이패스 스위치 인벤토리)
+python scripts/krea2_features.py list --ready
+python scripts/krea2_features.py search "style"
+
 # 업스케일러 선택 (매체·목표·도메인 → backend/style)
 python scripts/upscale_recommend.py --media image --goal delivery --domain photo
 python scripts/upscale_recommend.py --media video --goal hero --source blurry

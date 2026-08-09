@@ -1,3 +1,11 @@
+## 2026-08-09 — Lonecat Krea 2 v7.0 capability map for agents
+- Full UI analysis: ~478 nodes / 45 groups / Fast Groups Bypasser matrix
+- Pack: `workflows/human/lonecat_krea2_v70/` (AGENT_GUIDE · CAPABILITIES)
+- Discovery CLI: `scripts/krea2_features.py` list|search|show|routes (+ generate_krea --list-features)
+- Honest status: core T2I/NSFW ready via v10; style/control/detailer/moodboard = planned (need API presets)
+- Cross-routes: qwen_edit, style_transfer, upscale/seedvr2, openpose as interim
+- Note: v7 ≠ krea2SFWNSFWUncensoredImageTo_v10 (different packs)
+
 ## 2026-08-09 — MESH shelf: Hy3D / GLB / VRM agent tools
 - New shelf **MESH** (tool_intent + TOOLS + tool_catalog §2.7)
 - CLI: `generate_hy3d_mesh` (ready) · `process_mesh_glb` · `export_mesh_vrm` (ready_experimental)

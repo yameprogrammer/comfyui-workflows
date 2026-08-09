@@ -152,12 +152,17 @@ python scripts/tool_intent.py "유튜브 자막"
 |--|--|
 | **언제** | **시네·인물·무드 키프레임 기본** · 패션·바디·실사 전반 · 성인 18+ 포함 |
 | **언제 말고** | 강한 캐릭터 태그 일관성 → Illustrious · 애니 태그 → Illustrious |
-| **CLI** | `generate_krea` · **`generate_krea_nsfw`** (**18+**) |
-| **가이드** | [Krea2 AGENT_GUIDE](../workflows/human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md) |
+| **CLI** | `generate_krea` · **`generate_krea_nsfw`** (**18+**) · 기능 맵 `krea2_features` |
+| **가이드** | [Krea2 v10 AGENT_GUIDE](../workflows/human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md) · **[Lonecat Krea2 v7.0 맵](../workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md)** |
 
 ```bash
 python scripts/generate_krea.py -p "cinematic portrait..." -o out.png --seed 42
+# Lonecat v7 full-graph feature inventory (style/control/detailer/moodboard…)
+python scripts/krea2_features.py list --ready
+python scripts/krea2_features.py search "style"
 ```
+
+> **v7 vs v10:** 에이전트 기본 T2I는 slim **v10 API 프리셋**. Lonecat **v7.0**(478노드·바이패스 다수)은 기능 맵으로 라우팅; 네이티브 스타일/컨트롤/디테일러 프리셋은 planned → UI export 후 승격.
 
 #### Lonecat Z-Image (I2I 대안)
 

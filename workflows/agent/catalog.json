@@ -860,6 +860,33 @@
         "scripts/export_mesh_vrm.py"
       ],
       "notes": "Auto-rig if missing armature. Not production Warudo humanoid QA."
+    },
+    "lonecat_krea2_v70": {
+      "file": null,
+      "format": "ui_expand",
+      "role": "krea2_pro_full_graph",
+      "family": "krea2",
+      "status": "documented",
+      "description": "Lonecat Krea 2 v7.0 full pro UI (~478 nodes). Feature map for agents; core T2I via krea2_t2i_v10.",
+      "source_ui": "F:\\ComfyUI_windows_portable\\ComfyUI\\user\\default\\workflows\\Lonecat's Krea 2 v7.0.json",
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/lonecat_krea2_v70/CAPABILITIES.json",
+      "discovery_cli": "scripts/krea2_features.py",
+      "used_by": [
+        "scripts/krea2_features.py",
+        "scripts/generate_krea.py"
+      ],
+      "notes": "Not full API expand. ready routes via v10/other tools; planned need graphToPrompt presets."
+    },
+    "krea2_feature_router": {
+      "file": null,
+      "role": "capability_discovery",
+      "status": "ready",
+      "description": "List/search Krea2 v7+v10 features and agent CLIs",
+      "used_by": [
+        "scripts/krea2_features.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md"
     }
   }
 }

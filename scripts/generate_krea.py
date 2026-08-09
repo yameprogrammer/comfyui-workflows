@@ -410,11 +410,28 @@ if __name__ == "__main__":
     parser.add_argument("--preset", type=str, default=None, help=f"default {DEFAULT_KREA_PRESET}")
     parser.add_argument("--unet-name", type=str, default=None)
     parser.add_argument(
+        "--list-features",
+        action="store_true",
+        help="Krea2 / Lonecat v7 feature inventory (same as krea2_features.py list)",
+    )
+    parser.add_argument(
         "--legacy-mini",
         action="store_true",
         help="Old T2I-krea mini graph (emergency only)",
     )
     args = parser.parse_args()
+
+    if args.list_features:
+        from lib.krea2_features import all_features, format_feature, status_summary
+
+        print("=== Krea2 features ===")
+        print("status:", status_summary())
+        print("Full CLI: python scripts/krea2_features.py list|routes|search")
+        print()
+        for f in all_features():
+            print(format_feature(f, verbose=False))
+            print()
+        sys.exit(0)
 
     ok = generate_krea_image(
         prompt_text=args.prompt,
