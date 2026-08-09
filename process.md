@@ -1,3 +1,11 @@
+## 2026-08-09 — Illustrious health + Detailer mask + Krea Power LoRA
+- Health: `python scripts/illustrious_check.py --pack all|standard|advanced|detailer` (+ CLI `--check-models`)
+- Detailer `--mask mask.png` → alpha on LoadImage (white=edit); auto-inpaint when noobaiInpainting CN present
+- Downloaded `controlnet/noobaiInpainting_v10.safetensors` (Acly HF)
+- Krea Power LoRA: `generate_krea --lora name --lora-strength` ports `lora_1` on krea2_t2i_v10 node 21
+- CAPABILITIES v70_power_lora → ready
+- Smoke: dumps/krea2_power_lora_smoke.png · dumps/illustrious_det_inpaint_mask.png
+
 ## 2026-08-09 — Illustrious Advanced_V37 + Detailer_V37 agent tools
 - Packs: `workflows/human/illustrious_advanced_v37/` · `illustrious_detailer_v37/`
 - CLI: `generate_illustrious_advanced` · `generate_illustrious_detailer`

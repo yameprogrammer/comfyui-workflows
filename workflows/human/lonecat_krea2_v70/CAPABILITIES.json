@@ -392,8 +392,13 @@
       "feature_id": "v70_power_lora",
       "name": "Power LoRA loaders (character / detailer)",
       "category": "model",
-      "status": "planned",
-      "when_to_use": "Stack character or detailer LoRAs on Krea2"
+      "status": "ready",
+      "agent_cli": "python scripts/generate_krea.py -p \"...\" --lora Krea2\\\\char.safetensors --lora-strength 0.8 -o out.png",
+      "agent_preset": "krea2_t2i_v10",
+      "when_to_use": "Stack character/style LoRA on Krea2 T2I (Power Lora Loader node 21)",
+      "ports": [
+        "lora_1"
+      ]
     },
     {
       "feature_id": "v70_sdxl_override",
@@ -492,10 +497,10 @@
   "status_counts": {
     "ready_via_v10": 2,
     "ready_experimental": 1,
-    "ready": 13,
+    "ready": 14,
     "ready_via_other_tool": 4,
     "documented": 3,
-    "planned": 2,
+    "planned": 1,
     "ready_in_v10_preset": 1,
     "ui_only": 1
   }

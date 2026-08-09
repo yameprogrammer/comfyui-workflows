@@ -47,6 +47,12 @@
       "node": "9001",
       "key": "filename_prefix",
       "optional": true
+    },
+    "lora_1": {
+      "node": "21",
+      "key": "lora_1",
+      "optional": true,
+      "note": "Power Lora Loader slot: {on, lora, strength, strengthTwo?}"
     }
   },
   "defaults": {
@@ -54,7 +60,12 @@
     "clip_name": "Huihui-Qwen3-VL-4B-Instruct-abliterated-fp8_scaled.safetensors",
     "width": 1024,
     "height": 576,
-    "filename_prefix": "krea2_t2i_v10"
+    "filename_prefix": "krea2_t2i_v10",
+    "lora_1": {
+      "on": false,
+      "lora": "Krea2\\KNPV3_1.safetensors",
+      "strength": 1.0
+    }
   },
   "notes": [
     "Source: krea2SFWNSFWUncensoredImageTo_v10",

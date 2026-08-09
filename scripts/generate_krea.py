@@ -66,10 +66,14 @@ def generate_krea_image(
     preset: str | None = None,
     backend: str | None = None,
     unet_name: str | None = None,
+    lora_name: str | None = None,
+    lora_strength: float = 1.0,
     return_dict: bool = False,
 ):
     """
     Queue Krea2 T2I and download first image.
+
+    ``lora_name`` enables Power Lora Loader slot on krea2_t2i_v10 (node 21).
 
     Returns:
       - dict result (ok/output_path/...) when return_dict=True
@@ -117,6 +121,8 @@ def generate_krea_image(
             timeout_sec=timeout_sec,
             preset=preset,
             unet_name=unet_name,
+            lora_name=lora_name,
+            lora_strength=lora_strength,
         )
 
     if return_dict:
@@ -140,6 +146,8 @@ def _generate_krea_workflow_api(
     timeout_sec: float,
     preset: str | None,
     unet_name: str | None,
+    lora_name: str | None = None,
+    lora_strength: float = 1.0,
 ) -> dict:
     preset_name = preset or select_lonecat_preset(mode="t2i", family="krea2")
 
@@ -153,10 +161,17 @@ def _generate_krea_workflow_api(
         ports["width"] = int(width)
     if height is not None:
         ports["height"] = int(height)
+    if lora_name:
+        ports["lora_1"] = {
+            "on": True,
+            "lora": lora_name,
+            "strength": float(lora_strength),
+        }
 
     print(
         f"Krea T2I via workflow_api preset={preset_name} "
         f"size={width}x{height}"
+        + (f" lora={lora_name}@{lora_strength}" if lora_name else "")
     )
     if steps is not None or cfg is not None:
         print(
@@ -200,6 +215,8 @@ def _generate_krea_workflow_api(
         "created_at": utc_now_iso(),
         "server": server_address,
         "ports_applied": base_meta.get("ports_applied"),
+        "lora": lora_name,
+        "lora_strength": lora_strength if lora_name else None,
     }
     meta_path = resolve_meta_out(out_abs, meta_out)
     if meta_path:
@@ -410,6 +427,17 @@ if __name__ == "__main__":
     parser.add_argument("--preset", type=str, default=None, help=f"default {DEFAULT_KREA_PRESET}")
     parser.add_argument("--unet-name", type=str, default=None)
     parser.add_argument(
+        "--lora",
+        default=None,
+        help="enable Power Lora Loader slot (filename under models/loras, e.g. Krea2\\\\foo.safetensors)",
+    )
+    parser.add_argument(
+        "--lora-strength",
+        type=float,
+        default=1.0,
+        help="Power Lora strength (default 1.0)",
+    )
+    parser.add_argument(
         "--list-features",
         action="store_true",
         help="Krea2 / Lonecat v7 feature inventory (same as krea2_features.py list)",
@@ -447,6 +475,8 @@ if __name__ == "__main__":
         preset=args.preset,
         backend="legacy_mini" if args.legacy_mini else "workflow_api",
         unet_name=args.unet_name,
+        lora_name=args.lora,
+        lora_strength=float(args.lora_strength),
         return_dict=False,
     )
     sys.exit(0 if ok else 1)

@@ -31,6 +31,7 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
         "examples": [
             'python scripts/generate_krea.py -p "cinematic portrait of a woman" -o out.png --seed 42',
+            'python scripts/generate_krea.py -p "..." --lora Krea2\\\\krea2_darkbrush.safetensors --lora-strength 0.7 -o out.png',
             "python scripts/krea2_features.py list --ready",
             "python scripts/krea2_features.py search \"style control detailer\"",
         ],
@@ -368,6 +369,7 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
         "examples": [
             'python scripts/generate_illustrious_standard.py -p "masterpiece, best quality, 1girl, solo, portrait" -o out.png --seed 42',
+            "python scripts/illustrious_check.py --pack all",
             "python scripts/generate_illustrious_standard.py --list-features",
             "python scripts/generate_illustrious_standard.py --check-models",
             'python scripts/generate_illustrious_standard.py -p "..." --hand --eyes --hires-post -o out.png',
@@ -419,9 +421,10 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
         "examples": [
             "python scripts/generate_illustrious_detailer.py --list-features",
+            "python scripts/generate_illustrious_detailer.py --check-models",
             "python scripts/generate_illustrious_detailer.py -i still.png -o polished.png",
             "python scripts/generate_illustrious_detailer.py -i still.png -o out.png --hand --eyes",
-            "python scripts/generate_illustrious_detailer.py -i still.png -o out.png --inpaint -p \"fix hands\"",
+            "python scripts/generate_illustrious_detailer.py -i still.png --mask mask.png --inpaint -p \"fix hands\" -o out.png",
             "python scripts/generate_illustrious_detailer.py -i still.png -o out.png --outpaint",
         ],
         "alternatives": [

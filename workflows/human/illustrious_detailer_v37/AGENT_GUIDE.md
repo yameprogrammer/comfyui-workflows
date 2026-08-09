@@ -25,15 +25,23 @@ python scripts/generate_illustrious_detailer.py -i still.png -o polished.png
 # 손·눈
 python scripts/generate_illustrious_detailer.py -i still.png -o out.png --hand --eyes
 
-# 인페 / 아웃페 (그래프 스위치 ON — 마스크는 UI 기본 배선 사용)
+# 인페 / 아웃페
 python scripts/generate_illustrious_detailer.py -i still.png -o out.png --inpaint -p "fix hands, detailed"
+# 마스크 파일 (흰색=수정 영역) → 알파로 합성 후 Inpaint
+python scripts/generate_illustrious_detailer.py -i still.png --mask mask.png --inpaint \
+  -p "fix hands, detailed" -o out.png
 python scripts/generate_illustrious_detailer.py -i still.png -o out.png --outpaint
+
+# 의존성
+python scripts/illustrious_check.py --pack detailer
+python scripts/generate_illustrious_detailer.py --check-models
 ```
 
 ## 주의
 
 - **반드시 `-i` 입력 이미지**  
-- Inpaint/Outpaint는 NoobAI inpaint ControlNet 가중치가 로컬에 있어야 안정적  
+- `--mask` 는 흰색=편집 영역 (LoadImage 알파/MASK 슬롯). `--mask-invert` 로 반전 가능  
+- Inpaint CN: `models/controlnet/noobaiInpainting_v10.safetensors`  
 - 18+ NSFW detailer는 `--i-am-18` 필수  
 
 기계 메뉴: `CAPABILITIES.json` · 그룹: `GROUPS.json`

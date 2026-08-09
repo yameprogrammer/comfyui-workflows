@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -115,6 +116,8 @@ def generate_illustrious_detailer(
     *,
     image_path: str,
     output_path: str,
+    mask_path: str | None = None,
+    mask_invert: bool = False,
     positive: str | None = None,
     negative: str | None = None,
     seed: int | None = None,
@@ -135,6 +138,37 @@ def generate_illustrious_detailer(
 
     on = set(features_on or DEFAULT_ON)
     off = set(features_off or set())
+    work_image = image_path
+    if mask_path:
+        # Agent mask → alpha on LoadImage slot1 (Inpaint / SetLatentNoiseMask)
+        try:
+            from lib.mask_alpha import apply_mask_as_alpha
+
+            tmp = Path(tempfile.gettempdir()) / f"det_v37_masked_{Path(image_path).stem}.png"
+            apply_mask_as_alpha(
+                image_path, mask_path, tmp, invert=bool(mask_invert)
+            )
+            work_image = str(tmp)
+        except Exception as e:
+            return fail_result(error="MASK_FAILED", message=str(e))
+        # Only force Inpaint group when NoobAI inpaint CN is installed
+        from lib.illustrious_standard_v37_runner import _find_under_models
+
+        cn = _find_under_models(
+            "controlnet", "noobaiInpainting_v10.safetensors"
+        ) or _find_under_models(
+            "controlnet", "SDXL", "noobaiInpainting_v10.safetensors"
+        )
+        if cn:
+            on.add("inpaint")
+            off.discard("inpaint")
+        else:
+            # alpha is still on the image for any node reading LoadImage mask
+            print(
+                "[detailer] WARN: noobaiInpainting_v10.safetensors missing — "
+                "mask applied as alpha but Inpaint group not forced ON"
+            )
+
     pos = (
         positive
         or "masterpiece, best quality, amazing quality, absurdres, detailed"
@@ -186,6 +220,23 @@ def generate_illustrious_detailer(
             for n in api.values():
                 if n.get("class_type") in ("DifferentialDiffusion", "KSampler"):
                     n.setdefault("inputs", {})["model"] = model_src
+        # Seed: prefer Seed (rgthree) / SeedNode INT, never Image Saver
+        seed_src = None
+        for nid, n in api.items():
+            ct = n.get("class_type") or ""
+            if ct in ("Seed (rgthree)", "SeedNode", "Seed"):
+                seed_src = [nid, 0]
+                break
+        if seed_src:
+            for n in api.values():
+                if n.get("class_type") == "KSampler":
+                    ins = n.setdefault("inputs", {})
+                    cur = ins.get("seed")
+                    if isinstance(cur, list) and str(cur[0]) in api:
+                        if api[str(cur[0])].get("class_type") == "Image Saver":
+                            ins["seed"] = seed_src
+                    elif not isinstance(cur, int):
+                        ins["seed"] = seed_src
         # FaceDetailerPipe image from LoadImage
         load = next(
             (nid for nid, n in api.items() if n.get("class_type") == "LoadImage"),
@@ -206,7 +257,7 @@ def generate_illustrious_detailer(
         common.set_seed(api, "79", seed_i)
         common.set_ckpt(api, "90", ckpt_name or DEFAULT_CKPT)
         common.set_lora(api, "3", lora_text)
-        img_name = common.stage(image_path, "det_v37")
+        img_name = common.stage(work_image, "det_v37")
         common.set_load_image(api, "2", img_name)
         # re-assert load image after staging for all LoadImage nodes used
         for nid, n in api.items():
@@ -257,5 +308,7 @@ def generate_illustrious_detailer(
             "features_on": sorted(on),
             "pack": "Detailer_V37",
             "input_image": image_path,
+            "mask": mask_path,
+            "mask_invert": bool(mask_invert) if mask_path else None,
         },
     )

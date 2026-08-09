@@ -47,6 +47,17 @@ def _print_features() -> int:
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="Illustrious Detailer_V37 real-UI runner")
     p.add_argument("--image", "-i", required=False, help="input image (required to run)")
+    p.add_argument(
+        "--mask",
+        "-m",
+        default=None,
+        help="inpaint mask PNG (white=edit). Applied as alpha; auto-enables --inpaint",
+    )
+    p.add_argument(
+        "--mask-invert",
+        action="store_true",
+        help="invert mask before apply (if white is keep)",
+    )
     p.add_argument("--prompt", "-p", default=None)
     p.add_argument("--negative", "-n", default=None)
     p.add_argument("--output", "-o", default=None)
@@ -78,6 +89,11 @@ def main(argv=None) -> int:
     p.add_argument("--server", default=DEFAULT_SERVER)
     p.add_argument("--list-features", action="store_true")
     p.add_argument("--list-presets", action="store_true")
+    p.add_argument(
+        "--check-models",
+        action="store_true",
+        help="dependency health (models + Comfy nodes)",
+    )
     args = p.parse_args(argv)
 
     if args.list_features:
@@ -85,6 +101,12 @@ def main(argv=None) -> int:
     if args.list_presets:
         print(json.dumps(load_capabilities().get("agent_presets") or {}, indent=2, ensure_ascii=False))
         return 0
+    if args.check_models:
+        from lib.illustrious_health import check_pack, format_report
+
+        r = check_pack("detailer", server=args.server)
+        print(format_report(r))
+        return 0 if r.get("ok_count", 0) else 1
     if not args.image:
         p.error("--image required (or --list-features)")
     if args.nsfw_detailer and not args.i_am_18:
@@ -123,6 +145,8 @@ def main(argv=None) -> int:
     r = generate_illustrious_detailer(
         image_path=args.image,
         output_path=out,
+        mask_path=args.mask,
+        mask_invert=bool(args.mask_invert),
         positive=args.prompt,
         negative=args.negative if args.negative is not None else DEFAULT_NEG,
         seed=args.seed,

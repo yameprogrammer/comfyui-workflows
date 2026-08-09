@@ -196,6 +196,7 @@ Restart Comfy after updating that file.
 | `generate_krea2_post` | grain **0.15**, contrast **1.05** | Real stills after compose | Heavy grain ≥0.3 unless film look wanted |
 | `generate_krea2_color_match` | strength **0.65** | Real mood/ref photo | Solid-color refs |
 | `generate_krea_draft` | **768²** | Scout only | Ship draft size as final |
+| `generate_krea --lora` | Power Lora slot on `krea2_t2i_v10` | Real LoRA under `models/loras/` | Wrong path / missing file |
 
 **QA gold samples** (repo dumps, real-ref smoke):
 

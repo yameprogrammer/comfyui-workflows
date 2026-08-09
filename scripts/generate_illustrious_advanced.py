@@ -91,6 +91,11 @@ def main(argv=None) -> int:
     p.add_argument("--server", default=DEFAULT_SERVER)
     p.add_argument("--list-features", action="store_true")
     p.add_argument("--list-presets", action="store_true")
+    p.add_argument(
+        "--check-models",
+        action="store_true",
+        help="dependency health (models + Comfy nodes for Advanced extras)",
+    )
     args = p.parse_args(argv)
 
     if args.list_features:
@@ -98,6 +103,12 @@ def main(argv=None) -> int:
     if args.list_presets:
         print(json.dumps(load_capabilities().get("agent_presets") or {}, indent=2, ensure_ascii=False))
         return 0
+    if args.check_models:
+        from lib.illustrious_health import check_pack, format_report
+
+        r = check_pack("advanced", server=args.server)
+        print(format_report(r))
+        return 0 if not r.get("missing") else 1
     if args.nsfw_detailer and not args.i_am_18:
         print("[advanced] refuse --nsfw-detailer without --i-am-18", file=sys.stderr)
         return 2

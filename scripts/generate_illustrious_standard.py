@@ -153,17 +153,18 @@ def main(argv=None) -> int:
         print(json.dumps(caps.get("agent_presets") or {}, indent=2, ensure_ascii=False))
         return 0
     if args.check_models:
+        from lib.illustrious_health import check_pack, format_report
+
+        r = check_pack("standard", server=args.server)
+        print(format_report(r))
+        # also legacy weight-only summary
         rows = feature_model_health()
-        bad = 0
-        for r in rows:
-            mark = "OK" if r["ok"] else "MISS"
-            if not r["ok"]:
-                bad += 1
-            print(f"  [{mark}] {r['feature_id']:22s} {r['required']}")
-            if r.get("resolved") and r["resolved"] not in r["required"]:
-                print(f"         resolved → {r['resolved']}")
-        print(f"\n{len(rows) - bad}/{len(rows)} feature weight sets found")
-        return 1 if bad else 0
+        miss = [x for x in rows if not x.get("ok")]
+        if miss:
+            print("\n(legacy weight list still missing:)")
+            for x in miss:
+                print(f"  - {x.get('feature_id')}: {x.get('required')}")
+        return 1 if (not r.get("comfy_reachable") or miss) else 0
 
     if args.nsfw_detailer and not args.i_am_18:
         print(
