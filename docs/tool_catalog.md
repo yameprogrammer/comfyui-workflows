@@ -164,10 +164,13 @@ python scripts/generate_krea2_style.py -i style.png -p "cinematic portrait..." -
 python scripts/generate_krea2_style.py -i a.png --style-image-2 b.png -p "fashion" -o dual.png
 python scripts/generate_krea2_control.py -i depth.png -p "hero standing..." -o out.png --seed 42
 python scripts/generate_krea2_img_prompt.py -i ref.png -o from_ref.png
-python scripts/generate_krea2_face_detail.py -i still.png -o face.png --denoise 0.35
+python scripts/generate_krea2_face_detail.py -i still.png -o face.png --denoise 0.22
+python scripts/generate_krea2_hand_detail.py -i still_hands.png -o hands.png
+python scripts/generate_krea2_moodboard.py --query "golden hour" --prompt "portrait" -o mood.png
+python scripts/generate_rmbg.py -i person.png -o cutout.png
 ```
 
-> **v7 vs v10:** 기본 T2I = slim **v10**. Lonecat **v7** 슬라이스: 스타일(1·2)·ControlLoRA·Img→prompt·Face detailer **ready**. Moodboard/hands/post suite 는 P2.
+> **v7 vs v10:** 기본 T2I = slim **v10**. Lonecat **v7** 슬라이스 ready: 스타일(1·2)·Control·Img-prompt·Face/Hand detail·Moodboard·RMBG.
 
 #### Lonecat Z-Image (I2I 대안)
 

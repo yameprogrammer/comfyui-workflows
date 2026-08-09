@@ -1,0 +1,20 @@
+{
+  "preset": "rmbg_u2net",
+  "workflow_api": "presets/rmbg_u2net.api.json",
+  "description": "Remove background (u2net_human_seg)",
+  "ports": {
+    "input_image": {
+      "node": "1",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "filename_prefix": "rmbg"
+  }
+}

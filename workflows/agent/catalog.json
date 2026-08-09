@@ -953,6 +953,42 @@
       ],
       "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
       "notes": "Florence2 caption then krea2_t2i_v10"
+    },
+    "krea2_hand_detail_v70": {
+      "file": "presets/krea2_hand_detail_v70.api.json",
+      "ports": "presets/krea2_hand_detail_v70.ports.json",
+      "format": "api",
+      "role": "hand_detailer",
+      "family": "krea2",
+      "status": "ready",
+      "used_by": [
+        "scripts/generate_krea2_hand_detail.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "smoke": "dumps/krea2_qa_hands.png"
+    },
+    "krea2_moodboard": {
+      "file": null,
+      "role": "moodboard_prompt_t2i",
+      "family": "krea2",
+      "status": "ready",
+      "runner": "lib/krea2_moodboard.py",
+      "used_by": [
+        "scripts/generate_krea2_moodboard.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "smoke": "dumps/krea2_qa_moodboard.png"
+    },
+    "rmbg_u2net": {
+      "file": "presets/rmbg_u2net.api.json",
+      "ports": "presets/rmbg_u2net.ports.json",
+      "format": "api",
+      "role": "remove_background",
+      "status": "ready",
+      "used_by": [
+        "scripts/generate_rmbg.py"
+      ],
+      "smoke": "dumps/krea2_qa_rmbg.png"
     }
   }
 }

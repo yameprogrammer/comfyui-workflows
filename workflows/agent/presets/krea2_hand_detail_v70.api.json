@@ -1,0 +1,138 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "input.png"
+    }
+  },
+  "2": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "Krea2Turbo\\krea2_turbo_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "5": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "qwen_image_vae.safetensors"
+    }
+  },
+  "6": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "Huihui-Qwen3-VL-4B-Instruct-abliterated-fp8_scaled.safetensors",
+      "type": "krea2",
+      "device": "default"
+    }
+  },
+  "10": {
+    "class_type": "UltralyticsDetectorProvider",
+    "inputs": {
+      "model_name": "bbox/hand_yolov8s.pt"
+    }
+  },
+  "11": {
+    "class_type": "BboxDetectorSEGS",
+    "inputs": {
+      "bbox_detector": [
+        "10",
+        0
+      ],
+      "image": [
+        "1",
+        0
+      ],
+      "threshold": 0.35,
+      "dilation": 12,
+      "crop_factor": 3.0,
+      "drop_size": 10,
+      "labels": "all"
+    }
+  },
+  "46": {
+    "class_type": "PrimitiveStringMultiline",
+    "inputs": {
+      "value": "detailed hands, correct fingers, natural skin"
+    }
+  },
+  "47": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": [
+        "46",
+        0
+      ],
+      "clip": [
+        "6",
+        0
+      ]
+    }
+  },
+  "48": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "47",
+        0
+      ]
+    }
+  },
+  "50": {
+    "class_type": "DetailerForEach",
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ],
+      "segs": [
+        "11",
+        0
+      ],
+      "model": [
+        "2",
+        0
+      ],
+      "clip": [
+        "6",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ],
+      "guide_size": 384,
+      "guide_size_for": true,
+      "max_size": 768,
+      "seed": 42,
+      "steps": 12,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "positive": [
+        "47",
+        0
+      ],
+      "negative": [
+        "48",
+        0
+      ],
+      "denoise": 0.28,
+      "feather": 5,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "wildcard": "",
+      "cycle": 1
+    }
+  },
+  "9001": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "krea2_hand_detail",
+      "images": [
+        "50",
+        0
+      ]
+    }
+  }
+}

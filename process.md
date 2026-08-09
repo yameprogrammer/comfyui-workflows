@@ -1,3 +1,9 @@
+## 2026-08-09 — Krea2 v7 P2: hands, moodboard, RMBG
+- Hand detailer: `krea2_hand_detail_v70` · `generate_krea2_hand_detail` · smoke dumps/krea2_qa_hands.png
+- Moodboard: Search+Apply → expanded prompt → T2I · `generate_krea2_moodboard` · gold dumps/krea2_qa_moodboard.png
+- RMBG: u2net_human_seg · `generate_rmbg` · dumps/krea2_qa_rmbg.png
+- tool_intent FINISH/GENERATE cards registered
+
 ## 2026-08-09 — Krea2 style/control/face QA re-smoke (real refs)
 - Bad early smokes used solid-color dummy style inputs → fog/painter artifacts
 - Re-smoke with real Krea T2I photos; defaults: style_strength **0.6**, control **0.5** + grayscale, face denoise **0.22**, steps 12

@@ -149,9 +149,10 @@
         "KreaMoodboardApply",
         "KreaMoodboardVisualBrowser"
       ],
-      "status": "planned",
+      "status": "ready",
       "when_to_use": "Pick moodboard tokens/looks from browser UI pack",
-      "needs": "moodboard asset pack + apply node ports"
+      "needs": "moodboard asset pack + apply node ports",
+      "agent_cli": "python scripts/generate_krea2_moodboard.py --query \"golden hour\" --prompt \"portrait\" -o out.png"
     },
     {
       "feature_id": "v70_controlnet",
@@ -210,7 +211,9 @@
       "ui_groups": [
         "# ::Hands ✋"
       ],
-      "status": "planned"
+      "status": "ready",
+      "agent_cli": "python scripts/generate_krea2_hand_detail.py -i still.png -o hands.png",
+      "agent_preset": "krea2_hand_detail_v70"
     },
     {
       "feature_id": "v70_detailer_spare",
@@ -280,7 +283,9 @@
       "ui_groups": [
         "#      Remove Background!"
       ],
-      "status": "planned"
+      "status": "ready",
+      "agent_cli": "python scripts/generate_rmbg.py -i person.png -o cutout.png",
+      "when_to_use": "Cut out subject (u2net_human_seg)"
     },
     {
       "feature_id": "v70_draft_mode",
@@ -447,10 +452,10 @@
   "status_counts": {
     "ready_via_v10": 2,
     "ready_experimental": 1,
-    "ready": 5,
+    "ready": 8,
     "ready_via_other_tool": 4,
-    "planned": 10,
     "documented": 3,
+    "planned": 7,
     "ready_in_v10_preset": 1,
     "ui_only": 1
   }

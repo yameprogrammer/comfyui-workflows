@@ -53,7 +53,10 @@ Bypass pattern: **purple Fast Groups Bypasser** nodes titled “psst…”, matc
 | `v70_style_ref_2` | **`generate_krea2_style --style-image-2`** | **ready** (dual) |
 | `v70_controlnet` | **`generate_krea2_control`** | **ready** (depth ControlLoRA) |
 | `v70_img_prompt` | **`generate_krea2_img_prompt`** | **ready** (Florence→T2I) |
-| `v70_detailer_face` | **`generate_krea2_face_detail`** | **ready** (Impact FaceDetailer) |
+| `v70_detailer_face` | **`generate_krea2_face_detail`** | **ready** |
+| `v70_detailer_hands` | **`generate_krea2_hand_detail`** | **ready** |
+| `v70_moodboard` | **`generate_krea2_moodboard`** | **ready** |
+| `v70_rmbg` | **`generate_rmbg`** | **ready** |
 | `v70_moodboard` | — | planned |
 | `v70_detailer_*` / NSFW detailers | — | planned |
 | `v70_img_prompt` / enhancer | — | planned |
@@ -94,8 +97,16 @@ python scripts/generate_krea2_style.py -i a.png --style-image-2 b.png -p "fashio
 python scripts/generate_krea2_img_prompt.py -i ref.png -o from_ref.png --seed 42
 python scripts/generate_krea2_img_prompt.py -i ref.png --caption-only
 
-# Face detailer post (P1)
-python scripts/generate_krea2_face_detail.py -i still.png -o face.png --denoise 0.35
+# Face / hand detailer post
+python scripts/generate_krea2_face_detail.py -i still.png -o face.png --denoise 0.22
+python scripts/generate_krea2_hand_detail.py -i still_hands.png -o hands.png --denoise 0.28
+
+# Moodboard query → T2I
+python scripts/generate_krea2_moodboard.py --query "golden hour cinematic" \
+  --prompt "portrait of a woman" -o mood.png --seed 42
+
+# Remove background
+python scripts/generate_rmbg.py -i person.png -o cutout.png
 
 # Instruction edit (v7 Instruct path analogue)
 python scripts/generate_qwen_edit.py -i still.png -p "change background to night street" -o edit.png
@@ -130,11 +141,12 @@ Do **not** hand-convert the full 478-node UI to API for production.
 | ~~P0~~ | ~~ControlLoRA~~ | **done** |
 | ~~P1~~ | ~~Dual style~~ | **done** — `--style-image-2` |
 | ~~P1~~ | ~~Img→prompt~~ | **done** — Florence caption → T2I |
-| ~~P1~~ | ~~Face detailer~~ | **done** — Impact FaceDetailer |
-| P2 | Hands detailer | bbox/hand_yolov8s path |
-| P2 | Moodboard apply | asset browser contract |
-| P2 | Post suite / RMBG / draft | polish |
-| P2 | Qwen VL prompt enhancer GGUF | heavier; Florence covers caption |
+| ~~P1~~ | ~~Face detailer~~ | **done** |
+| ~~P2~~ | ~~Hands detailer~~ | **done** — hand_yolov8s + DetailerForEach |
+| ~~P2~~ | ~~Moodboard~~ | **done** — Search+Apply → T2I |
+| ~~P2~~ | ~~RMBG~~ | **done** — `generate_rmbg` |
+| P3 | Post suite / LUTs / draft mode | optional polish |
+| P3 | Qwen VL GGUF enhancer | Florence covers caption |
 | P3 | NSFW anatomy detailers | 18+ only |
 
 ### Runtime note (Comfy 0.30+)

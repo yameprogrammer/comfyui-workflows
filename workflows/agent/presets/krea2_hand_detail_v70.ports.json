@@ -1,0 +1,49 @@
+{
+  "preset": "krea2_hand_detail_v70",
+  "workflow_api": "presets/krea2_hand_detail_v70.api.json",
+  "family": "krea2",
+  "description": "Impact hand bbox SEGS + DetailerForEach on Krea2",
+  "ports": {
+    "input_image": {
+      "node": "1",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "positive": {
+      "node": "46",
+      "key": "value",
+      "optional": true
+    },
+    "seed": {
+      "node": "50",
+      "key": "seed"
+    },
+    "denoise": {
+      "node": "50",
+      "key": "denoise",
+      "optional": true
+    },
+    "steps": {
+      "node": "50",
+      "key": "steps",
+      "optional": true
+    },
+    "threshold": {
+      "node": "11",
+      "key": "threshold",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "denoise": 0.28,
+    "steps": 12,
+    "positive": "detailed hands, correct fingers, natural skin",
+    "filename_prefix": "krea2_hand_detail",
+    "threshold": 0.35
+  }
+}
