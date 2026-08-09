@@ -197,10 +197,19 @@ python scripts/generate_moody.py -m pro -p "cinematic portrait..." -o out.png --
 
 | | |
 |--|--|
-| **언제** | Illustrious/NoobAI 태그 스틸 · Face/Hand/Hires 스위치 |
-| **언제 말고** | 실사 → Krea2 · 마스크 인페 → qwen_inpaint |
-| **CLI** | `generate_illustrious_standard` (`--list-features`) |
+| **언제** | Illustrious/NoobAI 태그 스틸 · Face/Hand/Eyes/Hires/Ultimate 스위치 |
+| **언제 말고** | 실사 → Krea2 · TIPO/IPA/OpenPose → Advanced 팩(미편입) · 마스크 인페 → qwen_inpaint |
+| **CLI** | `generate_illustrious_standard` (`--list-features` · `--check-models`) |
 | **가이드** | [illustrious_standard_v37/AGENT_GUIDE.md](../workflows/human/illustrious_standard_v37/AGENT_GUIDE.md) |
+
+```bash
+python scripts/generate_illustrious_standard.py --list-features
+python scripts/generate_illustrious_standard.py --check-models
+python scripts/generate_illustrious_standard.py -p "masterpiece, best quality, 1girl, solo, portrait" -o out.png --seed 42
+python scripts/generate_illustrious_standard.py -p "..." --hand --eyes --hires-post -o out.png
+python scripts/generate_illustrious_standard.py -i ref.png -p "..." -d 0.55 -o i2i.png
+python scripts/generate_illustrious_standard.py -p "..." --nsfw-detailer --i-am-18 -o nsfw.png
+```
 
 #### 타이포 · 포스터
 
