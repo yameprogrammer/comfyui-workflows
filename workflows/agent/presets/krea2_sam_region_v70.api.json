@@ -1,0 +1,124 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "input.png"
+    }
+  },
+  "2": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "Krea2Turbo\\krea2_turbo_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "5": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "qwen_image_vae.safetensors"
+    }
+  },
+  "6": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "Huihui-Qwen3-VL-4B-Instruct-abliterated-fp8_scaled.safetensors",
+      "type": "krea2",
+      "device": "default"
+    }
+  },
+  "46": {
+    "class_type": "PrimitiveStringMultiline",
+    "inputs": {
+      "value": "sharp detailed eyes, clear iris, natural catchlight"
+    }
+  },
+  "47": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": [
+        "46",
+        0
+      ],
+      "clip": [
+        "6",
+        0
+      ]
+    }
+  },
+  "48": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "47",
+        0
+      ]
+    }
+  },
+  "60": {
+    "class_type": "SAM_SmartInpainter",
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ],
+      "sam_model": "sam3.pt",
+      "prompt": "eyes",
+      "text_threshold": 0.35,
+      "fallback_point_mode": "face_region",
+      "custom_point_x": 0.5,
+      "custom_point_y": 0.25,
+      "multi_mask_merge": "union",
+      "min_mask_area": 0.001,
+      "max_mask_area": 0.95,
+      "mask_blur": 6,
+      "mask_erosion": 0,
+      "mask_dilation": 4,
+      "mask_threshold": 0.5,
+      "invert_mask": false,
+      "crop_padding": 32,
+      "crop_padding_mode": "aspect",
+      "inpaint_resolution": 768,
+      "upscale_method": "bicubic",
+      "blend_mode": "feather",
+      "blend_strength": 1.0,
+      "model": [
+        "2",
+        0
+      ],
+      "clip": [
+        "6",
+        0
+      ],
+      "vae": [
+        "5",
+        0
+      ],
+      "positive": [
+        "47",
+        0
+      ],
+      "negative": [
+        "48",
+        0
+      ],
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "steps": 12,
+      "cfg": 1.0,
+      "denoise": 0.35,
+      "seed": 42,
+      "noise_mask_feather": 8,
+      "device": "auto"
+    }
+  },
+  "9001": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "krea2_sam_region",
+      "images": [
+        "60",
+        0
+      ]
+    }
+  }
+}

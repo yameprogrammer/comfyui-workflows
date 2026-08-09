@@ -1042,6 +1042,51 @@
       "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
       "smoke": "dumps/krea2_qa_draft.png",
       "notes": "Thin wrapper: generate_krea at 768 default (v7 Draft Mode analogue)"
+    },
+    "krea2_bbox_detail_v70": {
+      "file": "presets/krea2_bbox_detail_v70.api.json",
+      "ports": "presets/krea2_bbox_detail_v70.ports.json",
+      "format": "api",
+      "role": "region_bbox_detailer",
+      "family": "krea2",
+      "status": "ready",
+      "used_by": [
+        "scripts/generate_krea2_region_detail.py",
+        "scripts/generate_krea2_anatomy_detail.py",
+        "scripts/generate_krea2_eyes_detail.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "smoke": "dumps/krea2_qa_eyes_yolo.png"
+    },
+    "krea2_segm_detail_v70": {
+      "file": "presets/krea2_segm_detail_v70.api.json",
+      "ports": "presets/krea2_segm_detail_v70.ports.json",
+      "format": "api",
+      "role": "region_segm_detailer",
+      "family": "krea2",
+      "status": "ready",
+      "policy": "adult_regions_require_i_am_18",
+      "used_by": [
+        "scripts/generate_krea2_region_detail.py",
+        "scripts/generate_krea2_anatomy_detail.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "notes": "breasts / female_body / male_junk; structural smoke on SFW still"
+    },
+    "krea2_sam_region_v70": {
+      "file": "presets/krea2_sam_region_v70.api.json",
+      "ports": "presets/krea2_sam_region_v70.ports.json",
+      "format": "api",
+      "role": "sam_region_detailer",
+      "family": "krea2",
+      "status": "ready",
+      "used_by": [
+        "scripts/generate_krea2_region_detail.py",
+        "scripts/generate_krea2_eyes_detail.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "smoke": "dumps/krea2_qa_eyes_sam.png",
+      "notes": "Eyes/Spare SAM3 SmartInpainter path"
     }
   }
 }

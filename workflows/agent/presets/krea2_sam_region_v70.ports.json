@@ -1,0 +1,67 @@
+{
+  "preset": "krea2_sam_region_v70",
+  "workflow_api": "presets/krea2_sam_region_v70.api.json",
+  "family": "krea2",
+  "description": "SAM3 SmartInpainter region polish (Eyes / Spare slot analogue)",
+  "ports": {
+    "input_image": {
+      "node": "1",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "positive": {
+      "node": "46",
+      "key": "value",
+      "optional": true
+    },
+    "sam_prompt": {
+      "node": "60",
+      "key": "prompt",
+      "optional": true
+    },
+    "sam_model": {
+      "node": "60",
+      "key": "sam_model",
+      "optional": true
+    },
+    "text_threshold": {
+      "node": "60",
+      "key": "text_threshold",
+      "optional": true
+    },
+    "fallback_point_mode": {
+      "node": "60",
+      "key": "fallback_point_mode",
+      "optional": true
+    },
+    "denoise": {
+      "node": "60",
+      "key": "denoise",
+      "optional": true
+    },
+    "steps": {
+      "node": "60",
+      "key": "steps",
+      "optional": true
+    },
+    "seed": {
+      "node": "60",
+      "key": "seed"
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "sam_model": "sam3.pt",
+    "sam_prompt": "eyes",
+    "text_threshold": 0.35,
+    "fallback_point_mode": "face_region",
+    "denoise": 0.35,
+    "steps": 12,
+    "positive": "sharp detailed eyes, clear iris, natural catchlight",
+    "filename_prefix": "krea2_sam_region"
+  }
+}

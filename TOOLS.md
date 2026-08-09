@@ -69,7 +69,7 @@ Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 | **TRANSFORM+** | 가벼운 ID 팩 | `generate_ref_pack` · `generate_character_consistent` |
 | **VOICE** | 대사·BGM | `generate_qwen3_tts` · `generate_bgm` |
 | **INGEST** | 유튜브 레퍼 이해 | `youtube_ingest` · `youtube_highlights` |
-| **FINISH** | 업스케일 · 포스트 · 야외 재조명 | `upscale_recommend` · `upscale_image` · **`generate_krea2_post`** · **`generate_krea2_color_match`** · `generate_rmbg` · `upscale_video` · **`upscale_ltx_spatial`** · `ltx_lora_status` · `generate_ltx_relight` (야외만) |
+| **FINISH** | 업스케일 · 디테일러 · 포스트 | `upscale_*` · **`generate_krea2_face/eyes/hand_detail`** · **`generate_krea2_region_detail`** · **`generate_krea2_post`** · **`color_match`** · `generate_rmbg` · `ltx_relight` |
 | **ASSETS** | 캐릭/로케 패키지 *(옵션)* | `character_*` · `location_*` |
 | **MESH** | 2D→3D 메쉬·GLB·VRM 프로토타입 | **`generate_hy3d_mesh`** · `process_mesh_glb` · `export_mesh_vrm` |
 | **BUNDLE** | 멀티샷 묶기·QA *(옵션)* | `story_init` · `assemble_video` · `shot_qa_*` |

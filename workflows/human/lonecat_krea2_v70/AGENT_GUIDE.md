@@ -54,16 +54,18 @@ Bypass pattern: **purple Fast Groups Bypasser** nodes titled “psst…”, matc
 | `v70_controlnet` | **`generate_krea2_control`** | **ready** (depth ControlLoRA) |
 | `v70_img_prompt` | **`generate_krea2_img_prompt`** | **ready** (Florence→T2I) |
 | `v70_detailer_face` | **`generate_krea2_face_detail`** | **ready** |
+| `v70_detailer_eyes` | **`generate_krea2_eyes_detail`** | **ready** (SAM3 default · Eyeful YOLO option) |
 | `v70_detailer_hands` | **`generate_krea2_hand_detail`** | **ready** |
+| `v70_detailer_spare` | **`generate_krea2_region_detail --region spare`** | **ready** (`--sam-prompt` or `--model`) |
 | `v70_moodboard` | **`generate_krea2_moodboard`** | **ready** |
 | `v70_rmbg` | **`generate_rmbg`** | **ready** |
 | `v70_post_suite` | **`generate_krea2_post`** · **`generate_krea2_color_match`** | **ready** (BC/grain/sharpen + ColorMatch; full LUT bank UI-only) |
 | `v70_draft_mode` | **`generate_krea_draft`** | **ready** (768 scout wrapper) |
-| `v70_nsfw_detailers` | **`generate_krea2_anatomy_detail`** | **ready** (18+; penis/vagina; breast segm skip) |
+| `v70_nsfw_detailers` | **`generate_krea2_region_detail`** (18+) | **ready** — breasts · female_body · male_junk · vajayjay · penis |
 | Qwen VL GGUF enhancer | — | planned (Florence covers caption) |
 | Full LUT bank / crop / optical | — | planned (UI pack) |
 
-**Summary:** core still generation is production-ready for agents **via the v10 API preset**. P0–P3 agent slices (style/control/img-prompt/face/hand/moodboard/rmbg/post/draft/anatomy) are ready; remaining gaps are optional LUT/optical polish and breast segm.
+**Summary:** core still generation + full detailer shelf (face/eyes/hands/spare + NSFW body groups) are agent-ready. Remaining optional gaps: full LUT/optical pack, power LoRA stack, conditioning rebalance.
 
 ---
 
@@ -98,9 +100,15 @@ python scripts/generate_krea2_style.py -i a.png --style-image-2 b.png -p "fashio
 python scripts/generate_krea2_img_prompt.py -i ref.png -o from_ref.png --seed 42
 python scripts/generate_krea2_img_prompt.py -i ref.png --caption-only
 
-# Face / hand detailer post
+# Face / eyes / hand detailer post
 python scripts/generate_krea2_face_detail.py -i still.png -o face.png --denoise 0.22
+python scripts/generate_krea2_eyes_detail.py -i still.png -o eyes.png
+python scripts/generate_krea2_eyes_detail.py -i still.png -o eyes.png --engine yolo
 python scripts/generate_krea2_hand_detail.py -i still_hands.png -o hands.png --denoise 0.28
+
+# Spare / all region map
+python scripts/generate_krea2_region_detail.py --list
+python scripts/generate_krea2_region_detail.py -i still.png -o spare.png --region spare --sam-prompt "necklace"
 
 # Moodboard query → T2I
 python scripts/generate_krea2_moodboard.py --query "golden hour cinematic" \
@@ -116,7 +124,11 @@ python scripts/generate_krea2_color_match.py -i still.png --ref mood.png -o grad
 # Draft scout (768) then promote seed with generate_krea
 python scripts/generate_krea_draft.py -p "cinematic portrait..." -o scout.png --seed 1
 
-# 18+ anatomy detailer (requires --i-am-18)
+# 18+ anatomy detailers (requires --i-am-18) — breasts / body / male / vajayjay / penis
+python scripts/generate_krea2_region_detail.py -i nsfw.png -o out.png --region breasts --i-am-18
+python scripts/generate_krea2_region_detail.py -i nsfw.png -o out.png --region female_body --i-am-18
+python scripts/generate_krea2_region_detail.py -i nsfw.png -o out.png --region male_junk --i-am-18
+python scripts/generate_krea2_region_detail.py -i nsfw.png -o out.png --region vajayjay --i-am-18
 python scripts/generate_krea2_anatomy_detail.py -i nsfw.png -o out.png --region penis --i-am-18
 
 # Instruction edit (v7 Instruct path analogue)
@@ -158,9 +170,11 @@ Do **not** hand-convert the full 478-node UI to API for production.
 | ~~P2~~ | ~~RMBG~~ | **done** — `generate_rmbg` |
 | ~~P3~~ | ~~Post polish + ColorMatch~~ | **done** — `generate_krea2_post` / `color_match` |
 | ~~P3~~ | ~~Draft mode~~ | **done** — `generate_krea_draft` (768 scout) |
-| ~~P3~~ | ~~NSFW anatomy detailers~~ | **done** — `generate_krea2_anatomy_detail` (18+; breast skip) |
+| ~~P3~~ | ~~NSFW anatomy detailers~~ | **done** — full region map (breasts/body/male/vajayjay/penis) |
+| ~~P3b~~ | ~~Eyes / Spare detailers~~ | **done** — SAM3 + Eyeful + spare slot |
 | optional | Full LUT bank / crop / optical | still UI |
 | optional | Qwen VL GGUF enhancer | Florence covers caption |
+| optional | Power LoRA / conditioning rebalance | planned |
 
 ### Runtime note (Comfy 0.30+)
 

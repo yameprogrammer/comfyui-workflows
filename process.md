@@ -1,3 +1,11 @@
+## 2026-08-09 — Krea2 v7 detailer shelf complete (Eyes/Spare/NSFW body)
+- Unified CLI: `generate_krea2_region_detail` (+ `generate_krea2_eyes_detail`, anatomy wrapper)
+- Presets: `krea2_bbox_detail_v70` · `krea2_segm_detail_v70` · `krea2_sam_region_v70`
+- Regions: eyes(SAM/Eyeful) · spare · breasts · female_body · male_junk · vajayjay/penis · face/hands aliases
+- Models: downloaded `femaleBodyDetection_typea.pt` · `CockAndBallYolo8x.pt` into Comfy ultralytics/segm
+- Smoke: dumps/krea2_qa_eyes_yolo.png · eyes_sam · spare_lips · structural NSFW graphs OK
+- CAPABILITIES: v70_detailer_eyes/spare/nsfw_detailers → ready
+
 ## 2026-08-09 — Krea2 v7 P3: post polish, color match, draft, anatomy
 - Post: `krea2_post_polish_v70` · `generate_krea2_post` · smoke dumps/krea2_qa_post.png (grain default 0.15)
 - ColorMatch: `krea2_color_match_v70` · `generate_krea2_color_match` · dumps/krea2_qa_color_match.png

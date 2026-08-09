@@ -1,0 +1,67 @@
+{
+  "preset": "krea2_segm_detail_v70",
+  "workflow_api": "presets/krea2_segm_detail_v70.api.json",
+  "family": "krea2",
+  "description": "Generic Ultralytics SEGM → SEGS → DetailerForEach (breasts/body/male_junk)",
+  "ports": {
+    "input_image": {
+      "node": "1",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "detector_model": {
+      "node": "10",
+      "key": "model_name",
+      "optional": true
+    },
+    "threshold": {
+      "node": "11",
+      "key": "threshold",
+      "optional": true
+    },
+    "dilation": {
+      "node": "11",
+      "key": "dilation",
+      "optional": true
+    },
+    "positive": {
+      "node": "46",
+      "key": "value",
+      "optional": true
+    },
+    "seed": {
+      "node": "50",
+      "key": "seed"
+    },
+    "denoise": {
+      "node": "50",
+      "key": "denoise",
+      "optional": true
+    },
+    "steps": {
+      "node": "50",
+      "key": "steps",
+      "optional": true
+    },
+    "guide_size": {
+      "node": "50",
+      "key": "guide_size",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "detector_model": "segm/female-breast-v4.7.pt",
+    "threshold": 0.35,
+    "dilation": 10,
+    "denoise": 0.3,
+    "steps": 12,
+    "guide_size": 512,
+    "positive": "detailed anatomy, natural skin, photoreal",
+    "filename_prefix": "krea2_segm_detail"
+  }
+}

@@ -202,7 +202,14 @@
       "ui_groups": [
         "# ::Eyes 👀"
       ],
-      "status": "planned"
+      "status": "ready",
+      "agent_cli": "python scripts/generate_krea2_eyes_detail.py -i still.png -o eyes.png",
+      "agent_presets": [
+        "krea2_sam_region_v70",
+        "krea2_bbox_detail_v70"
+      ],
+      "when_to_use": "Sharpen iris/catchlight after T2I. Default SAM3; --engine yolo uses Eyeful.",
+      "smoke": "dumps/krea2_qa_eyes_sam.png"
     },
     {
       "feature_id": "v70_detailer_hands",
@@ -222,7 +229,11 @@
       "ui_groups": [
         "# ::Spare 🛞"
       ],
-      "status": "planned"
+      "status": "ready",
+      "agent_cli": "python scripts/generate_krea2_region_detail.py -i still.png -o out.png --region spare --sam-prompt \"necklace\"",
+      "agent_preset": "krea2_sam_region_v70",
+      "when_to_use": "Custom region via SAM text prompt, or --model bbox/segm/… YOLO path",
+      "smoke": "dumps/krea2_qa_spare_lips.png"
     },
     {
       "feature_id": "v70_nsfw_detailers",
@@ -238,10 +249,20 @@
       "status": "ready",
       "policy": "adult_18_plus_only",
       "default_for_batch": "OFF",
-      "agent_cli": "python scripts/generate_krea2_anatomy_detail.py -i nsfw.png -o out.png --region penis --i-am-18",
-      "agent_preset": "krea2_anatomy_detail_v70",
-      "when_to_use": "Adult still region polish (penis/vagina bbox). Requires --i-am-18.",
-      "gap": "Breast uses segm detector — not wired to BboxDetectorSEGS; skip for now"
+      "agent_cli": "python scripts/generate_krea2_region_detail.py -i nsfw.png -o out.png --region breasts --i-am-18",
+      "agent_presets": [
+        "krea2_segm_detail_v70",
+        "krea2_bbox_detail_v70"
+      ],
+      "regions": {
+        "breasts": "segm/female-breast-v4.7.pt",
+        "female_body": "segm/femaleBodyDetection_typea.pt",
+        "male_junk": "segm/CockAndBallYolo8x.pt",
+        "vajayjay": "bbox/vagina-v4.1.pt",
+        "penis": "bbox/penis.pt"
+      },
+      "when_to_use": "Adult region polish. Requires --i-am-18. Prefer generate_krea2_region_detail --list.",
+      "note": "Models installed under ComfyUI/models/ultralytics/. Structural smoke on SFW still OK; quality needs matching anatomy in frame."
     },
     {
       "feature_id": "v70_hires_fix",
@@ -471,10 +492,10 @@
   "status_counts": {
     "ready_via_v10": 2,
     "ready_experimental": 1,
-    "ready": 11,
+    "ready": 13,
     "ready_via_other_tool": 4,
     "documented": 3,
-    "planned": 4,
+    "planned": 2,
     "ready_in_v10_preset": 1,
     "ui_only": 1
   }

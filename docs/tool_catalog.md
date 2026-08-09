@@ -165,17 +165,20 @@ python scripts/generate_krea2_style.py -i a.png --style-image-2 b.png -p "fashio
 python scripts/generate_krea2_control.py -i depth.png -p "hero standing..." -o out.png --seed 42
 python scripts/generate_krea2_img_prompt.py -i ref.png -o from_ref.png
 python scripts/generate_krea2_face_detail.py -i still.png -o face.png --denoise 0.22
+python scripts/generate_krea2_eyes_detail.py -i still.png -o eyes.png
 python scripts/generate_krea2_hand_detail.py -i still_hands.png -o hands.png
+python scripts/generate_krea2_region_detail.py --list
+python scripts/generate_krea2_region_detail.py -i still.png -o spare.png --region spare --sam-prompt "necklace"
 python scripts/generate_krea2_moodboard.py --query "golden hour" --prompt "portrait" -o mood.png
 python scripts/generate_rmbg.py -i person.png -o cutout.png
 python scripts/generate_krea2_post.py -i still.png -o polished.png
 python scripts/generate_krea2_color_match.py -i still.png --ref mood.png -o graded.png
 python scripts/generate_krea_draft.py -p "cinematic portrait..." -o scout.png --seed 1
-# 18+ anatomy detailer (requires --i-am-18)
-python scripts/generate_krea2_anatomy_detail.py -i nsfw.png -o out.png --region penis --i-am-18
+# 18+ region detailers (requires --i-am-18): breasts|female_body|male_junk|vajayjay|penis
+python scripts/generate_krea2_region_detail.py -i nsfw.png -o out.png --region breasts --i-am-18
 ```
 
-> **v7 vs v10:** 기본 T2I = slim **v10**. Lonecat **v7** 슬라이스 ready: 스타일(1·2)·Control·Img-prompt·Face/Hand·Moodboard·RMBG·Post/ColorMatch·Draft·Anatomy(18+).
+> **v7 vs v10:** 기본 T2I = slim **v10**. Lonecat **v7** 슬라이스 ready: 스타일·Control·Img-prompt·Face/Eyes/Hand/Spare·Moodboard·RMBG·Post·Draft·NSFW region detailers(18+).
 
 #### Lonecat Z-Image (I2I 대안)
 
