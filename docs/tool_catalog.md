@@ -168,9 +168,14 @@ python scripts/generate_krea2_face_detail.py -i still.png -o face.png --denoise 
 python scripts/generate_krea2_hand_detail.py -i still_hands.png -o hands.png
 python scripts/generate_krea2_moodboard.py --query "golden hour" --prompt "portrait" -o mood.png
 python scripts/generate_rmbg.py -i person.png -o cutout.png
+python scripts/generate_krea2_post.py -i still.png -o polished.png
+python scripts/generate_krea2_color_match.py -i still.png --ref mood.png -o graded.png
+python scripts/generate_krea_draft.py -p "cinematic portrait..." -o scout.png --seed 1
+# 18+ anatomy detailer (requires --i-am-18)
+python scripts/generate_krea2_anatomy_detail.py -i nsfw.png -o out.png --region penis --i-am-18
 ```
 
-> **v7 vs v10:** 기본 T2I = slim **v10**. Lonecat **v7** 슬라이스 ready: 스타일(1·2)·Control·Img-prompt·Face/Hand detail·Moodboard·RMBG.
+> **v7 vs v10:** 기본 T2I = slim **v10**. Lonecat **v7** 슬라이스 ready: 스타일(1·2)·Control·Img-prompt·Face/Hand·Moodboard·RMBG·Post/ColorMatch·Draft·Anatomy(18+).
 
 #### Lonecat Z-Image (I2I 대안)
 
@@ -440,6 +445,9 @@ python scripts/upscale_recommend.py scenarios  # 시나리오 매트릭스
 |-----|------|------|
 | **`upscale_recommend`** | 엔진 모름 → pick | 이미 backend 확정 |
 | **`upscale_image`** | 스틸 1080–4K (`--style photo\|anime`) | 해부학 버그 수정 전 |
+| **`generate_krea2_post`** | 가벼운 BC/그레인/샤픈 포스트 | 색 레퍼 매칭 → color_match · 업스케일 대용 금지 |
+| **`generate_krea2_color_match`** | 무드 레퍼에 색 맞추기 | 구조 스타일 전환 → krea2_style |
+| **`generate_rmbg`** | 배경 컷아웃 | 품질 보정 먼저 face/hand |
 | **`upscale_video`** | 영상 납품 해상도 (ESRGAN / SeedVR2) | 얼굴만 깨짐 → face_enhance 먼저 · MiniMax→HD spatial → `upscale_ltx_spatial` |
 | **`upscale_ltx_spatial`** | MiniMax·저해상도 클립 → LTX spatial x2 (`--path core` 빠름 / `full` IC-LoRA) | 일반 납품 ESRGAN → upscale_video · 스틸 → upscale_image |
 | `generate_wan22_face_enhance` | 얼굴 향상 **실험** | 전체 해상도 대용 |

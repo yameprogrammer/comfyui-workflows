@@ -1,0 +1,56 @@
+{
+  "preset": "krea2_post_polish_v70",
+  "workflow_api": "presets/krea2_post_polish_v70.api.json",
+  "description": "Brightness/Contrast + light film grain + Lucy sharpen",
+  "ports": {
+    "input_image": {
+      "node": "1",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "brightness": {
+      "node": "2",
+      "key": "brightness",
+      "optional": true
+    },
+    "contrast": {
+      "node": "2",
+      "key": "contrast",
+      "optional": true
+    },
+    "saturation": {
+      "node": "2",
+      "key": "saturation",
+      "optional": true
+    },
+    "grain_density": {
+      "node": "3",
+      "key": "density",
+      "optional": true
+    },
+    "grain_intensity": {
+      "node": "3",
+      "key": "intensity",
+      "optional": true
+    },
+    "sharpen_iterations": {
+      "node": "4",
+      "key": "iterations",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "brightness": 1.0,
+    "contrast": 1.05,
+    "saturation": 1.05,
+    "grain_density": 0.25,
+    "grain_intensity": 0.15,
+    "sharpen_iterations": 1,
+    "filename_prefix": "krea2_post"
+  }
+}

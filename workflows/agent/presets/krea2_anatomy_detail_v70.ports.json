@@ -1,0 +1,43 @@
+{
+  "preset": "krea2_anatomy_detail_v70",
+  "workflow_api": "presets/krea2_anatomy_detail_v70.api.json",
+  "description": "18+ anatomy region detailer (bbox models)",
+  "policy": "adult_18_plus_only",
+  "ports": {
+    "input_image": {
+      "node": "1",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "positive": {
+      "node": "46",
+      "key": "value",
+      "optional": true
+    },
+    "seed": {
+      "node": "50",
+      "key": "seed"
+    },
+    "denoise": {
+      "node": "50",
+      "key": "denoise",
+      "optional": true
+    },
+    "detector_model": {
+      "node": "10",
+      "key": "model_name",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "denoise": 0.3,
+    "positive": "detailed anatomy, natural skin, photoreal",
+    "detector_model": "bbox/penis.pt",
+    "filename_prefix": "krea2_anatomy_detail"
+  }
+}

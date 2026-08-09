@@ -1,0 +1,40 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "target.png"
+    }
+  },
+  "2": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "ref.png"
+    }
+  },
+  "3": {
+    "class_type": "ColorMatch",
+    "inputs": {
+      "image_ref": [
+        "2",
+        0
+      ],
+      "image_target": [
+        "1",
+        0
+      ],
+      "method": "mkl",
+      "strength": 0.65,
+      "multithread": true
+    }
+  },
+  "9001": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "krea2_color_match",
+      "images": [
+        "3",
+        0
+      ]
+    }
+  }
+}

@@ -989,6 +989,59 @@
         "scripts/generate_rmbg.py"
       ],
       "smoke": "dumps/krea2_qa_rmbg.png"
+    },
+    "krea2_post_polish_v70": {
+      "file": "presets/krea2_post_polish_v70.api.json",
+      "ports": "presets/krea2_post_polish_v70.ports.json",
+      "format": "api",
+      "role": "post_polish",
+      "family": "krea2",
+      "status": "ready",
+      "used_by": [
+        "scripts/generate_krea2_post.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "smoke": "dumps/krea2_qa_post.png"
+    },
+    "krea2_color_match_v70": {
+      "file": "presets/krea2_color_match_v70.api.json",
+      "ports": "presets/krea2_color_match_v70.ports.json",
+      "format": "api",
+      "role": "color_match",
+      "family": "krea2",
+      "status": "ready",
+      "used_by": [
+        "scripts/generate_krea2_color_match.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "smoke": "dumps/krea2_qa_color_match.png"
+    },
+    "krea2_anatomy_detail_v70": {
+      "file": "presets/krea2_anatomy_detail_v70.api.json",
+      "ports": "presets/krea2_anatomy_detail_v70.ports.json",
+      "format": "api",
+      "role": "nsfw_anatomy_detailer",
+      "family": "krea2",
+      "status": "ready",
+      "policy": "adult_18_plus_only",
+      "used_by": [
+        "scripts/generate_krea2_anatomy_detail.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "notes": "Requires --i-am-18; breast segm path not wired; no public smoke image"
+    },
+    "krea_draft": {
+      "file": null,
+      "role": "draft_t2i_scout",
+      "family": "krea2",
+      "status": "ready",
+      "runner": "scripts/generate_krea_draft.py",
+      "used_by": [
+        "scripts/generate_krea_draft.py"
+      ],
+      "guide": "workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md",
+      "smoke": "dumps/krea2_qa_draft.png",
+      "notes": "Thin wrapper: generate_krea at 768 default (v7 Draft Mode analogue)"
     }
   }
 }

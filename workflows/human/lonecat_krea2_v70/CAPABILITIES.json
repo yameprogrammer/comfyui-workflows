@@ -235,9 +235,13 @@
         "# ;Male Junk 🍆",
         "# ;Breasts 🍒"
       ],
-      "status": "planned",
+      "status": "ready",
       "policy": "adult_18_plus_only",
-      "default_for_batch": "OFF"
+      "default_for_batch": "OFF",
+      "agent_cli": "python scripts/generate_krea2_anatomy_detail.py -i nsfw.png -o out.png --region penis --i-am-18",
+      "agent_preset": "krea2_anatomy_detail_v70",
+      "when_to_use": "Adult still region polish (penis/vagina bbox). Requires --i-am-18.",
+      "gap": "Breast uses segm detector — not wired to BboxDetectorSEGS; skip for now"
     },
     {
       "feature_id": "v70_hires_fix",
@@ -272,9 +276,21 @@
         "✂️Crop 📷",
         "Optical Realism 📷"
       ],
-      "status": "planned",
-      "when_to_use": "LUT-like grade, crop, optical realism polish",
-      "note": "v7 ships LUTs in zip under luts/"
+      "status": "ready",
+      "when_to_use": "Light BC + grain + sharpen polish; color match to ref look",
+      "agent_cli": [
+        "python scripts/generate_krea2_post.py -i still.png -o polished.png",
+        "python scripts/generate_krea2_color_match.py -i target.png --ref mood.png -o graded.png"
+      ],
+      "agent_presets": [
+        "krea2_post_polish_v70",
+        "krea2_color_match_v70"
+      ],
+      "smoke": [
+        "dumps/krea2_qa_post.png",
+        "dumps/krea2_qa_color_match.png"
+      ],
+      "note": "Agent slice = BC/grain/sharpen + ColorMatch. Full v7 LUT bank / crop / optical graph still UI-only."
     },
     {
       "feature_id": "v70_rmbg",
@@ -298,8 +314,11 @@
       "ui_nodes": [
         "Fast Muter (rgthree) Draft Mode"
       ],
-      "status": "planned",
-      "when_to_use": "Fast scout then promote seed to final"
+      "status": "ready",
+      "when_to_use": "Fast scout then promote seed to final",
+      "agent_cli": "python scripts/generate_krea_draft.py -p \"...\" -o scout.png --seed 1",
+      "note": "Not a separate graph — smaller canvas wrapper over krea2_t2i_v10 (default 768²). Promote with generate_krea same seed/size.",
+      "smoke": "dumps/krea2_qa_draft.png"
     },
     {
       "feature_id": "v70_save_metadata",
@@ -452,10 +471,10 @@
   "status_counts": {
     "ready_via_v10": 2,
     "ready_experimental": 1,
-    "ready": 8,
+    "ready": 11,
     "ready_via_other_tool": 4,
     "documented": 3,
-    "planned": 7,
+    "planned": 4,
     "ready_in_v10_preset": 1,
     "ui_only": 1
   }

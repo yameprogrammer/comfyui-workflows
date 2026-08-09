@@ -1,0 +1,54 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "input.png"
+    }
+  },
+  "2": {
+    "class_type": "LayerColor: Brightness & Contrast",
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ],
+      "brightness": 1.0,
+      "contrast": 1.05,
+      "saturation": 1.05
+    }
+  },
+  "3": {
+    "class_type": "Image Film Grain",
+    "inputs": {
+      "image": [
+        "2",
+        0
+      ],
+      "density": 0.25,
+      "intensity": 0.15,
+      "highlights": 1.0,
+      "supersample_factor": 2
+    }
+  },
+  "4": {
+    "class_type": "Image Lucy Sharpen",
+    "inputs": {
+      "images": [
+        "3",
+        0
+      ],
+      "iterations": 1,
+      "kernel_size": 3
+    }
+  },
+  "9001": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "krea2_post",
+      "images": [
+        "4",
+        0
+      ]
+    }
+  }
+}

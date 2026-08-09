@@ -1,3 +1,10 @@
+## 2026-08-09 — Krea2 v7 P3: post polish, color match, draft, anatomy
+- Post: `krea2_post_polish_v70` · `generate_krea2_post` · smoke dumps/krea2_qa_post.png (grain default 0.15)
+- ColorMatch: `krea2_color_match_v70` · `generate_krea2_color_match` · dumps/krea2_qa_color_match.png
+- Draft: `generate_krea_draft` (768 scout over krea2_t2i_v10) · dumps/krea2_qa_draft.png
+- Anatomy 18+: `krea2_anatomy_detail_v70` · `generate_krea2_anatomy_detail --i-am-18` · breast segm not wired
+- tool_intent FINISH/GENERATE cards + catalog presets registered; CAPABILITIES post/draft/nsfw_detailers → ready
+
 ## 2026-08-09 — Krea2 v7 P2: hands, moodboard, RMBG
 - Hand detailer: `krea2_hand_detail_v70` · `generate_krea2_hand_detail` · smoke dumps/krea2_qa_hands.png
 - Moodboard: Search+Apply → expanded prompt → T2I · `generate_krea2_moodboard` · gold dumps/krea2_qa_moodboard.png

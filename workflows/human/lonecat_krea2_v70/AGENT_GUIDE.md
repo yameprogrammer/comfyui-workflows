@@ -57,12 +57,13 @@ Bypass pattern: **purple Fast Groups Bypasser** nodes titled “psst…”, matc
 | `v70_detailer_hands` | **`generate_krea2_hand_detail`** | **ready** |
 | `v70_moodboard` | **`generate_krea2_moodboard`** | **ready** |
 | `v70_rmbg` | **`generate_rmbg`** | **ready** |
-| `v70_moodboard` | — | planned |
-| `v70_detailer_*` / NSFW detailers | — | planned |
-| `v70_img_prompt` / enhancer | — | planned |
-| `v70_post_suite` / rmbg / draft | — | planned |
+| `v70_post_suite` | **`generate_krea2_post`** · **`generate_krea2_color_match`** | **ready** (BC/grain/sharpen + ColorMatch; full LUT bank UI-only) |
+| `v70_draft_mode` | **`generate_krea_draft`** | **ready** (768 scout wrapper) |
+| `v70_nsfw_detailers` | **`generate_krea2_anatomy_detail`** | **ready** (18+; penis/vagina; breast segm skip) |
+| Qwen VL GGUF enhancer | — | planned (Florence covers caption) |
+| Full LUT bank / crop / optical | — | planned (UI pack) |
 
-**Summary:** core still generation is production-ready for agents **via the v10 API preset**. Most of v7’s *unique* toggles still need **UI → graphToPrompt → ports** export before they can be port-patched reliably.
+**Summary:** core still generation is production-ready for agents **via the v10 API preset**. P0–P3 agent slices (style/control/img-prompt/face/hand/moodboard/rmbg/post/draft/anatomy) are ready; remaining gaps are optional LUT/optical polish and breast segm.
 
 ---
 
@@ -108,6 +109,16 @@ python scripts/generate_krea2_moodboard.py --query "golden hour cinematic" \
 # Remove background
 python scripts/generate_rmbg.py -i person.png -o cutout.png
 
+# Post polish (grain / sharpen / BC)
+python scripts/generate_krea2_post.py -i still.png -o polished.png
+python scripts/generate_krea2_color_match.py -i still.png --ref mood.png -o graded.png
+
+# Draft scout (768) then promote seed with generate_krea
+python scripts/generate_krea_draft.py -p "cinematic portrait..." -o scout.png --seed 1
+
+# 18+ anatomy detailer (requires --i-am-18)
+python scripts/generate_krea2_anatomy_detail.py -i nsfw.png -o out.png --region penis --i-am-18
+
 # Instruction edit (v7 Instruct path analogue)
 python scripts/generate_qwen_edit.py -i still.png -p "change background to night street" -o edit.png
 
@@ -145,9 +156,11 @@ Do **not** hand-convert the full 478-node UI to API for production.
 | ~~P2~~ | ~~Hands detailer~~ | **done** — hand_yolov8s + DetailerForEach |
 | ~~P2~~ | ~~Moodboard~~ | **done** — Search+Apply → T2I |
 | ~~P2~~ | ~~RMBG~~ | **done** — `generate_rmbg` |
-| P3 | Post suite / LUTs / draft mode | optional polish |
-| P3 | Qwen VL GGUF enhancer | Florence covers caption |
-| P3 | NSFW anatomy detailers | 18+ only |
+| ~~P3~~ | ~~Post polish + ColorMatch~~ | **done** — `generate_krea2_post` / `color_match` |
+| ~~P3~~ | ~~Draft mode~~ | **done** — `generate_krea_draft` (768 scout) |
+| ~~P3~~ | ~~NSFW anatomy detailers~~ | **done** — `generate_krea2_anatomy_detail` (18+; breast skip) |
+| optional | Full LUT bank / crop / optical | still UI |
+| optional | Qwen VL GGUF enhancer | Florence covers caption |
 
 ### Runtime note (Comfy 0.30+)
 
@@ -166,6 +179,9 @@ Restart Comfy after updating that file.
 | dual style | same + `--style-image-2` | Two real photos | Flat colors |
 | `generate_krea2_control` | strength **0.5**, grayscale encode | Depth map or photo structure | strength ≥0.9 on RGB can twin/double |
 | `generate_krea2_face_detail` | denoise **0.22** | Clean photoreal still | Broken style smokes as input |
+| `generate_krea2_post` | grain **0.15**, contrast **1.05** | Real stills after compose | Heavy grain ≥0.3 unless film look wanted |
+| `generate_krea2_color_match` | strength **0.65** | Real mood/ref photo | Solid-color refs |
+| `generate_krea_draft` | **768²** | Scout only | Ship draft size as final |
 
 **QA gold samples** (repo dumps, real-ref smoke):
 

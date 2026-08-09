@@ -1,0 +1,31 @@
+{
+  "preset": "krea2_color_match_v70",
+  "workflow_api": "presets/krea2_color_match_v70.api.json",
+  "description": "ColorMatch target image to reference look",
+  "ports": {
+    "input_image": {
+      "node": "1",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "ref_image": {
+      "node": "2",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "strength": {
+      "node": "3",
+      "key": "strength",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "9001",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "strength": 0.65,
+    "filename_prefix": "krea2_color_match"
+  }
+}
