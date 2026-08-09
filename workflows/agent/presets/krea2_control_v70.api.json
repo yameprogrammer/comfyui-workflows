@@ -43,8 +43,8 @@
   },
   "11": {
     "inputs": {
-      "width": 512,
-      "height": 512,
+      "width": 1024,
+      "height": 1024,
       "batch_size": 1
     },
     "class_type": "EmptyLatentImage",
@@ -78,7 +78,7 @@
         0
       ],
       "lora_name": "Krea2\\depth-control-lora.safetensors",
-      "strength": 1.0
+      "strength": 0.5
     }
   },
   "202": {
@@ -95,7 +95,7 @@
       "resize": "match_latent_size",
       "upscale_method": "lanczos",
       "crop": "center",
-      "channel_mode": "rgb",
+      "channel_mode": "grayscale",
       "normalize": "none",
       "invert": false,
       "batch_mode": "independent_images",
@@ -162,7 +162,7 @@
     "class_type": "KSampler",
     "inputs": {
       "seed": 42,
-      "steps": 4,
+      "steps": 12,
       "cfg": 1.0,
       "sampler_name": "euler",
       "scheduler": "simple",

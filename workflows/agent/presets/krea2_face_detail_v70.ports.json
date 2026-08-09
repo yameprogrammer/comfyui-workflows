@@ -35,8 +35,8 @@
     }
   },
   "defaults": {
-    "denoise": 0.4,
-    "steps": 12,
+    "denoise": 0.35,
+    "steps": 14,
     "positive": "detailed face, sharp eyes, natural skin",
     "filename_prefix": "krea2_face_detail"
   }

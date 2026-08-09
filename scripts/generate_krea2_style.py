@@ -49,8 +49,8 @@ def main(argv=None) -> int:
     p.add_argument(
         "--style-strength",
         type=float,
-        default=1.0,
-        help="Krea2StyleTransfer style_strength (0 disables ref path)",
+        default=0.6,
+        help="Krea2StyleTransfer style_strength (default 0.6; use real photo refs, not solid colors)",
     )
     p.add_argument(
         "--primary-reference",

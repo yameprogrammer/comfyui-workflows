@@ -56,9 +56,10 @@
   },
   "defaults": {
     "width": 1024,
-    "height": 576,
-    "style_strength": 1.0,
+    "height": 1024,
+    "style_strength": 0.6,
     "filename_prefix": "krea2_style_ref",
-    "unet_name": "Krea2Turbo\\krea2_turbo_fp8_scaled.safetensors"
+    "unet_name": "Krea2Turbo\\krea2_turbo_fp8_scaled.safetensors",
+    "steps": 12
   }
 }

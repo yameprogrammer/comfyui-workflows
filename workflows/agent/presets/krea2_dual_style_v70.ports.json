@@ -46,13 +46,19 @@
       "node": "9001",
       "key": "filename_prefix",
       "optional": true
+    },
+    "steps": {
+      "node": "108",
+      "key": "steps",
+      "optional": true
     }
   },
   "defaults": {
     "width": 1024,
-    "height": 576,
-    "style_strength": 1.0,
+    "height": 1024,
+    "style_strength": 0.6,
     "primary_reference": "1",
-    "filename_prefix": "krea2_dual_style"
+    "filename_prefix": "krea2_dual_style",
+    "steps": 12
   }
 }

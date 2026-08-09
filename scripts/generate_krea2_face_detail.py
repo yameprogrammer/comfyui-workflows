@@ -33,8 +33,13 @@ def main(argv=None) -> int:
         help="detailer positive prompt",
     )
     p.add_argument("--seed", type=int, default=None)
-    p.add_argument("--denoise", type=float, default=0.4)
-    p.add_argument("--steps", type=int, default=12)
+    p.add_argument(
+        "--denoise",
+        type=float,
+        default=0.22,
+        help="FaceDetailer denoise (default 0.22 subtle; 0.35+ can over- freckle)",
+    )
+    p.add_argument("--steps", type=int, default=14)
     p.add_argument("--timeout", type=float, default=600)
     p.add_argument("--server", default=DEFAULT_SERVER)
     args = p.parse_args(argv)

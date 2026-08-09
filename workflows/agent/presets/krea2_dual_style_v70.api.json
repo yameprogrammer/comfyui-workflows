@@ -24,7 +24,7 @@
     "class_type": "EmptyLatentImage",
     "inputs": {
       "width": 1024,
-      "height": 576,
+      "height": 1024,
       "batch_size": 1
     }
   },
@@ -136,7 +136,7 @@
       ],
       "mode": "recommended",
       "primary_reference": "1",
-      "style_strength": 1.0,
+      "style_strength": 0.6,
       "ref_k_1": 1.08,
       "ref_k_2": 1.08,
       "stage_focus": 0.85,
@@ -148,7 +148,7 @@
       "high_scale_start": 1.04,
       "high_scale_end": 0.0,
       "low_scale_start": 1.0,
-      "adain_strength": 0.85,
+      "adain_strength": 0.55,
       "blocks": "7-27",
       "first_phase_ratio": 0.5
     }
@@ -157,7 +157,7 @@
     "class_type": "KSampler",
     "inputs": {
       "seed": 42,
-      "steps": 8,
+      "steps": 12,
       "cfg": 1.0,
       "sampler_name": "euler",
       "scheduler": "simple",

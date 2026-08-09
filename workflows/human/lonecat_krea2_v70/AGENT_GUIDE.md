@@ -146,6 +146,22 @@ Do **not** hand-convert the full 478-node UI to API for production.
 
 Restart Comfy after updating that file.
 
+### Quality defaults (QA 2026-08-09)
+
+| Tool | Default | Must use | Avoid |
+|------|---------|----------|--------|
+| `generate_krea2_style` | `--style-strength 0.6`, 12 steps, 1024² | **Real photo** style refs | Solid-color / 4KB dummy PNGs (causes fog artifacts) |
+| dual style | same + `--style-image-2` | Two real photos | Flat colors |
+| `generate_krea2_control` | strength **0.5**, grayscale encode | Depth map or photo structure | strength ≥0.9 on RGB can twin/double |
+| `generate_krea2_face_detail` | denoise **0.22** | Clean photoreal still | Broken style smokes as input |
+
+**QA gold samples** (repo dumps, real-ref smoke):
+
+- `dumps/krea2_qa_style_s0p6.png` — style ref OK  
+- `dumps/krea2_qa_dual.png` — dual OK  
+- `dumps/krea2_qa_face_v2.png` — face detail OK  
+- `dumps/krea2_qa_control_v2.png` — control OK
+
 ---
 
 ## 6. Alternatives (toolbox)

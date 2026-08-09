@@ -41,8 +41,8 @@ def main(argv=None) -> int:
     p.add_argument(
         "--control-strength",
         type=float,
-        default=1.0,
-        help="ControlLoRA strength",
+        default=0.5,
+        help="ControlLoRA strength (default 0.5; prefer depth/structure maps or photo→grayscale encode)",
     )
     p.add_argument(
         "--control-lora",

@@ -55,10 +55,11 @@
   },
   "defaults": {
     "width": 1024,
-    "height": 576,
-    "control_strength": 1.0,
+    "height": 1024,
+    "control_strength": 0.5,
     "control_lora": "Krea2\\depth-control-lora.safetensors",
     "filename_prefix": "krea2_control",
-    "unet_name": "Krea2Turbo\\krea2_turbo_fp8_scaled.safetensors"
+    "unet_name": "Krea2Turbo\\krea2_turbo_fp8_scaled.safetensors",
+    "steps": 12
   }
 }

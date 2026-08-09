@@ -44,7 +44,7 @@
   "11": {
     "inputs": {
       "width": 1024,
-      "height": 576,
+      "height": 1024,
       "batch_size": 1
     },
     "class_type": "EmptyLatentImage",
@@ -127,8 +127,8 @@
         0
       ],
       "mode": "recommended",
-      "style_strength": 1.0,
-      "value_adain_strength": 0.65,
+      "style_strength": 0.6,
+      "value_adain_strength": 0.45,
       "ref_value_mix": 1.0,
       "ref_k_strength": 1.06,
       "rf_mode": "flowturbo_pc",
@@ -138,7 +138,7 @@
       "high_scale_end": 0.0,
       "low_scale_start": 1.0,
       "low_scale_end": 1.1,
-      "adain_strength": 0.85,
+      "adain_strength": 0.55,
       "blocks": "7-27"
     }
   },
@@ -164,7 +164,7 @@
     "class_type": "KSampler",
     "inputs": {
       "seed": 42,
-      "steps": 8,
+      "steps": 12,
       "cfg": 1.0,
       "sampler_name": "euler",
       "scheduler": "simple",
