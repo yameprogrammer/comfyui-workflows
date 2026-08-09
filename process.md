@@ -1,3 +1,10 @@
+## 2026-08-09 — Clip quality playbook + agent CLI (community research)
+- Research playbook: docs/clip_quality_playbook.md (Wan vs LTX, short takes, motion-only, post chain)
+- CLI: `python scripts/clip_quality.py recommend|check-prompt|probe|polish|playbook`
+- lib/clip_quality.py — I2V dialect check (L7), gen/post recommend, ffprobe tips
+- generate_i2v: auto WARN on look-redescribe / missing motion verbs
+- tool_intent: clip_quality card · MOTION shelf
+
 ## 2026-08-09 — Fetch MISS deps + Krea conditioning rebalance
 - `python scripts/illustrious_fetch_deps.py` — models (noob IPA, openpose alias, inpaint CN)
 - `python scripts/illustrious_fetch_deps.py --nodes` — clone z-tipo-extension, ComfyUI-ppm, ComfyUI-FBCNN (**restart Comfy**)

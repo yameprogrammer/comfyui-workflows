@@ -1358,6 +1358,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     prompt = load_text(args.prompt_file) if args.prompt_file else (args.prompt or "")
+    # after motion preset compose happens below — dialect check after compose
     motion_preset_id = None
     if getattr(args, "motion_preset", None):
         from lib.motion_presets import compose_motion_prompt, resolve_motion_preset_id
@@ -1379,6 +1380,18 @@ if __name__ == "__main__":
     negative = load_text(args.negative_file) if args.negative_file else args.negative
     if neg_extra:
         negative = f"{negative}, {neg_extra}" if negative else neg_extra
+
+    # L7: I2V dialect preflight (warn only; agents can fix prompt)
+    try:
+        from lib.clip_quality import check_i2v_prompt
+
+        _dq = check_i2v_prompt(prompt)
+        for _w in _dq.get("warnings") or []:
+            print(f"[i2v-prompt WARN] {_w}", file=sys.stderr)
+        if _dq.get("suggestion") and not _dq.get("has_motion"):
+            print(f"[i2v-prompt HINT] {_dq['suggestion']}", file=sys.stderr)
+    except Exception:
+        pass
 
     if (args.width is None) ^ (args.height is None):
         parser.error("Provide both --width and --height, or neither (use --format/--preset)")
