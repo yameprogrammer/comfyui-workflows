@@ -1,0 +1,26 @@
+{
+  "id": "hy3d_mesh",
+  "status": "ready",
+  "shelf": "MESH",
+  "family": "hy3d",
+  "runner": "lib/hy3d_mesh_runner.py",
+  "cli": [
+    "scripts/generate_hy3d_mesh.py",
+    "scripts/process_mesh_glb.py",
+    "scripts/export_mesh_vrm.py"
+  ],
+  "requires": {
+    "comfy": true,
+    "custom_nodes": ["ComfyUI-Hunyuan3DWrapper"],
+    "models": ["hy3dgen/hunyuan3d-dit-v2-0-fp16.safetensors"],
+    "blender_mcp_for_post": true,
+    "vrm_addon_for_export": true
+  },
+  "profiles": ["draft", "work", "hero"],
+  "outputs": ["glb", "vrm"],
+  "notes": [
+    "work = default geometry + postprocess",
+    "texture path is high VRAM opt-in",
+    "auto-rig is prototype quality only"
+  ]
+}

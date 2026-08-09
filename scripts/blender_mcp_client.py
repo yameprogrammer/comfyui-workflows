@@ -1,45 +1,24 @@
 #!/usr/bin/env python3
-"""Blender MCP Python Client to execute scripts directly inside running Blender."""
+"""Backward-compatible Blender MCP client.
 
-import json
-import socket
-import sys
+Prefer: `from lib.blender_mcp import exec_blender_code, probe_blender`
+This module re-exports for legacy mecha scripts.
+"""
 
-def exec_blender_code(code: str, host: str = "127.0.0.1", port: int = 9876, strict_json: bool = False) -> dict:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((host, port))
-    
-    req = {
-        "type": "execute",
-        "code": code,
-        "strict_json": strict_json
-    }
-    
-    payload = json.dumps(req).encode("utf-8") + b"\x00"
-    sock.sendall(payload)
-    
-    buf = bytearray()
-    while True:
-        chunk = sock.recv(4096)
-        if not chunk:
-            break
-        buf.extend(chunk)
-        if b"\x00" in buf:
-            break
-            
-    sock.close()
-    raw = buf.decode("utf-8").rstrip("\x00")
-    return json.loads(raw)
+from __future__ import annotations
+
+from lib.blender_mcp import (  # noqa: F401
+    DEFAULT_HOST,
+    DEFAULT_PORT,
+    exec_blender_code,
+    probe_blender,
+    unwrap_result,
+)
 
 if __name__ == "__main__":
-    test_code = """
-import bpy
-result = {
-    "blender_version": list(bpy.app.version),
-    "active_object": bpy.context.active_object.name if bpy.context.active_object else None,
-    "objects": [o.name for o in bpy.data.objects]
-}
-"""
-    res = exec_blender_code(test_code)
-    print("=== CONNECTED TO BLENDER MCP SERVER ===")
-    print(json.dumps(res, indent=2, ensure_ascii=False))
+    import json
+    import sys
+
+    r = probe_blender()
+    print(json.dumps(r, ensure_ascii=False, indent=2))
+    raise SystemExit(0 if r.get("ok") else 1)

@@ -15,6 +15,7 @@
       "VOICE",
       "FINISH",
       "ASSETS",
+      "MESH",
       "BUNDLE"
     ],
     "optional_rails": [
@@ -819,6 +820,46 @@
         "scripts/generate_qwen_edit.py",
         "scripts/shot_keyframe_edit.py"
       ]
+    },
+    "hy3d_mesh": {
+      "file": null,
+      "format": "native_api_graph",
+      "role": "image_to_mesh",
+      "family": "hy3d",
+      "status": "ready",
+      "description": "Hunyuan3D / Kijai Hy3D image-to-mesh GLB. Profiles draft/work/hero. Optional texture paint path.",
+      "runner": "lib/hy3d_mesh_runner.py",
+      "guide": "workflows/human/hy3d_mesh/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/hy3d_mesh/CAPABILITIES.json",
+      "used_by": [
+        "scripts/generate_hy3d_mesh.py"
+      ],
+      "default_profile": "work",
+      "notes": "Requires ComfyUI-Hunyuan3DWrapper. Not episode default. Blender post is separate tools."
+    },
+    "process_mesh_glb": {
+      "file": null,
+      "role": "mesh_postprocess",
+      "status": "ready_experimental",
+      "description": "GLB clean / light ARMATURE_AUTO via Blender MCP.",
+      "runner": "lib/mesh_blender_ops.py",
+      "guide": "workflows/human/hy3d_mesh/AGENT_GUIDE.md",
+      "used_by": [
+        "scripts/process_mesh_glb.py"
+      ],
+      "notes": "Needs Blender MCP :9876. Prototype rig quality only."
+    },
+    "export_mesh_vrm": {
+      "file": null,
+      "role": "mesh_vrm_export",
+      "status": "ready_experimental",
+      "description": "GLB/blend to VRM via Blender MCP + VRM addon.",
+      "runner": "lib/mesh_blender_ops.py",
+      "guide": "workflows/human/hy3d_mesh/AGENT_GUIDE.md",
+      "used_by": [
+        "scripts/export_mesh_vrm.py"
+      ],
+      "notes": "Auto-rig if missing armature. Not production Warudo humanoid QA."
     }
   }
 }

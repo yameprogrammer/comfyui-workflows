@@ -67,6 +67,7 @@ Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 | **INGEST** | 유튜브 레퍼 이해 | `youtube_ingest` · `youtube_highlights` |
 | **FINISH** | 업스케일 · LTX spatial · 야외 재조명 | `upscale_recommend` · `upscale_image` · `upscale_video` · **`upscale_ltx_spatial`** · `ltx_lora_status` · `generate_ltx_relight` (야외만) |
 | **ASSETS** | 캐릭/로케 패키지 *(옵션)* | `character_*` · `location_*` |
+| **MESH** | 2D→3D 메쉬·GLB·VRM 프로토타입 | **`generate_hy3d_mesh`** · `process_mesh_glb` · `export_mesh_vrm` |
 | **BUNDLE** | 멀티샷 묶기·QA *(옵션)* | `story_init` · `assemble_video` · `shot_qa_*` |
 
 전체 표·카드·조합 예: **tool_catalog §1–§3**.

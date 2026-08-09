@@ -94,6 +94,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | **스타일 전이 / 레스타일** | `generate_style_transfer` | 애니·유화·무드보드 ref |
 | 대사 TTS | `generate_qwen3_tts` | custom / clone |
 | 스틸/영상 키우기 | **`upscale_recommend`** → `upscale_image` · `upscale_video` · `upscale_ltx_spatial` | 납품 해상도 · MiniMax→HD는 spatial |
+| **2D → 3D 메쉬 / VRM 프로토** | **`generate_hy3d_mesh`** · `process_mesh_glb` · `export_mesh_vrm` | Hy3D GLB · Blender MCP 후처리 |
 | **유튜브 레퍼 이해** | **`youtube_ingest`** · `youtube_highlights` | 자막·요약·하이라이트 클립 |
 
 ### 1.B 의도 선반 지도 (조합용)
@@ -107,6 +108,7 @@ MOTION     그림 → 영상             camera_move · idle_loop · dance_ref �
 VOICE      말·노래 재료            qwen3_tts · voice_register · bgm
 FINISH     키우기·다듬기           upscale_recommend → upscale_* · **upscale_ltx_spatial** · ltx_relight · face_enhance(실험)
 ASSETS     재사용 패키지(옵션)     character_* · location_* · look_* · ref_pack(lite)
+MESH       2D→3D 메쉬·VRM          **hy3d_mesh** · process_mesh_glb · export_mesh_vrm
 BUNDLE     여러 파일 묶기(옵션)    assemble · episode_* · story_init · qa
 ```
 
@@ -456,7 +458,30 @@ python scripts/generate_ltx_relight.py -v exterior.mp4 -o relit.mp4 \
 
 ---
 
-### 2.7 ASSETS — 재사용 패키지 (**옵션**)
+### 2.7 MESH — 2D → 3D 메쉬 · VRM 프로토타입
+
+| CLI | 언제 | 말고 | 상태 |
+|-----|------|------|------|
+| **`generate_hy3d_mesh`** | 프론트 스틸 → GLB (Hy3D / Hunyuan3D) | 영상 모션 · 2D만 필요 | **ready** |
+| **`process_mesh_glb`** | raw GLB 클린 · 라이트 auto-rig | Blender MCP 없음 · 프로덕션 본 맵 | ready_experimental |
+| **`export_mesh_vrm`** | GLB → VRM (Warudo/VTuber 프로토) | 프로덕션 휴머노이드 QA | ready_experimental |
+
+```bash
+python scripts/generate_hy3d_mesh.py -i front.png -o mesh.glb --seed 42
+python scripts/generate_hy3d_mesh.py -i front.png -o scout.glb --profile draft
+python scripts/process_mesh_glb.py -i mesh.glb -o clean.glb
+python scripts/process_mesh_glb.py -i mesh.glb -o rigged.glb --auto-rig
+python scripts/export_mesh_vrm.py -i clean.glb -o avatar.vrm
+python scripts/process_mesh_glb.py --probe   # Blender MCP
+```
+
+**레시피:** front still → `generate_hy3d_mesh` → (옵션) `process_mesh_glb` → (옵션) `export_mesh_vrm`.  
+**가이드:** [hy3d_mesh/AGENT_GUIDE](../workflows/human/hy3d_mesh/AGENT_GUIDE.md)  
+**주의:** auto-rig은 프로토타입 품질. 레거시 `scripts/fix_mecha_*` / `export_patlabor_*` 는 SSOT 아님.
+
+---
+
+### 2.8 ASSETS — 재사용 패키지 (**옵션**)
 
 장기 시리즈·다컷에서 **같은 캐릭/장소**를 자산으로 쌓을 때만.
 
@@ -470,7 +495,7 @@ python scripts/generate_ltx_relight.py -v exterior.mp4 -o relit.mp4 \
 
 ---
 
-### 2.8 BUNDLE — 여러 샷 묶기 · 검수 (**옵션**)
+### 2.9 BUNDLE — 여러 샷 묶기 · 검수 (**옵션**)
 
 프로젝트가 **에피소드 폴더·승인 게이트**를 쓸 때만. 도구 선택의 전제 아님.
 

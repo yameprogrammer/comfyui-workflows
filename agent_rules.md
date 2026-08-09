@@ -60,6 +60,7 @@ agent_custom/
 * **도구 목록·특징 SSOT:** [docs/tool_catalog.md](docs/tool_catalog.md) (프로젝트는 여기서 선택).
 * **주요 CLI 매핑 (요약 — 상세는 카탈로그):**
   - still **기본 실사:** `generate_krea` · 대안 I2I/실험: `generate_moody` · 18+: `generate_krea_nsfw`
+  - **MESH 3D:** `generate_hy3d_mesh` (이미지→GLB) · `process_mesh_glb` · `export_mesh_vrm` — 가이드 `workflows/human/hy3d_mesh/AGENT_GUIDE.md`
   - I2I·CN: `generate_moody_i2i*` / `generate_moody_controlnet`
   - Qwen: `generate_qwen_edit` · `generate_qwen_inpaint` · `generate_qwen_angle`
   - video: `generate_i2v` / `generate_s2v` (LTX AIO 기본, Wan fallback) · `generate_flf2v`

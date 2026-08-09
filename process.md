@@ -1,3 +1,13 @@
+## 2026-08-09 — MESH shelf: Hy3D / GLB / VRM agent tools
+- New shelf **MESH** (tool_intent + TOOLS + tool_catalog §2.7)
+- CLI: `generate_hy3d_mesh` (ready) · `process_mesh_glb` · `export_mesh_vrm` (ready_experimental)
+- Lib: `lib/hy3d_mesh_runner.py` · `lib/blender_mcp.py` · `lib/mesh_blender_ops.py`
+- Human pack: `workflows/human/hy3d_mesh/` (AGENT_GUIDE · CAPABILITIES)
+- Engine family: `hy3d` in comfy_engine_session
+- Profiles: draft / **work** / hero; optional `--texture` paint path
+- Legacy mecha/patlabor one-off scripts remain non-SSOT research residue
+- Recipe: front still → hy3d mesh → optional clean/rig → optional VRM
+
 ## 2026-08-09 — Toolbox index alignment (agent discovery)
 - Policy: SFW photoreal default = `generate_krea` (`still_photoreal` intent fixed; moody = I2I/experiment alternative)
 - `wan22_animate`: planned → **ready** (catalog.json · video_backends · wan22_workflow_map · tool_catalog · TOOLS)
