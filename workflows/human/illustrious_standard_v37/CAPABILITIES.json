@@ -177,9 +177,10 @@
       "matchColors": "pale_blue",
       "detector": "segm/ntd11_anime_nsfw_segm_v5-variant1.pt",
       "when_to_use": "Adult anatomy detailer (18+). Needs pack segm weights.",
-      "cli": "--nsfw-detailer",
+      "cli": "--nsfw-detailer --i-am-18",
       "policy": "adults_only",
-      "status": "needs_model"
+      "status": "ready",
+      "note": "Requires --i-am-18. Detector: segm/ntd11_anime_nsfw_segm_v5-variant1.pt (or nsfw-anime-medium remap)."
     },
     {
       "feature_id": "generic_detailer",
@@ -320,9 +321,10 @@
       "cli": "--ultimate-upscale",
       "local_models": [
         "upscale_models/4x_foolhardy_Remacri.pth",
-        "controlnet/SDXL/control-lora-canny-rank256.safetensors (pack path)"
+        "controlnet/SDXL/control-lora-canny-rank256.safetensors"
       ],
-      "status": "needs_controlnet_file"
+      "status": "ready",
+      "note": "Heavy VRAM. Canny Control-LoRA must be under models/controlnet/SDXL/."
     },
     {
       "feature_id": "apply_signature",
@@ -420,6 +422,18 @@
     "t2i_hires_face": {
       "description": "T2I + face + post hires",
       "features_on": ["core_t2i", "face_adetailer", "hires_post", "use_sam", "clip_skip"]
+    },
+    "t2i_full_detail": {
+      "description": "Face+Hand+Eyes + post hires",
+      "features_on": ["core_t2i", "face_adetailer", "hand_adetailer", "eyes_adetailer", "use_sam", "clip_skip", "hires_post"]
+    },
+    "t2i_ultimate": {
+      "description": "Face + Ultimate SD Upscale (heavy)",
+      "features_on": ["core_t2i", "face_adetailer", "use_sam", "clip_skip", "ultimate_sd_upscale"]
+    },
+    "t2i_post_fx": {
+      "description": "Face + cyan post FX sharpen/contrast",
+      "features_on": ["core_t2i", "face_adetailer", "use_sam", "clip_skip", "post_sharpen", "post_contrast"]
     }
   },
   "custom_nodes_required": [

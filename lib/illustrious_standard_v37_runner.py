@@ -71,7 +71,26 @@ DETECTOR_REMAP = {
         r"bbox/Eyeful_v2-Individual.pt",
         r"bbox/Eyeful_v2-Paired.pt",
     ),
+    r"bbox/face_yolov9c.pt": (
+        r"bbox/face_yolov9c.pt",
+        r"bbox/face_yolov8m.pt",
+        r"bbox/face_yolov8n.pt",
+    ),
+    r"segm/ntd11_anime_nsfw_segm_v5-variant1.pt": (
+        r"segm/ntd11_anime_nsfw_segm_v5-variant1.pt",
+        r"segm/nsfw-anime-medium-x1280.pt",
+        r"segm/nsfw-anime-xl-x1280.pt",
+    ),
 }
+
+# Shared + portable roots for detector / upscale / controlnet files
+MODEL_SEARCH_ROOTS = (
+    Path(os.environ["COMFYUI_MODELS"])
+    if os.environ.get("COMFYUI_MODELS")
+    else None,
+    Path(r"F:\model"),
+    Path(r"F:\ComfyUI_windows_portable\ComfyUI\models"),
+)
 
 # Feature id → group titles to turn ON (others stay at UI default unless overridden)
 FEATURE_GROUPS: dict[str, list[str]] = {
@@ -131,6 +150,58 @@ def load_groups() -> dict[str, Any]:
     if GROUPS_PATH.is_file():
         return _load_json(GROUPS_PATH)
     return {}
+
+
+def feature_model_health() -> list[dict[str, Any]]:
+    """Report whether local weights exist for each toggleable feature."""
+    checks = [
+        ("core_t2i", "checkpoints/Illustrious/fabricatedXL_v70.safetensors"),
+        ("face_adetailer", "ultralytics/bbox/face_yolov9c.pt"),
+        ("hand_adetailer", "ultralytics/bbox/hand_yolov9c.pt"),
+        ("eyes_adetailer", "ultralytics/bbox/Eyeful_v2-Individual.pt"),
+        ("nsfw_adetailer", "ultralytics/segm/ntd11_anime_nsfw_segm_v5-variant1.pt"),
+        ("use_sam", "sams/sam_vit_b_01ec64.pth"),
+        ("hires_pre", "upscale_models/4x_foolhardy_Remacri.pth"),
+        ("hires_post", "upscale_models/4x_foolhardy_Remacri.pth"),
+        ("ultimate_sd_upscale", "controlnet/SDXL/control-lora-canny-rank256.safetensors"),
+        ("separate_vae", "vae/sdxl_vae.safetensors"),
+    ]
+    # also accept remapped alternatives
+    alt = {
+        "ultralytics/bbox/hand_yolov9c.pt": [
+            "ultralytics/bbox/hand_yolov8s.pt",
+        ],
+        "ultralytics/bbox/Eyeful_v2-Individual.pt": [
+            "ultralytics/bbox/Eyeful_v2-Paired.pt",
+        ],
+        "ultralytics/segm/ntd11_anime_nsfw_segm_v5-variant1.pt": [
+            "ultralytics/segm/nsfw-anime-medium-x1280.pt",
+        ],
+        "ultralytics/bbox/face_yolov9c.pt": [
+            "ultralytics/bbox/face_yolov8m.pt",
+        ],
+    }
+    rows = []
+    for fid, rel in checks:
+        path = _find_under_models(*rel.replace("\\", "/").split("/"))
+        ok = path is not None
+        used = str(path) if path else None
+        if not ok:
+            for a in alt.get(rel, []):
+                p2 = _find_under_models(*a.replace("\\", "/").split("/"))
+                if p2:
+                    ok = True
+                    used = str(p2)
+                    break
+        rows.append(
+            {
+                "feature_id": fid,
+                "required": rel,
+                "ok": ok,
+                "resolved": used,
+            }
+        )
+    return rows
 
 
 def _fetch_object_info(server: str = DEFAULT_SERVER) -> dict[str, Any] | None:
@@ -690,14 +761,28 @@ def _fix_combo_placeholders(api: dict[str, Any]) -> None:
                 ins["text"] = ""
 
 
+def _model_roots() -> list[Path]:
+    roots: list[Path] = []
+    for r in MODEL_SEARCH_ROOTS:
+        if r is None:
+            continue
+        p = Path(r)
+        if p.is_dir() and p not in roots:
+            roots.append(p)
+    return roots
+
+
+def _find_under_models(*parts: str) -> Path | None:
+    rel = Path(*parts)
+    for root in _model_roots():
+        cand = root / rel
+        if cand.is_file():
+            return cand
+    return None
+
+
 def _remap_detectors(api: dict[str, Any], models_root: Path | None = None) -> None:
-    root = models_root or Path(
-        os.environ.get(
-            "COMFYUI_MODELS",
-            r"F:\ComfyUI_windows_portable\ComfyUI\models",
-        )
-    )
-    ultra = root / "ultralytics"
+    roots = [models_root] if models_root else _model_roots()
     for n in api.values():
         if n.get("class_type") != "UltralyticsDetectorProvider":
             continue
@@ -706,10 +791,21 @@ def _remap_detectors(api: dict[str, Any], models_root: Path | None = None) -> No
         if not isinstance(name, str):
             continue
         candidates = DETECTOR_REMAP.get(name, (name,))
+        picked = None
         for c in candidates:
-            if (ultra / c.replace("/", os.sep)).is_file() or (ultra / c).is_file():
-                ins["model_name"] = c
+            rel = c.replace("\\", "/").replace("/", os.sep)
+            for root in roots:
+                if root is None:
+                    continue
+                if (Path(root) / "ultralytics" / rel).is_file() or (
+                    Path(root) / rel
+                ).is_file():
+                    picked = c.replace("\\", "/")
+                    break
+            if picked:
                 break
+        if picked:
+            ins["model_name"] = picked
 
 
 def _wire_image_saver_fallback(api: dict[str, Any]) -> None:

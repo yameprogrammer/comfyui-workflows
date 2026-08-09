@@ -34,6 +34,7 @@ from lib.illustrious_standard_v37_runner import (
     DEFAULT_CKPT,
     DEFAULT_NEG,
     FEATURE_GROUPS,
+    feature_model_health,
     generate_illustrious_standard,
     load_capabilities,
     resolve_features_from_args,
@@ -110,6 +111,11 @@ def main(argv=None) -> int:
     p.add_argument("--hand", action="store_true")
     p.add_argument("--eyes", action="store_true")
     p.add_argument("--nsfw-detailer", action="store_true")
+    p.add_argument(
+        "--i-am-18",
+        action="store_true",
+        help="required with --nsfw-detailer (adult content)",
+    )
     p.add_argument("--generic-detailer", action="store_true")
     p.add_argument("--sam", dest="sam", action="store_true", default=None)
     p.add_argument("--no-sam", dest="sam", action="store_false")
@@ -133,6 +139,11 @@ def main(argv=None) -> int:
     p.add_argument("--server", default=DEFAULT_SERVER)
     p.add_argument("--list-features", action="store_true")
     p.add_argument("--list-presets", action="store_true")
+    p.add_argument(
+        "--check-models",
+        action="store_true",
+        help="verify local detector/upscale/controlnet weights for features",
+    )
     args = p.parse_args(argv)
 
     if args.list_features:
@@ -141,6 +152,25 @@ def main(argv=None) -> int:
         caps = load_capabilities()
         print(json.dumps(caps.get("agent_presets") or {}, indent=2, ensure_ascii=False))
         return 0
+    if args.check_models:
+        rows = feature_model_health()
+        bad = 0
+        for r in rows:
+            mark = "OK" if r["ok"] else "MISS"
+            if not r["ok"]:
+                bad += 1
+            print(f"  [{mark}] {r['feature_id']:22s} {r['required']}")
+            if r.get("resolved") and r["resolved"] not in r["required"]:
+                print(f"         resolved → {r['resolved']}")
+        print(f"\n{len(rows) - bad}/{len(rows)} feature weight sets found")
+        return 1 if bad else 0
+
+    if args.nsfw_detailer and not args.i_am_18:
+        print(
+            "[illustrious] refuse --nsfw-detailer without --i-am-18",
+            file=sys.stderr,
+        )
+        return 2
 
     if args.prompt_file:
         with open(args.prompt_file, "r", encoding="utf-8") as f:

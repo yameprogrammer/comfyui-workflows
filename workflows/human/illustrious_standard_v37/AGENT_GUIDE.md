@@ -1,7 +1,7 @@
 # Standard_V37 — Agent 선택 가이드
 
 > **Toolbox shelf:** GENERATE (I2I switches → TRANSFORM)  
-> **CLI:** `python scripts/generate_illustrious_standard.py` (`--list-features`)  
+> **CLI:** `python scripts/generate_illustrious_standard.py` (`--list-features` · `--check-models`)  
 > **Alternatives:** photoreal → `generate_moody` · mask inpaint → `generate_qwen_inpaint`  
 > **Catalog:** [docs/tool_catalog.md](../../../docs/tool_catalog.md) §2.1
 
@@ -191,7 +191,32 @@ Control Center · Detailer Settings · Image Saver · Notes · Post Processing(b
 ## 6. 기능 메뉴 (에이전트 선택 목록)
 
 전체: `CAPABILITIES.json` ·  
-`python scripts/generate_illustrious_standard.py --list-features`
+`python scripts/generate_illustrious_standard.py --list-features`  
+`python scripts/generate_illustrious_standard.py --check-models`  ← 로컬 가중치 점검
+
+### 6.0 에이전트가 Standard 스위치 **전부** 쓰는 법
+
+실 UI `Standard_V37.json` = `[Anime]Standard_V37` 동기본.  
+Fast Groups Bypasser(pale_blue/cyan)를 **mode 0/4**로 토글 → expand → port inject.
+
+| 목적 | 플래그 / preset |
+|------|----------------|
+| 기본 얼굴 정리 T2I | (기본) 또는 `--preset t2i_face` |
+| 빠른 초안 | `--preset t2i_clean` |
+| 손·눈 | `--hand` `--eyes` |
+| NSFW 부위 디테일 18+ | `--nsfw-detailer --i-am-18` |
+| generic SEGS detailer | `--generic-detailer` |
+| I2I | `-i ref.png -d 0.55` |
+| Hires | `--hires-pre` / `--hires-post` |
+| Ultimate SD Upscale | `--ultimate-upscale` |
+| Color match | `--color-match` |
+| VPred / ε-scale / CFGZeroStar | `--vpred` `--epsilon-scaling` `--cfg-zero-star` |
+| Separate VAE | `--separate-vae` |
+| Signature | `--signature logo.png` |
+| Post FX (cyan) | `--fx-morphology` `--fx-quantize` `--fx-sharpen` `--fx-contrast` |
+| 임의 조합 | `--feature face_adetailer --no-feature use_sam` … |
+
+**팩 Advanced 전용(미편입):** TIPO · IPAdapter · OpenPose · Regional · FBCNN — Standard JSON에 없음.
 
 ### Core / Prompt
 

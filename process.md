@@ -1,3 +1,11 @@
+## 2026-08-09 — Illustrious Standard_V37 full switch shelf hardened
+- SSOT UI synced from Comfy `[Anime]Standard_V37.json` · GROUPS.json rebuilt
+- All pale_blue/cyan Fast Groups toggles already on `generate_illustrious_standard` CLI
+- Models installed/aliased: hand_yolov9c, Eyeful, ntd11 anime NSFW segs, canny control-lora, sdxl_vae
+- `--check-models` health · `--nsfw-detailer` requires `--i-am-18`
+- Smoke: dumps/illustrious_v37_clean.png · dumps/illustrious_v37_face_eyes.png
+- Presets: t2i_full_detail · t2i_ultimate · t2i_post_fx added
+
 ## 2026-08-09 — Krea2 v7 detailer shelf complete (Eyes/Spare/NSFW body)
 - Unified CLI: `generate_krea2_region_detail` (+ `generate_krea2_eyes_detail`, anatomy wrapper)
 - Presets: `krea2_bbox_detail_v70` · `krea2_segm_detail_v70` · `krea2_sam_region_v70`

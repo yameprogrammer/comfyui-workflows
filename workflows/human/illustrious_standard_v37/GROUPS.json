@@ -1,5 +1,6 @@
 {
   "workflow": "Standard_V37",
+  "source": "[Anime]Standard_V37.json",
   "groups": {
     "Ultimate SD Upscale": {
       "color": "#3f789e",
@@ -10,7 +11,6 @@
         1040
       ],
       "node_ids": [
-        49,
         51,
         52,
         53,
@@ -32,8 +32,7 @@
         "59": 4,
         "53": 4,
         "52": 4,
-        "51": 4,
-        "49": 0
+        "51": 4
       }
     },
     "Color Match": {
@@ -79,9 +78,17 @@
         40,
         43,
         44,
-        45
+        45,
+        46,
+        47,
+        48,
+        49
       ],
       "default_modes": {
+        "49": 0,
+        "48": 0,
+        "47": 0,
+        "46": 0,
         "45": 0,
         "44": 0,
         "43": 0,
@@ -346,7 +353,6 @@
         410
       ],
       "node_ids": [
-        75,
         76,
         77,
         80,
@@ -356,9 +362,13 @@
         86,
         89,
         90,
-        95
+        95,
+        97,
+        98
       ],
       "default_modes": {
+        "98": 4,
+        "97": 4,
         "95": 4,
         "90": 4,
         "89": 4,
@@ -368,8 +378,7 @@
         "81": 4,
         "80": 4,
         "77": 4,
-        "76": 4,
-        "75": 0
+        "76": 4
       }
     },
     "Notes": {
@@ -402,9 +411,15 @@
         600
       ],
       "node_ids": [
-        50
+        50,
+        70,
+        72,
+        73
       ],
       "default_modes": {
+        "73": 4,
+        "72": 4,
+        "70": 4,
         "50": 4
       }
     },
@@ -527,30 +542,5 @@
         "91": 4
       }
     }
-  },
-  "feature_extra_nodes": {
-    "i2i_latent_chain": [
-      50,
-      70,
-      73,
-      72
-    ],
-    "ksampler": [
-      46
-    ],
-    "ksampler_helpers": [
-      47,
-      48
-    ],
-    "signature_composite": [
-      98,
-      97
-    ],
-    "impact_switches": [
-      38,
-      40,
-      75
-    ]
-  },
-  "note": "Group membership by bounding box center. Agent sets mode 0=ON, 4=BYPASS before expand."
+  }
 }
