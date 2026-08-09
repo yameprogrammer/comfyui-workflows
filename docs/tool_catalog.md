@@ -79,9 +79,11 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | 타이틀·간판 글자 | `generate_ideogram4` | 가벼운 타이포 |
 | 잡지·포스터 글자+인물 | `generate_boogu_typo` | Boogu→Ideogram→Krea |
 | 스틸 → 짧은 모션 | `generate_i2v` | LTX I2V 기본 |
+| **시댄스급 T2V/I2V/R2V + 네이티브 오디오** | **`generate_minimax_h3`** | MiniMax H3 (에피 본선 아님 · 히어로/쇼츠) |
 | **카메라 무빙 (의도 I2V)** | `generate_camera_move` | push_in / pan / idle … (Comfy I2V) |
 | **아이들·루프** | `generate_idle_loop` | 대기 모션 + pingpong/roundtrip 루프 |
-| **댄스/레퍼 모션** | `generate_dance_ref` | 레퍼 영상→캐릭 모션 (V2V) |
+| **댄스/레퍼 모션 (빠른 초안)** | `generate_dance_ref` | 레퍼 영상→캐릭 모션 (V2V LTX) |
+| **댄스 리타겟 (얼굴 고정)** | **`generate_wan22_animate`** | 크로스 캐스트 · pose 전처리 `extract_pose_video` |
 | 모션 프리셋 (I2V 옵션) | `generate_i2v --motion-preset …` | 동일 프리셋, 저수준 |
 | Wan 폴백·MoE 실험 | `generate_i2v --backend wan22` · `generate_yaw_wan22` · [맵](wan22_workflow_map.md) | 에피 기본은 LTX |
 | 첫·끝 프레임 이음 | `generate_flf2v` | FLF |
@@ -91,7 +93,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | **가벼운 ID 레퍼 팩** | `generate_ref_pack` | face+각도 (패키지 없이) |
 | **스타일 전이 / 레스타일** | `generate_style_transfer` | 애니·유화·무드보드 ref |
 | 대사 TTS | `generate_qwen3_tts` | custom / clone |
-| 스틸/영상 키우기 | **`upscale_recommend`** → `upscale_image` · `upscale_video` | 납품 해상도 · 엔진 선택 |
+| 스틸/영상 키우기 | **`upscale_recommend`** → `upscale_image` · `upscale_video` · `upscale_ltx_spatial` | 납품 해상도 · MiniMax→HD는 spatial |
 | **유튜브 레퍼 이해** | **`youtube_ingest`** · `youtube_highlights` | 자막·요약·하이라이트 클립 |
 
 ### 1.B 의도 선반 지도 (조합용)
@@ -101,9 +103,9 @@ INGEST     밖 레퍼 가져오기        youtube_ingest · youtube_highlights
 GENERATE   빈 화면 → 그림          krea*(기본) · moody · illustrious · ideogram · boogu
 TRANSFORM  있는 그림 고치기         i2i · character_consistent · qwen_edit · inpaint · ref_pack · style_transfer
 CAMERA     각도·포즈·시점·프레이밍   qwen_angle · viewpoint · **openpose_pose** · controlnet · reframe
-MOTION     그림 → 영상             camera_move · idle_loop · dance_ref · i2v · flf · s2v
+MOTION     그림 → 영상             camera_move · idle_loop · dance_ref · **wan22_animate** · extract_pose · i2v · flf · s2v · **minimax_h3** · yaw
 VOICE      말·노래 재료            qwen3_tts · voice_register · bgm
-FINISH     키우기·다듬기           upscale_recommend → upscale_* · face_enhance(실험)
+FINISH     키우기·다듬기           upscale_recommend → upscale_* · **upscale_ltx_spatial** · ltx_relight · face_enhance(실험)
 ASSETS     재사용 패키지(옵션)     character_* · location_* · look_* · ref_pack(lite)
 BUNDLE     여러 파일 묶기(옵션)    assemble · episode_* · story_init · qa
 ```
@@ -309,16 +311,21 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 |-----|------|-------------|
 | **`generate_camera_move`** | 카메라 무빙 의도 한 방 (push_in, pan, idle…) | 스틸 시점만 → `generate_viewpoint` · 립 → s2v |
 | **`generate_idle_loop`** | 대기 모션 + **루프** (pingpong 기본 · roundtrip · idle) | 대사 립 → s2v · 스토리 카메라 → camera_move |
-| **`generate_dance_ref`** | 레퍼 댄스/제스처 → 캐릭 스틸 모션 (V2V motion) | 풀 챌린지 에피 → design doc · 립 → s2v |
+| **`generate_dance_ref`** | 레퍼 댄스/제스처 → 캐릭 스틸 모션 (V2V motion, 빠른 초안) | 얼굴 고정 크로스 캐스트 → **wan22_animate** · 립 → s2v |
+| **`generate_wan22_animate`** | 댄스/제스처 레퍼 → 다른 캐릭 **얼굴 고정** 리타겟 | 빠른 초안 → dance_ref · 립 → s2v · 에피 대량 I2V → LTX |
+| **`extract_pose_video`** | RGB 레퍼 → pose 스틱 플레이트 (Animate/Fun Control 전처리) | 이미지 한 장 포즈 → `openpose_pose` |
 | **`generate_i2v`** | 일반 I2V · 자유 모션 문장 (기본 LTX) | 의도 id만 고르면 camera_move가 편함 |
 | **`--ltx-profile`** | `draft`(~540) / **`work`(720p 기본)** / **`hero`(~1080)** | 배치는 work · 러프만 draft |
 | **`--ltx-video-vae`** | `auto`(PrunaVAED if installed) / `pruna` / `stock` / filename | 디코드 ~1.7× · [ltx quality §1.1](ltx23_quality_research_and_improvement.md) · env `AGENT_LTX_VIDEO_VAE` |
 | **`--ltx-vbvr` / `--no-ltx-vbvr`** | Licon VBVR reasoning LoRA (work 기본 ON@0.75) | 모션·시간축 보강 · **FaceID 아님** · [ltx_face_stability](ltx_face_stability.md) · `AGENT_LTX_VBVR` |
+| **`--ltx-asian-face` / `--no-ltx-asian-face`** | East Asian Facial Fidelity (파일 있으면 **기본 ON@1.0**) | 아시안 얼굴 서양형 드리프트 완화 · **FaceID 아님** · [ltx_loras_agent](ltx_loras_agent.md) · `AGENT_LTX_ASIAN_FACE` |
+| **`ltx_lora_status`** | Asian Face / Relight 디스크·용도 조회 | 생성 본선 아님 · `download-relight` 설치 헬퍼 |
 | **`--motion-preset`** | i2v/episode_i2v에 같은 프리셋 연결 | camera_move와 id 공유 |
 | `generate_i2v --backend wan22` | LTX 폴백·카메라/텍스처 재시도 (GGUF+lightx2v) | 에피 기본 I2V 금지 · 모션 평탄할 수 있음 |
 | wan22 노브 | `--cfg` · `--lora-strength-high/low` · `--wan-boundary` · frames≥81→steps≥6 · `--wan-long-edge`+`--wan-short-edge` | CFG×LoRA 표: [wan22_workflow_map](wan22_workflow_map.md) §3 · LX 레시피 §5.1 [speed research](wan22_i2v_speed_research.md) |
 | `generate_i2v --backend wan22_flf` | Wan first+last 폴백 | 품질 FLF 본선 = LTX flf |
 | **`generate_yaw_wan22`** | Wan 2.2 MoE T2V/I2V 쉬운 실 UI | 립 → s2v · 에피 본선 대체 아님 |
+| **`generate_minimax_h3`** | **MiniMax H3** T2V/I2V/FL/R2V + **네이티브 스테레오 오디오** (시댄스급 품질 목표) | 에피 본선 I2V 대량 → LTX · 립 CU → s2v · 초고속 초안 → LTX draft. 프로필 `draft\|work\|native\|hero` |
 | **`generate_flf2v`** | 첫·끝 프레임 연결 | 단일 키프레임 모션 → i2v |
 | **`generate_s2v`** | 이미지+오디오 연동 | 무음 순수 모션 → i2v |
 | `generate_s2v --backend infinitetalk` | 토킹 립 품질 (2026-07-30 스모크 OK) | 호출 전 `tool_health --backend infinitetalk` · 실패 시 **`ltx23_ia2v`** · VRAM·길이 계약 |
@@ -331,7 +338,7 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 | **`generate_wan22_nsfw_i2v`** | 성인 모션 **18+** (Wan dual+lightx2v ± NSFW LoRA) | SFW → i2v · LTX 10Eros 대안 |
 | `generate_v2v` | 영상→영상 의도 (experimental) | |
 
-가이드 예: [LTX AIO](../workflows/human/LTX23_AIO_v44_AGENT_GUIDE.md) · [wan22 맵](wan22_workflow_map.md) · [wan22 pack](../workflows/human/wan22/AGENT_GUIDE.md) · [yaw_wan22](../workflows/human/yaw_wan22/AGENT_GUIDE.md) · [redmix](../workflows/human/ltx23_redmix_krea2/AGENT_GUIDE.md)  
+가이드 예: [LTX AIO](../workflows/human/LTX23_AIO_v44_AGENT_GUIDE.md) · [wan22 맵](wan22_workflow_map.md) · [wan22 pack](../workflows/human/wan22/AGENT_GUIDE.md) · [yaw_wan22](../workflows/human/yaw_wan22/AGENT_GUIDE.md) · [**minimax_h3**](../workflows/human/minimax_h3/AGENT_GUIDE.md) · [redmix](../workflows/human/ltx23_redmix_krea2/AGENT_GUIDE.md)  
 LTX 품질: [ltx23_quality_research_and_improvement.md](ltx23_quality_research_and_improvement.md) · Wan 정리: [wan22_workflow_map.md](wan22_workflow_map.md)
 
 ```bash
@@ -344,14 +351,22 @@ python scripts/generate_idle_loop.py -i key.png -o idle_loop.mp4 --mode pingpong
 # dance / ref motion
 python scripts/generate_dance_ref.py -i hero.png -v dance.mp4 -o dance_out.mp4 --hook-sec 8
 python scripts/generate_dance_ref.py -i hero.png --mode i2v --style kpop -o dance_i2v.mp4
+# face-lock retarget (ready)
+python scripts/extract_pose_video.py -v dance.mp4 -o pose.mp4 --duration 4
+python scripts/generate_wan22_animate.py -i hero.png -v dance.mp4 -o out.mp4 --seed 42
 # LTX quality tiers (work default · hero for showcase)
 python scripts/generate_s2v.py --list-ltx-profiles
 python scripts/generate_i2v.py -i key.png --motion-preset push_in -o clip.mp4 --ltx-profile work
 python scripts/generate_i2v.py -i key.png -p "gentle head turn" -o hero.mp4 --ltx-profile hero --frames 73
 python scripts/generate_flf2v.py -i start.png --last end.png -p "..." -o bridge.mp4
+# MiniMax H3 (native audio · not episode default)
+python scripts/generate_minimax_h3.py -p "Anime cinematic, heroine on cliff at sunset..." -o mm.mp4 --profile work
+python scripts/generate_minimax_h3.py -p "..." -o mm_native.mp4 --profile native
+python scripts/generate_minimax_h3.py --task i2v -i start.png -p "slow orbit" -o mm_i2v.mp4
+python scripts/generate_minimax_h3.py --list-profiles
 ```
 
-가이드: [camera_move](../workflows/human/camera_move/AGENT_GUIDE.md) · [idle_loop](../workflows/human/idle_loop/AGENT_GUIDE.md) · [dance_ref](../workflows/human/dance_ref/AGENT_GUIDE.md)
+가이드: [camera_move](../workflows/human/camera_move/AGENT_GUIDE.md) · [idle_loop](../workflows/human/idle_loop/AGENT_GUIDE.md) · [dance_ref](../workflows/human/dance_ref/AGENT_GUIDE.md) · [wan22_animate_dance](../workflows/human/wan22_animate_dance/AGENT_GUIDE.md) · [minimax_h3](../workflows/human/minimax_h3/AGENT_GUIDE.md)
 
 ---
 
@@ -400,6 +415,8 @@ python scripts/upscale_recommend.py scenarios  # 시나리오 매트릭스
 | **HERO** | `seedvr2` / `seedvr2_comfy` | ★★ | ★★★★ | ★★★★ | 히어로·블러 복원 (opt-in) |
 | **HERO_MAX** | `seedvr2_max` | ★ | ★★★★★ | ★★★★★ | 4K 마스터 소수 컷 |
 | **FACE** | `wan22_face_enhance` | ★★★ | 얼굴 | — | I2V 후 스미어 (해상도 아님) |
+| **LOOK** | `ltx_relight` (IC-LoRA) | ★★ | 야외 조명 | — | **완성 야외 클립** 태양 방향·골든아워 (해상도 아님) |
+| **SPATIAL** | `upscale_ltx_spatial` | ★★★ core / ★ full | ★★★★ full | ★★ | MiniMax·저해상도 → LTX latent x2 (+ IC-LoRA full) |
 | **EXPERIMENTAL** | `wan22_upscale` | ★★ | ★★★ | ★★★ | WAN 디퓨전 업스케일 opt-in |
 
 #### 실행 CLI
@@ -408,8 +425,11 @@ python scripts/upscale_recommend.py scenarios  # 시나리오 매트릭스
 |-----|------|------|
 | **`upscale_recommend`** | 엔진 모름 → pick | 이미 backend 확정 |
 | **`upscale_image`** | 스틸 1080–4K (`--style photo\|anime`) | 해부학 버그 수정 전 |
-| **`upscale_video`** | 영상 납품 해상도 | 얼굴만 깨짐 → face_enhance 먼저 |
+| **`upscale_video`** | 영상 납품 해상도 (ESRGAN / SeedVR2) | 얼굴만 깨짐 → face_enhance 먼저 · MiniMax→HD spatial → `upscale_ltx_spatial` |
+| **`upscale_ltx_spatial`** | MiniMax·저해상도 클립 → LTX spatial x2 (`--path core` 빠름 / `full` IC-LoRA) | 일반 납품 ESRGAN → upscale_video · 스틸 → upscale_image |
 | `generate_wan22_face_enhance` | 얼굴 향상 **실험** | 전체 해상도 대용 |
+| **`ltx_lora_status`** | Asian Face / Relight 가중치·용도 조회 | 생성 본선 |
+| **`generate_ltx_relight`** | **야외** 클립 재조명 (모션 승인 후 룩 패스) | 실내 · 댄스 · 첫 생성 · status≠ready · [ltx_loras_agent](ltx_loras_agent.md) |
 
 ```bash
 # FAST still (default)
@@ -421,11 +441,18 @@ python scripts/upscale_image.py -i key.png -o key_hero.png --backend seedvr2 --p
 # Video deliver / 4K two-pass
 python scripts/upscale_video.py -i work.mp4 -o deliver.mp4 --preset deliver_1080
 python scripts/upscale_video.py -i work.mp4 -o d4k.mp4 --backend seedvr2 --preset deliver_2160 --two-pass
+# MiniMax / low-res → LTX spatial HD
+python scripts/upscale_ltx_spatial.py -i work.mp4 -o out.mp4 --path full
+python scripts/upscale_ltx_spatial.py -i work.mp4 -o preview.mp4 --path core
+# Exterior look pass (weights ready only — see ltx_lora_status)
+python scripts/ltx_lora_status.py
+python scripts/generate_ltx_relight.py -v exterior.mp4 -o relit.mp4 \
+  --look "warm golden low side sun" --direction "the left"
 ```
 
-**하드 룰:** work 해상도에서 생성 → 마감 층만 업스케일 · 구조 버그는 edit 먼저 · 배치는 esrgan · SeedVR2는 히어로.
+**하드 룰:** work 해상도에서 생성 → 마감 층만 업스케일 · 구조 버그는 edit 먼저 · 배치는 esrgan · SeedVR2는 히어로 · **relight는 야외 룩 전용 (해상도 대용 금지)**.
 
-가이드: [image_upscale_dual](../workflows/human/image_upscale_dual/AGENT_GUIDE.md) · 리서치 [upscale_research_and_design.md](upscale_research_and_design.md) · SSOT `upscale_backends.json`
+가이드: [image_upscale_dual](../workflows/human/image_upscale_dual/AGENT_GUIDE.md) · [ltx23_relight](../workflows/human/ltx23_relight/AGENT_GUIDE.md) · LTX LoRA SSOT [ltx_loras_agent](ltx_loras_agent.md) · 리서치 [upscale_research_and_design.md](upscale_research_and_design.md) · SSOT `upscale_backends.json`
 
 ---
 

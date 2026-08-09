@@ -64,6 +64,37 @@ if fail / wrong tool → try:
 
 ---
 
+## Registration checklist (new or ready tool)
+
+에이전트가 **검색 → 실행**할 수 있게, 같은 변경 세트에 아래를 맞추거나  
+상태 어휘를 **일관되게** `planned` / `experimental`로 둔다.
+
+| # | Artifact | Required fields |
+|---|----------|-----------------|
+| 1 | `scripts/<cli>.py` | `--help` 동작 · docstring에 복붙 예 |
+| 2 | `lib/tool_intent.py` 카드 **또는** 부모 카드의 `alternatives` | when, when_not, examples[0], keywords |
+| 3 | `docs/tool_catalog.md` 선반 행 | when / when not / CLI |
+| 4 | `TOOLS.md` 선반 표 | **대표** CLI일 때만 |
+| 5 | `workflows/agent/catalog.json` | `status`, `scripts`/`used_by`, `guide` path |
+| 6 | 영상 도구: `video_backends.json` | `status`, `cli`, `human_ui`/`guide` |
+| 7 | Human pack | `workflows/human/<tool>/AGENT_GUIDE.md` (또는 family pack) |
+| 8 | `process.md` | 한 줄: 무엇을 실었는지 |
+
+**Status vocabulary (shared):** `planned` | `ready` | `ready_experimental` | `legacy_mini` | `superseded`.
+
+- `planned` = 에이전트 CLI 없음, 또는 **의도적으로** 미배선.
+- `scripts/generate_*.py` 등이 있고 에이전트 사용 대상이면 → **`planned` 금지** (`ready` 또는 `ready_experimental`).
+
+**Drift check (Comfy 불필요):**
+
+```bash
+python scripts/tool_index_check.py
+```
+
+exit 0 이 아니면 등록 미완료.
+
+---
+
 ## 에이전트 루프
 
 ```text

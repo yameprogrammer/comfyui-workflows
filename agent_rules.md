@@ -10,6 +10,8 @@ agent_custom = ComfyUI 미디어 생성 도구 모음 (toolbox)
 ```
 
 * **도구 명세·선택 (의도 선반 SSOT):** [docs/tool_catalog.md](docs/tool_catalog.md) · 입구 [TOOLS.md](TOOLS.md)  
+* **도구 등록 체크리스트:** [docs/toolbox_card_standard.md](docs/toolbox_card_standard.md) § Registration checklist · drift: `python scripts/tool_index_check.py`  
+* **의도 검색:** `python scripts/tool_intent.py "…"` (`lib/tool_intent.py`)
 
 * **소비자 진입:** [AGENTS.md](AGENTS.md)  
 * 각 미디어 **프로젝트**가 공정·스토리를 정하고, 여기서는 **도구를 골라** 쓴다.  
@@ -57,10 +59,11 @@ agent_custom/
 ### Rule 2. 도구 CLI · 워크플로 정합성
 * **도구 목록·특징 SSOT:** [docs/tool_catalog.md](docs/tool_catalog.md) (프로젝트는 여기서 선택).
 * **주요 CLI 매핑 (요약 — 상세는 카탈로그):**
-  - still: `generate_moody` / `generate_krea` / `generate_krea_nsfw`(18+)
+  - still **기본 실사:** `generate_krea` · 대안 I2I/실험: `generate_moody` · 18+: `generate_krea_nsfw`
   - I2I·CN: `generate_moody_i2i*` / `generate_moody_controlnet`
   - Qwen: `generate_qwen_edit` · `generate_qwen_inpaint` · `generate_qwen_angle`
   - video: `generate_i2v` / `generate_s2v` (LTX AIO 기본, Wan fallback) · `generate_flf2v`
+  - **MiniMax H3** (시댄스급 T2V/I2V/R2V + 네이티브 스테레오 오디오): `generate_minimax_h3` · 프로필 `draft|work|native|hero` · 가이드 `workflows/human/minimax_h3/AGENT_GUIDE.md` · **에피 본선 I2V 기본은 여전히 LTX**
   - LTX 품질 티어: `--ltx-profile draft|work|hero` (기본 work; 히어로 컷만 hero). 리서치: `docs/ltx23_quality_research_and_improvement.md`
   - NSFW video: `generate_ltx_nsfw_i2v` / `generate_ltx_nsfw_director` (18+) · `generate_wan22_nsfw_i2v` (18+, Wan)
   - TTS: `generate_qwen3_tts` (custom/design/**clone**) · `voice_register` — 클론 ref **≤~30s** · 감정 `--instruct` · 가이드 `workflows/human/qwen3_tts/AGENT_GUIDE.md`

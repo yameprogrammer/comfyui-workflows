@@ -247,16 +247,20 @@
       "quality_tier": "fallback"
     },
     "wan22_animate": {
-      "status": "planned",
+      "status": "ready",
       "family": "wan22",
       "kind": "v2v_motion",
       "engine": "WAN Animate 2.2",
-      "human_ui": "workflows/human/wan22/wan22_animate.json",
+      "cli": "scripts/generate_wan22_animate.py",
+      "runner": "lib/wan22_animate.py",
+      "human_ui": "workflows/human/wan22_animate_dance/",
+      "guide": "workflows/human/wan22_animate_dance/AGENT_GUIDE.md",
       "strengths": [
         "dance_challenge",
-        "pose_retarget"
+        "pose_retarget",
+        "face_lock"
       ],
-      "notes": "Motion transfer (SAM2+pose). Planned wire with dance_challenge / dance_ref. Map: docs/wan22_workflow_map.md."
+      "notes": "Agent CLI ready 2026-08-02. Optional preprocess: extract_pose_video. Fast draft: generate_dance_ref. Map: docs/wan22_workflow_map.md."
     },
     "wan22_nsfw_i2v": {
       "status": "ready",
@@ -520,12 +524,38 @@
       "alias_of": "ltx23_aio_flf",
       "runner": "lib/ltx_aio_workflow_runner.py",
       "notes": "motion_driver=flf2v maps to LTX first/last mode. Override with --backend wan22_flf if needed."
+    },
+    "minimax_h3": {
+      "status": "ready",
+      "kind": "t2v_i2v_r2v",
+      "family": "minimax_h3",
+      "engine": "MiniMax H3 pruned int8 (native ComfyUI nodes + stereo audio)",
+      "workflow": "scripts/generate_minimax_h3.py",
+      "runner": "lib/minimax_h3_runner.py",
+      "cli": "scripts/generate_minimax_h3.py",
+      "human_ui": "workflows/human/minimax_h3/",
+      "guide": "workflows/human/minimax_h3/AGENT_GUIDE.md",
+      "default_profile": "work",
+      "profiles": ["draft", "work", "native", "hero"],
+      "strengths": [
+        "seedance_class_quality",
+        "native_stereo_audio",
+        "text_to_video",
+        "image_to_video",
+        "first_last_frame",
+        "multi_reference",
+        "cinematic_anime"
+      ],
+      "quality_tier": "hero_opt_in",
+      "notes": "NOT episode default I2V (default remains ltx23_aio_i2v). Use for quality hero shorts, T2V with baked-in audio, R2V identity. Models under F:\\model MinimaxH3 + qwen3vl_32b. ComfyUI ≥0.30. Bench 4090: work 0.4MP 5s ~113s; native 0.98MP 5s ~378s (2026-08-07)."
     }
   },
   "default_backend_flf": "ltx23_aio_flf",
   "i2v_quality_policy": {
+    "note": "Historical A/B 2026-07-17 at work_16x9_540-class. Current default work preset is work_16x9_720 (see default_work_preset). Do not treat target_work_at_test as current policy.",
     "ab_date": "2026-07-17",
     "source": "stories/sonagi_mv_v3/keyframes/S01.png",
+    "target_work_at_test": "960x544 (work_16x9_540)",
     "target_work": "960x544 (work_16x9_540)",
     "outputs": {
       "wan22": "F:/generated_videos/ab_wan_vs_ltx/S01_wan22.mp4",
@@ -574,7 +604,7 @@
       "wan22_flf": "ready fallback FLF",
       "wan22_nsfw_i2v": "ready adult 18+ I2V (optional NSFW LoRA pair)",
       "yaw_wan22": "ready easy MoE T2V/I2V via generate_yaw_wan22",
-      "wan22_animate": "planned pose/SAM2 retarget"
+      "wan22_animate": "ready generate_wan22_animate (face-lock dance retarget)"
     },
     "finish": {
       "wan22_face_enhance": "ready_experimental — generate_wan22_face_enhance",

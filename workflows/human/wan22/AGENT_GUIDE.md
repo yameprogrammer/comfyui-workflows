@@ -43,9 +43,12 @@ A/B: [wan_vs_ltx_i2v_ab_2026-07-17.md](../../../docs/wan_vs_ltx_i2v_ab_2026-07-1
 | `wan22_face_enhance.json` | **FINISH** | 얼굴 스미어 | **ready_experimental** `generate_wan22_face_enhance` |
 | `wan22_upscale.json` | **FINISH opt-in** | Wan 확산 업스케일 | **ready_experimental** `generate_wan22_upscale` |
 | `wan22_upscale_face_enhance.json` | **planned** | 업스케일+얼굴 | Human only · API 미배선 |
-| `wan22_animate.json` | **planned 장르** | pose/SAM2 리타겟 | `video_backends.wan22_animate` planned |
+| `wan22_animate.json` | **human-ready 장르** | pose 리타겟 (Animate) UI 풀팩 | **CLI:** `generate_wan22_animate` · pack [../wan22_animate_dance/](../wan22_animate_dance/) |
+| `wan22_fun_control_native.json` | **human-ready** | pose/depth Fun Control | UI only · Comfy-Org template |
 | `wan22_flf2v_native.json` | **참고** | 네이티브 FLF | 재export 후보 |
 | `wan22_i2v_lightning_native.json` | **참고** | 네이티브 4step | 경량 참고 |
+
+**Setup SSOT (가중치·노드·스모크):** [SETUP_animate_fun_control.md](SETUP_animate_fun_control.md)
 
 ### 의도적으로 안 넣은 원본
 
@@ -78,8 +81,15 @@ A/B: [wan_vs_ltx_i2v_ab_2026-07-17.md](../../../docs/wan_vs_ltx_i2v_ab_2026-07-1
 - 기본 납품 **금지** → `upscale_backends` 의 esrgan / seedvr2 / rtx_vsr
 
 ### Animate
-- SAM2 + pose + mask → `WanVideoAnimateEmbeds`  
-- `dance_challenge` / dance_ref 와 정합 (배선 planned)
+- Preprocess: `ComfyUI-WanAnimatePreprocess` (YOLO + ViTPose ONNX) → pose/face  
+- Motion: `WanVideoAnimateEmbeds` + `Wan2.2-Animate-14B-Q4_K.gguf`  
+- Human WF: `wan22_animate.json` · agent API inject still planned  
+- Dance draft (agent today): `generate_dance_ref` (LTX V2V)
+
+### Fun Control
+- Native: `Wan22FunControlToVideo` + High/Low `wan2.2_fun_control_*_14B_fp8_scaled`  
+- Control video = pose/depth/canny plate (aux preprocess or pre-baked)  
+- Human WF: `wan22_fun_control_native.json` · samples in `_fun_control_assets/`
 
 ---
 

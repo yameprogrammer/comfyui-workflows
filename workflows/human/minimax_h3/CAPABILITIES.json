@@ -1,0 +1,75 @@
+{
+  "id": "minimax_h3",
+  "version": 1,
+  "family": "minimax_h3",
+  "status": "ready",
+  "shelf": "MOTION",
+  "cli": "scripts/generate_minimax_h3.py",
+  "runner": "lib/minimax_h3_runner.py",
+  "comfy_min_version": "0.30.0",
+  "tasks": ["t2v", "i2v", "flf", "r2v"],
+  "native_audio": true,
+  "native_audio_note": "Stereo AAC muxed in single forward pass (not post-hoc TTS)",
+  "nodes": {
+    "t2v_i2v_flf": "MiniMaxH3ImageToVideo",
+    "r2v": "MiniMaxH3ReferenceToVideo"
+  },
+  "models": {
+    "fl2va": "MinimaxH3\\minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+    "ref2va": "MinimaxH3\\minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+    "text_encoder": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "vae_video": "minimax_h3_video_vae_fp16.safetensors",
+    "vae_audio": "minimax_h3_audio_vae_fp32.safetensors",
+    "source": "https://huggingface.co/Comfy-Org/MiniMax-H3"
+  },
+  "profiles": {
+    "draft": { "megapixels": 0.3, "duration": 3.0, "steps": 16 },
+    "work": { "megapixels": 0.4, "duration": 5.0, "steps": 20 },
+    "native": { "megapixels": 0.98, "duration": 5.0, "steps": 20 },
+    "hero": { "megapixels": 0.98, "duration": 5.0, "steps": 24 }
+  },
+  "default_profile": "work",
+  "aspects": ["16:9", "9:16", "1:1"],
+  "fps": 24,
+  "length_grid": "17k+5 frames @24fps via ComfyMathExpression",
+  "max_ref_images": 9,
+  "max_ref_videos": 3,
+  "max_ref_audios": 3,
+  "bench_rtx4090_2026_08_07": {
+    "work_5s": { "res": "864x480", "elapsed_sec": 113.5, "sampling_sec": 84, "s_per_step": 4.23 },
+    "native_5s": { "res": "1344x768", "elapsed_sec": 378.3, "sampling_sec": 348, "s_per_step": 17.4 }
+  },
+  "human_ui": [
+    "MiniMax_H3_T2V_TextToVideo.json",
+    "MiniMax_H3_I2V_ImageToVideo.json",
+    "MiniMax_H3_R2V_ReferenceToVideo.json",
+    "MiniMax_LTX_Spatial_Full_Upscale.json"
+  ],
+  "upscale": {
+    "path": "full",
+    "cli": "scripts/upscale_ltx_spatial.py",
+    "workflow_ui": "MiniMax_LTX_Spatial_Full_Upscale.json",
+    "workflow_api": "MiniMax_LTX_Spatial_Full_Upscale.api.json",
+    "note": "LTX 2.3 spatial x2 + upscale IC-LoRA via CRT UnifiedSampler V2V Upscale"
+  },
+  "strengths": [
+    "cinematic_anime_and_liveaction",
+    "native_stereo_audio",
+    "text_to_video",
+    "image_to_video",
+    "first_last_frame",
+    "multi_reference_identity",
+    "seedance_class_quality"
+  ],
+  "not_for": [
+    "episode_default_i2v_batch",
+    "talking_head_lipsync_primary",
+    "sub_second_preview_iteration"
+  ],
+  "docs": {
+    "comfy": "https://docs.comfy.org/tutorials/video/minimax/minimax-h3",
+    "hf": "https://huggingface.co/Comfy-Org/MiniMax-H3",
+    "prompt_base": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/VIDEO_PROMPT_WRITING_GUIDE_base_en.md",
+    "prompt_ref": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/VIDEO_PROMPT_WRITING_GUIDE_ref_en.md"
+  }
+}

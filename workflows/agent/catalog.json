@@ -130,6 +130,34 @@
       "civitai": "https://civitai.red/models/2008892/yet-another-workflow-easy-t2v-i2v-yaw-wan-22",
       "notes": "Tool catalog entry only — no pipeline rank. Real UI + switches. No mini-graph. Smoke T2V GGUF OK."
     },
+    "minimax_h3": {
+      "file": null,
+      "format": "native_api_graph",
+      "role": "text_to_video_image_to_video_reference",
+      "family": "minimax_h3",
+      "status": "ready",
+      "description": "MiniMax H3 open weights: T2V/I2V/FL/R2V with native stereo audio. ComfyUI ≥0.30 native nodes. Pruned int8 pack on F:\\model.",
+      "purpose": "Seedance-class local video+audio — hero shorts, multi-ref identity, cinematic anime/liveaction",
+      "source_ui": "workflows/human/minimax_h3/MiniMax_H3_T2V_TextToVideo.json",
+      "source_ui_i2v": "workflows/human/minimax_h3/MiniMax_H3_I2V_ImageToVideo.json",
+      "source_ui_r2v": "workflows/human/minimax_h3/MiniMax_H3_R2V_ReferenceToVideo.json",
+      "runner": "lib/minimax_h3_runner.py",
+      "guide": "workflows/human/minimax_h3/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/minimax_h3/CAPABILITIES.json",
+      "used_by": [
+        "scripts/generate_minimax_h3.py"
+      ],
+      "default_profile": "work",
+      "profiles": [
+        "draft",
+        "work",
+        "native",
+        "hero"
+      ],
+      "hf": "https://huggingface.co/Comfy-Org/MiniMax-H3",
+      "docs": "https://docs.comfy.org/tutorials/video/minimax/minimax-h3",
+      "notes": "Not episode default I2V (still LTX). Quality+audio tool. Bench 4090: work 5s~113s, native 5s~378s. Engine family minimax_h3."
+    },
     "wan22_face_enhance": {
       "file": "presets/wan22_face_enhance.api.json",
       "ports": "presets/wan22_face_enhance.ports.json",
@@ -209,10 +237,55 @@
     },
     "wan22_animate": {
       "file": null,
+      "format": "native_api_graph",
       "role": "motion_transfer",
-      "status": "planned",
-      "human_ui": "workflows/human/wan22/wan22_animate.json",
-      "notes": "Dance/challenge motion retarget; dance_challenge pipe"
+      "family": "wan22",
+      "status": "ready",
+      "description": "Wan2.2 Animate dance/motion retarget with face lock. Pose preprocess + animate diffusion.",
+      "runner": "lib/wan22_animate.py",
+      "guide": "workflows/human/wan22_animate_dance/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/wan22_animate_dance/CAPABILITIES.json",
+      "human_ui_legacy": "workflows/human/wan22/wan22_animate.json",
+      "used_by": [
+        "scripts/generate_wan22_animate.py"
+      ],
+      "notes": "Ready 2026-08-02. Prefer generate_wan22_animate CLI. Cross-cast dance; face_strength default 1.3. Not episode bulk I2V default."
+    },
+    "openpose_pose": {
+      "file": null,
+      "role": "pose_extract_and_generate",
+      "status": "ready",
+      "description": "OpenPose map extract + template pose generate (walk/jog keys).",
+      "guide": "workflows/human/openpose_controlnet/AGENT_GUIDE.md",
+      "used_by": [
+        "scripts/generate_openpose_pose.py"
+      ],
+      "notes": "One-stop pose stills; not Qwen text foot-phase fix."
+    },
+    "extract_pose_video": {
+      "file": null,
+      "role": "pose_video_preprocess",
+      "family": "wan22",
+      "status": "ready",
+      "description": "RGB video → pose stick plate (WanAnimatePreprocess YOLO+ViTPose).",
+      "runner": "lib/pose_extract.py",
+      "used_by": [
+        "scripts/extract_pose_video.py"
+      ],
+      "notes": "Preprocess for wan22_animate / Fun Control. MOTION shelf."
+    },
+    "ltx_spatial_upscale": {
+      "file": null,
+      "role": "video_spatial_upscale",
+      "family": "ltx",
+      "status": "ready",
+      "description": "LTX latent spatial x2 — core (fast) or full (CRT + IC-LoRA refine).",
+      "runner": "lib/ltx_spatial_upscale.py",
+      "guide": "workflows/human/minimax_h3/AGENT_GUIDE.md",
+      "used_by": [
+        "scripts/upscale_ltx_spatial.py"
+      ],
+      "notes": "MiniMax work → HD companion. Requires ComfyUI-LTXVideo + crt-nodes. core ~12s; full ~3min for 5s clip (4090)."
     },
     "t2i_krea": {
       "file": "_legacy/T2I-krea.json",

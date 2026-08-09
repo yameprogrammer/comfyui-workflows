@@ -31,6 +31,7 @@ FAMILY_MOODY = "moody_still"  # ZImage / Lumina2 T2I I2I ControlNet
 FAMILY_LTX = "ltx"  # LTX 2.3 GGUF + Gemma TE + dual VAE
 FAMILY_INFINITETALK = "infinitetalk"
 FAMILY_WAN = "wan"  # Wan2.2 I2V
+FAMILY_MINIMAX_H3 = "minimax_h3"  # MiniMax H3 T2V/I2V/R2V + native audio
 FAMILY_ACE = "ace_step"  # BGM
 FAMILY_QWEN_EDIT = "qwen_edit_2509"  # Qwen-Image-Edit-2509 instruction edit (fp8 + VL)
 FAMILY_QWEN_ANGLE = "qwen_edit_2511_angle"  # Qwen-Image-Edit-2511 multi-angle (GGUF + Angles LoRA)

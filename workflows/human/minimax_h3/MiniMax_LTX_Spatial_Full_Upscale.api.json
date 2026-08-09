@@ -1,0 +1,160 @@
+{
+  "1": {
+    "class_type": "UnetLoaderGGUF",
+    "inputs": {
+      "unet_name": "LTX2.3\\LTX-2.3-22B-distilled-1.1-Q4_K_M.gguf"
+    }
+  },
+  "2": {
+    "class_type": "VAELoaderKJ",
+    "inputs": {
+      "vae_name": "LTX23_video_vae_bf16.safetensors",
+      "device": "main_device",
+      "weight_dtype": "bf16"
+    }
+  },
+  "3": {
+    "class_type": "VAELoaderKJ",
+    "inputs": {
+      "vae_name": "LTX23_audio_vae_bf16.safetensors",
+      "device": "main_device",
+      "weight_dtype": "bf16"
+    }
+  },
+  "4": {
+    "class_type": "CRTAutoDLLTX23CLIP",
+    "inputs": {}
+  },
+  "5": {
+    "class_type": "LatentUpscaleModelLoader",
+    "inputs": {
+      "model_name": "ltx-2.3-spatial-upscaler-x2-1.1.safetensors"
+    }
+  },
+  "6": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "lora_name": "LTX2.3\\ltx2.3_upscale_ic-lora_06250.safetensors",
+      "strength_model": 0.75
+    }
+  },
+  "7": {
+    "class_type": "VHS_LoadVideo",
+    "inputs": {
+      "video": "i2v_work.mp4",
+      "force_rate": 24.0,
+      "custom_width": 0,
+      "custom_height": 0,
+      "frame_load_cap": 0,
+      "skip_first_frames": 0,
+      "select_every_nth": 1,
+      "format": "LTXV"
+    }
+  },
+  "8": {
+    "class_type": "CRT_LTX23USConfig",
+    "inputs": {
+      "prompt": "high quality, sharp details, clean motion, natural textures, preserve original composition and identity, crisp anime lines",
+      "seed": 42,
+      "Video (V2V image batch)": [
+        "7",
+        0
+      ],
+      "source_audio": [
+        "7",
+        2
+      ]
+    }
+  },
+  "9": {
+    "class_type": "CRT_LTX23USModelsPipe",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "vae": [
+        "2",
+        0
+      ],
+      "audio_vae": [
+        "3",
+        0
+      ],
+      "clip": [
+        "4",
+        0
+      ],
+      "model_upscale": [
+        "6",
+        0
+      ],
+      "spatial_upscale_model": [
+        "5",
+        0
+      ],
+      "latent_downscale_factor": 1.0
+    }
+  },
+  "10": {
+    "class_type": "CRT_LTX23UnifiedSampler",
+    "inputs": {
+      "models_pipe": [
+        "9",
+        0
+      ],
+      "config_pipe": [
+        "8",
+        0
+      ],
+      "workflow_mode": "V2V",
+      "hq": false,
+      "live_preview": false,
+      "frame_count_from_audio": false,
+      "vae_decode_tiled": false,
+      "unload_model_before_vae_decode": false,
+      "low_vram": false,
+      "megapixels_target": 1.5,
+      "aspect_ratio": "16:9 (Landscape)",
+      "frame_count": 121,
+      "v2v_mode": "Upscale",
+      "v2v_guide_strength": 0.45,
+      "depth_megapixels": 0.5,
+      "v2v_aspect_ratio": "16:9 (Landscape)",
+      "sampler_main": "euler_cfg_pp",
+      "sampler_refine": "euler_cfg_pp",
+      "steps": 4,
+      "generated_audio_gain_db": 0.0,
+      "firstframe_strength": 1.0,
+      "depth_mouth_mask": false,
+      "mouth_detect_megapixels": 0.3,
+      "mouth_single_item": true,
+      "mouth_detect_chunk_size": 8,
+      "mouth_mask_expand": 0,
+      "mouth_mask_blur": 0.0
+    }
+  },
+  "11": {
+    "class_type": "VHS_VideoCombine",
+    "inputs": {
+      "images": [
+        "10",
+        0
+      ],
+      "audio": [
+        "10",
+        1
+      ],
+      "frame_rate": 24.0,
+      "loop_count": 0,
+      "filename_prefix": "video/MiniMax_LTX_spatial_full",
+      "format": "video/h264-mp4",
+      "pingpong": false,
+      "save_output": true
+    }
+  }
+}

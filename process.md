@@ -1,3 +1,102 @@
+## 2026-08-09 — Toolbox index alignment (agent discovery)
+- Policy: SFW photoreal default = `generate_krea` (`still_photoreal` intent fixed; moody = I2I/experiment alternative)
+- `wan22_animate`: planned → **ready** (catalog.json · video_backends · wan22_workflow_map · tool_catalog · TOOLS)
+- Guide SSOT: `workflows/human/wan22_animate_dance/` (legacy UI path kept as human_ui_legacy only)
+- New intent cards: `openpose_pose` · `ltx_spatial_upscale` · `yaw_wan22`
+- Catalog rows: extract_pose_video · openpose_pose · ltx_spatial_upscale; MOTION/FINISH prose synced
+- Registration checklist: `docs/toolbox_card_standard.md` · pointer in `agent_rules.md`
+- Drift guard: `python scripts/tool_index_check.py` (planned cannot hide ready CLI)
+- Out of scope: 3D/VRM toolization · full intent parity for every catalog sibling
+
+## 2026-08-07 — LTX full-quality spatial upscale (community path)
+- Fixed ComfyUI-LTXVideo: pull rope fix + kornia pad polyfill → `LTXAddVideoICLoRAGuide` loads
+- CLI default `--path full`: CRT V2V Upscale + spatial x2 + upscale IC-LoRA refine
+- Smoke: MiniMax 864x480 → **1632x896** full in **~190s** vs core 1728x960 in ~12s
+- Outs: `i2v_work_ltx_full.mp4` (quality) · `i2v_work_ltx_spatial.mp4` (core/fast)
+- `--path core` keeps pure latent x2 for previews
+
+## 2026-08-07 — LTX spatial x2 working (core path)
+- Smoke OK: MiniMax I2V 864x480 → **1728x960** in **~12s** (RTX 4090)
+- Out: `F:\ComfyUI_data\output\video\minimax_h3_tests\i2v_work_ltx_spatial.mp4`
+- Path: VHS_LoadVideo → VAEEncode → LTXVLatentUpsampler (x2-1.1) → VAEDecode → combine (audio passthrough)
+- CLI: `scripts/upscale_ltx_spatial.py`
+
+## 2026-08-07 — CRT LatentUpsampler.operations fix (LTX spatial upscale)
+- Error: `LatentUpsampler.from_config() missing 1 required positional argument: 'operations'`
+- Cause: Comfy 0.30+ requires `operations=`; crt-nodes AutoDL still called `from_config(config)` only
+- Fix: `ComfyUI/custom_nodes/crt-nodes/py/AutoDL_Nodes.py` pass `comfy.ops.disable_weight_init` (match nodes_hunyuan.py)
+- Agent path: `scripts/upscale_ltx_spatial.py` + `lib/ltx_spatial_upscale.py`
+- **Restart ComfyUI** after patch so CRT module reloads
+
+## 2026-08-07 — MiniMax H3 I2V + R2V smoke (work profile, RTX 4090)
+- Inputs: native T2V stills as start/ref (hero CU + wide env)
+- I2V: `minimax_h3_tests/i2v_work.mp4` — 864x480 5s, elapsed **111s**, fl2va unet, seed 42
+- R2V: `minimax_h3_tests/r2v_work.mp4` — 864x480 5s, elapsed **126s**, **ref2va** unet, 2 ref images, seed 42
+- Both: stereo AAC OK · CLI path `generate_minimax_h3.py` verified end-to-end
+- Note: I2V first-frame lock strong; R2V blends identity+env when roles tagged Picture 1/2
+
+## 2026-08-07 — MiniMax H3 tool (T2V/I2V/R2V + native stereo audio)
+- CLI: `scripts/generate_minimax_h3.py` · runner: `lib/minimax_h3_runner.py`
+- Human pack: `workflows/human/minimax_h3/` (AGENT_GUIDE · CAPABILITIES · UI json)
+- Models on disk (F:\model): fl2va + ref2va pruned int8, qwen3vl_32b TE, video/audio VAE
+- Profiles: draft / **work** (0.4MP) / native (0.98MP) / hero
+- Bench RTX 4090: work 5s ~113s · native 5s ~378s (seed 42 sample)
+- Registered: catalog.json · video_backends.json · tool_intent · tool_catalog · TOOLS · agent_rules
+- Engine family: `minimax_h3` (comfy_engine_session)
+- **Not** episode default I2V (still LTX); opt-in quality / audio / multi-ref tool
+
+## 2026-08-02 — LTX optional LoRA agent catalog (Asian Face + Relight)
+- SSOT: docs/ltx_loras_agent.md · lib/ltx_lora_catalog.py
+- CLI: scripts/ltx_lora_status.py (list/show/download-relight) · scripts/generate_ltx_relight.py (fail-closed)
+- asian_face: ready on disk, AIO auto-ON @1.0 (see prior entry)
+- relight: HF gated — download needs `hf auth login` + Agree and Access; then download-relight
+- Human pack: workflows/human/ltx23_relight/AGENT_GUIDE.md
+- tool_intent: ltx_lora_status · ltx_relight · tool_catalog MOTION/FINISH rows
+
+## 2026-08-02 — wan22_animate_dance human pack + CLI
+- CLI: scripts/generate_wan22_animate.py · lib: lib/wan22_animate.py
+- Human pack: workflows/human/wan22_animate_dance/ (AGENT_GUIDE · RECIPE · CAPABILITIES)
+- Defaults: 544x960 headroom · face_strength 1.3 · validated D2 pilot
+- tool_intent id: wan22_animate
+
+## 2026-08-02 — Wan2.2 Animate dance retarget pilot (male + Pretty Girl hook)
+- Installed ComfyUI-segment-anything-2 + sam2_hiera_base_plus (mask path flaky; ran without mask)
+- Script: scripts/_run_wan22_animate_dance.py (pose+face+clip ref, face_strength=1.3)
+- Out: stories/_tool_smoke/dance_prettygirl_test/out/D_male_wan22_animate.mp4 (~132s)
+- Fun Control path still collapses identity under hard cross-cast dance; Animate is next quality rung
+
+## 2026-08-02 — extract_pose_video CLI (MOTION preprocess)
+- scripts/extract_pose_video.py + lib/pose_extract.py
+- Comfy: WanAnimatePreprocess YOLO+ViTPose → DrawViTPose stick plate
+- tool_intent: extract_pose_video shelf MOTION
+- Pilot: stories/_tool_smoke/dance_prettygirl_test/materials/dance_hook_pose.mp4 (~12s)
+
+## 2026-08-02 — Deno LTX Asian Face LoRA installed + wired
+- Source YT: https://youtu.be/9Dkd3JwkJWo (Deno) · Civitai models/2816700 East Asian Facial Fidelity LTX-2.3 I2V
+- Weights: F:\model\loras\LTX2.3\LTX2.3_EastAsian_Facial_Fidelity_v1.safetensors (~96MB, alias of ltx-face-prior-f1-…)
+- Inject: Power Lora node 211 via pply_ltx_asian_face_lora · default ON when file present
+- CLI: --ltx-asian-face / --no-ltx-asian-face · --ltx-asian-face-strength · env AGENT_LTX_ASIAN_FACE
+- Docs: docs/ltx_face_stability.md
+- Note: face prior only (not character ID); stacks with detailer/VBVR
+
+## 2026-08-02 — A/B LTX dance_ref vs Fun Control (pose) outputs ready
+- A: stories/_tool_smoke/ab_ltx_vs_fun_control/out/A_ltx_dance_ref.mp4
+- B: .../out/B_fun_control.mp4 (~617s Fun Control re-run after LTX)
+- dance_ref trim fix: keep silent audio (LTX VHS audio encode) in lib/dance_ref.py
+
+## 2026-08-02 — Wan2.2 Animate preprocess + Fun Control smoke OK
+- Script: scripts/_smoke_wan22_animate_fun_control.py
+- Animate preprocess (ViTPose+YOLO DrawViTPose): ~18s → stories/_tool_smoke/wan22_animate_fun_control/animate_preprocess_*.mp4
+- Fun Control native dual UNET 512x512 33f 12step: ~231s → .../fun_control_*.mp4
+- Full Animate diffusion retarget (SAM2 + WanAnimate GGUF end-to-end) still not smoked (SAM2 nodes missing)
+
+## 2026-08-02 — Wan2.2 Animate + Fun Control Comfy basic setup
+- Custom node: ComfyUI-WanAnimatePreprocess → portable custom_nodes
+- Detection mirror: yolov10m.onnx + itpose-l-wholebody.onnx in models/detection (hardlink from F:\model\detection)
+- Fun Control weights: Comfy-Org fp8 high/low → F:\model\diffusion_models\Wan2.2\
+- Human WF: wan22_fun_control_native.json + _fun_control_assets/; SETUP: workflows/human/wan22/SETUP_animate_fun_control.md
+- Agent CLI still unwired (wan22_animate planned)
+
 ## 2026-07-31 — LTX VBVR reasoning LoRA (motion/temporal)
 - Ref: Mayajin YT Zw_OaYZzA0E — title says face consistency; VBVR = Video Reasoning
   (physics/trajectory/temporal), not FaceID. Useful alongside detailer/Omni.

@@ -20,6 +20,7 @@ AIO v44 기본 세팅에서 **IC-LoRA detailer (`ltx-2-19b-ic-lora-detailer`)가
 | Upscale IC-LoRA | **ON @ 0.45** (2-stage 지원; was hard-OFF) | `AGENT_LTX_UPSCALE_IC=0` 끄기 · `…_STRENGTH` |
 | OmniNFT | **0.45** | `AGENT_LTX_OMNI_STRENGTH` |
 | **VBVR** (Video Reasoning LoRA) | **ON @ 0.75** (work; file 있을 때) | `AGENT_LTX_VBVR` · `AGENT_LTX_VBVR_STRENGTH` |
+| **Asian Face** (Deno East Asian Facial Fidelity) | **ON @ 1.0** (file 있을 때) | `AGENT_LTX_ASIAN_FACE` · `AGENT_LTX_ASIAN_FACE_STRENGTH` |
 | 프롬프트 접미 | identity stable / no face morph | — |
 | Negative | morphing face, identity shift… | — |
 
@@ -38,6 +39,23 @@ detailer/Omni와 **함께** 쓰면 프레임 간 떨림·모션 이상 완화에
 파일: `F:\model\loras\LTX2.3\Ltx2.3-Licon-VBVR-I2V-240K-R32.safetensors`  
 없으면 자동 스킵. strength **1.0은 choppy** 보고 다수 → 기본 ≤0.8.
 
+### Asian Face (2026-08-02) — 캐릭터 ID 고정 아님
+
+**Deno2026** [East Asian Facial Fidelity | LTX-2.3 I2V](https://civitai.com/models/2816700)  
+YT: [LTX2.3 아시안 얼굴 Lora 공유](https://youtu.be/9Dkd3JwkJWo)
+
+| | |
+|--|--|
+| 역할 | LTX가 카메라 이동 시 **서양인 이목구비로 드리프트**하는 편향을 줄이는 **얼굴 prior** |
+| 아님 | 특정 인물 FaceID / 일관성 앵커 (키프레임·detailer·ID LoRA가 1번 축) |
+| strength | **1.0** (권장, trigger word 없음) |
+| 파일 | `F:\model\loras\LTX2.3\LTX2.3_EastAsian_Facial_Fidelity_v1.safetensors`  
+| | (= `ltx-face-prior-f1-profile-correction-step11019.safetensors`) |
+
+서양인 주연 컷은 `AGENT_LTX_ASIAN_FACE=0` 또는 `--no-ltx-asian-face`.
+
+**에이전트 SSOT (when/when-not · status):** [ltx_loras_agent.md](ltx_loras_agent.md) · `python scripts/ltx_lora_status.py`
+
 끄기 / 튜닝:
 
 ```bash
@@ -49,12 +67,16 @@ set AGENT_LTX_UPSCALE_IC_STRENGTH=0.45
 set AGENT_LTX_DETAILER_STRENGTH=0.55
 set AGENT_LTX_VBVR=0
 set AGENT_LTX_VBVR_STRENGTH=0.75
+set AGENT_LTX_ASIAN_FACE=0
+set AGENT_LTX_ASIAN_FACE_STRENGTH=1.0
 
 # CLI
 python scripts/generate_s2v.py --backend ltx23_aio_i2v --no-face-stability ...
 python scripts/generate_s2v.py --detailer-strength 0.7 --ltx-profile hero ...
 python scripts/generate_s2v.py --no-ltx-vbvr ...          # VBVR off
 python scripts/generate_s2v.py --ltx-vbvr-strength 0.6 ...
+python scripts/generate_s2v.py --no-ltx-asian-face ...    # Asian Face off
+python scripts/generate_s2v.py --ltx-asian-face-strength 0.8 ...
 ```
 
 ## 연출/프롬프트 (더 중요)

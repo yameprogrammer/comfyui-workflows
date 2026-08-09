@@ -45,7 +45,7 @@
 | **`wan22_flf`** | First+Last frame 폴백 | **ready** · fallback | `generate_i2v --backend wan22_flf` · `--last` | `wan22_i2v_start_end.json` | `presets/i2v_wan22_a14b_flf.api.json` |
 | **`wan22_nsfw_i2v`** | **빨간맛 I2V (18+)** | **ready** | `generate_wan22_nsfw_i2v` | `wan22_i2v.json` (+ optional NSFW LoRA pair) | same `i2v_wan22_a14b` + LoRA chain |
 | **`yaw_wan22`** | 쉬운 MoE T2V+I2V 실 UI | **ready** | `generate_yaw_wan22` | `workflows/human/yaw_wan22/…v050Moe.json` | `presets/yaw_wan22_v050_moe.api.json` |
-| **`wan22_animate`** | 레퍼 모션→캐릭 (SAM2+pose) | **planned** | (미배선) | `wan22_animate.json` | — |
+| **`wan22_animate`** | 레퍼 모션→캐릭 (얼굴 고정 리타겟) | **ready** | `generate_wan22_animate` | `workflows/human/wan22_animate_dance/` | runner `lib/wan22_animate.py` · preprocess `extract_pose_video` |
 
 ### 1.2 FINISH — 후처리 (생성 본체 아님)
 
@@ -85,7 +85,7 @@
 | 텍스트→영상 쉬운 MoE | `generate_yaw_wan22 --task t2v` | 에피소드 본선 대체 아님 |
 | I2V 후 얼굴만 깨짐 | `generate_wan22_face_enhance` | 전체 해상도 대용 |
 | 납품 해상도 업 | **esrgan / seedvr2 / rtx_vsr** | `wan22_upscale` 기본 경로 |
-| 댄스 포즈 리타겟 | `wan22_animate` (planned) / `generate_dance_ref` | — |
+| 댄스 포즈 리타겟 (얼굴 고정) | **`generate_wan22_animate`** | 빠른 초안 → `generate_dance_ref` |
 | **빨간맛 영상 (18+)** | **`generate_wan22_nsfw_i2v`** 또는 `generate_ltx_nsfw_i2v` | SFW i2v |
 | 빨간맛 스틸 (18+) | `generate_krea_nsfw` | — |
 | 립싱크 | InfiniteTalk / LTX s2v | Wan S2V 미도입 |
@@ -254,7 +254,7 @@ docs/
 |-----|--------|--------------|------------|
 | `wan22` | ready | fallback | GGUF dual + lightx2v; 명시/폴백만 |
 | `wan22_flf` | ready | fallback | start+end; 품질 FLF 본선은 LTX |
-| `wan22_animate` | planned | — | dance/pose 리타겟 |
+| `wan22_animate` | ready | — | dance/pose 리타겟 · CLI `generate_wan22_animate` |
 | `default_backend` | — | — | **`ltx23_aio_i2v`** (Wan 아님) |
 | `default_backend_flf` | — | — | **`ltx23_aio_flf`** |
 

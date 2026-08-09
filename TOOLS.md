@@ -17,6 +17,9 @@ python scripts/tool_intent.py search "camera push in" --json
 python scripts/tool_intent.py list --shelf MOTION
 python scripts/tool_intent.py shelves
 
+# 인덱스 드리프트 검사 (intent / catalog / backends)
+python scripts/tool_index_check.py
+
 # 업스케일러 선택 (매체·목표·도메인 → backend/style)
 python scripts/upscale_recommend.py --media image --goal delivery --domain photo
 python scripts/upscale_recommend.py --media video --goal hero --source blurry
@@ -58,11 +61,11 @@ Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 | **GENERATE** | 빈 화면 → 그림 (**기본: Krea2**) | `generate_krea` · `generate_krea_nsfw` · `generate_moody` · `generate_illustrious_standard` |
 | **TRANSFORM** | 같은 인물·편집·스타일 | `generate_character_consistent` · `generate_style_transfer` · `generate_qwen_edit` · `generate_qwen_inpaint` |
 | **CAMERA** | 각도·포즈·시점·프레이밍 | `generate_qwen_angle` · `generate_viewpoint` · **`generate_openpose_pose`** · `generate_moody_controlnet` · `generate_reframe` |
-| **MOTION** | 영상 모션 · 카메라 · 아이들/루프 · 댄스 레퍼 | `generate_camera_move` · `generate_idle_loop` · `generate_dance_ref` · `generate_i2v` · `generate_s2v` |
+| **MOTION** | 영상 모션 · 카메라 · 아이들/루프 · 댄스 · **MiniMax H3** | `generate_camera_move` · `generate_idle_loop` · `generate_dance_ref` · **`generate_wan22_animate`** · `extract_pose_video` · `generate_i2v` · `generate_s2v` · **`generate_minimax_h3`** · `generate_yaw_wan22` |
 | **TRANSFORM+** | 가벼운 ID 팩 | `generate_ref_pack` · `generate_character_consistent` |
 | **VOICE** | 대사·BGM | `generate_qwen3_tts` · `generate_bgm` |
 | **INGEST** | 유튜브 레퍼 이해 | `youtube_ingest` · `youtube_highlights` |
-| **FINISH** | 업스케일 (먼저 추천) | `upscale_recommend` · `upscale_image` · `upscale_video` |
+| **FINISH** | 업스케일 · LTX spatial · 야외 재조명 | `upscale_recommend` · `upscale_image` · `upscale_video` · **`upscale_ltx_spatial`** · `ltx_lora_status` · `generate_ltx_relight` (야외만) |
 | **ASSETS** | 캐릭/로케 패키지 *(옵션)* | `character_*` · `location_*` |
 | **BUNDLE** | 멀티샷 묶기·QA *(옵션)* | `story_init` · `assemble_video` · `shot_qa_*` |
 

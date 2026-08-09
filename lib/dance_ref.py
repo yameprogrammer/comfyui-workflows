@@ -90,18 +90,38 @@ def trim_reference_video(
     parent = os.path.dirname(os.path.abspath(output_path))
     if parent:
         os.makedirs(parent, exist_ok=True)
-    args: list[str] = ["-ss", str(max(0.0, float(start_sec))), "-i", video_path]
-    if duration_sec is not None and float(duration_sec) > 0:
-        args.extend(["-t", str(float(duration_sec))])
+    # Keep a usable audio track: LTX AIO V2V (VHS + LTXVAudioVAEEncode) fails
+    # hard when the drive mp4 has no audio stream. Prefer re-encode with silent
+    # stereo if source is silent/missing audio; do not strip with -an.
+    start = max(0.0, float(start_sec))
+    dur = float(duration_sec) if duration_sec is not None and float(duration_sec) > 0 else None
+    # anullsrc + shortest guarantees AAC even when source has no audio.
+    args: list[str] = [
+        "-y",
+        "-ss",
+        str(start),
+        "-i",
+        video_path,
+        "-f",
+        "lavfi",
+        "-i",
+        "anullsrc=channel_layout=stereo:sample_rate=44100",
+    ]
+    if dur is not None:
+        args.extend(["-t", str(dur)])
     args.extend(
         [
-            "-an",
+            "-shortest",
             "-c:v",
             "libx264",
             "-pix_fmt",
             "yuv420p",
             "-crf",
             "18",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "128k",
             output_path,
         ]
     )

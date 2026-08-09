@@ -559,6 +559,8 @@ def generate_s2v(
     ltx_video_vae: str | None = None,
     ltx_vbvr: bool | None = None,
     ltx_vbvr_strength: float | None = None,
+    ltx_asian_face: bool | None = None,
+    ltx_asian_face_strength: float | None = None,
     format_id: str | None = None,
     apply_ltx_profile_size: bool = True,
 ) -> dict:
@@ -936,6 +938,8 @@ def generate_s2v(
                     video_vae=ltx_video_vae,
                     vbvr=ltx_vbvr,
                     vbvr_strength=ltx_vbvr_strength,
+                    asian_face=ltx_asian_face,
+                    asian_face_strength=ltx_asian_face_strength,
                 )
                 ltx_runner = "ltx_aio_workflow_runner"
                 lora_use = "PowerLora(from_AIO_workflow)"
@@ -1465,6 +1469,21 @@ def main(argv=None) -> int:
         help="VBVR LoRA strength (default profile: draft 0.65 / work 0.75 / hero 0.8)",
     )
     p.add_argument(
+        "--ltx-asian-face",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help=(
+            "Deno East Asian Facial Fidelity LoRA for LTX-2.3 (face prior, not ID lock). "
+            "Default: on when file present. Env AGENT_LTX_ASIAN_FACE=0 to force off."
+        ),
+    )
+    p.add_argument(
+        "--ltx-asian-face-strength",
+        type=float,
+        default=None,
+        help="Asian Face LoRA strength (default 1.0 per Civitai/Deno)",
+    )
+    p.add_argument(
         "--format",
         dest="format_id",
         default=None,
@@ -1627,6 +1646,8 @@ def main(argv=None) -> int:
         ltx_video_vae=getattr(args, "ltx_video_vae", None),
         ltx_vbvr=getattr(args, "ltx_vbvr", None),
         ltx_vbvr_strength=getattr(args, "ltx_vbvr_strength", None),
+        ltx_asian_face=getattr(args, "ltx_asian_face", None),
+        ltx_asian_face_strength=getattr(args, "ltx_asian_face_strength", None),
         format_id=args.format_id,
     )
     if r.get("ok"):

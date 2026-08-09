@@ -1,0 +1,38 @@
+{
+  "tool": "wan22_animate_dance",
+  "cli": "scripts/generate_wan22_animate.py",
+  "status": "ready_experimental",
+  "version": "1.0",
+  "shelf": "MOTION",
+  "description": "Wan2.2 Animate: character still + RGB dance/ref → choreography retarget with face lock. Better cross-cast identity than LTX V2V or Fun Control.",
+  "guide": "workflows/human/wan22_animate_dance/AGENT_GUIDE.md",
+  "recipe": "workflows/human/wan22_animate_dance/RECIPE.md",
+  "runner": "lib/wan22_animate.py",
+  "human_ui_workflow": "workflows/human/wan22/wan22_animate.json",
+  "validated": {
+    "date": "2026-08-02",
+    "example": "stories/_tool_smoke/dance_prettygirl_test/out/D2_male_animate_headroom.mp4",
+    "notes": "headroom 544x960 · face_strength 1.3 · no SAM2 mask path"
+  },
+  "requires_nodes": [
+    "WanVideoAnimateEmbeds",
+    "WanVideoModelLoader",
+    "PoseAndFaceDetection",
+    "DrawViTPose",
+    "OnnxDetectionModelLoader",
+    "WanVideoClipVisionEncode"
+  ],
+  "requires_models": [
+    "Wan2.2-Animate-14B-Q4_K.gguf (or equivalent)",
+    "wan_2.1_vae",
+    "umt5-xxl-enc",
+    "clip_vision_h",
+    "yolov10m.onnx + vitpose-l-wholebody.onnx",
+    "lightx2v + WanAnimate relight LoRA (optional but default)"
+  ],
+  "not_included": [
+    "Beat-perfect commercial cover guarantee",
+    "Full SAM2 mask path (optional later)",
+    "Episode multi-shot assemble"
+  ]
+}
