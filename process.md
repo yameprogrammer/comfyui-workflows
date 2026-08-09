@@ -1,16 +1,18 @@
+## 2026-08-09 — Krea2 style/control/face QA re-smoke (real refs)
+- Bad early smokes used solid-color dummy style inputs → fog/painter artifacts
+- Re-smoke with real Krea T2I photos; defaults: style_strength **0.6**, control **0.5** + grayscale, face denoise **0.22**, steps 12
+- Gold: dumps/krea2_qa_style_s0p6.png · krea2_qa_dual.png · krea2_qa_face_v2.png · krea2_qa_control_v2.png
+- AdaIN lowered slightly in style API graphs for stability
+
 ## 2026-08-09 — Krea2 v7 P1: dual style, img-prompt, face detailer
-- Dual style: preset `krea2_dual_style_v70` · CLI `generate_krea2_style --style-image-2` · smoke dual_style_smoke.png
-- Img→prompt: Florence2 caption → `krea2_t2i_v10` · CLI `generate_krea2_img_prompt` · caption-only OK
-- Face detailer: Impact FaceDetailer + face_yolov8m · `krea2_face_detail_v70` · CLI `generate_krea2_face_detail`
-- tool_intent: krea2_img_prompt · krea2_face_detail · style dual example
+- Dual style: preset `krea2_dual_style_v70` · CLI `generate_krea2_style --style-image-2`
+- Img→prompt: Florence2 caption → `krea2_t2i_v10` · CLI `generate_krea2_img_prompt`
+- Face detailer: Impact FaceDetailer + face_yolov8m · `krea2_face_detail_v70`
 - Hands/moodboard/post suite remain P2
 
 ## 2026-08-09 — Krea2 v7 P0: style ref + ControlLoRA agent tools
-- Presets: `krea2_style_ref_v70` · `krea2_control_v70` (minimal API graphs, not full UI export)
-- CLI: `generate_krea2_style.py` · `generate_krea2_control.py`
-- Smoke OK: dumps/krea2_style_smoke.png · dumps/krea2_control_smoke.png (seed 42/7)
-- Fix: ComfyUI-Krea2-StyleTransfer `**kwargs` on block/attention forward (Comfy 0.30 timestep_zero_index)
-- CAPABILITIES v70_style_ref_1 / v70_controlnet → ready; tool_intent cards TRANSFORM/CAMERA
+- Presets: `krea2_style_ref_v70` · `krea2_control_v70` · CLI generate_krea2_style/control
+- Fix: ComfyUI-Krea2-StyleTransfer `**kwargs` for Comfy 0.30 timestep_zero_index
 - Default control LoRA: `Krea2\\depth-control-lora.safetensors`
 
 ## 2026-08-09 — Lonecat Krea 2 v7.0 capability map for agents
