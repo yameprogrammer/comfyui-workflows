@@ -1598,3 +1598,9 @@
 - **Residual functional:** mid-lock best feet_score candidate (not last); `fullbody_source` prefers krea2 from face + feet QA; green_lighter status `pending_review`; FIX_REQUEST/catalog/rules sync
 - **Quality pack 2026-07-31:** footwear=`crop_lower` from costume_default (face CU eliminated); expression=`i2i_lock` denoise band; pose.stand_idle=`krea2_identity`; action poses stay OpenPose CN; face_zone QA on footwear
 
+
+## 2026-08-12 — MiniMax H3 A2V / MultiRef / Polish agent tools
+- Human pack: A2V Simple, A2V Full (Deno), MultiRef Deno, PostPolish UI → `workflows/human/minimax_h3/`
+- CLI/runner: `--task a2v` (source audio mux) · `--task polish` (RTX VSR+RIFE, fallback rife)
+- Catalog / video_backends / tool_intent / tool_catalog updated
+- Smoke (4090): A2V 0.2MP ~50s · MultiRef ~110s · polish RTX+RIFE ~25s → 1216x704@48

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MiniMax H3 — local open-weights video + native stereo audio (T2V / I2V / R2V).
+"""MiniMax H3 — local open-weights video + audio (T2V / I2V / R2V / A2V / polish).
 
 ComfyUI ≥ 0.30.0 native nodes. Models: Comfy-Org/MiniMax-H3 pruned int8 pack
 under F:\\model (extra_model_paths).
@@ -14,9 +14,18 @@ under F:\\model (extra_model_paths).
   python scripts/generate_minimax_h3.py --task i2v -i start.png -p "slow push in..." -o out.mp4
   python scripts/generate_minimax_h3.py --task i2v -i start.png --last end.png -p "..." -o out.mp4
 
-  # Multi-reference (uses ref2va weights)
+  # Multi-reference R2V (ref2va; tags <Picture 1>…)
   python scripts/generate_minimax_h3.py --task r2v --ref-image a.png --ref-image b.png \\
-      -p "Picture 1 is the heroine; she walks through Picture 2 city..." -o out.mp4
+      -p "Use <Picture 1> as identity; <Picture 2> for style; she walks" -o out.mp4
+
+  # Audio-to-Video (ref audio + identity; source audio muxed — lip-sync / MV)
+  python scripts/generate_minimax_h3.py --task a2v -i face.png -a line.wav \\
+      -p "[reference generation + audio reference] Use <Picture 1> identity; lips sync <Audio 1>." \\
+      -o a2v.mp4 --duration 5
+
+  # Post-polish (RTX VSR ×2 + RIFE 24→48fps; auto-fallback RIFE-only)
+  python scripts/generate_minimax_h3.py --task polish -i work.mp4 -o polished.mp4
+  python scripts/generate_minimax_h3.py --task polish -i work.mp4 -o polished.mp4 --polish-mode rife
 
   python scripts/generate_minimax_h3.py --list-profiles
 """
@@ -40,36 +49,49 @@ from lib.minimax_h3_runner import (
     VAE_VIDEO,
     generate_minimax_h3,
     list_profiles,
+    polish_minimax_h3,
 )
 
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(
-        description="MiniMax H3 T2V/I2V/R2V with native stereo audio (ComfyUI native)"
+        description="MiniMax H3 T2V/I2V/R2V/A2V + post-polish (ComfyUI native)"
     )
     p.add_argument("--prompt", "-p", default=None, help="shot + camera + audio description")
     p.add_argument("--prompt-file", default=None, help="read prompt from file")
     p.add_argument("--output", "-o", default=None, help="output .mp4 path")
     p.add_argument(
         "--task",
-        choices=("t2v", "i2v", "r2v", "flf"),
+        choices=("t2v", "i2v", "r2v", "flf", "a2v", "polish"),
         default="t2v",
-        help="t2v=text, i2v=first frame, flf=first+last, r2v=multi-ref (default t2v)",
+        help="t2v|i2v|flf|r2v|a2v|polish (default t2v)",
     )
-    p.add_argument("--image", "-i", default=None, help="first frame (i2v/flf)")
+    p.add_argument("--image", "-i", default=None, help="first frame (i2v/flf) or identity (a2v)")
     p.add_argument("--last", default=None, help="last frame (flf / optional i2v)")
+    p.add_argument(
+        "--audio",
+        "-a",
+        default=None,
+        help="A2V reference audio (wav/mp3); muxed into final MP4",
+    )
     p.add_argument(
         "--ref-image",
         action="append",
         default=None,
         dest="ref_images",
-        help="R2V reference image (repeat up to 9). Tag as <Picture 1> in prompt",
+        help="R2V/A2V reference image (repeat up to 9). Tag as <Picture n> in prompt",
     )
     p.add_argument(
         "--ref-image-size",
         choices=("match", "max"),
         default="match",
-        help="R2V: match=speed, max=stronger ID (slower)",
+        help="R2V/A2V: match=speed, max=stronger ID (slower)",
+    )
+    p.add_argument(
+        "--polish-mode",
+        choices=("rtx_rife", "rife"),
+        default="rtx_rife",
+        help="polish only: rtx_rife (default) or rife-only",
     )
     p.add_argument("--seed", type=int, default=None)
     p.add_argument("--duration", type=float, default=None, help="seconds (snapped to H3 grid)")
@@ -116,18 +138,51 @@ def main(argv=None) -> int:
             )
             print(f"       {v['notes']}")
         print("\nBench RTX 4090: work ~113s · native ~378s for 5s clip (2026-08-07)")
+        print("Tasks: t2v|i2v|flf|r2v|a2v|polish  ·  UI: workflows/human/minimax_h3/")
         return 0
 
     if args.list_models:
         print("=== MiniMax H3 model files (via F:\\model + extra_model_paths) ===")
         print(f"  T2V/I2V unet : {UNET_FL2VA}")
-        print(f"  R2V unet     : {UNET_REF2VA}")
+        print(f"  R2V/A2V unet : {UNET_REF2VA}")
         print(f"  text encoder : {CLIP_NAME}")
         print(f"  video vae    : {VAE_VIDEO}")
         print(f"  audio vae    : {VAE_AUDIO}")
         print(f"  engine family: {FAMILY_MINIMAX_H3}")
         print("  HF: https://huggingface.co/Comfy-Org/MiniMax-H3")
         print("  Docs: https://docs.comfy.org/tutorials/video/minimax/minimax-h3")
+        print("  Human UI pack: workflows/human/minimax_h3/")
+        return 0
+
+    out = args.output or os.path.join(r"F:\generated_videos", "minimax_h3_out.mp4")
+
+    # --- polish path (no generative prompt required) ---
+    if args.task == "polish":
+        src = args.image  # reuse -i for input video
+        if not src:
+            p.error("polish requires -i / --image pointing at source .mp4")
+        print(f"MiniMax H3 polish mode={args.polish_mode} in={src} out={out}")
+        result = polish_minimax_h3(
+            input_path=src,
+            output_path=out,
+            mode=args.polish_mode,
+            timeout_sec=float(args.timeout),
+            server_address=args.server,
+            free_policy=args.free_policy,
+        )
+        if not result.get("ok"):
+            print(
+                f"FAIL {result.get('error')}: {result.get('message')}",
+                file=sys.stderr,
+            )
+            return 1
+        print(f"OK {result.get('output') or result.get('output_path')}")
+        print(
+            f"  mode={result.get('mode')} elapsed={result.get('elapsed_sec')}s "
+            f"prompt_id={result.get('prompt_id')}"
+        )
+        if result.get("meta_path"):
+            print(f"  meta={result['meta_path']}")
         return 0
 
     if args.prompt_file:
@@ -139,14 +194,16 @@ def main(argv=None) -> int:
         p.error("--prompt / --prompt-file required")
 
     task = args.task
-    if args.image and task == "t2v":
+    if args.audio and task == "t2v":
+        task = "a2v"
+    if args.image and task == "t2v" and not args.audio:
         task = "i2v"
-    if args.ref_images:
+    if args.ref_images and task in ("t2v", "i2v"):
         task = "r2v"
     if args.image and args.last and task == "i2v":
         task = "flf"
-
-    out = args.output or os.path.join(r"F:\generated_videos", "minimax_h3_out.mp4")
+    if args.audio:
+        task = "a2v"
 
     print(
         f"MiniMax H3 task={task} profile={args.profile} "
@@ -162,6 +219,7 @@ def main(argv=None) -> int:
         image_path=args.image,
         last_image_path=args.last,
         ref_images=args.ref_images,
+        audio_path=args.audio,
         seed=args.seed,
         duration=args.duration,
         megapixels=args.megapixels,

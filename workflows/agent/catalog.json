@@ -134,20 +134,25 @@
     "minimax_h3": {
       "file": null,
       "format": "native_api_graph",
-      "role": "text_to_video_image_to_video_reference",
+      "role": "text_to_video_image_to_video_reference_audio_polish",
       "family": "minimax_h3",
       "status": "ready",
-      "description": "MiniMax H3 open weights: T2V/I2V/FL/R2V with native stereo audio. ComfyUI ≥0.30 native nodes. Pruned int8 pack on F:\\model.",
-      "purpose": "Seedance-class local video+audio — hero shorts, multi-ref identity, cinematic anime/liveaction",
+      "description": "MiniMax H3 open weights: T2V/I2V/FL/R2V/A2V + post-polish (RTX VSR+RIFE). Native stereo audio. ComfyUI ≥0.30. Pruned int8 on F:\\model.",
+      "purpose": "Seedance-class local video+audio — hero shorts, multi-ref identity, A2V lip-sync/MV, cinematic anime/liveaction",
       "source_ui": "workflows/human/minimax_h3/MiniMax_H3_T2V_TextToVideo.json",
       "source_ui_i2v": "workflows/human/minimax_h3/MiniMax_H3_I2V_ImageToVideo.json",
       "source_ui_r2v": "workflows/human/minimax_h3/MiniMax_H3_R2V_ReferenceToVideo.json",
+      "source_ui_multiref": "workflows/human/minimax_h3/MiniMax_H3_R2V_MultiRef_Deno.json",
+      "source_ui_a2v": "workflows/human/minimax_h3/MiniMax_H3_A2V_Simple.json",
+      "source_ui_a2v_full": "workflows/human/minimax_h3/MiniMax_H3_A2V_AudioToVideo.json",
+      "source_ui_polish": "workflows/human/minimax_h3/MiniMax_H3_PostPolish_Upscale60fps.json",
       "runner": "lib/minimax_h3_runner.py",
       "guide": "workflows/human/minimax_h3/AGENT_GUIDE.md",
       "capabilities": "workflows/human/minimax_h3/CAPABILITIES.json",
       "used_by": [
         "scripts/generate_minimax_h3.py"
       ],
+      "tasks": ["t2v", "i2v", "flf", "r2v", "a2v", "polish"],
       "default_profile": "work",
       "profiles": [
         "draft",
@@ -157,7 +162,7 @@
       ],
       "hf": "https://huggingface.co/Comfy-Org/MiniMax-H3",
       "docs": "https://docs.comfy.org/tutorials/video/minimax/minimax-h3",
-      "notes": "Not episode default I2V (still LTX). Quality+audio tool. Bench 4090: work 5s~113s, native 5s~378s. Engine family minimax_h3."
+      "notes": "Not episode default I2V (still LTX). Quality+audio tool. A2V muxes source audio. Polish: rtx_rife|rife. Bench 4090: work 5s~113s; a2v/multiref smoke 0.2MP ~50–110s; polish ~25s (2026-08-12). Engine family minimax_h3."
     },
     "wan22_face_enhance": {
       "file": "presets/wan22_face_enhance.api.json",

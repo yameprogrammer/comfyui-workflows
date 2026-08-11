@@ -527,7 +527,7 @@
     },
     "minimax_h3": {
       "status": "ready",
-      "kind": "t2v_i2v_r2v",
+      "kind": "t2v_i2v_r2v_a2v_polish",
       "family": "minimax_h3",
       "engine": "MiniMax H3 pruned int8 (native ComfyUI nodes + stereo audio)",
       "workflow": "scripts/generate_minimax_h3.py",
@@ -537,6 +537,7 @@
       "guide": "workflows/human/minimax_h3/AGENT_GUIDE.md",
       "default_profile": "work",
       "profiles": ["draft", "work", "native", "hero"],
+      "tasks": ["t2v", "i2v", "flf", "r2v", "a2v", "polish"],
       "strengths": [
         "seedance_class_quality",
         "native_stereo_audio",
@@ -544,10 +545,12 @@
         "image_to_video",
         "first_last_frame",
         "multi_reference",
+        "audio_to_video_lipsync",
+        "post_polish_rife_rtx",
         "cinematic_anime"
       ],
       "quality_tier": "hero_opt_in",
-      "notes": "NOT episode default I2V (default remains ltx23_aio_i2v). Use for quality hero shorts, T2V with baked-in audio, R2V identity. Models under F:\\model MinimaxH3 + qwen3vl_32b. ComfyUI ≥0.30. Bench 4090: work 0.4MP 5s ~113s; native 0.98MP 5s ~378s (2026-08-07)."
+      "notes": "NOT episode default I2V (default remains ltx23_aio_i2v). Use for quality hero shorts, T2V with baked-in audio, R2V identity, A2V lip-sync/MV (source audio mux), polish rtx_rife|rife. Models under F:\\model MinimaxH3 + qwen3vl_32b. ComfyUI ≥0.30. Bench 4090: work 0.4MP 5s ~113s; a2v/multiref smoke ~50–110s; polish ~25s (2026-08-12)."
     }
   },
   "default_backend_flf": "ltx23_aio_flf",

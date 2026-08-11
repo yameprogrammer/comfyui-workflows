@@ -365,7 +365,7 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 | wan22 노브 | `--cfg` · `--lora-strength-high/low` · `--wan-boundary` · frames≥81→steps≥6 · `--wan-long-edge`+`--wan-short-edge` | CFG×LoRA 표: [wan22_workflow_map](wan22_workflow_map.md) §3 · LX 레시피 §5.1 [speed research](wan22_i2v_speed_research.md) |
 | `generate_i2v --backend wan22_flf` | Wan first+last 폴백 | 품질 FLF 본선 = LTX flf |
 | **`generate_yaw_wan22`** | Wan 2.2 MoE T2V/I2V 쉬운 실 UI | 립 → s2v · 에피 본선 대체 아님 |
-| **`generate_minimax_h3`** | **MiniMax H3** T2V/I2V/FL/R2V + **네이티브 스테레오 오디오** (시댄스급 품질 목표) | 에피 본선 I2V 대량 → LTX · 립 CU → s2v · 초고속 초안 → LTX draft. 프로필 `draft\|work\|native\|hero` |
+| **`generate_minimax_h3`** | **MiniMax H3** T2V/I2V/FL/R2V/**A2V** + **polish** + 네이티브 오디오 (시댄스급) | 에피 본선 I2V → LTX · 프로덕션 립 → s2v · 초고속 초안 → LTX draft. 프로필 `draft\|work\|native\|hero` · `--task a2v\|polish` |
 | **`generate_flf2v`** | 첫·끝 프레임 연결 | 단일 키프레임 모션 → i2v |
 | **`generate_s2v`** | 이미지+오디오 연동 | 무음 순수 모션 → i2v |
 | `generate_s2v --backend infinitetalk` | 토킹 립 품질 (2026-07-30 스모크 OK) | 호출 전 `tool_health --backend infinitetalk` · 실패 시 **`ltx23_ia2v`** · VRAM·길이 계약 |
@@ -403,6 +403,9 @@ python scripts/generate_flf2v.py -i start.png --last end.png -p "..." -o bridge.
 python scripts/generate_minimax_h3.py -p "Anime cinematic, heroine on cliff at sunset..." -o mm.mp4 --profile work
 python scripts/generate_minimax_h3.py -p "..." -o mm_native.mp4 --profile native
 python scripts/generate_minimax_h3.py --task i2v -i start.png -p "slow orbit" -o mm_i2v.mp4
+python scripts/generate_minimax_h3.py --task r2v --ref-image hero.png --ref-image style.png -p "Use <Picture 1> identity; <Picture 2> style" -o mm_r2v.mp4
+python scripts/generate_minimax_h3.py --task a2v -i face.png -a line.wav -p "Use <Picture 1>; lips sync <Audio 1>." -o mm_a2v.mp4 --duration 5
+python scripts/generate_minimax_h3.py --task polish -i mm_work.mp4 -o mm_polished.mp4
 python scripts/generate_minimax_h3.py --list-profiles
 ```
 

@@ -1,18 +1,22 @@
 {
   "id": "minimax_h3",
-  "version": 1,
+  "version": 2,
   "family": "minimax_h3",
   "status": "ready",
   "shelf": "MOTION",
   "cli": "scripts/generate_minimax_h3.py",
   "runner": "lib/minimax_h3_runner.py",
   "comfy_min_version": "0.30.0",
-  "tasks": ["t2v", "i2v", "flf", "r2v"],
+  "tasks": ["t2v", "i2v", "flf", "r2v", "a2v", "polish"],
   "native_audio": true,
-  "native_audio_note": "Stereo AAC muxed in single forward pass (not post-hoc TTS)",
+  "native_audio_note": "T2V/I2V/R2V: stereo AAC in one pass. A2V: source audio muxed (lip-sync recipe).",
   "nodes": {
     "t2v_i2v_flf": "MiniMaxH3ImageToVideo",
-    "r2v": "MiniMaxH3ReferenceToVideo"
+    "r2v_a2v": "MiniMaxH3ReferenceToVideo",
+    "multiref_loader_ui": "DenoMiniMaxH3ReferenceImageLoader",
+    "multiref_wrapper_ui": "DenoMiniMaxH3ReferenceToVideo",
+    "polish_rtx": "DenoRTXVFXEasyUpscale",
+    "polish_rife": "RIFE VFI"
   },
   "models": {
     "fl2va": "MinimaxH3\\minimax_h3_fl2va_pruned_int8_convrot.safetensors",
@@ -20,6 +24,7 @@
     "text_encoder": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
     "vae_video": "minimax_h3_video_vae_fp16.safetensors",
     "vae_audio": "minimax_h3_audio_vae_fp32.safetensors",
+    "gemma4_acoustic_optional": "gemma4_e4b_it_fp8_scaled.safetensors",
     "source": "https://huggingface.co/Comfy-Org/MiniMax-H3"
   },
   "profiles": {
@@ -39,11 +44,21 @@
     "work_5s": { "res": "864x480", "elapsed_sec": 113.5, "sampling_sec": 84, "s_per_step": 4.23 },
     "native_5s": { "res": "1344x768", "elapsed_sec": 378.3, "sampling_sec": 348, "s_per_step": 17.4 }
   },
+  "bench_rtx4090_2026_08_12_smoke": {
+    "a2v_0.2mp_5s": { "res": "608x352", "elapsed_sec": 50 },
+    "multiref_0.2mp_5s": { "res": "608x352", "elapsed_sec": 110 },
+    "polish_rtx_rife": { "in": "608x352@24", "out": "1216x704@48", "elapsed_sec": 25 }
+  },
   "human_ui": [
     "MiniMax_H3_T2V_TextToVideo.json",
     "MiniMax_H3_I2V_ImageToVideo.json",
     "MiniMax_H3_R2V_ReferenceToVideo.json",
-    "MiniMax_LTX_Spatial_Full_Upscale.json"
+    "MiniMax_H3_R2V_MultiRef_Deno.json",
+    "MiniMax_H3_A2V_Simple.json",
+    "MiniMax_H3_A2V_AudioToVideo.json",
+    "MiniMax_H3_PostPolish_Upscale60fps.json",
+    "MiniMax_LTX_Spatial_Full_Upscale.json",
+    "MiniMax_H3_README.md"
   ],
   "upscale": {
     "path": "full",
@@ -52,6 +67,23 @@
     "workflow_api": "MiniMax_LTX_Spatial_Full_Upscale.api.json",
     "note": "LTX 2.3 spatial x2 + upscale IC-LoRA via CRT UnifiedSampler V2V Upscale"
   },
+  "polish": {
+    "cli": "python scripts/generate_minimax_h3.py --task polish -i work.mp4 -o polished.mp4",
+    "modes": ["rtx_rife", "rife"],
+    "workflow_ui": "MiniMax_H3_PostPolish_Upscale60fps.json",
+    "note": "RTX VSR ×2 + RIFE ×2 (24→48fps). True 60fps needs non-int mult elsewhere."
+  },
+  "a2v": {
+    "cli": "python scripts/generate_minimax_h3.py --task a2v -i face.png -a line.wav -p \"...\" -o out.mp4",
+    "workflow_ui_simple": "MiniMax_H3_A2V_Simple.json",
+    "workflow_ui_full_deno": "MiniMax_H3_A2V_AudioToVideo.json",
+    "note": "Agent API uses stock nodes (Simple). Full Deno = Whisper+Gemma+Ollama prompt director (UI)."
+  },
+  "multiref": {
+    "cli": "python scripts/generate_minimax_h3.py --task r2v --ref-image a.png --ref-image b.png -p \"...\" -o out.mp4",
+    "workflow_ui": "MiniMax_H3_R2V_MultiRef_Deno.json",
+    "note": "Agent API = stock MiniMaxH3ReferenceToVideo + LoadImage. Deno multi-loader is UI convenience."
+  },
   "strengths": [
     "cinematic_anime_and_liveaction",
     "native_stereo_audio",
@@ -59,17 +91,21 @@
     "image_to_video",
     "first_last_frame",
     "multi_reference_identity",
+    "audio_to_video_lipsync",
+    "post_polish_rife_rtx",
     "seedance_class_quality"
   ],
   "not_for": [
     "episode_default_i2v_batch",
-    "talking_head_lipsync_primary",
+    "production_talking_head_prefer_s2v_or_infinitetalk",
     "sub_second_preview_iteration"
   ],
   "docs": {
     "comfy": "https://docs.comfy.org/tutorials/video/minimax/minimax-h3",
     "hf": "https://huggingface.co/Comfy-Org/MiniMax-H3",
     "prompt_base": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/VIDEO_PROMPT_WRITING_GUIDE_base_en.md",
-    "prompt_ref": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/VIDEO_PROMPT_WRITING_GUIDE_ref_en.md"
+    "prompt_ref": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/VIDEO_PROMPT_WRITING_GUIDE_ref_en.md",
+    "deno_a2v": "https://youtu.be/puBAu9qt5qM",
+    "deno_multiref_3060": "https://youtu.be/s7JDBLfTGKI"
   }
 }
