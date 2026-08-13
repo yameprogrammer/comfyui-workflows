@@ -6,8 +6,8 @@
 | 이 레포 | 각 미디어 프로젝트 |
 |---------|-------------------|
 | Comfy 워크플로 + `scripts/generate_*` 도구 | 자기 스토리·파이프라인·납품 구조 |
-| **의도 선반** → 필요한 능력만 **골라 조합** | 목표 영상에 맞게 호출 |
-| `stories/` 에피소드 레일 · 캐릭 패키지 | **옵션** (쓰면 그때의 규칙 따름) |
+| **의도 선반** → 필요한 능력만 **골라 조합** | 목표 영상에 맞게 호출, **`-o` 는 프로젝트** |
+| 템플릿·스키마만 (`*_template`, schemas) | 에피소드·시트·클립 **전부 여기** |
 
 **시작 (프로젝트 에이전트):** **[TOOLS.md](TOOLS.md)** → **[docs/tool_catalog.md](docs/tool_catalog.md)**  
 (GENERATE / TRANSFORM / MOTION … → when/when-not → `scripts/*.py`)
@@ -49,8 +49,8 @@ agent_custom/
 | **자체 툴 자율** | [docs/agent_native_capability_autonomy.md](docs/agent_native_capability_autonomy.md) · Rule 8.0 |
 | **프롬프트 품질** | [docs/generation_prompt_craft.md](docs/generation_prompt_craft.md) |
 
-**스테이징 vs 프로젝트:** CLI 기본 출력은 이 레포/로컬 경로에 쌓일 수 있다.  
-프로젝트 작업이면 결과물을 **자기 워크스페이스로 복사·export** 한 뒤 편집한다.
+**출력 규칙:** 이 레포에는 코드를 둔다. 생성 미디어는 **프로젝트 `-o` / `AGENT_WORKSPACE`.**  
+`stories/`, `dumps/`, `characters/<id>/` 에 결과물을 쌓지 않는다.
 
 상세 규약: [workflows/README.md](workflows/README.md) · [scripts/README.md](scripts/README.md) · [docs/README.md](docs/README.md)
 

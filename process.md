@@ -1,3 +1,20 @@
+## 2026-08-14 — Forbid toolbox outputs (docs + CLI guard)
+- `lib/output_policy.py` — writes under agent_custom → exit 14
+- `character_create` / `story_init` / `location_create` require `--dest` or `AGENT_WORKSPACE`
+- dumps/* defaults removed from krea2/rmbg helpers; `run_workflow_api` guards `-o`
+- TOOLS / AGENTS / tool_catalog / scripts/README: never leave media in this repo
+
+## 2026-08-14 — Restore OpenMontage_full (editing monorepo, not project media)
+- Re-cloned `https://github.com/calesthio/OpenMontage` → `OpenMontage_full/`
+- Thin `Open-Montage/OpenMontage` upstream 404 — skipped
+- Still gitignored; keep as local edit-tool tree, not episode dumps
+
+## 2026-08-14 — Toolbox-only: wipe project media, outputs go to caller project
+- Deleted stories episodes, character/location instances, dumps, deliveries zips, OpenMontage clones (~7.9 GB → ~48 MB)
+- Kept scripts/lib/workflows/docs/skills + `_template`/schemas/presets
+- Docs: AGENTS / TOOLS / consumer contract / agent_rules — **never leave finished media in this repo**; use `-o` / `AGENT_WORKSPACE`
+- `lib/agent_result.py` handoff note updated
+
 ## 2026-08-09 — L4/L11 clip quality: hero 2-stage + episode draft→hero
 - L4: AIO always 2-stage; profiles expose `two_stage` + hero **upscale IC 0.55** (was 0.5)
 - Soft-apply pure I2V frame cap (`max_pure_i2v_sec`) unless `--allow-long-i2v`

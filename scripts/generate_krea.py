@@ -166,6 +166,9 @@ def _generate_krea_workflow_api(
 
     if output_filename is None:
         output_filename = os.path.join(r"F:\generated_images", "output_krea.png")
+    from lib.output_policy import die_if_toolbox
+
+    output_filename = die_if_toolbox(output_filename)
 
     ports: dict = {"positive": prompt_text}
     if unet_name:
@@ -373,6 +376,9 @@ def _generate_krea_legacy_mini(
 
     if output_filename is None:
         output_filename = os.path.join(r"F:\generated_images", "output_krea.png")
+    from lib.output_policy import die_if_toolbox
+
+    output_filename = die_if_toolbox(output_filename)
 
     parent = os.path.dirname(os.path.abspath(output_filename))
     if parent:

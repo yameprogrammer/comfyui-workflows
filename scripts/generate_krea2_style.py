@@ -69,7 +69,12 @@ def main(argv=None) -> int:
 
     dual = bool(args.style_image_2)
     preset = PRESET_DUAL if dual else PRESET_SINGLE
-    out = args.output or ("dumps/krea2_dual_style_out.png" if dual else "dumps/krea2_style_out.png")
+    from lib.output_policy import resolve_media_output
+
+    out = resolve_media_output(
+        args.output,
+        default_name=("krea2_dual_style_out.png" if dual else "krea2_style_out.png"),
+    )
     ports = {
         "positive": args.prompt,
         "style_image": args.style_image,

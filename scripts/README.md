@@ -3,9 +3,15 @@
 이 저장소의 **실행 진입점** (ComfyUI API 배치).  
 **무엇을 고를지:** [docs/tool_catalog.md](../docs/tool_catalog.md) — 의도 선반. 고정 공정 강제 아님.
 
+**결과물은 이 폴더에 두지 않는다.** `-o` / `--dest` / `AGENT_WORKSPACE` 로 **프로젝트 경로**를 지정한다.  
+도구 레포 안에 쓰면 **exit 14**.
+
 ```bash
-# 레포 루트 cwd
-python scripts/<name>.py --help
+# 레포 루트 cwd, 출력은 프로젝트
+set AGENT_WORKSPACE=D:\my_film
+python scripts/generate_krea.py -p "..." -o "%AGENT_WORKSPACE%\stills\hero.png"
+python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-prompt "..."
+# → D:\my_film\characters\hero_v1\
 ```
 
 `_bootstrap.py` 가 레포 루트·`scripts/` 를 path에 넣음 → `lib.*` / 동료 스크립트 import OK.

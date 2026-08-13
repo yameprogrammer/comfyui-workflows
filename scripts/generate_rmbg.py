@@ -29,7 +29,9 @@ def main(argv=None) -> int:
     args = p.parse_args(argv)
 
     ensure_engine("rmbg", args.server, caller="generate_rmbg")
-    out = args.output or "dumps/rmbg_out.png"
+    from lib.output_policy import resolve_media_output
+
+    out = resolve_media_output(args.output, default_name="rmbg_out.png")
     print(f"RMBG preset={PRESET} out={out}")
     r = run_workflow_api(
         PRESET,

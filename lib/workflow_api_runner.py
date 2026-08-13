@@ -314,6 +314,10 @@ def run_workflow_api(
     ``ports`` may include positive, negative, seed, denoise, input_image, width, height, …
     If seed is None and ports map has seed, a random seed is used unless ports already set.
     """
+    if output_path:
+        from lib.output_policy import die_if_toolbox
+
+        output_path = die_if_toolbox(output_path)
     try:
         api_path, ports_path = resolve_preset(preset)
     except FileNotFoundError as e:

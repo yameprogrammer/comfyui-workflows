@@ -50,7 +50,9 @@ def main(argv=None) -> int:
         print(f"[hand_detail] ENGINE FAIL {eng.get('message')}", file=sys.stderr)
         return 1
 
-    out = args.output or "dumps/krea2_hand_detail_out.png"
+    from lib.output_policy import resolve_media_output
+
+    out = resolve_media_output(args.output, default_name="krea2_hand_detail_out.png")
     ports = {
         "input_image": args.image,
         "positive": args.prompt,

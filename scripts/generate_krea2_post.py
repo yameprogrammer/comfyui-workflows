@@ -35,7 +35,9 @@ def main(argv=None) -> int:
     args = p.parse_args(argv)
 
     ensure_engine("post_polish", args.server, caller="generate_krea2_post")
-    out = args.output or "dumps/krea2_post_out.png"
+    from lib.output_policy import resolve_media_output
+
+    out = resolve_media_output(args.output, default_name="krea2_post_out.png")
     g = max(0.01, min(1.0, float(args.grain)))
     ports = {
         "input_image": args.image,

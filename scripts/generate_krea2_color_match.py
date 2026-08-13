@@ -30,7 +30,9 @@ def main(argv=None) -> int:
     args = p.parse_args(argv)
 
     ensure_engine("post_polish", args.server, caller="generate_krea2_color_match")
-    out = args.output or "dumps/krea2_color_match_out.png"
+    from lib.output_policy import resolve_media_output
+
+    out = resolve_media_output(args.output, default_name="krea2_color_match_out.png")
     ports = {
         "input_image": args.image,
         "ref_image": args.ref,

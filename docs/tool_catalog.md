@@ -3,9 +3,12 @@
 `agent_custom` = ComfyUI 미디어 **도구 모음**.  
 에이전트는 **만들고 싶은 영상/컷에 맞게** 도구를 골라 조합한다.
 
+**출력 금지:** 이 레포(`stories/`, `dumps/`, `characters/<id>/`, `deliveries/` …)에 결과물을 두지 않는다.  
+`-o` / `--dest` / `AGENT_WORKSPACE` = **호출 측 프로젝트**. 어기면 CLI가 exit 14로 거절한다.
+
 ```text
-목표(영상·컷)  →  의도 고르기(§1)  →  when/when-not 확인  →  CLI 1회
-              →  결과를 프로젝트로 복사  →  다음 의도
+목표(영상·컷)  →  의도 고르기(§1)  →  when/when-not 확인
+              →  CLI 1회 (-o 프로젝트)  →  다음 의도
 ```
 
 | 이 문서가 하는 일 | 하지 않는 일 |

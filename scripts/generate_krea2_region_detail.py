@@ -179,7 +179,9 @@ def main(argv=None) -> int:
         return 1
 
     preset = PRESET_BY_MODE[mode]
-    out = args.output or f"dumps/krea2_region_{rid}.png"
+    from lib.output_policy import resolve_media_output
+
+    out = resolve_media_output(args.output, default_name=f"krea2_region_{rid}.png")
     positive = args.prompt or reg.get("positive") or "detailed region, photoreal"
     denoise = (
         float(args.denoise)

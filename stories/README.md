@@ -1,4 +1,8 @@
-# stories/ — Episode / storyboard packs
+# stories/ — Episode **scaffold only**
+
+이 폴더는 **빈 뼈대**(`_template/`, `schemas/`, 프리셋)만 둔다.  
+실제 에피소드 미디어(키프레임·clips·exports)는 **호출 측 프로젝트**에 만든다.  
+여기에 `sonagi_*` / `*_ep01` 작업 트리를 쌓지 말 것.
 
 ```bash
 # 수주 브리프 → 에피소드 (권장)

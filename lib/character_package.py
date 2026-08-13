@@ -57,8 +57,10 @@ def validate_character_id(character_id: str) -> bool:
     return bool(ID_RE.match(character_id))
 
 
-def package_dir(character_id: str) -> str:
-    return os.path.join(CHARACTERS_DIR, character_id)
+def package_dir(character_id: str, dest: str | None = None) -> str:
+    from lib.output_policy import resolve_package_dir
+
+    return resolve_package_dir("characters", character_id, dest)
 
 
 def load_json(path: str) -> dict:
@@ -79,8 +81,8 @@ def load_presets(path: str | None = None) -> dict:
     return load_json(path or DEFAULT_PRESETS_PATH)
 
 
-def copy_template(character_id: str, force: bool = False) -> str:
-    dest = package_dir(character_id)
+def copy_template(character_id: str, force: bool = False, dest: str | None = None) -> str:
+    dest = package_dir(character_id, dest)
     if os.path.exists(dest):
         if not force:
             raise FileExistsError(dest)

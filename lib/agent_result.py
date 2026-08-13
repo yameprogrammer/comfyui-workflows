@@ -81,10 +81,9 @@ def print_agent_summary(result: dict[str, Any]) -> None:
     notes = list(result.get("agent_notes") or [])
     # Always remind consumer agents about workspace handoff
     handoff = (
-        "FACTORY outputs are under this tool repo (e.g. stories/<ep>/). "
-        "Copy into YOUR project with: python scripts/export_episode_to_workspace.py "
-        "-e <ep> --dest <YOUR_WORKSPACE>  (or set AGENT_WORKSPACE). "
-        "Leaving files only in the tool repo is incomplete."
+        "This repo is a toolbox only. Write stills/clips to YOUR project "
+        "with -o/--output/--dest or AGENT_WORKSPACE. "
+        "Do not leave finished media under stories/, dumps/, characters/, or deliveries/."
     )
     if handoff not in notes:
         notes.append(handoff)

@@ -4,14 +4,14 @@
 
 ```text
 characters/
-  _template/           # 새 캐릭터 복사 원본
-  casts/               # Phase A 탐색 풀 (다엔진 후보, identity 미고정)
+  _template/           # 새 캐릭터 복사 원본 (스캐폴드)
   schemas/             # bible / manifest JSON Schema
-  sheet_presets.json   # 시트 생성 프리셋 SSOT (prompt/denoise/cfg)
-  profiles.json        # 용도 프로필 SSOT (video_ref | artbook)
-  pilots/              # 파일럿 캐릭터 브리프·샘플 프롬프트
-  <character_id>/      # 정식 패키지 (promote/create 후)
+  pose_templates/      # 포즈 프리셋 (도구 자산)
+  sheet_presets.json   # 시트 생성 프리셋 SSOT
+  profiles.json        # 용도 프로필 SSOT
 ```
+
+캐릭터 **인스턴스**(시트 png, refs)는 이 레포가 아니라 **프로젝트**에 둔다.
 
 ## 캐릭터 공정 (권장)
 

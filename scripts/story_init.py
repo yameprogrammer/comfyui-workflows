@@ -31,7 +31,9 @@ def main(argv=None) -> int:
     except Exception:
         formats = ["cinematic_16x9", "shorts_9x16"]
 
-    parser = argparse.ArgumentParser(description="Create episode package under stories/")
+    parser = argparse.ArgumentParser(
+        description="Create episode package in YOUR project (AGENT_WORKSPACE/stories/<id> or --dest)."
+    )
     parser.add_argument("--id", required=True, help="episode_id (snake_case)")
     parser.add_argument(
         "--format",
@@ -53,6 +55,11 @@ def main(argv=None) -> int:
         help="Create N placeholder shots S01.. (default 0)",
     )
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--dest",
+        default=None,
+        help="Episode folder in YOUR project (or set AGENT_WORKSPACE). Never inside agent_custom.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
 
@@ -74,14 +81,14 @@ def main(argv=None) -> int:
         print(f"[ERROR] code=2 look not found: {args.look_id}", file=sys.stderr)
         return EXIT_USAGE
 
-    dest = package_dir(episode_id)
+    dest = package_dir(episode_id, args.dest)
     if args.dry_run:
         print(f"[dry-run] would create {dest}")
         print(f"  format={args.format_id} look={args.look_id} seed_shots={args.seed_shots}")
         return EXIT_OK
 
     try:
-        copy_template(episode_id, force=args.force)
+        copy_template(episode_id, force=args.force, dest=args.dest)
     except FileExistsError:
         print(f"[ERROR] code=10 exists: {dest}", file=sys.stderr)
         return EXIT_EXISTS

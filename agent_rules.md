@@ -27,7 +27,7 @@ agent_custom/
   docs/tool_catalog.md     ← 도구 특징 명세 (1순위)
   workflows/agent|human/   ← 프리셋·UI 원본
   scripts/  lib/           ← CLI · 러너
-  characters/ looks/ locations/ stories/  ← 헬퍼 데이터·옵션 에피소드
+  characters/_template looks/ locations/_template stories/_template  ← 스캐폴드만
   failures/ docs/          ← 실패 노트 · 상세 스펙
 ```
 
@@ -43,8 +43,8 @@ agent_custom/
 1. [TOOLS.md](TOOLS.md) → [docs/tool_catalog.md](docs/tool_catalog.md) 에서 **의도 선반**을 고른다  
    (GENERATE / TRANSFORM / CAMERA / MOTION / VOICE / FINISH · ASSETS·BUNDLE은 옵션).  
 2. when / when not · 대안 CLI 확인 후, cwd = 레포 루트에서 `python scripts/...` 실행.  
-3. 출력은 `-o` / 로컬 경로 / 또는 프로젝트로 **복사**.  
-4. 에피소드 패키지(`stories/`)·캐릭 패키지를 **쓸 때만** 해당 계약·게이트 적용.  
+3. 출력은 **프로젝트 절대 경로** (`-o` / `--output` / `--dest` 또는 `AGENT_WORKSPACE`). 이 레포 안에 완성본을 남기지 않는다.  
+4. `stories/_template` · `characters/_template` 는 **스키마/스캐폴드**다. 에피소드·캐릭 미디어는 호출 측 프로젝트에 둔다.  
 5. 단일 still / I2V / inpaint / TTS 호출만으로도 **완료 가능** (전체 영상 공정 불필요).  
 6. 스크립트 목록(선반별): [scripts/README.md](scripts/README.md).
 
@@ -84,10 +84,10 @@ agent_custom/
 * **신규 CLI** → `scripts/`
 * **공유 모듈** → `lib/`
 * **설계·스펙 문서** → `docs/`
-* **캐릭터 데이터** → `characters/`
-* **룩** → `looks/`
-* **로케이션 / 스토리** → `locations/`, `stories/`
-* **사용자 납품** → `deliveries/` (`package_delivery.py`). 작업실은 `stories/`. 상세 [docs/delivery_handoff.md](docs/delivery_handoff.md).
+* **캐릭터 스캐폴드** → `characters/_template`, `profiles.json`, `sheet_presets.json` (인스턴스 시트는 **프로젝트**에)
+* **룩 프리셋** → `looks/_template` + 작은 json/txt 프리셋
+* **로케이션 / 스토리 스캐폴드** → `locations/_template`, `stories/_template` + schemas (에피소드 미디어는 **프로젝트**에)
+* **납품** → 프로젝트 쪽 `--dest`. 이 레포 `deliveries/`에 zip을 쌓지 말 것. 상세 [docs/delivery_handoff.md](docs/delivery_handoff.md).
 * 루트에 실행 스크립트·워크플로우 JSON·장문 스펙을 새로 쌓지 말 것.
 
 ### Rule 3.0 AIO 워크플로우 — 기능은 프리셋으로 선택 (Bypasser 분석 결과)

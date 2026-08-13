@@ -36,8 +36,10 @@ def validate_location_id(location_id: str) -> bool:
     return bool(ID_RE.match(location_id))
 
 
-def package_dir(location_id: str) -> str:
-    return os.path.join(LOCATIONS_DIR, location_id)
+def package_dir(location_id: str, dest: str | None = None) -> str:
+    from lib.output_policy import resolve_package_dir
+
+    return resolve_package_dir("locations", location_id, dest)
 
 
 def load_json(path: str) -> dict:
@@ -80,8 +82,8 @@ def mvp_aliases_for(profile_id: str | None = None) -> list[str]:
     return list(presets.get(key) or presets.get("mvp_aliases_video_ref") or [])
 
 
-def copy_template(location_id: str, force: bool = False) -> str:
-    dest = package_dir(location_id)
+def copy_template(location_id: str, force: bool = False, dest: str | None = None) -> str:
+    dest = package_dir(location_id, dest)
     if os.path.exists(dest):
         if not force:
             raise FileExistsError(dest)

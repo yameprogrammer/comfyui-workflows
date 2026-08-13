@@ -6,18 +6,20 @@ It is a **collection of media tools** (still / edit / I2V / TTS / …) driven by
 ```text
 Your goal (the video you need)
   → pick intents from the catalog shelves (GENERATE / TRANSFORM / MOTION / …)
-  → call scripts/ as you like, in any order that fits the job
-  → copy outputs into YOUR project
+  → call scripts/ with -o / --output pointing at YOUR project
+  → never leave finished media in this repo
 ```
+
+**This directory is a toolbox only.** Episode trees, character sheets, location plates, `dumps/`, and deliveries do **not** belong here. Put every still / clip / zip under the **project you are actually making**.
 
 | Do | Don’t |
 |----|--------|
 | Start at **[TOOLS.md](TOOLS.md)** or `python scripts/tool_intent.py "…"`, then **[docs/tool_catalog.md](docs/tool_catalog.md)** | Treat CREATIVE→assemble as mandatory for every job |
-| Match **intent → tool** (`tool_intent` search or catalog shelves); read when / when not + CLI | Ignore per-tool limits (mask, VRAM, 18+, ref length) |
+| Pass **`-o` / `--output` / `--dest`** to a path **outside** this repo (or set `AGENT_WORKSPACE`) | Write mp4/png/wav into `stories/`, `dumps/`, `characters/<id>/`, `deliveries/` |
 | Before heavy gen: `python scripts/failure_note.py before "…"`; on FAIL: `failure_note.py add` | Repeat known factory failures (freeze, feet, mass approve, …) |
 | Combine tools freely for *this* video | Assume character package / QA gate is required for one-off cuts |
-| Copy results into **your** project | Leave “finished” work only here if you have a consumer workspace |
-| Use `stories/` + approve + assemble **only if you choose that recipe** | Confuse optional episode helpers with “the only way” |
+| Keep project media in **your** project folder | Leave “finished” work only here |
+| Use `stories/_template` + approve + assemble **only if you choose that recipe — and still write the episode into your project** | Confuse optional helpers with “the only way” or treat this repo as a media archive |
 
 **Provider vs consumer:** we maintain tools + specs; **you pick wisely for your project.**
 
@@ -129,7 +131,7 @@ For video work you **must proactively** pick anything you can actually call that
 |----|--------|
 | Inventory your session capabilities and use them | Ask “which tool?” every step |
 | Research, edit stills, preview motion, vision-QA, subagents… when useful | Only run bare `scripts/*` when better options exist |
-| Hand off files into `stories/<ep>/` and pass approve/assemble | Skip QA because a native tool “looked fine” |
+| Write approved clips into **your project**, then assemble there | Skip QA because a native tool “looked fine” |
 | Obey user if they lock a tool (“Comfy only”) | Invent tools you don’t have |
 
 Full rule: [docs/agent_native_capability_autonomy.md](docs/agent_native_capability_autonomy.md) · Rule **8.0**  
@@ -140,20 +142,15 @@ Grok mapping: [docs/grok_build_hybrid_tooling.md](docs/grok_build_hybrid_tooling
 ## Critical rule (consumer agents)
 
 1. Run CLIs from this repo root (`python scripts/...`).
-2. Outputs land under **`stories/<episode_id>/`** (and similar package dirs).
-3. **Copy results into YOUR workspace** before editing/shipping.
-4. If you only leave files here, the job is **incomplete**.
+2. **Every output path is in YOUR project** (`-o` / `--output` / `--dest` or `AGENT_WORKSPACE`).
+3. Do **not** write finished media into `stories/`, `dumps/`, `characters/<id>/`, or `deliveries/`.
+4. If the only copy lives in this repo, the job is **incomplete**.
 
 ```bash
-python scripts/export_episode_to_workspace.py -e YOUR_EP --dest "PATH/TO/YOUR/PROJECT/episodes/YOUR_EP"
-# Or: set AGENT_WORKSPACE=PATH/TO/YOUR/PROJECT
-
-# After export / smoke session: tidy factory staging (dry-run first)
-python scripts/factory_cleanup.py --scope session
-python scripts/factory_cleanup.py --scope session --apply
+set AGENT_WORKSPACE=PATH/TO/YOUR/PROJECT
+python scripts/generate_i2v.py -i "%AGENT_WORKSPACE%/stills/S01.png" -o "%AGENT_WORKSPACE%/clips/S01.mp4"
 ```
 
-Factory may stage under `stories/` or dump dirs; **export then cleanup**.  
 Full contract: [docs/agent_consumer_workspace_contract.md](docs/agent_consumer_workspace_contract.md)  
 AV reliability: [docs/agent_av_smoke_checklist.md](docs/agent_av_smoke_checklist.md)  
 Tooling backlog: [docs/agent_video_tooling_todo.md](docs/agent_video_tooling_todo.md)  

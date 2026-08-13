@@ -9,24 +9,22 @@
 
 ## 1. 한 줄 규칙
 
-> **도구 레포 = 공구함.**  
-> **프로젝트 폴더 = 작업대.**  
-> 공구함에서 뽑은 결과물은 **작업대로 가져가야** 이어 편집·납품할 수 있다.
+> **도구 레포 = 공구함.** 코드·워크플로·템플릿만.  
+> **프로젝트 폴더 = 작업대.** 모든 생성 미디어는 여기.  
+> 공구함에 mp4/png/wav/zip을 쌓지 않는다.
 
 ---
 
 ## 2. 경로 SSOT
 
-| 구분 | 경로 (도구 레포 루트 기준) | 의미 |
-|------|---------------------------|------|
-| 도구 코드 | `scripts/`, `lib/`, `workflows/agent/` | 실행만. 여기다 프로젝트 파일을 쌓지 말 것 |
-| 에피소드 작업실 | `stories/<episode_id>/` | 키프레임·clips·audio·exports **생성 기본 위치** |
-| 캐릭/로케 | `characters/`, `locations/` | 공유 자산 팩 |
-| 납품 상자 | `deliveries/` | zip 등 (있을 때) |
-| **에이전트 작업대** | **호출 측이 정한 디렉터리** | 예: `../my_film/`, `C:/work/client_x/` |
+| 구분 | 경로 | 의미 |
+|------|------|------|
+| 도구 코드 | `scripts/`, `lib/`, `workflows/agent/` | 실행만 |
+| 스캐폴드 | `stories/_template`, `characters/_template`, `locations/_template`, schemas | 빈 뼈대·프리셋. 작업물이 아님 |
+| **에이전트 작업대** | **호출 측 프로젝트** (`-o` / `AGENT_WORKSPACE`) | 키프레임·클립·시트·납품 **유일한 저장소** |
 
-`StoryPackage` / 대부분 CLI는 **`agent_custom` 루트를 cwd로** 두고 `stories/<ep>/...` 에 쓴다.  
-**다른 에이전트의 프로젝트 루트와 자동 동기화되지 않는다.**
+CLI는 이 레포를 cwd로 실행해도 된다. **출력 경로는 항상 프로젝트 쪽.**  
+`stories/<ep>/` · `dumps/` · `characters/<id>/` 에 쓰던 예전 기본값은 **스테이징이 아니라 금지**로 본다.
 
 ---
 
@@ -46,27 +44,23 @@
    python scripts/...
    ```
 
-### 3.2 생성 직후 (의무)
+### 3.2 생성 (의무)
 
-`AGENT_RESULT` / 메타에 나온 **artifacts 경로를 읽고**:
-
-1. **작업대로 복사**하거나  
-2. 처음부터 `-o` / `--output` 으로 **작업대 절대 경로**를 지정한다.
+처음부터 **작업대 절대 경로**를 지정한다.
 
 ```bash
-# 권장: 에피소드 통째 스냅샷을 내 작업대로
-python scripts/export_episode_to_workspace.py -e my_ep \
-  --dest "D:/projects/client_film/inbox/my_ep"
-
-# 또는 단일 파일
-python scripts/generate_i2v.py -i ... -o "D:/projects/client_film/clips/S01.mp4" ...
+python scripts/generate_i2v.py -i ".../S01.png" -o "D:/projects/client_film/clips/S01.mp4"
+python scripts/generate_krea.py --prompt "..." -o "D:/projects/client_film/stills/hero.png"
 ```
+
+에피소드 레일을 쓸 때도 `story_init` / assemble 출력을 **프로젝트 아래**에 둔다.  
+도구 레포 `stories/`에 에피를 만들고 export로 옮기는 흐름은 쓰지 않는다.
 
 ### 3.3 금지
 
-- 산출물 경로를 읽지 않고 “생성 끝”으로 보고  
-- `stories/` 안에만 두고 사용자 프로젝트에 반영하지 않음  
-- 도구 레포를 git commit 할 때 대용량 생성물 무분별 추가 (stories 등은 종종 gitignore)
+- `-o` 없이 기본 `dumps/` · `stories/` 에 쌓고 “생성 끝”  
+- 산출물 경로를 읽지 않고 완료 보고  
+- 이 레포에 캐릭터 시트·에피소드 mp4·유튜브 원본을 보관
 
 ### 3.4 완료 보고 형식 (에이전트 → 사람)
 

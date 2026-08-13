@@ -85,6 +85,11 @@ def main(argv=None) -> int:
         help="Also generate full-body masters (artbook enables by default)",
     )
     parser.add_argument("--force", action="store_true", help="Overwrite existing package")
+    parser.add_argument(
+        "--dest",
+        default=None,
+        help="Package folder in YOUR project (or set AGENT_WORKSPACE). Never inside agent_custom.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--timeout", type=int, default=600)
     args = parser.parse_args(argv)
@@ -147,7 +152,7 @@ def main(argv=None) -> int:
                 "mutated face, bad anatomy, blurry face, watermark, text, logo, duplicate face"
             )
 
-    dest = package_dir(character_id)
+    dest = package_dir(character_id, args.dest)
     if os.path.exists(dest) and not args.force:
         print(f"[ERROR] code=10 message=package exists: {dest}", file=sys.stderr)
         return EXIT_PACKAGE_EXISTS
@@ -163,7 +168,7 @@ def main(argv=None) -> int:
         return EXIT_OK
 
     try:
-        copy_template(character_id, force=args.force)
+        copy_template(character_id, force=args.force, dest=args.dest)
     except FileNotFoundError:
         print("[ERROR] code=12 message=template missing characters/_template", file=sys.stderr)
         return EXIT_TEMPLATE_MISSING

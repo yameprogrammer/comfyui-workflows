@@ -24,8 +24,10 @@ def validate_episode_id(episode_id: str) -> bool:
     return bool(ID_RE.match(episode_id))
 
 
-def package_dir(episode_id: str) -> str:
-    return os.path.join(STORIES_DIR, episode_id)
+def package_dir(episode_id: str, dest: str | None = None) -> str:
+    from lib.output_policy import resolve_package_dir
+
+    return resolve_package_dir("stories", episode_id, dest)
 
 
 def load_json(path: str) -> dict:
@@ -42,8 +44,8 @@ def save_json(path: str, data: dict) -> None:
         f.write("\n")
 
 
-def copy_template(episode_id: str, force: bool = False) -> str:
-    dest = package_dir(episode_id)
+def copy_template(episode_id: str, force: bool = False, dest: str | None = None) -> str:
+    dest = package_dir(episode_id, dest)
     if os.path.exists(dest):
         if not force:
             raise FileExistsError(dest)
