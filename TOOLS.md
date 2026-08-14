@@ -67,7 +67,7 @@ Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 | **GENERATE** | 빈 화면 → 그림 (**기본: Krea2**) | `generate_krea` · **`generate_krea_draft`** · `generate_krea_nsfw` · `generate_moody` · `generate_illustrious_standard` · **`generate_illustrious_advanced`** |
 | **TRANSFORM** | 같은 인물·편집·스타일 | `generate_character_consistent` · `generate_style_transfer` · **`generate_krea2_style`** · `generate_qwen_edit` · `generate_qwen_inpaint` |
 | **CAMERA** | 각도·포즈·시점·프레이밍 | `generate_qwen_angle` · `generate_viewpoint` · **`generate_openpose_pose`** · **`generate_krea2_control`** · `generate_moody_controlnet` · `generate_reframe` |
-| **MOTION** | 영상 모션 · 품질 계획 · 카메라 · 댄스 · **MiniMax H3** | **`clip_quality`** · `generate_i2v` · `generate_s2v` · `generate_camera_move` · `generate_idle_loop` · **`generate_wan22_animate`** · **`generate_minimax_h3`** · `generate_flf2v` |
+| **MOTION** | 영상 모션 · 품질 계획 · 카메라 · 댄스 · **MiniMax H3** | **`clip_quality`** · `generate_i2v` · `generate_s2v` · `generate_camera_move` · `generate_idle_loop` · **`generate_wan_animate2`** · **`generate_wan22_animate`** · **`generate_minimax_h3`** · `generate_flf2v` |
 | **TRANSFORM+** | 가벼운 ID 팩 | `generate_ref_pack` · `generate_character_consistent` |
 | **VOICE** | 대사·BGM | `generate_qwen3_tts` · `generate_bgm` |
 | **INGEST** | 유튜브 레퍼 이해 | `youtube_ingest` · `youtube_highlights` |

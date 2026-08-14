@@ -1,3 +1,11 @@
+## 2026-08-14 — Wan Animate 2 tool (`generate_wan_animate2`)
+- Native Wan-Animate-2 (no ViTPose). Distinct from `generate_wan22_animate`.
+- CLI: `scripts/generate_wan_animate2.py` · lib: `lib/wan_animate2.py`
+- Human pack: `workflows/human/wan_animate2/`
+- Registered: tool_intent · tool_catalog · TOOLS · catalog.json · video_backends
+- 4090 24GB preset: int8 convrot + LightX2V 6-step + cache CPU · 480×832 · 81f
+- Smoke: `F:\ComfyUI_data\output\wan_animate2\WanAnimate2_dance_00001_.mp4`
+
 ## 2026-08-14 — Forbid toolbox outputs (docs + CLI guard)
 - `lib/output_policy.py` — writes under agent_custom → exit 14
 - `character_create` / `story_init` / `location_create` require `--dest` or `AGENT_WORKSPACE`

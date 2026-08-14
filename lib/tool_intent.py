@@ -735,7 +735,8 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         "alternatives": [
             {"if": "레퍼 없이 텍스트 댄스", "use": "dance_ref i2v", "cli": "python scripts/generate_dance_ref.py -i hero.png --mode i2v --style kpop -o out.mp4"},
             {"if": "pose 플레이트만 필요", "use": "extract_pose_video", "cli": "python scripts/extract_pose_video.py -v dance.mp4 -o pose.mp4 --duration 4"},
-            {"if": "크로스 캐스트·얼굴 유지 댄스", "use": "wan22_animate", "cli": "python scripts/generate_wan22_animate.py -i hero.png -v dance.mp4 -o out.mp4"},
+            {"if": "포즈 추출 없이 댄스 이식·배경은 프롬프트", "use": "wan_animate2", "cli": "python scripts/generate_wan_animate2.py -i hero.png -v dance.mp4 -o out.mp4"},
+            {"if": "크로스 캐스트·얼굴 유지 댄스 (소스 배경 유지)", "use": "wan22_animate", "cli": "python scripts/generate_wan22_animate.py -i hero.png -v dance.mp4 -o out.mp4"},
             {"if": "저수준 V2V", "use": "generate_v2v", "cli": "python scripts/generate_v2v.py --intent motion -v dance.mp4 -i hero.png -o out.mp4"},
             {"if": "카메라 의도만", "use": "camera_move", "cli": "python scripts/generate_camera_move.py -i key.png --preset orbit_subtle -o clip.mp4"},
         ],
@@ -757,8 +758,31 @@ INTENT_TOOLS: list[dict[str, Any]] = [
             "python scripts/generate_wan22_animate.py -i character.png -v dance.mp4 -o out.mp4 --seed 42",
         ],
         "alternatives": [
+            {"if": "포즈 추출 없이 / 배경을 프롬프트로", "use": "wan_animate2", "cli": "python scripts/generate_wan_animate2.py -i hero.png -v dance.mp4 -o out.mp4"},
             {"if": "빠른 LTX 초안", "use": "dance_ref", "cli": "python scripts/generate_dance_ref.py -i hero.png -v dance.mp4 -o out.mp4"},
             {"if": "pose 맵만", "use": "extract_pose_video", "cli": "python scripts/extract_pose_video.py -v dance.mp4 -i hero.png -o pose.mp4"},
+        ],
+    },
+    {
+        "id": "wan_animate2",
+        "shelf": "MOTION",
+        "cli": "python scripts/generate_wan_animate2.py",
+        "script": "generate_wan_animate2.py",
+        "summary": "Wan Animate 2 모션 이식 (포즈 추출 없음)",
+        "when": "드라이빙 영상 안무를 캐릭 스틸에 이식하고 배경은 프롬프트로 생성",
+        "when_not": "립싱크·소스 배경 유지 교체·pose 플레이트만",
+        "keywords": [
+            "wan animate 2", "wan-animate-2", "animate2", "motion transfer",
+            "driving video", "no pose", "no skeleton", "애니메이트2",
+            "모션 이식", "댄스", "안무", "wan_animate2",
+        ],
+        "examples": [
+            "python scripts/generate_wan_animate2.py -i character.png -v dance.mp4 -o out.mp4 --seed 42",
+        ],
+        "alternatives": [
+            {"if": "소스 배경 유지 + ViTPose 얼굴 고정", "use": "wan22_animate", "cli": "python scripts/generate_wan22_animate.py -i hero.png -v dance.mp4 -o out.mp4"},
+            {"if": "빠른 LTX 초안", "use": "dance_ref", "cli": "python scripts/generate_dance_ref.py -i hero.png -v dance.mp4 -o out.mp4"},
+            {"if": "립싱크", "use": "s2v_talk", "cli": "python scripts/generate_s2v.py -i hero.png -a line.wav -o out.mp4"},
         ],
     },
     {

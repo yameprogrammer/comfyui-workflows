@@ -1,0 +1,36 @@
+{
+  "tool": "wan_animate2",
+  "cli": "scripts/generate_wan_animate2.py",
+  "status": "ready",
+  "version": "1.0",
+  "shelf": "MOTION",
+  "description": "Wan-Animate-2 native motion transfer: character still + driving video, no pose extract. Prompt-driven background/camera.",
+  "guide": "workflows/human/wan_animate2/AGENT_GUIDE.md",
+  "runner": "lib/wan_animate2.py",
+  "human_ui_workflow": "workflows/human/wan_animate2/wan_animate2_motion_transfer.json",
+  "validated": {
+    "date": "2026-08-14",
+    "example": "F:/ComfyUI_data/output/wan_animate2/WanAnimate2_dance_00001_.mp4",
+    "notes": "480x832 · 81 frames · 6 step LCM · cache CPU int8 · identity + dance phrase"
+  },
+  "requires_nodes": [
+    "WanAnimate2ToVideo",
+    "WanAnimate2Cache",
+    "UNETLoader",
+    "CLIPVisionEncode",
+    "LoadVideo"
+  ],
+  "requires_models": [
+    "wan_animate_2_int8_convrot.safetensors",
+    "lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors",
+    "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+    "clip_vision_h.safetensors",
+    "wan_2.1_vae.safetensors"
+  ],
+  "not_included": [
+    "Pose/skeleton extract (that is wan22_animate)",
+    "Keep source background replacement",
+    "Episode multi-shot assemble",
+    "Beat-perfect commercial cover guarantee"
+  ]
+}

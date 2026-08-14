@@ -262,6 +262,22 @@
       ],
       "notes": "Agent CLI ready 2026-08-02. Optional preprocess: extract_pose_video. Fast draft: generate_dance_ref. Map: docs/wan22_workflow_map.md."
     },
+    "wan_animate2": {
+      "status": "ready",
+      "family": "wan_animate2",
+      "kind": "v2v_motion",
+      "engine": "Wan-Animate-2",
+      "cli": "scripts/generate_wan_animate2.py",
+      "runner": "lib/wan_animate2.py",
+      "human_ui": "workflows/human/wan_animate2/",
+      "guide": "workflows/human/wan_animate2/AGENT_GUIDE.md",
+      "strengths": [
+        "dance_challenge",
+        "motion_transfer",
+        "prompt_background"
+      ],
+      "notes": "Native WanAnimate2ToVideo. No pose extract. Prefer over wan22_animate when source background should be replaced. 24GB: int8 + cache CPU."
+    },
     "wan22_nsfw_i2v": {
       "status": "ready",
       "family": "wan22",
@@ -607,7 +623,8 @@
       "wan22_flf": "ready fallback FLF",
       "wan22_nsfw_i2v": "ready adult 18+ I2V (optional NSFW LoRA pair)",
       "yaw_wan22": "ready easy MoE T2V/I2V via generate_yaw_wan22",
-      "wan22_animate": "ready generate_wan22_animate (face-lock dance retarget)"
+      "wan22_animate": "ready generate_wan22_animate (face-lock dance retarget)",
+      "wan_animate2": "ready generate_wan_animate2 (native Animate 2, no pose extract)"
     },
     "finish": {
       "wan22_face_enhance": "ready_experimental — generate_wan22_face_enhance",

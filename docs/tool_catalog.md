@@ -87,6 +87,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | **아이들·루프** | `generate_idle_loop` | 대기 모션 + pingpong/roundtrip 루프 |
 | **댄스/레퍼 모션 (빠른 초안)** | `generate_dance_ref` | 레퍼 영상→캐릭 모션 (V2V LTX) |
 | **댄스 리타겟 (얼굴 고정)** | **`generate_wan22_animate`** | 크로스 캐스트 · pose 전처리 `extract_pose_video` |
+| **댄스 이식 (포즈 추출 없음)** | **`generate_wan_animate2`** | Wan-Animate-2 · 배경은 프롬프트 · 소스 배경 유지면 wan22_animate |
 | 모션 프리셋 (I2V 옵션) | `generate_i2v --motion-preset …` | 동일 프리셋, 저수준 |
 | Wan 폴백·MoE 실험 | `generate_i2v --backend wan22` · `generate_yaw_wan22` · [맵](wan22_workflow_map.md) | 에피 기본은 LTX |
 | 첫·끝 프레임 이음 | `generate_flf2v` | FLF |
@@ -107,7 +108,7 @@ INGEST     밖 레퍼 가져오기        youtube_ingest · youtube_highlights
 GENERATE   빈 화면 → 그림          krea*(기본) · moody · illustrious · ideogram · boogu
 TRANSFORM  있는 그림 고치기         i2i · character_consistent · qwen_edit · inpaint · ref_pack · style_transfer
 CAMERA     각도·포즈·시점·프레이밍   qwen_angle · viewpoint · **openpose_pose** · controlnet · reframe
-MOTION     그림 → 영상             camera_move · idle_loop · dance_ref · **wan22_animate** · extract_pose · i2v · flf · s2v · **minimax_h3** · yaw
+MOTION     그림 → 영상             camera_move · idle_loop · dance_ref · **wan_animate2** · **wan22_animate** · extract_pose · i2v · flf · s2v · **minimax_h3** · yaw
 VOICE      말·노래 재료            qwen3_tts · voice_register · bgm
 FINISH     키우기·다듬기           upscale_recommend → upscale_* · **upscale_ltx_spatial** · ltx_relight · face_enhance(실험)
 ASSETS     재사용 패키지(옵션)     character_* · location_* · look_* · ref_pack(lite)
@@ -355,7 +356,8 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 | **`generate_camera_move`** | 카메라 무빙 의도 한 방 (push_in, pan, idle…) | 스틸 시점만 → `generate_viewpoint` · 립 → s2v |
 | **`generate_idle_loop`** | 대기 모션 + **루프** (pingpong 기본 · roundtrip · idle) | 대사 립 → s2v · 스토리 카메라 → camera_move |
 | **`generate_dance_ref`** | 레퍼 댄스/제스처 → 캐릭 스틸 모션 (V2V motion, 빠른 초안) | 얼굴 고정 크로스 캐스트 → **wan22_animate** · 립 → s2v |
-| **`generate_wan22_animate`** | 댄스/제스처 레퍼 → 다른 캐릭 **얼굴 고정** 리타겟 | 빠른 초안 → dance_ref · 립 → s2v · 에피 대량 I2V → LTX |
+| **`generate_wan22_animate`** | 댄스/제스처 레퍼 → 다른 캐릭 **얼굴 고정** 리타겟 | 포즈 없이/새 배경 → **wan_animate2** · 빠른 초안 → dance_ref · 립 → s2v |
+| **`generate_wan_animate2`** | 드라이빙 영상 모션을 스틸에 이식 (**포즈 추출 없음**, 배경은 프롬프트) | 소스 배경 유지 → wan22_animate · 립 → s2v · 에피 대량 I2V → LTX |
 | **`extract_pose_video`** | RGB 레퍼 → pose 스틱 플레이트 (Animate/Fun Control 전처리) | 이미지 한 장 포즈 → `openpose_pose` |
 | **`generate_i2v`** | 일반 I2V · 자유 모션 문장 (기본 LTX) | 의도 id만 고르면 camera_move가 편함 |
 | **`--ltx-profile`** | `draft`(~540) / **`work`(720p 기본)** / **`hero`(~1080)** | 배치는 work · 러프만 draft |
@@ -397,6 +399,7 @@ python scripts/generate_dance_ref.py -i hero.png --mode i2v --style kpop -o danc
 # face-lock retarget (ready)
 python scripts/extract_pose_video.py -v dance.mp4 -o pose.mp4 --duration 4
 python scripts/generate_wan22_animate.py -i hero.png -v dance.mp4 -o out.mp4 --seed 42
+python scripts/generate_wan_animate2.py -i hero.png -v dance.mp4 -o out.mp4 --seed 42
 # LTX quality tiers (work default · hero for showcase)
 python scripts/generate_s2v.py --list-ltx-profiles
 python scripts/generate_i2v.py -i key.png --motion-preset push_in -o clip.mp4 --ltx-profile work
@@ -412,7 +415,7 @@ python scripts/generate_minimax_h3.py --task polish -i mm_work.mp4 -o mm_polishe
 python scripts/generate_minimax_h3.py --list-profiles
 ```
 
-가이드: [camera_move](../workflows/human/camera_move/AGENT_GUIDE.md) · [idle_loop](../workflows/human/idle_loop/AGENT_GUIDE.md) · [dance_ref](../workflows/human/dance_ref/AGENT_GUIDE.md) · [wan22_animate_dance](../workflows/human/wan22_animate_dance/AGENT_GUIDE.md) · [minimax_h3](../workflows/human/minimax_h3/AGENT_GUIDE.md)
+가이드: [camera_move](../workflows/human/camera_move/AGENT_GUIDE.md) · [idle_loop](../workflows/human/idle_loop/AGENT_GUIDE.md) · [dance_ref](../workflows/human/dance_ref/AGENT_GUIDE.md) · [wan_animate2](../workflows/human/wan_animate2/AGENT_GUIDE.md) · [wan22_animate_dance](../workflows/human/wan22_animate_dance/AGENT_GUIDE.md) · [minimax_h3](../workflows/human/minimax_h3/AGENT_GUIDE.md)
 
 ---
 

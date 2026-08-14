@@ -257,6 +257,22 @@
       ],
       "notes": "Ready 2026-08-02. Prefer generate_wan22_animate CLI. Cross-cast dance; face_strength default 1.3. Not episode bulk I2V default."
     },
+    "wan_animate2": {
+      "file": null,
+      "format": "native_api_graph",
+      "role": "motion_transfer",
+      "family": "wan_animate2",
+      "status": "ready",
+      "description": "Wan-Animate-2 native motion transfer. Still + driving video, no pose extract. Prompt-driven background.",
+      "runner": "lib/wan_animate2.py",
+      "guide": "workflows/human/wan_animate2/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/wan_animate2/CAPABILITIES.json",
+      "human_ui": "workflows/human/wan_animate2/wan_animate2_motion_transfer.json",
+      "used_by": [
+        "scripts/generate_wan_animate2.py"
+      ],
+      "notes": "Ready 2026-08-14. Distinct from wan22_animate (ViTPose). 4090 24GB int8 + LightX2V 6-step. Cache CPU."
+    },
     "openpose_pose": {
       "file": null,
       "role": "pose_extract_and_generate",

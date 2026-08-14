@@ -20,7 +20,8 @@
 
 | 쓴다 | 안 쓴다 |
 |------|---------|
-| 댄스·제스처 레퍼를 **다른 캐릭**에 이식 | 립싱크 대사 → `generate_s2v` / InfiniteTalk |
+| 댄스·제스처 레퍼를 **다른 캐릭**에 이식 (소스 배경 유지) | 립싱크 대사 → `generate_s2v` / InfiniteTalk |
+| | 포즈 없이 / 새 배경 → `generate_wan_animate2` |
 | 안무 뼈대가 중요 (K-pop 훅 등) | 카메라만 → `generate_camera_move` |
 | 짧은 훅 (≈3–5초, LTX 4s 캡과 비슷한 운영) | 비트 완벽 상용 커버 보장 기대 |
 | pose 플레이트만 필요 → `extract_pose_video` | |

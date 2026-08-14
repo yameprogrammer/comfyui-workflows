@@ -64,6 +64,7 @@ agent_custom/
   - I2I·CN: `generate_moody_i2i*` / `generate_moody_controlnet`
   - Qwen: `generate_qwen_edit` · `generate_qwen_inpaint` · `generate_qwen_angle`
   - video: `generate_i2v` / `generate_s2v` (LTX AIO 기본, Wan fallback) · `generate_flf2v`
+  - **댄스 이식:** `generate_wan_animate2` (Wan-Animate-2, 포즈 추출 없음) · `generate_wan22_animate` (ViTPose 얼굴 고정)
   - **MiniMax H3** (시댄스급 T2V/I2V/R2V/**A2V** + polish + 네이티브 오디오): `generate_minimax_h3` · 프로필 `draft|work|native|hero` · `--task a2v|polish` · 가이드 `workflows/human/minimax_h3/AGENT_GUIDE.md` · **에피 본선 I2V 기본은 여전히 LTX**
   - LTX 품질 티어: `--ltx-profile draft|work|hero` (기본 work; 히어로 컷만 hero). 리서치: `docs/ltx23_quality_research_and_improvement.md`
   - NSFW video: `generate_ltx_nsfw_i2v` / `generate_ltx_nsfw_director` (18+) · `generate_wan22_nsfw_i2v` (18+, Wan)
