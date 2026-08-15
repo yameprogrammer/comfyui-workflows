@@ -1266,6 +1266,37 @@
       "scripts": [
         "scripts/generate_stable_audio.py"
       ]
+    },
+    "extract_music_skeleton": {
+      "file": null,
+      "role": "audio_to_harmonic_skeleton",
+      "status": "ready",
+      "shelf": "INGEST",
+      "guide": "workflows/human/midi_cover/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/extract_music_skeleton.py"
+      ]
+    },
+    "generate_midi_arrangement": {
+      "file": null,
+      "role": "skeleton_to_midi_bed",
+      "status": "ready",
+      "shelf": "VOICE",
+      "guide": "workflows/human/midi_cover/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/generate_midi_arrangement.py"
+      ]
+    },
+    "generate_midi_cover_bed": {
+      "file": null,
+      "role": "midi_cover_pack",
+      "status": "ready",
+      "shelf": "VOICE",
+      "guide": "workflows/human/midi_cover/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/generate_midi_cover_bed.py",
+        "scripts/generate_midi_render.py"
+      ]
     }
   }
 }

@@ -1,3 +1,16 @@
+## 2026-08-15 — FluidSynth GM render as default MIDI WAV
+- `python scripts/setup_fluidsynth.py` fetches FluidSynth 2.6 win64 + GeneralUser-GS
+- `generate_midi_render` / cover-bed use FluidSynth first (2.6 CLI: `-F out.wav -T wav sf2 mid`)
+- Built-in numpy synth remains fallback only
+
+## 2026-08-15 — MIDI skeleton rearrangement (VOICE / INGEST)
+- Comfy-free: harmonic skeleton → new-genre MIDI bed → optional FluidSynth preview → MiniMax/Suno handoff pack
+- CLI: `extract_music_skeleton` · `generate_midi_arrangement` · `generate_midi_render` · `generate_midi_cover_bed`
+- Lib: `music_theory` · `midi_smf` · `music_skeleton` · `midi_arrange` · `midi_render` · `midi_cover_pack`
+- Default `--keep harmony_only`. No source master in the pack. No Suno/MidiPilot/Omnizart wrap.
+- Guide: `workflows/human/midi_cover/AGENT_GUIDE.md`
+- Tests: `python -m unittest tests.test_music_theory tests.test_midi_smf tests.test_midi_arrange tests.test_music_skeleton tests.test_midi_cli -v`
+
 ## 2026-08-14 — Wan Animate 2 tool (`generate_wan_animate2`)
 - Native Wan-Animate-2 (no ViTPose). Distinct from `generate_wan22_animate`.
 - CLI: `scripts/generate_wan_animate2.py` · lib: `lib/wan_animate2.py`

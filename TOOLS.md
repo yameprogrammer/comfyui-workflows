@@ -69,8 +69,8 @@ Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 | **CAMERA** | 각도·포즈·시점·프레이밍 | `generate_qwen_angle` · `generate_viewpoint` · **`generate_openpose_pose`** · **`generate_anima --mode pose/depth`** · **`generate_krea2_control`** · `generate_moody_controlnet` · `generate_reframe` |
 | **MOTION** | 영상 모션 · 품질 계획 · 카메라 · 댄스 · **MiniMax H3** | **`clip_quality`** · `generate_i2v` · `generate_s2v` · `generate_camera_move` · `generate_idle_loop` · **`generate_wan_animate2`** · **`generate_wan22_animate`** · **`generate_minimax_h3`** · `generate_flf2v` |
 | **TRANSFORM+** | 가벼운 ID 팩 | `generate_ref_pack` · `generate_character_consistent` |
-| **VOICE** | 대사·노래·BGM·SFX | `generate_qwen3_tts` · **`generate_minimax_music` (완곡/보컬)** · **`generate_stable_audio` (악기/SFX)** · `generate_bgm` |
-| **INGEST** | 유튜브 레퍼 이해 | `youtube_ingest` · `youtube_highlights` |
+| **VOICE** | 대사·노래·BGM·SFX·MIDI 반주 | `generate_qwen3_tts` · **`generate_minimax_music` (완곡/보컬)** · **`generate_stable_audio` (악기/SFX)** · **`generate_midi_cover_bed` (화성→새 MIDI 반주)** · `generate_bgm` |
+| **INGEST** | 유튜브 레퍼 이해 · 화성 뼈대 | `youtube_ingest` · `youtube_highlights` · **`extract_music_skeleton`** |
 | **FINISH** | 업스케일 · 디테일러 · 포스트 | `upscale_*` · **`generate_anima --mode hires`** · **`generate_illustrious_detailer`** · **`generate_krea2_face/eyes/hand_detail`** · **`generate_krea2_region_detail`** · **`generate_krea2_post`** · `generate_rmbg` · `ltx_relight` |
 | **ASSETS** | 캐릭/로케 패키지 *(옵션)* | `character_*` · `location_*` |
 | **MESH** | 2D→3D 메쉬·GLB·VRM 프로토타입 | **`generate_hy3d_mesh`** · `process_mesh_glb` · `export_mesh_vrm` |

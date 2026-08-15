@@ -106,16 +106,18 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | 스틸/영상 키우기 | **`upscale_recommend`** → `upscale_image` · `upscale_video` · `upscale_ltx_spatial` | 납품 해상도 · MiniMax→HD는 spatial |
 | **2D → 3D 메쉬 / VRM 프로토** | **`generate_hy3d_mesh`** · `process_mesh_glb` · `export_mesh_vrm` | Hy3D GLB · Blender MCP 후처리 |
 | **유튜브 레퍼 이해** | **`youtube_ingest`** · `youtube_highlights` | 자막·요약·하이라이트 클립 |
+| **화성 뼈대 채보** | **`extract_music_skeleton`** | 로컬 음원/코드 → BPM·키·코드 JSON |
+| **새 장르 MIDI 반주 / 커버 베드** | **`generate_midi_arrangement`** · **`generate_midi_cover_bed`** | 화성만 가져와서 편곡 MIDI (+ Suno/MiniMax 핸드오프 팩) |
 
 ### 1.B 의도 선반 지도 (조합용)
 
 ```text
-INGEST     밖 레퍼 가져오기        youtube_ingest · youtube_highlights
+INGEST     밖 레퍼 가져오기        youtube_ingest · youtube_highlights · **extract_music_skeleton**
 GENERATE   빈 화면 → 그림          krea*(기본) · moody · illustrious · ideogram · boogu
 TRANSFORM  있는 그림 고치기         i2i · character_consistent · qwen_edit · inpaint · ref_pack · style_transfer
 CAMERA     각도·포즈·시점·프레이밍   qwen_angle · viewpoint · **openpose_pose** · controlnet · reframe
 MOTION     그림 → 영상             camera_move · idle_loop · dance_ref · **wan_animate2** · **wan22_animate** · extract_pose · i2v · flf · s2v · **minimax_h3** · yaw
-VOICE      말·노래 재료            qwen3_tts · voice_register · bgm
+VOICE      말·노래 재료            qwen3_tts · voice_register · bgm · **midi_cover_bed**
 FINISH     키우기·다듬기           upscale_recommend → upscale_* · **upscale_ltx_spatial** · ltx_relight · face_enhance(실험)
 ASSETS     재사용 패키지(옵션)     character_* · location_* · look_* · ref_pack(lite)
 MESH       2D→3D 메쉬·VRM          **hy3d_mesh** · process_mesh_glb · export_mesh_vrm
@@ -432,6 +434,20 @@ python scripts/generate_minimax_h3.py --list-profiles
 | `generate_qwen3_tts` | 대사 · 감정 instruct · clone |
 | `voice_register` | 클론용 보이스 샘플 등록 |
 | `generate_bgm` | 배경음 |
+| **`extract_music_skeleton`** | 코드 진행 또는 로컬 음원 → 화성 뼈대 JSON |
+| **`generate_midi_arrangement`** | 뼈대 → 새 장르 MIDI 반주 (`harmony_only` 기본) |
+| **`generate_midi_render`** | MIDI → WAV 프리뷰 (FluidSynth 있을 때만) |
+| **`generate_midi_cover_bed`** | 위 단계를 팩으로 묶고 MiniMax/Suno 핸드오프 문서 작성 |
+
+```bash
+# 코드만 알고 있을 때 (권장 시작)
+python scripts/generate_midi_cover_bed.py --chords "Am,F,C,G" --genre acoustic_ballad --keep harmony_only -o "%AGENT_WORKSPACE%/beds/demo"
+# 반주 MIDI만
+python scripts/generate_midi_arrangement.py --chords "Am,F,C,G" --genre lofi_hiphop -o "%AGENT_WORKSPACE%/beds/bed.mid"
+```
+
+원음 마스터를 보컬 모델에 올리지 않는다. 팩의 `arrangement.wav` / `.mid` 가 베이스다.  
+가이드: [midi_cover AGENT_GUIDE](../workflows/human/midi_cover/AGENT_GUIDE.md)
 
 | TTS 모드 | 음색 | 감정 |
 |----------|------|------|

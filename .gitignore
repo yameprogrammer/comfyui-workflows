@@ -48,6 +48,12 @@ lib/__pycache__/
 /OpenMontage/
 /OpenMontage_full/
 
+# FluidSynth binary + GM soundfont (fetched by scripts/setup_fluidsynth.py)
+third_party/fluidsynth/
+third_party/soundfonts/*.sf2
+third_party/soundfonts/*.sf3
+third_party/soundfonts/*.zip
+
 
 .agent_cache/
 

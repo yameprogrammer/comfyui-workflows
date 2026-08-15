@@ -69,6 +69,7 @@ agent_custom/
   - LTX 품질 티어: `--ltx-profile draft|work|hero` (기본 work; 히어로 컷만 hero). 리서치: `docs/ltx23_quality_research_and_improvement.md`
   - NSFW video: `generate_ltx_nsfw_i2v` / `generate_ltx_nsfw_director` (18+) · `generate_wan22_nsfw_i2v` (18+, Wan)
   - TTS: `generate_qwen3_tts` (custom/design/**clone**) · `voice_register` — 클론 ref **≤~30s** · 감정 `--instruct` · 가이드 `workflows/human/qwen3_tts/AGENT_GUIDE.md`
+  - **MIDI 편곡 베드:** `extract_music_skeleton` · `generate_midi_arrangement` · `generate_midi_cover_bed` — 화성 뼈대 → 새 MIDI 반주 (원음 복제 아님) · 가이드 `workflows/human/midi_cover/AGENT_GUIDE.md`
   - 타이포 파이프: `generate_boogu_typo` — Boogu→Ideogram4→Krea2 (`NEWKrea2BooguIdeogram4_booguKrea2`) · 가이드 `workflows/human/NEWKrea2BooguIdeogram4_AGENT_GUIDE.md`
 * **실 UI 도구:** 미니 그래프·무단 inject 본선 금지. 포트/스위치/GGUF 스왑만.  
   비상: `--legacy-mini` / `AGENT_*_BACKEND=legacy_mini`.

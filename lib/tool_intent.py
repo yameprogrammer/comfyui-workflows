@@ -60,7 +60,8 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
         "alternatives": [
             {"if": "단순 캐릭터 대사 TTS", "use": "generate_qwen3_tts", "cli": "python scripts/generate_qwen3_tts.py -t \"...\" -o voice.wav"},
-            {"if": "짧은 앰비언트 루프", "use": "generate_bgm", "cli": "python scripts/generate_bgm.py -o bgm.wav"}
+            {"if": "짧은 앰비언트 루프", "use": "generate_bgm", "cli": "python scripts/generate_bgm.py -o bgm.wav"},
+            {"if": "화성 뼈대로 새 MIDI 반주 후 보컬", "use": "midi_cover_bed", "cli": "python scripts/generate_midi_cover_bed.py --chords \"Am,F,C,G\" --genre acoustic_ballad -o \"%AGENT_WORKSPACE%/beds/demo\""},
         ],
     },
     {
@@ -1063,6 +1064,70 @@ INTENT_TOOLS: list[dict[str, Any]] = [
             {"if": "자막 없음", "use": "whisper fallback", "cli": "python scripts/youtube_ingest.py URL --whisper"},
             {"if": "패키지 만든 뒤 클립만", "use": "youtube_highlights", "cli": "python scripts/youtube_highlights.py -i dumps/yt_demo --cut"},
             {"if": "우리 쇼츠 자막 납품", "use": "episode_subtitles", "cli": "python scripts/episode_subtitles.py -e EP"},
+            {"if": "음원/코드에서 화성 뼈대만", "use": "extract_music_skeleton", "cli": "python scripts/extract_music_skeleton.py --chords \"Am,F,C,G\" --bpm 96 -o \"%AGENT_WORKSPACE%/beds/s.json\""},
+        ],
+    },
+    {
+        "id": "music_skeleton",
+        "shelf": "INGEST",
+        "cli": "python scripts/extract_music_skeleton.py",
+        "script": "extract_music_skeleton.py",
+        "summary": "로컬 음원 또는 코드 진행에서 화성 뼈대 JSON (BPM/키/코드)",
+        "when": "편곡 전에 코드·BPM·키만 뽑을 때. 원음 복제가 아니라 뼈대 분석.",
+        "when_not": "원음 커버 업로드 · 보컬 완곡 생성 → generate_minimax_music / generate_midi_cover_bed",
+        "keywords": [
+            "채보", "코드", "skeleton", "화성", "midi 뼈대", "extract_music_skeleton",
+            "chord", "key", "bpm", "harmonic", "music_skeleton",
+        ],
+        "examples": [
+            'python scripts/extract_music_skeleton.py --chords "Am,F,C,G" --bpm 96 -o "%AGENT_WORKSPACE%/beds/s.json"',
+            'python scripts/extract_music_skeleton.py -i demo.wav -o "%AGENT_WORKSPACE%/beds/s.json"',
+        ],
+        "alternatives": [
+            {"if": "코드 이미 알고 반주만", "use": "generate_midi_arrangement", "cli": "python scripts/generate_midi_arrangement.py --chords \"Am,F,C,G\" --genre piano_pop -o \"%AGENT_WORKSPACE%/beds/bed.mid\""},
+            {"if": "유튜브 메타·자막만", "use": "youtube_ingest", "cli": "python scripts/youtube_ingest.py URL -o \"%AGENT_WORKSPACE%/ref/yt\""},
+        ],
+    },
+    {
+        "id": "midi_arrangement",
+        "shelf": "VOICE",
+        "cli": "python scripts/generate_midi_arrangement.py",
+        "script": "generate_midi_arrangement.py",
+        "summary": "화성 뼈대로 새 장르 MIDI 반주 작성 (원음 복제 아님)",
+        "when": "코드 진행을 갈아엎어 acoustic/lofi/rock/edm/piano MIDI 반주를 만들 때",
+        "when_not": "보컬 완곡 → generate_minimax_music · 원음 그대로 Cover",
+        "keywords": [
+            "midi", "편곡", "반주", "arrangement", "generate_midi_arrangement",
+            "acoustic", "lofi", "코드 진행", "미디",
+        ],
+        "examples": [
+            'python scripts/generate_midi_arrangement.py --chords "Am,F,C,G" --genre acoustic_ballad -o "%AGENT_WORKSPACE%/beds/bed.mid"',
+            'python scripts/generate_midi_arrangement.py --skeleton skel.json --genre lofi_hiphop -o "%AGENT_WORKSPACE%/beds/bed.mid"',
+        ],
+        "alternatives": [
+            {"if": "팩(프롬프트+정책)까지", "use": "midi_cover_bed", "cli": "python scripts/generate_midi_cover_bed.py --chords \"Am,F,C,G\" --genre lofi_hiphop -o \"%AGENT_WORKSPACE%/beds/demo\""},
+            {"if": "가사로 완곡", "use": "generate_minimax_music", "cli": "python scripts/generate_minimax_music.py --caption \"...\" --lyrics \"...\" -o song.flac"},
+        ],
+    },
+    {
+        "id": "midi_cover_bed",
+        "shelf": "VOICE",
+        "cli": "python scripts/generate_midi_cover_bed.py",
+        "script": "generate_midi_cover_bed.py",
+        "summary": "뼈대→편곡 MIDI+프리뷰+Suno/MiniMax 핸드오프 팩",
+        "when": "화성만 가져와서 새 반주를 만들고 그 위에 새 언어 가사를 얹을 준비",
+        "when_not": "가사만으로 완곡 → generate_minimax_music · 원음 마스터를 보컬 모델에 업로드",
+        "keywords": [
+            "midi cover", "번안", "cover bed", "generate_midi_cover_bed",
+            "suno", "minimax 핸드오프", "편곡 팩", "새 언어",
+        ],
+        "examples": [
+            'python scripts/generate_midi_cover_bed.py --chords "Am,F,C,G" --genre lofi_hiphop -o "%AGENT_WORKSPACE%/beds/demo"',
+            'python scripts/generate_midi_cover_bed.py -i demo.wav --genre acoustic_ballad --keep harmony_only -o "%AGENT_WORKSPACE%/beds/s01"',
+        ],
+        "alternatives": [
+            {"if": "반주 없이 완곡", "use": "generate_minimax_music", "cli": "python scripts/generate_minimax_music.py --caption \"...\" --lyrics \"...\" -o song.flac"},
+            {"if": "효과음", "use": "generate_stable_audio", "cli": "python scripts/generate_stable_audio.py --mode sfx --prompt \"...\" -o sfx.flac"},
         ],
     },
     {

@@ -82,6 +82,10 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 | `generate_qwen3_tts.py` | TTS custom/design/clone |
 | `voice_register.py` | 보이스 샘플 등록 |
 | `generate_bgm.py` | BGM |
+| **`extract_music_skeleton.py`** | 화성 뼈대 JSON (코드 또는 로컬 음원) |
+| **`generate_midi_arrangement.py`** | 새 장르 MIDI 반주 |
+| **`generate_midi_render.py`** | MIDI → WAV (FluidSynth, 선택) |
+| **`generate_midi_cover_bed.py`** | 편곡 팩 + Suno/MiniMax 핸드오프 |
 | `audio_slice.py` / `audio_prepare_driving.py` / `audio_bind_driving.py` / `audio_status.py` | 드라이빙·슬라이스 유틸 |
 
 ### FINISH — 업스케일 · 다듬기
