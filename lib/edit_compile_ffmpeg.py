@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from lib.edit_look import compose_key, compose_look, look_filter
 from lib.edit_motion import compose_motion
 from lib.edit_timeline import play_dur, resolve_media_path, timeline_duration, validate_timeline
 from lib.ffmpeg_util import probe_duration
@@ -55,8 +56,27 @@ def _norm_chain(label: str, clip: dict, w: int, h: int, fps: int) -> str:
         parts.append(
             f"scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h}"
         )
-    parts.append(f"fps={fps},format=yuv420p,setsar=1")
-    return ",".join(parts) + f"[{label}n]"
+    parts.append(f"fps={fps}")
+    key = compose_key(clip.get("key"))
+    if not key:
+        parts.append("format=yuv420p,setsar=1")
+        return [",".join(parts) + f"[{label}n]"], f"{label}n"
+    hx = key["color"]
+    bg = key["background"]
+    if not str(bg).startswith("0x"):
+        parts.append("format=yuv420p,setsar=1")
+        return [",".join(parts) + f"[{label}n]"], f"{label}n"
+    dur = play_dur(clip)
+    keyed = (
+        f"{','.join(parts)},format=gbrp,"
+        f"chromakey={hx}:{key['similarity']:.3f}:{key['blend']:.3f},"
+        f"format=yuva420p[{label}k]"
+    )
+    plate = (
+        f"color=c={bg}:s={w}x{h}:r={fps}:d={max(dur, 0.1):.4f},format=yuv420p[{label}bg]"
+    )
+    over = f"[{label}bg][{label}k]overlay=0:0,format=yuv420p,setsar=1[{label}n]"
+    return [keyed, plate, over], f"{label}n"
 
 
 def compile_ffmpeg(
@@ -101,8 +121,11 @@ def compile_ffmpeg(
         audio_files.append((idx, a, ap))
 
     fc: list[str] = []
+    clip_labs: list[str] = []
     for i, c in enumerate(clips):
-        fc.append(_norm_chain(str(i), c, w, h, fps))
+        chains, lab = _norm_chain(str(i), c, w, h, fps)
+        fc.extend(chains)
+        clip_labs.append(lab)
 
     xf_map = {}
     for t in tl.get("transitions") or []:
@@ -110,28 +133,32 @@ def compile_ffmpeg(
             xf_map[(t["from"], t["to"])] = float(t["dur"])
 
     if len(clips) == 1:
-        last_v = "0n"
+        last_v = clip_labs[0]
     else:
-        prev = "0n"
+        prev = clip_labs[0]
         acc = play_dur(clips[0])
         for i in range(1, len(clips)):
             pair = (clips[i - 1]["id"], clips[i]["id"])
             d = xf_map.get(pair, 0.0)
             out_lab = f"x{i}"
+            nxt = clip_labs[i]
             if d > 0:
                 off = max(0.0, acc - d)
                 fc.append(
-                    f"[{prev}][{i}n]xfade=transition=fade:duration={d}:offset={off:.4f}[{out_lab}]"
+                    f"[{prev}][{nxt}]xfade=transition=fade:duration={d}:offset={off:.4f}[{out_lab}]"
                 )
                 acc = acc + play_dur(clips[i]) - d
             else:
-                fc.append(f"[{prev}][{i}n]concat=n=2:v=1:a=0[{out_lab}]")
+                fc.append(f"[{prev}][{nxt}]concat=n=2:v=1:a=0[{out_lab}]")
                 acc = acc + play_dur(clips[i])
             prev = out_lab
         last_v = prev
 
-    fc.append(f"[{last_v}]eq=contrast=1.04:saturation=1.06[vgrade]")
-    last_v = "vgrade"
+    look = compose_look(tl.get("look"))
+    grade = look_filter(look)
+    if grade:
+        fc.append(f"[{last_v}]{grade}[vgrade]")
+        last_v = "vgrade"
 
     for idx, o, _rp in overlay_files:
         m = compose_motion(o, width=w, height=h)

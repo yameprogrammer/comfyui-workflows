@@ -30,6 +30,14 @@ class TestEditCli(unittest.TestCase):
         r = _run(["scripts/edit_timeline.py", "-h"])
         self.assertEqual(r.returncode, 0)
 
+    def test_list_looks(self):
+        r = _run(["scripts/comp_shot.py", "--list-looks"])
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("night", r.stdout)
+        r2 = _run(["scripts/edit_timeline.py", "list-looks"])
+        self.assertEqual(r2.returncode, 0, r2.stderr)
+        self.assertIn("punch", r2.stdout)
+
     def test_list_motions(self):
         r = _run(["scripts/edit_timeline.py", "list-motions"])
         self.assertEqual(r.returncode, 0, r.stderr)

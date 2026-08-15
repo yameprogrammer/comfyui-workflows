@@ -1,3 +1,7 @@
+## 2026-08-15 — EDIT look/key (v3, FFmpeg)
+- timeline `look` + `comp_shot.py` (punch/night/warm/cool/soft/bleach)
+- Parts: contrast sat brightness gamma temperature lut. Clip `key` chromakey.
+
 ## 2026-08-15 — Letter stagger kinetic (v2 jump, FFmpeg)
 - `render_title --split glyphs` + `edit_timeline stagger --stagger 0.06`
 - Revideo not required for per-letter pop.

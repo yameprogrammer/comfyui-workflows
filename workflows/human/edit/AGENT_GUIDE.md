@@ -42,6 +42,9 @@ python scripts/render_title.py --split glyphs --text "포기하지 마" --font y
 python scripts/edit_timeline.py stagger --timeline t.json \
   --glyphs "%AGENT_WORKSPACE%/edits/s01/cap.glyphs.json" \
   --start 0.4 --end 3.6 --stagger 0.06 --motion pop -o t.json
+python scripts/comp_shot.py --list-looks
+python scripts/comp_shot.py --look night -i clip.mp4 -o "%AGENT_WORKSPACE%/graded.mp4"
+# timeline "look": {"name":"night"} 또는 clip.key
 python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" \
   -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
 

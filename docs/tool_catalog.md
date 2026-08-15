@@ -592,6 +592,7 @@ python scripts/process_mesh_glb.py --probe   # Blender MCP
 | `edit_timeline` | 클립을 타임라인 JSON에 (트림·xfade) |
 | `render_title` | 한글 자막 PNG (부품 조립, 프리셋은 바로가기) |
 | **`render_edit`** | timeline → master.mp4 |
+| `comp_shot` | 클립 룩/키 (night/warm/… 또는 부품) |
 | `edit_qa_pack` / `edit_qa_record` | 마스터 열고 판정 |
 
 ```bash
@@ -602,6 +603,8 @@ python scripts/render_title.py --list-parts
 python scripts/render_title.py --text "조금만 더" --font yeonung --layout caption --color cyan --bubble yellow --tilt -4 --y 0.82 --split glyphs --width 1080 --height 1920 -o cap.png
 python scripts/edit_timeline.py stagger --timeline t.json --glyphs cap.glyphs.json --start 0.4 --end 3.6 --stagger 0.06 --motion pop -o t.json
 python scripts/render_title.py --preset caption --text "포기하지 마" --width 1080 --height 1920 -o cap.png
+python scripts/comp_shot.py --list-looks
+python scripts/comp_shot.py --look night -i clip.mp4 -o "%AGENT_WORKSPACE%/graded.mp4"
 python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
 python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" -o "%AGENT_WORKSPACE%/edits/s01/qa"
 ```

@@ -1172,6 +1172,25 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
     },
     {
+        "id": "comp_shot",
+        "shelf": "EDIT",
+        "cli": "python scripts/comp_shot.py",
+        "script": "comp_shot.py",
+        "summary": "클립 룩/키. 대비·채도·색온도 조립. 프리셋은 바로가기.",
+        "when": "색을 맞추거나 그린 키. 마스터 전 샷 룩, 또는 timeline.look",
+        "when_not": "OCIO 노드 그래프 / Natron 컴프 (아직)",
+        "keywords": ["그레이드", "룩", "색보정", "컬러", "키", "크로마키", "comp_shot", "lut"],
+        "examples": [
+            'python scripts/comp_shot.py --list-looks',
+            'python scripts/comp_shot.py --look night -i clip.mp4 -o "%AGENT_WORKSPACE%/graded.mp4"',
+            'python scripts/comp_shot.py --look punch --temperature -0.12 --saturation 1.15 -i clip.mp4 -o out.mp4',
+            'python scripts/comp_shot.py --key-color green -i fg.mp4 -o keyed.mp4',
+        ],
+        "alternatives": [
+            {"if": "타임라인 전체에 룩", "use": "render_edit", "cli": "timeline.look 넣고 render_edit"},
+        ],
+    },
+    {
         "id": "render_edit",
         "shelf": "EDIT",
         "cli": "python scripts/render_edit.py",

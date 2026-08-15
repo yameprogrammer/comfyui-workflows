@@ -17,6 +17,7 @@ import json
 import sys
 
 from lib.comfy_client import fail_result, ok_result
+from lib.edit_look import list_look_parts, list_looks
 from lib.edit_motion import expand_stagger, list_motion_parts, load_glyphs
 from lib.edit_timeline import (
     empty_timeline,
@@ -55,6 +56,9 @@ def main(argv: list[str] | None = None) -> int:
     p_lm = sub.add_parser("list-motions")
     p_lm.add_argument("--json", action="store_true")
 
+    p_ll = sub.add_parser("list-looks")
+    p_ll.add_argument("--json", action="store_true")
+
     p_st = sub.add_parser("stagger")
     p_st.add_argument("--timeline", required=True)
     p_st.add_argument("--glyphs", required=True, help="*.glyphs.json from render_title --split glyphs")
@@ -84,6 +88,16 @@ def main(argv: list[str] | None = None) -> int:
             print("directions\t" + ", ".join(parts["directions"]))
             for k, v in parts["units"].items():
                 print(f"  {k}\t{v}")
+        return 0
+
+    if args.cmd == "list-looks":
+        data = {"looks": list_looks(), "parts": list_look_parts()}
+        if args.json:
+            print(json.dumps(data, indent=2, ensure_ascii=False))
+        else:
+            for row in data["looks"]:
+                print(f"{row['name']}\t{row['use']}")
+            print("parts\t" + ", ".join(data["parts"]["parts"]))
         return 0
 
     try:

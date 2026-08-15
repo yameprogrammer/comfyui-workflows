@@ -32,6 +32,7 @@ def empty_timeline(
         "height": int(height),
         "sample_rate": int(sample_rate),
         "background": background,
+        "look": {"name": "punch"},
         "clips": [],
         "overlays": [],
         "audio": [],
@@ -92,6 +93,7 @@ def validate_timeline(tl: dict) -> dict[str, Any]:
     tl.setdefault("height", 1080)
     tl.setdefault("sample_rate", 48000)
     tl.setdefault("background", "#000000")
+    tl.setdefault("look", {"name": "punch"})
     tl.setdefault("clips", [])
     tl.setdefault("overlays", [])
     tl.setdefault("audio", [])

@@ -9,5 +9,5 @@ CUTS:
 TITLES:
 - (훅 / 크레딧 / 없음) — 가사 전부 올리지 않음
 MIX: master locked | vo+bgm | clip mute
-LOOK: 대비/채도 한 줄 또는 pass
+LOOK: punch|night|warm|cool|soft + 부품 (temperature/sat). 키면 clip.key
 ANTI: 3연속 동일 / 가사 슬라이드 / 검은 공백 / 팝

@@ -1329,6 +1329,16 @@
         "scripts/setup_edit_fonts.py"
       ]
     },
+    "comp_shot": {
+      "file": null,
+      "role": "edit_look_key",
+      "status": "ready",
+      "shelf": "EDIT",
+      "guide": "workflows/human/edit/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/comp_shot.py"
+      ]
+    },
     "render_edit": {
       "file": null,
       "role": "edit_master_render",

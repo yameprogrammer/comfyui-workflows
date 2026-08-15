@@ -313,7 +313,7 @@ ANTI: 3연속 동일 프레이밍, 가사 슬라이드, 검은 공백, 팝
 |------|------|------|
 | **v1** | trim, 배치, cut/xfade, 타이틀 PNG overlay, 오디오 트랙, master mp4 | FFmpeg + Pillow |
 | **v2** | 키네틱 타이포, 복잡한 멀티트랙 | Revideo 또는 MLT. JSON 필드만 추가 |
-| **v3** | 키, OCIO 그레이드 | Natron **또는** Blender 컴프. 별 CLI `comp_shot.py` |
+| **v3** | 키, 룩/그레이드 | FFmpeg `comp_shot` + timeline `look` (LUT 선택). Natron/Blender는 키프레임 컴프가 필요할 때 |
 
 한 단계가 동작·등록·테스트되기 전에 다음 엔진을 넣지 않는다.
 
@@ -383,7 +383,7 @@ ANTI: 3연속 동일 프레이밍, 가사 슬라이드, 검은 공백, 팝
 6. 카탈로그 · intent · `workflows/human/edit/AGENT_GUIDE.md`
 7. 스모크: 말 한 줄 가정 → PLAN → 3클립 마스터 → QA 팩이 열리는지
 8. **v2 PR:** Revideo 키네틱 훅 자막 (글자가 “만진” 느낌의 큰 점프)
-9. **v3 PR:** 룩 패스 (ffmpeg LUT 또는 Blender/Natron 한 경로). 키는 필요할 때만
+9. **v3 PR:** 룩 패스 — `look` 부품 + `comp_shot.py`. 키는 `clips[].key`. Natron/Blender는 그 다음.
 
 v1만으로도 “자른 쇼츠”는 된다.  
 **전문 피니시(움직이는 타이포, 그레이드, 키)** 는 8–9가 있어야 손이 더 느껴진다. 판단(스킬) 없이 8–9만 올리면 또 얇다.

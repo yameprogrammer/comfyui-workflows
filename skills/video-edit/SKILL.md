@@ -1,6 +1,6 @@
 ---
 name: video-edit
-version: 1.4.0
+version: 1.5.0
 description: >
   Editor-in-chief skill for agent_custom. After clips exist, turn a verbal brief
   into EDIT_PLAN + timeline + titles + master render + QA. Use when assembling,
@@ -15,7 +15,7 @@ description: >
 
 글자는 이름 붙은 프리셋에 갇히지 않는다. `--layout` + 색/크기/기울기 + `--box`/`--bubble`/`--bar` + `--x --y`를 조립해 이 샷에 맞는 룩을 만든다. `--preset`은 급할 때 바로가기. 폰트는 `--font yeonung|hook|soft|display|gothic` (경로 묻지 마). 없으면 `setup_edit_fonts.py`.
 
-손: `python scripts/edit_timeline.py` · `render_title.py` · `render_edit.py` · `edit_qa_pack.py`
+손: `python scripts/edit_timeline.py` · `render_title.py` · `render_edit.py` · `comp_shot.py` · `edit_qa_pack.py`
 
 생성 붕괴(얼굴, freeze)는 여기서 고치지 않는다. 해당 클립을 다시 GENERATE.
 
@@ -70,6 +70,9 @@ E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 | 이름/정보 | `fade_in`/`fade_out` 짧게 |
 | 얼굴 피해 | `--y 0.82`. CU에 예능 기본 자리 쓰지 마 |
 | “세게 열어” | 첫 컷 짧게, 타이틀은 늦게 |
+| 밤·네온 | look `night` |
+| 따뜻하게 | look `warm` · 채도/색온도 부품으로 조정 |
+| 배경 빼 | clip `key.color=green` (유사도·배경색은 네가 정함) |
 
 자막 모션도 부품이다. `fade_in` `fade_out` `move` `scale_from` `scale_to` `direction` `distance` `dx` `dy` `stagger`.  
 `motion: pop|fade|slide_up` 은 바로가기. 글자마다 튀기: `--split glyphs` 후 `edit_timeline stagger`. 초를 묻지 마라.  
@@ -92,6 +95,9 @@ python scripts/edit_timeline.py stagger --timeline t.json \
   --glyphs "%AGENT_WORKSPACE%/edits/s01/cap.glyphs.json" \
   --start 0.4 --end 3.6 --stagger 0.06 --motion pop -o t.json
 # 바로가기가 맞을 때만 --preset yt_hook / yeonung_shock …
+python scripts/edit_timeline.py list-looks
+python scripts/comp_shot.py --look night -i clip.mp4 -o "%AGENT_WORKSPACE%/graded.mp4"
+# timeline.json 에 "look": {"name":"night","saturation":1.15} 또는 clip.key
 python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" \
   -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
 python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" \
