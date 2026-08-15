@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble episode clips (and audio stems per mix_policy) into a final mp4 via FFmpeg."""
+"""Episode debug concat (mix_policy). Not delivery — use edit_pack for a master."""
 
 from __future__ import annotations
 
@@ -159,7 +159,7 @@ def _tracks_for_policy(
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
-        description="FFmpeg-assemble episode clips + audio stems (mix_policy)"
+        description="Episode debug concat + mix_policy. Not delivery (use edit_pack)."
     )
     parser.add_argument("--episode", "-e", required=True)
     parser.add_argument(
@@ -233,6 +233,13 @@ def main(argv=None) -> int:
         ),
     )
     args = parser.parse_args(argv)
+
+    print(
+        "[NOTE] assemble_video is episode debug concat, not delivery. "
+        "Master: python scripts/edit_pack.py -i a.mp4 -i b.mp4 --text \"...\" "
+        "-o \"%AGENT_WORKSPACE%/edits/s01/master.mp4\"",
+        file=sys.stderr,
+    )
 
     if not validate_episode_id(args.episode):
         print("[ERROR] code=2 invalid episode id", file=sys.stderr)

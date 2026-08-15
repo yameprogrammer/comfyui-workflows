@@ -4,7 +4,7 @@
   python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 \\
     --text "포기하지 마" --font yeonung --motion pop --stagger 0.06 --look night \\
     --audio bed.wav --vo line.wav \\
-    -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
+    -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
 """
 
 from __future__ import annotations
@@ -29,6 +29,8 @@ from lib.edit_pack import (
     resolve_title_window,
     sidecar_paths,
     title_kind,
+    title_sidecar,
+    title_windows,
 )
 from lib.edit_timeline import save_timeline, validate_timeline
 from lib.edit_title import render_title
@@ -47,7 +49,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--height", type=int, default=1080)
     p.add_argument("--fps", type=int, default=24)
 
-    p.add_argument("--text", default=None)
+    p.add_argument("--text", action="append", default=[], dest="texts", help="repeat for 2–3 captions")
     p.add_argument("--subtext", default="")
     p.add_argument("--preset", default=None)
     p.add_argument("--layout", default=None)
@@ -97,19 +99,18 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--vo-volume", type=float, default=None)
     p.add_argument("--vo-start", type=float, default=0.0)
 
-    p.add_argument("--qa", action="store_true")
+    p.add_argument("--qa", action=argparse.BooleanOptionalAction, default=True, help="QA pack after render (default on)")
     p.add_argument("--timeline-only", action="store_true", help="write timeline (+ title PNG), skip ffmpeg")
     p.add_argument("--print-graph", action="store_true")
     p.add_argument("--allow-freeze", action="store_true", help="intentional still / debug only")
     p.add_argument("--json", action="store_true")
     args = p.parse_args(argv)
 
+    texts = [str(t).strip() for t in (args.texts or []) if str(t).strip()]
     if not args.inputs:
         p.error("provide at least one -i clip")
-    if args.stagger is not None and not args.text:
+    if args.stagger is not None and not texts:
         p.error("--stagger requires --text")
-    if args.qa and args.timeline_only:
-        p.error("--qa needs a rendered master (drop --timeline-only)")
 
     try:
         die_if_toolbox(args.output)
@@ -138,71 +139,78 @@ def main(argv: list[str] | None = None) -> int:
             amount=args.amount,
             lut=args.lut,
         )
-        title_res = None
-        overlays: list = []
-        if args.text:
+        if texts:
+            dur = pack_duration(tl)
+            if len(texts) == 1:
+                windows = [
+                    resolve_title_window(dur, start=args.title_start, end=args.title_end)
+                ]
+            else:
+                windows = title_windows(dur, len(texts))
             split = "glyphs" if args.stagger is not None else None
-            title_res = render_title(
-                args.text,
-                paths["title"],
-                preset=args.preset,
-                width=args.width,
-                height=args.height,
-                subtext=args.subtext,
-                font=args.font,
-                color=args.color,
-                outline=args.outline,
-                outline_width=args.outline_width,
-                size=args.size,
-                tilt=args.tilt,
-                layout=args.layout,
-                weight=args.weight,
-                box=args.box,
-                bubble=args.bubble,
-                bar=args.bar,
-                react_color=args.react_color,
-                x=args.x,
-                y=args.y,
-                split=split,
-            )
-            if not title_res.get("ok"):
-                if args.json:
-                    print(json.dumps(title_res, indent=2, ensure_ascii=False))
-                else:
-                    print(
-                        f"[FAILED] {title_res.get('error')}: {title_res.get('message')}",
-                        file=sys.stderr,
-                    )
-                return 1
-            start, end = resolve_title_window(
-                pack_duration(tl),
-                start=args.title_start,
-                end=args.title_end,
-            )
-            glyphs = None
-            if args.stagger is not None:
-                gpath = title_res.get("glyphs") or paths["glyphs"]
-                glyphs = load_glyphs(gpath)
             motion = args.motion if args.motion is not None else "pop"
-            overlays = build_title_overlays(
-                path=title_res["path"],
-                text=args.text,
-                start=start,
-                end=end,
-                motion=motion,
-                kind=title_kind(title_res.get("layout") or args.layout),
-                stagger=args.stagger,
-                glyphs=glyphs,
-                fade_in=args.fade_in,
-                fade_out=args.fade_out,
-                move=args.move,
-                scale_from=args.scale_from,
-                scale_to=args.scale_to,
-                direction=args.direction,
-                distance=args.distance,
-                dx=args.dx,
-                dy=args.dy,
-            )
+            overlays: list = []
+            for i, text in enumerate(texts, start=1):
+                side = title_sidecar(args.output, i)
+                title_res = render_title(
+                    text,
+                    side["title"],
+                    preset=args.preset,
+                    width=args.width,
+                    height=args.height,
+                    subtext=args.subtext if i == 1 else "",
+                    font=args.font,
+                    color=args.color,
+                    outline=args.outline,
+                    outline_width=args.outline_width,
+                    size=args.size,
+                    tilt=args.tilt,
+                    layout=args.layout,
+                    weight=args.weight,
+                    box=args.box,
+                    bubble=args.bubble,
+                    bar=args.bar,
+                    react_color=args.react_color,
+                    x=args.x,
+                    y=args.y,
+                    split=split,
+                )
+                if not title_res.get("ok"):
+                    if args.json:
+                        print(json.dumps(title_res, indent=2, ensure_ascii=False))
+                    else:
+                        print(
+                            f"[FAILED] {title_res.get('error')}: {title_res.get('message')}",
+                            file=sys.stderr,
+                        )
+                    return 1
+                start, end = windows[i - 1]
+                glyphs = None
+                if args.stagger is not None:
+                    gpath = title_res.get("glyphs") or side["glyphs"]
+                    glyphs = load_glyphs(gpath)
+                overlays.extend(
+                    build_title_overlays(
+                        path=title_res["path"],
+                        text=text,
+                        start=start,
+                        end=end,
+                        motion=motion,
+                        kind=title_kind(title_res.get("layout") or args.layout),
+                        stagger=args.stagger,
+                        glyphs=glyphs,
+                        fade_in=args.fade_in,
+                        fade_out=args.fade_out,
+                        move=args.move,
+                        scale_from=args.scale_from,
+                        scale_to=args.scale_to,
+                        direction=args.direction,
+                        distance=args.distance,
+                        dx=args.dx,
+                        dy=args.dy,
+                        index=i,
+                    )
+                )
             tl.setdefault("overlays", []).extend(overlays)
             tl = validate_timeline(tl)
         if args.audio or args.vo:
@@ -303,7 +311,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     qa_path = None
-    if args.qa:
+    if args.qa and not args.timeline_only:
         from lib.edit_qa import edit_qa_pack
 
         try:

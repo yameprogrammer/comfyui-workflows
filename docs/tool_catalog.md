@@ -597,7 +597,7 @@ python scripts/process_mesh_glb.py --probe   # Blender MCP
 | `edit_qa_pack` / `edit_qa_record` | 마스터 열고 판정 |
 
 ```bash
-python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 --text "포기하지 마" --font yeonung --motion pop --stagger 0.06 --look night --audio bed.wav --vo line.wav -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
+python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 --text "포기하지 마" --text "조금만 더" --font yeonung --motion pop --stagger 0.06 --look night --audio bed.wav --vo line.wav -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
 python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 -o "%AGENT_WORKSPACE%/edits/s01/timeline.json"
 python scripts/setup_edit_fonts.py
 python scripts/render_title.py --list-fonts

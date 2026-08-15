@@ -38,6 +38,16 @@ def sidecar_paths(output_mp4: str) -> dict[str, str]:
         "glyphs": os.path.join(titles, "t1.glyphs.json"),
         "qa": os.path.join(base, "qa"),
         "plan": os.path.join(base, "EDIT_PLAN.md"),
+        "titles_dir": titles,
+    }
+
+
+def title_sidecar(output_mp4: str, index: int) -> dict[str, str]:
+    i = max(1, int(index))
+    folder = sidecar_paths(output_mp4)["titles_dir"]
+    return {
+        "title": os.path.join(folder, f"t{i}.png"),
+        "glyphs": os.path.join(folder, f"t{i}.glyphs.json"),
     }
 
 
@@ -77,6 +87,30 @@ def resolve_title_window(
     return round(s, 4), round(e, 4)
 
 
+def title_windows(duration: float, count: int) -> list[tuple[float, float]]:
+    """Sequential caption windows. Agent does not pick seconds."""
+    n = max(1, int(count))
+    if n == 1:
+        return [default_title_window(duration)]
+    dur = max(0.0, float(duration))
+    first = 0.40 if dur >= 1.6 else min(0.12, dur * 0.15)
+    tail = 0.15
+    gap = 0.18
+    usable = max(0.25, dur - first - tail - gap * (n - 1))
+    hold = min(2.4, max(0.65, usable / n))
+    out: list[tuple[float, float]] = []
+    t = first
+    for _ in range(n):
+        end = min(dur - tail if dur > tail else dur, t + hold)
+        if end <= t:
+            end = min(dur, t + 0.40) if dur > 0 else t + 0.40
+            if end <= t:
+                end = t + 0.05
+        out.append((round(t, 4), round(end, 4)))
+        t = end + gap
+    return out
+
+
 def title_kind(layout: str | None) -> str:
     key = str(layout or "caption").strip().lower()
     return LAYOUT_KIND.get(key, "caption")
@@ -101,7 +135,9 @@ def build_title_overlays(
     distance: float | None = None,
     dx: float | None = None,
     dy: float | None = None,
+    index: int = 1,
 ) -> list[dict[str, Any]]:
+    idx = max(1, int(index))
     if stagger is not None:
         if not glyphs or not glyphs.get("glyphs"):
             raise ValueError("stagger requires glyphs from render_title --split glyphs")
@@ -120,10 +156,10 @@ def build_title_overlays(
             distance=distance,
             dx=dx,
             dy=dy,
-            id_prefix="g0_",
+            id_prefix=f"g{idx}_",
         )
     ov: dict[str, Any] = {
-        "id": "t1",
+        "id": f"t{idx}",
         "kind": kind if kind in ("title", "lower_third", "caption", "card") else "caption",
         "path": path,
         "text": text,

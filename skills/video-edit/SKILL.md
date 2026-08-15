@@ -1,6 +1,6 @@
 ---
 name: video-edit
-version: 1.7.0
+version: 1.8.0
 description: >
   Editor-in-chief skill for agent_custom. After clips exist, turn a verbal brief
   into EDIT_PLAN + timeline + titles + master render + QA. Use when assembling,
@@ -30,7 +30,7 @@ E1 EDIT_PLAN  페이싱 / 컷 / 타이틀 일 / 믹스 / 룩     ⛔ 렌더 금�
 E2 TIMELINE   edit_timeline.v1     ↘
 E3 TITLES     render_title PNG      → 한 줄: edit_pack (--qa 포함 가능)
 E4 RENDER     master.mp4           ↗
-E5 QA         edit_qa_pack 열기 → record. fail이면 E1/E2만 수정
+E5 QA         edit_pack 기본 ON (`--no-qa` 금지에 가깝다). 열기 → record. fail이면 E1/E2만 수정
 E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 ```
 
@@ -87,11 +87,11 @@ E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 
 ```bash
 python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 \
-  --text "포기하지 마" --font yeonung --layout caption --color cyan --bubble yellow \
-  --tilt -4 --y 0.82 --motion pop --stagger 0.06 --look night \
-  --audio bed.wav --vo line.wav \
+  --text "포기하지 마" --text "조금만 더" --font yeonung --layout caption \
+  --color cyan --bubble yellow --tilt -4 --y 0.82 --motion pop --stagger 0.06 \
+  --look night --audio bed.wav --vo line.wav \
   --width 1080 --height 1920 \
-  -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
+  -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
 ```
 
 부품을 직접 조일 때만:

@@ -227,7 +227,7 @@ Boogu는 스틸 잡지 타이포. EDIT 타이틀의 기본 엔진이 아님 (느
 ```bash
 # 기본 손 (한 줄)
 python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 \
-  --text "포기하지 마" --font yeonung --motion pop --stagger 0.06 --look night \
+  --text "포기하지 마" --text "조금만 더" --font yeonung --motion pop --stagger 0.06 --look night \
   --audio bed.wav --vo line.wav \
   -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
 

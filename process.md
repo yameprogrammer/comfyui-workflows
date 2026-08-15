@@ -1,3 +1,7 @@
+## 2026-08-15 — edit_pack QA default + multi-text + assemble warn
+- QA pack on by default (`--no-qa` to skip). `--text` repeatable (sequential windows).
+- `assemble_video` stderr: debug concat; delivery is `edit_pack`.
+
 ## 2026-08-15 — MIDI arrangement density
 - Default `--density medium` (was unused `sparse`). sparse|medium|full drive voicing + rhythm.
 - `generate_midi_arrangement` / `generate_midi_cover_bed --density`

@@ -14,6 +14,7 @@ from lib.edit_pack import (
     resolve_title_window,
     sidecar_paths,
     title_kind,
+    title_windows,
 )
 from lib.edit_timeline import timeline_duration
 
@@ -50,6 +51,13 @@ class TestEditPackLib(unittest.TestCase):
         self.assertAlmostEqual(e2, 2.5)
         with self.assertRaises(ValueError):
             resolve_title_window(4.0, start=2.0, end=1.0)
+
+    def test_title_windows_sequential(self):
+        wins = title_windows(8.0, 2)
+        self.assertEqual(len(wins), 2)
+        self.assertLess(wins[0][1], wins[1][0] + 0.01)
+        self.assertLessEqual(wins[1][1], 8.0)
+        self.assertEqual(title_windows(8.0, 1), [default_title_window(8.0)])
 
     def test_title_kind(self):
         self.assertEqual(title_kind("yeonung"), "caption")
@@ -143,6 +151,7 @@ class TestEditPackCli(unittest.TestCase):
         self.assertIn("stagger", r.stdout)
         self.assertIn("audio", r.stdout)
         self.assertIn("allow-freeze", r.stdout)
+        self.assertIn("no-qa", r.stdout)
 
     def test_toolbox_write_refused(self):
         dest = os.path.join(ROOT, "stories", "_nope_master.mp4")
@@ -196,7 +205,6 @@ class TestEditPackCli(unittest.TestCase):
                     "--allow-freeze",
                     "-o",
                     master,
-                    "--qa",
                     "--json",
                 ]
             )
@@ -269,6 +277,65 @@ class TestEditPackCli(unittest.TestCase):
             self.assertNotEqual(r_fr.returncode, 0, r_fr.stdout + r_fr.stderr)
             blob = r_fr.stdout + r_fr.stderr
             self.assertIn("FREEZE_PAD_SUSPECT", blob)
+
+    def test_multi_text_timeline(self):
+        if not shutil.which("ffmpeg"):
+            self.skipTest("ffmpeg not on PATH")
+        with tempfile.TemporaryDirectory() as td:
+            clip = os.path.join(td, "a.mp4")
+            subprocess.run(
+                [
+                    shutil.which("ffmpeg"),
+                    "-y",
+                    "-f",
+                    "lavfi",
+                    "-i",
+                    "color=c=navy:s=320x240:r=24:d=4",
+                    "-pix_fmt",
+                    "yuv420p",
+                    clip,
+                ],
+                check=True,
+                capture_output=True,
+            )
+            master = os.path.join(td, "master.mp4")
+            r = _run(
+                [
+                    "scripts/edit_pack.py",
+                    "-i",
+                    clip,
+                    "--width",
+                    "320",
+                    "--height",
+                    "240",
+                    "--text",
+                    "잠깐",
+                    "--text",
+                    "가자",
+                    "--font",
+                    "gothic",
+                    "--timeline-only",
+                    "-o",
+                    master,
+                    "--json",
+                ]
+            )
+            self.assertEqual(r.returncode, 0, r.stderr + r.stdout)
+            self.assertTrue(os.path.isfile(os.path.join(td, "titles", "t1.png")))
+            self.assertTrue(os.path.isfile(os.path.join(td, "titles", "t2.png")))
+            import json
+
+            with open(os.path.join(td, "timeline.json"), encoding="utf-8") as f:
+                data = json.load(f)
+            texts = [o.get("text") for o in data["overlays"]]
+            self.assertIn("잠깐", texts)
+            self.assertIn("가자", texts)
+            self.assertLess(data["overlays"][0]["end"], data["overlays"][-1]["start"] + 0.05)
+
+    def test_assemble_warns_edit_pack(self):
+        r = _run(["scripts/assemble_video.py", "-e", "ZZ_NOT_AN_EP"])
+        self.assertIn("edit_pack", r.stderr)
+        self.assertIn("debug concat", r.stderr.lower() + r.stderr)
 
 
 if __name__ == "__main__":
