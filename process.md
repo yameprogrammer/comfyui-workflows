@@ -1,3 +1,7 @@
+## 2026-08-15 — Agent quality guards (intent + dialect fail-loud)
+- Plan: `docs/superpowers/plans/2026-08-15-agent-quality-guards.md`
+- Intent: 쇼츠 자막 → EDIT. Anima/I2V/MiniMax prompt gates. look.amount, key plate.
+
 ## 2026-08-15 — generation-prompt v1.3 (full generate_* dialects)
 - Matrix lists every live generate_* ; Anima / Krea2 transform / camera_move / Wan Animate / H3 / music / Hy3D
 

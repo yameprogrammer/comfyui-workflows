@@ -45,7 +45,17 @@ def main(argv=None) -> int:
     p = argparse.ArgumentParser(
         description="Anima & Anima-LLLite 2D Anime Image & Control Generation Tool"
     )
-    p.add_argument("--prompt", "-p", default=DEFAULT_POSITIVE, help="Positive text prompt")
+    p.add_argument(
+        "--prompt",
+        "-p",
+        default=None,
+        help="2D tags (required). Default soup is refused. See anima_2d.md",
+    )
+    p.add_argument(
+        "--force-prompt",
+        action="store_true",
+        help="Allow weak/soup prompts (debug)",
+    )
     p.add_argument("--negative", "-n", default=DEFAULT_NEGATIVE, help="Negative text prompt")
     p.add_argument("--output", "-o", default=None, help="Output image file path")
     p.add_argument(
@@ -73,6 +83,14 @@ def main(argv=None) -> int:
     p.add_argument("--json", action="store_true", help="Output machine-readable JSON result")
 
     args = p.parse_args(argv)
+
+    from lib.prompt_dialect_gate import check_anima_prompt, refuse_or_hint
+
+    if not (args.prompt or "").strip():
+        p.error("--prompt/-p required (2D tags). Default soup is disabled. See anima_2d.md")
+    anima_ck = check_anima_prompt(args.prompt)
+    if refuse_or_hint(anima_ck, force=args.force_prompt, stream=sys.stderr):
+        return 2
 
     try:
         res = generate_anima(

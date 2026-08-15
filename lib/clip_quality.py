@@ -76,7 +76,7 @@ def check_i2v_prompt(prompt: str) -> dict[str, Any]:
         warnings.append("very long prompt — prefer short motion sentence for I2V")
     score = max(0.0, min(1.0, score))
     return {
-        "ok": score >= 0.55 and not hits[:1] or (has_motion and score >= 0.4),
+        "ok": (not hits) and has_motion and score >= 0.55,
         "score": round(score, 2),
         "warnings": warnings,
         "hits_look": hits,

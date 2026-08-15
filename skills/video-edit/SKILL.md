@@ -68,7 +68,7 @@ E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 | 훅 글자 | `--font hook` + `--split glyphs` + `stagger 0.05–0.08` + `motion pop` |
 | 예능 자막 | `--font yeonung`. 방향은 `direction`+`distance`, 급하면 `slide_up` |
 | 이름/정보 | `fade_in`/`fade_out` 짧게 |
-| 얼굴 피해 | `--y 0.82`. CU에 예능 기본 자리 쓰지 마 |
+| 얼굴 피해 | 9:16에서 caption/yeonung 기본 `--y 0.82`. CU는 더 내리지 말 것 |
 | “세게 열어” | 첫 컷 짧게, 타이틀은 늦게 |
 | 밤·네온 | look `night` |
 | 따뜻하게 | look `warm` · 채도/색온도 부품으로 조정 |

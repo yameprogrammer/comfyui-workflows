@@ -58,6 +58,7 @@ def list_motion_parts() -> dict[str, Any]:
             "dx",
             "dy",
             "stagger",
+            "ease",
         ],
         "directions": list(DIRECTIONS),
         "units": {
@@ -262,6 +263,7 @@ def compose_motion(
         "direction": direction,
         "dx": float(dx or 0.0),
         "dy": float(dy or 0.0),
+        "ease": str(overlay.get("ease") or "linear").strip().lower() or "linear",
     }
     if warning:
         out["warning"] = warning

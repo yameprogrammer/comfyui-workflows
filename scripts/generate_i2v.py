@@ -49,7 +49,8 @@ from lib.workflow_paths import resolve_workflow
 from lib import wan22_i2v_inject as wan_inj
 
 DEFAULT_NEGATIVE = (
-    "static, still image, blurry, low quality, worst quality, deformed, "
+    "static, still image, freeze frame, freeze, identity morph, warp, "
+    "blurry, low quality, worst quality, deformed, "
     "bad anatomy, watermark, text, logo, jitter, flicker"
 )
 
@@ -1069,7 +1070,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "--prompt",
         "-p",
         default=None,
-        help="Motion / scene prompt (combined with --motion-preset if set)",
+        help="Motion / camera only (not face/wardrobe). See ltx23_video.md / wan22_i2v.md",
+    )
+    parser.add_argument(
+        "--force-prompt",
+        action="store_true",
+        help="Allow look-redescribe / weak motion prompts (debug)",
     )
     parser.add_argument("--prompt-file", default=None)
     parser.add_argument(
@@ -1396,17 +1402,13 @@ if __name__ == "__main__":
     if neg_extra:
         negative = f"{negative}, {neg_extra}" if negative else neg_extra
 
-    # L7: I2V dialect preflight (warn only; agents can fix prompt)
-    try:
-        from lib.clip_quality import check_i2v_prompt
+    from lib.prompt_dialect_gate import check_motion_prompt, refuse_or_hint
 
-        _dq = check_i2v_prompt(prompt)
-        for _w in _dq.get("warnings") or []:
-            print(f"[i2v-prompt WARN] {_w}", file=sys.stderr)
-        if _dq.get("suggestion") and not _dq.get("has_motion"):
-            print(f"[i2v-prompt HINT] {_dq['suggestion']}", file=sys.stderr)
-    except Exception:
-        pass
+    _dq = check_motion_prompt(prompt)
+    if refuse_or_hint(_dq, force=bool(getattr(args, "force_prompt", False)), stream=sys.stderr):
+        parser.error(_dq.get("message") or "PROMPT_DIALECT")
+    for _w in (_dq.get("detail") or {}).get("warnings") or []:
+        print(f"[i2v-prompt WARN] {_w}", file=sys.stderr)
 
     if (args.width is None) ^ (args.height is None):
         parser.error("Provide both --width and --height, or neither (use --format/--preset)")

@@ -88,6 +88,7 @@ def list_look_parts() -> dict[str, Any]:
             "brightness",
             "gamma",
             "temperature",
+            "amount",
             "lut",
             "key_color",
             "key_similarity",
@@ -151,6 +152,12 @@ def compose_look(raw: Any) -> dict[str, Any]:
         -0.5,
         0.5,
     )
+    amount = _clamp(src["amount"] if src.get("amount") is not None else 1.0, 0.0, 1.0)
+    contrast = 1.0 + (contrast - 1.0) * amount
+    saturation = 1.0 + (saturation - 1.0) * amount
+    brightness = brightness * amount
+    gamma = 1.0 + (gamma - 1.0) * amount
+    temperature = temperature * amount
     lut = src.get("lut") or base.get("lut")
     if lut:
         lut = os.path.abspath(str(lut))
@@ -164,6 +171,7 @@ def compose_look(raw: Any) -> dict[str, Any]:
         "brightness": brightness,
         "gamma": gamma,
         "temperature": temperature,
+        "amount": amount,
         "lut": lut,
     }
     if warning:

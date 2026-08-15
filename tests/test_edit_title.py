@@ -18,6 +18,16 @@ class TestEditTitle(unittest.TestCase):
             self.assertTrue(r.get("ok"), r)
             self.assertGreater(os.path.getsize(path), 200)
 
+    def test_portrait_caption_defaults_y_low(self):
+        from lib.edit_title import compose_style
+
+        # y is applied at render; compose leaves y unset
+        with tempfile.TemporaryDirectory() as td:
+            path = os.path.join(td, "c.png")
+            r = render_title("테스트", path, layout="caption", width=320, height=568)
+            self.assertTrue(r.get("ok"), r)
+            self.assertAlmostEqual(float((r.get("composed") or {}).get("y") or 0), 0.82)
+
     def test_yt_hook_writes_png(self):
         with tempfile.TemporaryDirectory() as td:
             path = os.path.join(td, "h.png")

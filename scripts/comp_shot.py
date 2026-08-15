@@ -33,6 +33,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--brightness", type=float, default=None)
     p.add_argument("--gamma", type=float, default=None)
     p.add_argument("--temperature", type=float, default=None)
+    p.add_argument("--amount", type=float, default=None, help="0–1 look strength")
     p.add_argument("--lut", default=None)
     p.add_argument("--key-color", default=None)
     p.add_argument("--key-similarity", type=float, default=None)
@@ -69,6 +70,7 @@ def main(argv: list[str] | None = None) -> int:
         "brightness": args.brightness,
         "gamma": args.gamma,
         "temperature": args.temperature,
+        "amount": args.amount,
         "lut": args.lut,
     }
     look = {k: v for k, v in look.items() if v is not None}

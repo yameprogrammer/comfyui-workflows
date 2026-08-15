@@ -27,6 +27,9 @@ def _overlay_xy(m: dict) -> tuple[str, str]:
     dout = max(0.04, move * 0.75)
     intro = f"max(0,1-min(1,max(0,t-{s:.4f})/{din:.4f}))"
     outro = f"max(0,1-min(1,max(0,{e:.4f}-t)/{dout:.4f}))"
+    if str(m.get("ease") or "linear") == "out_cubic":
+        intro = f"(1-pow(1-({intro})\\,3))"
+        outro = f"(1-pow(1-({outro})\\,3))"
     mix = f"max({intro},{outro})"
     x = "0" if abs(dx) < 0.5 else _ff_expr(f"{dx:.2f}*{mix}")
     y = "0" if abs(dy) < 0.5 else _ff_expr(f"{dy:.2f}*{mix}")
@@ -37,7 +40,15 @@ def _ff_path(path: str) -> str:
     return os.path.abspath(path).replace("\\", "/")
 
 
-def _norm_chain(label: str, clip: dict, w: int, h: int, fps: int) -> str:
+def _norm_chain(
+    label: str,
+    clip: dict,
+    w: int,
+    h: int,
+    fps: int,
+    *,
+    plate_input: int | None = None,
+) -> tuple[list[str], str]:
     inn = float(clip.get("in") or 0.0)
     out = float(clip["out"])
     speed = float(clip.get("speed") or 1.0) or 1.0
@@ -63,18 +74,24 @@ def _norm_chain(label: str, clip: dict, w: int, h: int, fps: int) -> str:
         return [",".join(parts) + f"[{label}n]"], f"{label}n"
     hx = key["color"]
     bg = key["background"]
-    if not str(bg).startswith("0x"):
-        parts.append("format=yuv420p,setsar=1")
-        return [",".join(parts) + f"[{label}n]"], f"{label}n"
-    dur = play_dur(clip)
     keyed = (
         f"{','.join(parts)},format=gbrp,"
         f"chromakey={hx}:{key['similarity']:.3f}:{key['blend']:.3f},"
         f"format=yuva420p[{label}k]"
     )
-    plate = (
-        f"color=c={bg}:s={w}x{h}:r={fps}:d={max(dur, 0.1):.4f},format=yuv420p[{label}bg]"
-    )
+    if plate_input is not None:
+        plate = (
+            f"[{plate_input}:v]scale={w}:{h}:force_original_aspect_ratio=increase,"
+            f"crop={w}:{h},fps={fps},format=yuv420p,setsar=1[{label}bg]"
+        )
+    elif str(bg).startswith("0x"):
+        dur = play_dur(clip)
+        plate = (
+            f"color=c={bg}:s={w}x{h}:r={fps}:d={max(dur, 0.1):.4f},format=yuv420p[{label}bg]"
+        )
+    else:
+        parts.append("format=yuv420p,setsar=1")
+        return [",".join(parts) + f"[{label}n]"], f"{label}n"
     over = f"[{label}bg][{label}k]overlay=0:0,format=yuv420p,setsar=1[{label}n]"
     return [keyed, plate, over], f"{label}n"
 
@@ -98,6 +115,14 @@ def compile_ffmpeg(
             raise FileNotFoundError(p)
         inputs.extend(["-i", p])
         resolved.append(p)
+
+    plate_input_by_clip: dict[int, int] = {}
+    for i, c in enumerate(clips):
+        ck = compose_key(c.get("key"))
+        bg = (ck or {}).get("background")
+        if ck and bg and os.path.isfile(str(bg)):
+            plate_input_by_clip[i] = len(inputs) // 2
+            inputs.extend(["-i", str(bg)])
 
     overlay_files: list[tuple[int, dict, str]] = []
     for o in tl.get("overlays") or []:
@@ -123,7 +148,9 @@ def compile_ffmpeg(
     fc: list[str] = []
     clip_labs: list[str] = []
     for i, c in enumerate(clips):
-        chains, lab = _norm_chain(str(i), c, w, h, fps)
+        chains, lab = _norm_chain(
+            str(i), c, w, h, fps, plate_input=plate_input_by_clip.get(i)
+        )
         fc.extend(chains)
         clip_labs.append(lab)
 

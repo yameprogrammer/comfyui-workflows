@@ -429,6 +429,8 @@ def render_title(
     layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     ld = ImageDraw.Draw(layer)
     lay = str(style.get("layout") or "caption")
+    if style.get("y") is None and h > w and lay in ("caption", "yeonung"):
+        style["y"] = 0.82
     px = _px_size(style.get("size") or "md", h)
     font_o = ImageFont.truetype(font_path, px)
     bbox = ld.textbbox((0, 0), text, font=font_o)

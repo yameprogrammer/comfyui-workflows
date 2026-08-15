@@ -1359,6 +1359,62 @@
         "scripts/edit_qa_pack.py",
         "scripts/edit_qa_record.py"
       ]
+    },
+    "generate_s2v": {
+      "file": null,
+      "role": "speech_to_video",
+      "status": "ready",
+      "shelf": "MOTION",
+      "scripts": ["scripts/generate_s2v.py"]
+    },
+    "generate_bgm": {
+      "file": null,
+      "role": "bgm",
+      "status": "ready",
+      "shelf": "VOICE",
+      "scripts": ["scripts/generate_bgm.py"]
+    },
+    "generate_ideogram4": {
+      "file": null,
+      "role": "typography",
+      "status": "ready",
+      "shelf": "GENERATE",
+      "scripts": ["scripts/generate_ideogram4.py"]
+    },
+    "generate_ltx_relight": {
+      "file": null,
+      "role": "relight",
+      "status": "ready",
+      "shelf": "FINISH",
+      "scripts": ["scripts/generate_ltx_relight.py"]
+    },
+    "youtube_ingest": {
+      "file": null,
+      "role": "youtube_ref",
+      "status": "ready",
+      "shelf": "INGEST",
+      "scripts": ["scripts/youtube_ingest.py"]
+    },
+    "upscale_video": {
+      "file": null,
+      "role": "upscale_video",
+      "status": "ready",
+      "shelf": "FINISH",
+      "scripts": ["scripts/upscale_video.py"]
+    },
+    "upscale_recommend": {
+      "file": null,
+      "role": "upscale_pick",
+      "status": "ready",
+      "shelf": "FINISH",
+      "scripts": ["scripts/upscale_recommend.py"]
+    },
+    "ltx_lora_status": {
+      "file": null,
+      "role": "ltx_lora_status",
+      "status": "ready",
+      "shelf": "META",
+      "scripts": ["scripts/ltx_lora_status.py"]
     }
   }
 }

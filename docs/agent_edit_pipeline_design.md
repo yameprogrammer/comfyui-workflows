@@ -1,7 +1,7 @@
 # 설계 — 에이전트 영상 편집 레일 (EDIT)
 
 - **작성**: 2026-08-15
-- **상태**: v1 구현 (2026-08-15). v2/v3 미착수
+- **상태**: v1 본선 + v2 글자 stagger(FFmpeg) + v3 look/key(`comp_shot`) 구현 (2026-08-15). Revideo/Natron은 미착수.
 - **기획**: [agent_edit_pipeline_brief.md](agent_edit_pipeline_brief.md)
 - **패턴 원본**: MIDI 레일 (`music_skeleton.v1` → CLI → 렌더) · FluidSynth `setup_*.py`
 
@@ -15,8 +15,9 @@
     → EDIT_PLAN.md
     → edit_timeline.v1
     → compile (FFmpeg)     ← v1 손
-    → (Revideo / MLT)      ← v2
-    → (grade / key)        ← v3
+    → stagger / motion parts (FFmpeg)  ← v2 일부
+    → look / key (`comp_shot`)         ← v3 일부
+    → (Revideo / Natron)               ← 미착수
     → master.mp4
     → edit_qa_pack → 열기 → 고치고 재렌더
 ```

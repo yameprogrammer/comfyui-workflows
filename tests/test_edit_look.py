@@ -25,6 +25,13 @@ class TestEditLook(unittest.TestCase):
     def test_none_is_identity_filter(self):
         self.assertEqual(look_filter(compose_look("none")), "")
 
+    def test_amount_lerps_toward_identity(self):
+        full = compose_look("night")
+        half = compose_look({"name": "night", "amount": 0.0})
+        self.assertAlmostEqual(half["contrast"], 1.0)
+        self.assertAlmostEqual(half["temperature"], 0.0)
+        self.assertLess(abs(half["contrast"] - 1.0), abs(full["contrast"] - 1.0))
+
     def test_key_green(self):
         k = compose_key({"color": "green", "similarity": 0.2})
         self.assertEqual(k["color"], "0x00FF00")

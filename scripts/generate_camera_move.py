@@ -55,6 +55,7 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Optional extra action/scene motion (not face re-essay)",
     )
+    p.add_argument("--force-prompt", action="store_true", help="Allow look-essay in --extra (debug)")
     p.add_argument("--extra-file", default=None, help="Extra prompt from file")
     p.add_argument("--negative", default=DEFAULT_NEGATIVE)
     p.add_argument("--negative-file", default=None)
@@ -98,6 +99,20 @@ def main(argv: list[str] | None = None) -> int:
         p.error(f"Unknown --preset {args.preset!r} (use --list-presets)")
 
     extra = load_text(args.extra_file) if args.extra_file else (args.extra or "")
+    if extra.strip():
+        from lib.clip_quality import check_i2v_prompt
+        from lib.prompt_dialect_gate import refuse_or_hint
+
+        raw = check_i2v_prompt(extra)
+        if raw.get("hits_look"):
+            ck = {
+                "ok": False,
+                "error": "PROMPT_DIALECT",
+                "message": "camera_move --extra is motion only; drop face/wardrobe. "
+                + ", ".join(raw["hits_look"][:6]),
+            }
+            if refuse_or_hint(ck, force=bool(getattr(args, "force_prompt", False)), stream=sys.stderr):
+                return 2
     prompt, neg_extra = compose_motion_prompt(pid, extra)
     negative = load_text(args.negative_file) if args.negative_file else (args.negative or "")
     if neg_extra:

@@ -1051,18 +1051,18 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         "when": "참고 유튜브 URL로 쇼츠/에피 기획 전 (내용 파악·구간 클립)",
         "when_not": "이미 로컬 대본·영상 있음 · 원본 재업로드 목적",
         "keywords": [
-            "youtube", "유튜브", "transcript", "자막", "레퍼", "ingest",
-            "highlight", "하이라이트", "요약", "caption", "yt-dlp", "쇼츠 레퍼",
+            "youtube", "유튜브", "transcript", "유튜브 자막", "레퍼", "ingest",
+            "highlight", "하이라이트", "요약", "yt-dlp", "쇼츠 레퍼", "url 자막",
         ],
         "examples": [
-            'python scripts/youtube_ingest.py "https://www.youtube.com/watch?v=VIDEO" -o dumps/yt_demo',
+            'python scripts/youtube_ingest.py "https://www.youtube.com/watch?v=VIDEO" -o "%AGENT_WORKSPACE%/refs/yt_demo"',
             'python scripts/youtube_ingest.py "URL" --whisper --highlights',
             'python scripts/youtube_ingest.py "URL" --cut --max-clips 5',
-            "python scripts/youtube_highlights.py -i dumps/yt_demo --cut",
+            'python scripts/youtube_highlights.py -i "%AGENT_WORKSPACE%/refs/yt_demo" --cut',
         ],
         "alternatives": [
             {"if": "자막 없음", "use": "whisper fallback", "cli": "python scripts/youtube_ingest.py URL --whisper"},
-            {"if": "패키지 만든 뒤 클립만", "use": "youtube_highlights", "cli": "python scripts/youtube_highlights.py -i dumps/yt_demo --cut"},
+            {"if": "패키지 만든 뒤 클립만", "use": "youtube_highlights", "cli": 'python scripts/youtube_highlights.py -i "%AGENT_WORKSPACE%/refs/yt_demo" --cut'},
             {"if": "우리 쇼츠 자막 납품", "use": "episode_subtitles", "cli": "python scripts/episode_subtitles.py -e EP"},
             {"if": "음원/코드에서 화성 뼈대만", "use": "extract_music_skeleton", "cli": "python scripts/extract_music_skeleton.py --chords \"Am,F,C,G\" --bpm 96 -o \"%AGENT_WORKSPACE%/beds/s.json\""},
         ],
@@ -1622,6 +1622,11 @@ def _tokenize(q: str) -> list[str]:
 
 
 _PHRASE_BOOSTS: list[tuple[tuple[str, ...], str, float]] = [
+    (("자막", "편집"), "render_edit", 7.5),
+    (("쇼츠", "편집"), "render_edit", 7.0),
+    (("훅", "자막"), "render_title", 7.5),
+    (("예능", "자막"), "render_title", 7.0),
+    (("쇼츠", "자막"), "render_title", 6.5),
     (("얼굴", "유지"), "identity_scene", 6.0),
     (("같은", "사람"), "identity_scene", 6.0),
     (("아이덴티티",), "identity_scene", 4.0),
@@ -1818,6 +1823,10 @@ def search_intents(
 
         if tid == "instruction_edit" and "유지" in qraw and "얼굴" in qraw:
             score -= 2.0
+        if tid == "youtube_ref_ingest":
+            ytish = any(x in qraw for x in ("유튜브", "youtube", "http", "레퍼", "yt-dlp", "ingest"))
+            if ("자막" in qraw or "편집" in qraw) and not ytish:
+                score -= 5.0
 
         if score > 0:
             row = dict(tool)

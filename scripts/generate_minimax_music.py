@@ -64,6 +64,7 @@ def main(argv=None) -> int:
     p.add_argument("--seed", type=int, default=None, help="Random seed")
     p.add_argument("--server", default=DEFAULT_SERVER, help=f"ComfyUI server URL (default: {DEFAULT_SERVER})")
     p.add_argument("--json", action="store_true", help="Output machine-readable JSON result")
+    p.add_argument("--force-prompt", action="store_true", help="Allow visual-language captions (debug)")
 
     args = p.parse_args(argv)
 
@@ -78,6 +79,12 @@ def main(argv=None) -> int:
     if args.lyrics_file and os.path.isfile(args.lyrics_file):
         with open(args.lyrics_file, "r", encoding="utf-8") as f:
             lyrics_text = f.read().strip()
+
+    from lib.prompt_dialect_gate import check_music_caption, refuse_or_hint
+
+    _ck = check_music_caption(caption_text)
+    if refuse_or_hint(_ck, force=bool(getattr(args, "force_prompt", False)), stream=sys.stderr):
+        return 2
 
     try:
         res = generate_minimax_music(
