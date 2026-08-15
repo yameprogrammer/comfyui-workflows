@@ -30,6 +30,12 @@ class TestEditCli(unittest.TestCase):
         r = _run(["scripts/edit_timeline.py", "-h"])
         self.assertEqual(r.returncode, 0)
 
+    def test_title_list_fonts(self):
+        r = _run(["scripts/render_title.py", "--list-fonts"])
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("yeonung", r.stdout)
+        self.assertIn("gothic", r.stdout)
+
     def test_title_list_parts_and_compose(self):
         r = _run(["scripts/render_title.py", "--list-parts"])
         self.assertEqual(r.returncode, 0, r.stderr)

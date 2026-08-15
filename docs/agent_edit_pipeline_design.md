@@ -161,6 +161,12 @@ MLT를 v1 필수로 두지 않는다. melt 미설치가 편집 선반을 죽이�
 `compose_style()`이 병합 SSOT. `--list-parts`로 메뉴를 읽는다.  
 `--preset yt_hook` 등은 같은 부품을 미리 채워 둔 바로가기.
 
+폰트는 **별칭**: `yeonung` `hook` `soft` `display` `gothic` `gothic_bold`.  
+`--font yeonung` → `third_party/fonts` (OFL, `setup_edit_fonts.py`) 또는 시스템 맑은 고딕. 경로를 사용자에게 묻지 않는다.
+
+오디오 부품: `fade_in` `fade_out` (초). 베드에 `duck: 0.28` + VO `role: vo` 이면 sidechain.  
+오버레이 `fade_in`/`fade_out`은 PNG 알파 페이드 (키네틱 전 단계).
+
 구현 v1: **Pillow + 지정 폰트 → PNG (투명)**.  
 폰트: `--font` 또는 `EDIT_FONT` 또는 Windows `C:\Windows\Fonts\malgun.ttf`. 없으면 `FONT_MISSING`로 실패.
 

@@ -15,6 +15,7 @@ import argparse
 import json
 import sys
 
+from lib.edit_fonts import list_fonts
 from lib.edit_title import LAYOUTS, STYLES, list_parts, list_styles, render_title
 from lib.output_policy import die_if_toolbox
 
@@ -43,8 +44,19 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--output", "-o", default=None)
     p.add_argument("--list-styles", action="store_true")
     p.add_argument("--list-parts", action="store_true")
+    p.add_argument("--list-fonts", action="store_true")
     p.add_argument("--json", action="store_true")
     args = p.parse_args(argv)
+
+    if args.list_fonts:
+        rows = list_fonts()
+        if args.json:
+            print(json.dumps(rows, indent=2, ensure_ascii=False))
+        else:
+            for row in rows:
+                mark = "ok" if row["ready"] else "need-setup"
+                print(f"{row['name']}\t{mark}\t{row['use']}\t{row['path'] or '-'}")
+        return 0
 
     if args.list_parts:
         parts = list_parts()
@@ -56,6 +68,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"colors\t{', '.join(parts['colors'])}")
             print(f"chrome\t{', '.join(parts['chrome'])}")
             print(f"place\t{', '.join(parts['place'])}  ({parts['place_note']})")
+            print(f"fonts\t{', '.join(parts['fonts'])}  ({parts['font_note']})")
             print(f"presets\t{', '.join(parts['presets'])}  ({parts['preset_note']})")
         return 0
 
@@ -65,7 +78,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if not args.text or not args.output:
-        p.error("--text and --output required (unless --list-styles / --list-parts)")
+        p.error("--text and --output required (unless --list-styles / --list-parts / --list-fonts)")
     try:
         die_if_toolbox(args.output)
     except SystemExit as e:

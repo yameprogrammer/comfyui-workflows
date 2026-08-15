@@ -1,6 +1,6 @@
 ---
 name: video-edit
-version: 1.0.0
+version: 1.1.0
 description: >
   Editor-in-chief skill for agent_custom. After clips exist, turn a verbal brief
   into EDIT_PLAN + timeline + titles + master render + QA. Use when assembling,
@@ -13,7 +13,7 @@ description: >
 
 사용자는 말만 한다. 컷 점·페이드 초·자막 포맷을 묻지 마라. 네가 정하고 EDIT_PLAN에 남겨라.
 
-글자는 이름 붙은 프리셋에 갇히지 않는다. `--layout` + 색/크기/기울기 + `--box`/`--bubble`/`--bar` + `--x --y`를 조립해 이 샷에 맞는 룩을 만든다. `--preset`은 급할 때 바로가기.
+글자는 이름 붙은 프리셋에 갇히지 않는다. `--layout` + 색/크기/기울기 + `--box`/`--bubble`/`--bar` + `--x --y`를 조립해 이 샷에 맞는 룩을 만든다. `--preset`은 급할 때 바로가기. 폰트는 `--font yeonung|hook|soft|display|gothic` (경로 묻지 마). 없으면 `setup_edit_fonts.py`.
 
 손: `python scripts/edit_timeline.py` · `render_title.py` · `render_edit.py` · `edit_qa_pack.py`
 
@@ -63,10 +63,10 @@ E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 |----|-----------|
 | “15초 쇼츠” | 훅 1–1.5s, 컷 4–7, 피크 한 곳 |
 | “케이팝 뮤비처럼” | 음악 locked, 클립 오디오 mute, 후렴=이벤트, 글자 최소 |
-| “이 곡 깔아” | audio role=master, fade 0.15–0.4 |
+| “이 곡 깔아” | audio role=master, fade_in 0.2 / fade_out 0.35. VO 있으면 duck 0.28 |
 | “이름 넣어” | lower_third 1회 ~2초 |
-| 훅 글자 | 부품으로 조립. 급하면 `yt_hook` / `yt_pop` 바로가기 |
-| 예능 자막 | `--layout yeonung --tilt -4 --color yellow`. 말풍선 `--bubble`, 리액션 `--subtext` |
+| 훅 글자 | 부품으로 조립. `--font hook`. 급하면 `yt_hook` |
+| 예능 자막 | `--font yeonung --layout yeonung --tilt -4 --color yellow`. 말풍선 `--bubble` |
 | 얼굴 피해 | `--y 0.82` (0–1, 글자 중심). CU에 예능 기본 자리 쓰지 마 |
 | “세게 열어” | 첫 컷 짧게, 타이틀은 늦게 |
 
@@ -77,8 +77,10 @@ E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 ```bash
 python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 \
   -o "%AGENT_WORKSPACE%/edits/s01/timeline.json"
+python scripts/setup_edit_fonts.py
+python scripts/render_title.py --list-fonts
 python scripts/render_title.py --list-parts
-python scripts/render_title.py --text "조금만 더" --layout caption \
+python scripts/render_title.py --text "조금만 더" --font yeonung --layout caption \
   --color cyan --size xl --bubble yellow --tilt -4 --y 0.82 \
   --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/cap.png"
 # 바로가기가 맞을 때만 --preset yt_hook / yeonung_shock …

@@ -6,6 +6,7 @@ import os
 from typing import Any
 
 from lib.comfy_client import fail_result, ok_result
+from lib.edit_fonts import known_font_names, list_fonts, resolve_font
 
 # Independent placement families. Chrome (box/bubble/bar) is not locked to these.
 LAYOUTS = ("caption", "title", "lower_third", "yeonung", "card")
@@ -163,6 +164,8 @@ def list_parts() -> dict[str, Any]:
         "chrome": ["box", "bubble", "bar", "react_color", "subtext", "tilt"],
         "place": ["x", "y"],
         "place_note": "x/y are 0-1, center of the main text. Omit to use layout default.",
+        "fonts": known_font_names(),
+        "font_note": "aliases: --font yeonung|hook|soft|display|gothic|gothic_bold or a .ttf path. setup_edit_fonts.py",
         "presets": list_styles(),
         "preset_note": "shortcuts only. compose layout+paint+chrome+place without a preset.",
     }
@@ -183,29 +186,6 @@ def parse_color(value: str | None) -> tuple[int, int, int, int] | None:
         if len(h) == 6:
             return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), 255
     raise ValueError(f"bad color {value!r} (use #RRGGBB or yellow/white/red/…)")
-
-
-def resolve_font(explicit: str | None = None, *, weight: str = "regular") -> str | None:
-    if explicit and os.path.isfile(explicit):
-        return os.path.abspath(explicit)
-    env = os.environ.get("EDIT_FONT")
-    if env and os.path.isfile(env):
-        return os.path.abspath(env)
-    bold_first = weight == "bold"
-    cands = [
-        r"C:\Windows\Fonts\malgunbd.ttf",
-        r"C:\Windows\Fonts\malgun.ttf",
-        r"C:\Windows\Fonts\NanumGothicBold.ttf",
-        r"C:\Windows\Fonts\NanumGothic.ttf",
-        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
-        "/System/Library/Fonts/AppleSDGothicNeo.ttc",
-    ]
-    if not bold_first:
-        cands = [cands[1], cands[0], cands[3], cands[2], *cands[4:]]
-    for cand in cands:
-        if os.path.isfile(cand):
-            return cand
-    return None
 
 
 def _px_size(size: str | int | float, height: int) -> int:
@@ -431,7 +411,12 @@ def render_title(
         ow = 0
     font_path = resolve_font(font, weight=str(style.get("weight") or "regular"))
     if not font_path:
-        return fail_result(error="FONT_MISSING", message="set --font or EDIT_FONT (malgun.ttf)")
+        known = ", ".join(known_font_names())
+        hint = font or "default"
+        return fail_result(
+            error="FONT_MISSING",
+            message=f"font {hint!r} not found. aliases: {known}. or a .ttf path. python scripts/setup_edit_fonts.py",
+        )
     try:
         from PIL import Image, ImageDraw, ImageFont
     except ImportError:

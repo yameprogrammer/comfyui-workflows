@@ -1319,6 +1319,16 @@
         "scripts/render_title.py"
       ]
     },
+    "setup_edit_fonts": {
+      "file": null,
+      "role": "edit_font_pack",
+      "status": "ready",
+      "shelf": "EDIT",
+      "guide": "workflows/human/edit/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/setup_edit_fonts.py"
+      ]
+    },
     "render_edit": {
       "file": null,
       "role": "edit_master_render",

@@ -116,7 +116,8 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 | 스크립트 | 역할 |
 |----------|------|
 | `edit_timeline.py` | timeline JSON init / from-clips / validate |
-| `render_title.py` | 한글 타이틀 PNG (부품 조립, `--list-parts`) |
+| `render_title.py` | 한글 타이틀 PNG (부품 조립, `--list-parts`, `--list-fonts`) |
+| `setup_edit_fonts.py` | OFL 한글 디스플레이 폰트 (`--font yeonung`) |
 | `render_edit.py` | 타임라인 → master.mp4 |
 | `edit_qa_pack.py` / `edit_qa_record.py` | 마스터 QA |
 

@@ -6,6 +6,9 @@ import os
 from typing import Any
 
 from lib.edit_timeline import play_dur, resolve_media_path, timeline_duration, validate_timeline
+from lib.ffmpeg_util import probe_duration
+
+VO_ROLES = ("vo", "vocal", "dialogue", "speech", "host", "voice")
 
 
 def _ff_path(path: str) -> str:
@@ -111,9 +114,22 @@ def compile_ffmpeg(
 
     for idx, o, _rp in overlay_files:
         s, e = float(o.get("start") or 0.0), float(o.get("end") or 0.0)
+        fi = max(0.0, float(o.get("fade_in") or 0.0))
+        fo = max(0.0, float(o.get("fade_out") or 0.0))
+        ov_src = f"{idx}:v"
+        if fi > 0 or fo > 0:
+            hold = max(0.05, e - s)
+            chain = f"[{idx}:v]format=rgba,fps={fps},loop=loop=-1:size=1:start=0"
+            if fi > 0:
+                chain += f",fade=t=in:st=0:d={fi:.3f}:alpha=1"
+            if fo > 0:
+                chain += f",fade=t=out:st={max(0.0, hold - fo):.3f}:d={fo:.3f}:alpha=1"
+            chain += f"[ovs{idx}]"
+            fc.append(chain)
+            ov_src = f"ovs{idx}"
         out_lab = f"ov{idx}"
         fc.append(
-            f"[{last_v}][{idx}:v]overlay=0:0:enable='between(t,{s:.4f},{e:.4f})'[{out_lab}]"
+            f"[{last_v}][{ov_src}]overlay=0:0:enable='between(t,{s:.4f},{e:.4f})'[{out_lab}]"
         )
         last_v = out_lab
 
@@ -121,11 +137,15 @@ def compile_ffmpeg(
     extra_in: list[str] = []
     if audio_files:
         a_labs = []
-        for j, (idx, a, _p) in enumerate(audio_files):
+        vo_js: list[int] = []
+        bed_js: list[int] = []
+        for j, (idx, a, ap) in enumerate(audio_files):
             inn = float(a.get("in") or 0.0)
             out = a.get("out")
             start = float(a.get("start") or 0.0)
             vol = float(a.get("volume") or 1.0)
+            fade_in = max(0.0, float(a.get("fade_in") or 0.0))
+            fade_out = max(0.0, float(a.get("fade_out") or 0.0))
             delay_ms = int(round(start * 1000))
             chain = f"[{idx}:a]atrim=start={inn}"
             if out is not None:
@@ -133,14 +153,43 @@ def compile_ffmpeg(
             chain += ",asetpts=PTS-STARTPTS"
             if delay_ms > 0:
                 chain += f",adelay={delay_ms}:all=1"
+            if fade_in > 0:
+                chain += f",afade=t=in:st=0:d={fade_in:.3f}"
+            if fade_out > 0:
+                seg = (float(out) - inn) if out is not None else probe_duration(ap)
+                if seg and seg > 0:
+                    chain += f",afade=t=out:st={max(0.0, float(seg) - fade_out):.3f}:d={fade_out:.3f}"
             chain += f",volume={vol}[a{j}]"
             fc.append(chain)
             a_labs.append(f"[a{j}]")
-        if len(a_labs) == 1:
-            last_a = "a0"
+            role = str(a.get("role") or "").lower()
+            if a.get("duck") is not None:
+                bed_js.append(j)
+            elif role in VO_ROLES:
+                vo_js.append(j)
+        mix_labs = []
+        if bed_js and vo_js:
+            key = vo_js[0]
+            for j in range(len(a_labs)):
+                if j in bed_js:
+                    duck = float(audio_files[j][1].get("duck") or 0.28)
+                    duck = min(1.0, max(0.05, duck))
+                    fc.append(
+                        f"[a{j}][a{key}]sidechaincompress=threshold=0.03:ratio=8:"
+                        f"attack=40:release=280:mix=1:level_sc=1[a{j}d]"
+                    )
+                    # keep a floor so ducked bed is audible at ~duck
+                    fc.append(f"[a{j}d]volume={duck + (1.0 - duck) * 0.15:.3f}[a{j}m]")
+                    mix_labs.append(f"[a{j}m]")
+                else:
+                    mix_labs.append(f"[a{j}]")
         else:
-            ins = "".join(a_labs)
-            fc.append(f"{ins}amix=inputs={len(a_labs)}:normalize=0[amix]")
+            mix_labs = list(a_labs)
+        if len(mix_labs) == 1:
+            last_a = mix_labs[0].strip("[]")
+        else:
+            ins = "".join(mix_labs)
+            fc.append(f"{ins}amix=inputs={len(mix_labs)}:normalize=0[amix]")
             last_a = "amix"
         fc.append(f"[{last_a}]apad,atrim=0:{dur:.4f}[aout]")
         map_a = ["-map", "[aout]"]

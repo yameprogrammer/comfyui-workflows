@@ -25,8 +25,10 @@
 python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 \
   --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/timeline.json"
 
+python scripts/setup_edit_fonts.py
+python scripts/render_title.py --list-fonts
 python scripts/render_title.py --list-parts
-python scripts/render_title.py --text "조금만 더" --layout caption \
+python scripts/render_title.py --text "조금만 더" --font yeonung --layout caption \
   --color cyan --size xl --bubble yellow --tilt -4 --y 0.82 \
   --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/cap.png"
 python scripts/render_title.py --preset yt_hook --text "포기하지 마" \

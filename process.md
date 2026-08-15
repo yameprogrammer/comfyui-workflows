@@ -1,3 +1,7 @@
+## 2026-08-15 — EDIT font aliases + audio fade/duck
+- `--font yeonung|hook|soft|display|gothic` · `setup_edit_fonts.py` (OFL pack, gitignored)
+- timeline audio `fade_in`/`fade_out`/`duck` · overlay PNG `fade_in`/`fade_out`
+
 ## 2026-08-15 — Title parts compose (presets = shortcuts)
 - `render_title` is layout + paint + chrome + x/y. `--list-parts`. `--preset` optional.
 - Agent can invent a look (e.g. caption + cyan + yellow bubble + tilt + y=0.82).

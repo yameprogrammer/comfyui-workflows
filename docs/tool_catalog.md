@@ -596,8 +596,10 @@ python scripts/process_mesh_glb.py --probe   # Blender MCP
 
 ```bash
 python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 -o "%AGENT_WORKSPACE%/edits/s01/timeline.json"
+python scripts/setup_edit_fonts.py
+python scripts/render_title.py --list-fonts
 python scripts/render_title.py --list-parts
-python scripts/render_title.py --text "조금만 더" --layout caption --color cyan --bubble yellow --tilt -4 --y 0.82 --width 1080 --height 1920 -o cap.png
+python scripts/render_title.py --text "조금만 더" --font yeonung --layout caption --color cyan --bubble yellow --tilt -4 --y 0.82 --width 1080 --height 1920 -o cap.png
 python scripts/render_title.py --preset caption --text "포기하지 마" --width 1080 --height 1920 -o cap.png
 python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
 python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" -o "%AGENT_WORKSPACE%/edits/s01/qa"

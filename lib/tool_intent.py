@@ -1160,9 +1160,11 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         "when_not": "움직이는 키네틱 타이포 (v2 Revideo)",
         "keywords": ["타이틀", "자막", "캡션", "로어서드", "글자", "render_title", "훅 자막", "예능 자막"],
         "examples": [
+            'python scripts/setup_edit_fonts.py',
+            'python scripts/render_title.py --list-fonts',
             'python scripts/render_title.py --list-parts',
-            'python scripts/render_title.py --text "조금만 더" --layout caption --color cyan --bubble yellow --tilt -4 --y 0.82 --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/cap.png"',
-            'python scripts/render_title.py --preset yt_hook --text "포기하지 마" --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/hook.png"',
+            'python scripts/render_title.py --text "조금만 더" --font yeonung --layout caption --color cyan --bubble yellow --tilt -4 --y 0.82 --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/cap.png"',
+            'python scripts/render_title.py --preset yt_hook --font hook --text "포기하지 마" --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/hook.png"',
         ],
         "alternatives": [
             {"if": "타임라인에 올려 렌더", "use": "render_edit", "cli": "python scripts/render_edit.py --timeline t.json -o master.mp4"},

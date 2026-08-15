@@ -54,7 +54,7 @@ python scripts/skill_equip.py install generation-prompt
 |----|------|------|------|
 | **video-direction** | [video-direction/](video-direction/) | 기획·연출·샷 문법·시각 1–10층 | ✅ v1.11 |
 | **generation-prompt** | [generation-prompt/](generation-prompt/) | SHOT → 이미지/영상 **모델 프롬프트** | ✅ v1.0 |
-| **video-edit** | [video-edit/](video-edit/) | 말→EDIT_PLAN→타임라인→마스터 QA | ✅ v1.0 |
+| **video-edit** | [video-edit/](video-edit/) | 말→EDIT_PLAN→타임라인→마스터 QA | ✅ v1.1 |
 
 ---
 

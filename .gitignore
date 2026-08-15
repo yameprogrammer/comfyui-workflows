@@ -53,6 +53,10 @@ third_party/fluidsynth/
 third_party/soundfonts/*.sf2
 third_party/soundfonts/*.sf3
 third_party/soundfonts/*.zip
+# OFL Hangul display fonts (fetched by scripts/setup_edit_fonts.py)
+third_party/fonts/*.ttf
+third_party/fonts/*.otf
+third_party/fonts/*.part
 
 
 .agent_cache/
