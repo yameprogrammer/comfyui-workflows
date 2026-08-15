@@ -88,9 +88,11 @@ looks/*
 !looks/_template/
 !looks/_template/**
 !looks/cinematic_moody_v1/
-!looks/cinematic_moody_v1/**
-
-# Ignore voices except readme
-voices/*
-!voices/README.md
-
+# Runtime artifacts & Workspace
+workspace/
+*.glb
+*.obj
+*.flac
+*.wav
+help_tts.txt
+scripts/_probe_*

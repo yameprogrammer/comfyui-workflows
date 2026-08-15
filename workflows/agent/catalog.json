@@ -152,7 +152,14 @@
       "used_by": [
         "scripts/generate_minimax_h3.py"
       ],
-      "tasks": ["t2v", "i2v", "flf", "r2v", "a2v", "polish"],
+      "tasks": [
+        "t2v",
+        "i2v",
+        "flf",
+        "r2v",
+        "a2v",
+        "polish"
+      ],
       "default_profile": "work",
       "profiles": [
         "draft",
@@ -1137,6 +1144,127 @@
       "groups": "workflows/human/illustrious_detailer_v37/GROUPS.json",
       "used_by": [
         "scripts/generate_illustrious_detailer.py"
+      ]
+    },
+    "anima_t2i": {
+      "file": "workflows/human/anima/01_Anima_Base_Text2Image.json",
+      "role": "text_to_image_anime",
+      "backend": "anima_dit_2b",
+      "status": "ready",
+      "shelf": "GENERATE",
+      "human_ref": "workflows/human/anima/01_Anima_Base_Text2Image.json",
+      "scripts": [
+        "scripts/generate_anima.py"
+      ]
+    },
+    "anima_inpaint": {
+      "file": "workflows/human/anima/02_Anima_LLLite_Inpainting.json",
+      "role": "image_inpainting_anime",
+      "backend": "anima_lllite",
+      "status": "ready",
+      "shelf": "TRANSFORM",
+      "human_ref": "workflows/human/anima/02_Anima_LLLite_Inpainting.json",
+      "scripts": [
+        "scripts/generate_anima.py"
+      ]
+    },
+    "anima_depth": {
+      "file": "workflows/human/anima/03_Anima_LLLite_Depth_Control.json",
+      "role": "depth_control_anime",
+      "backend": "anima_lllite",
+      "status": "ready",
+      "shelf": "CAMERA",
+      "human_ref": "workflows/human/anima/03_Anima_LLLite_Depth_Control.json",
+      "scripts": [
+        "scripts/generate_anima.py"
+      ]
+    },
+    "anima_lineart": {
+      "file": "workflows/human/anima/04_Anima_LLLite_Lineart_Coloring.json",
+      "role": "lineart_coloring_anime",
+      "backend": "anima_lllite",
+      "status": "ready",
+      "shelf": "TRANSFORM",
+      "human_ref": "workflows/human/anima/04_Anima_LLLite_Lineart_Coloring.json",
+      "scripts": [
+        "scripts/generate_anima.py"
+      ]
+    },
+    "anima_pose": {
+      "file": "workflows/human/anima/05_Anima_LLLite_Pose_Control.json",
+      "role": "pose_control_anime",
+      "backend": "anima_lllite",
+      "status": "ready",
+      "shelf": "CAMERA",
+      "human_ref": "workflows/human/anima/05_Anima_LLLite_Pose_Control.json",
+      "scripts": [
+        "scripts/generate_anima.py"
+      ]
+    },
+    "anima_all_control": {
+      "file": "workflows/human/anima/06_Anima_LLLite_All_in_One_MultiControl.json",
+      "role": "multicontrol_anime",
+      "backend": "anima_lllite",
+      "status": "ready",
+      "shelf": "TRANSFORM",
+      "human_ref": "workflows/human/anima/06_Anima_LLLite_All_in_One_MultiControl.json",
+      "scripts": [
+        "scripts/generate_anima.py"
+      ]
+    },
+    "anima_hires": {
+      "file": "workflows/human/anima/07_Anima_HiRes_2K_4K_Upscale_Detailer.json",
+      "role": "hires_upscale_anime",
+      "backend": "anima_dit_2b",
+      "status": "ready",
+      "shelf": "FINISH",
+      "human_ref": "workflows/human/anima/07_Anima_HiRes_2K_4K_Upscale_Detailer.json",
+      "scripts": [
+        "scripts/generate_anima.py"
+      ]
+    },
+    "minimax_music3_song": {
+      "file": "workflows/human/minimax_music/01_MiniMax_Music3_Text2Song_Full_Production.json",
+      "role": "text_to_song_full",
+      "backend": "minimax_music3",
+      "status": "ready",
+      "shelf": "VOICE",
+      "human_ref": "workflows/human/minimax_music/01_MiniMax_Music3_Text2Song_Full_Production.json",
+      "scripts": [
+        "scripts/generate_minimax_music.py"
+      ]
+    },
+    "minimax_music3_bgm": {
+      "file": "workflows/human/minimax_music/02_MiniMax_Music3_BGM_Instrumental.json",
+      "role": "text_to_bgm_instrumental",
+      "backend": "minimax_music3",
+      "status": "ready",
+      "shelf": "VOICE",
+      "human_ref": "workflows/human/minimax_music/02_MiniMax_Music3_BGM_Instrumental.json",
+      "scripts": [
+        "scripts/generate_minimax_music.py"
+      ]
+    },
+    "stable_audio_3_instrumental": {
+      "file": "workflows/human/stable_audio/02_Stable_Audio_3_Music_and_Instruments.json",
+      "role": "text_to_instrumental",
+      "backend": "stable_audio_3",
+      "status": "ready",
+      "shelf": "VOICE",
+      "human_ref": "workflows/human/stable_audio/02_Stable_Audio_3_Music_and_Instruments.json",
+      "scripts": [
+        "scripts/generate_stable_audio.py"
+      ]
+    },
+    "stable_audio_3_sfx": {
+      "file": "workflows/human/stable_audio/01_Stable_Audio_3_Sound_Effects_SFX.json",
+      "role": "text_to_sfx",
+      "backend": "stable_audio_3",
+      "status": "ready",
+      "shelf": "VOICE",
+      "human_ref": "workflows/human/stable_audio/01_Stable_Audio_3_Sound_Effects_SFX.json",
+      "scripts": [
+        "scripts/generate_stable_audio.py"
       ]
     }
   }

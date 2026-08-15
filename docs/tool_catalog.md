@@ -71,7 +71,11 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 |--------------|-------------|--------|
 | 텍스트만으로 실사 한 장 | **`generate_krea`** | Krea2 기본 (실사 T2I) |
 | 실사 한 장 — I2I 제어·스타일 실험 | `generate_moody` | Lonecat 대안 T2I |
-| 애니/일루스 한 장 | `generate_illustrious_standard` | XL 태그 스틸 |
+| 애니/일루스 한 장 (경량·초고속 2D) | **`generate_anima`** | **Anima DiT 2B** (애니/만화/웹툰 특화 · Turbo 시 1.5s) |
+| 애니/일루스 한 장 (SDXL 태그) | `generate_illustrious_standard` | XL 태그 스틸 |
+| 애니 선화 자동 채색 | **`generate_anima --mode lineart`** | Anima-LLLite 선화/스케치 정밀 채색 |
+| 애니 포즈 고정 / 깊이 제어 | **`generate_anima --mode pose/depth`** | Anima-LLLite 2D OpenPose / Depth 제어 |
+| 애니 마스크 인페인팅 / 2K 업스케일 | **`generate_anima --mode inpaint/hires`** | Anima 4채널 인페인팅 & 2K/4K 디테일러 |
 | 성인 실사 한 장 | `generate_krea_nsfw` | **18+** |
 | **같은 사람** 유지하며 장면 바꾸기 | `generate_character_consistent` | lock / soft / remix |
 | 사진 살짝 고치기 (ID) | `generate_moody_i2i` · `…_i2i_lock` | denoise 낮게 |
@@ -96,6 +100,8 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | **깊이·시점 과장** | `generate_viewpoint` | 하이/로우/버즈아이 (Comfy Qwen) |
 | **가벼운 ID 레퍼 팩** | `generate_ref_pack` | face+각도 (패키지 없이) |
 | **스타일 전이 / 레스타일** | `generate_style_transfer` | 애니·유화·무드보드 ref |
+| **완곡 작곡 / 보컬 노래 (최대 5분)** | **`generate_minimax_music`** | **MiniMax Music 3** (한국어/영어 보컬 완곡 & 고음질 BGM) |
+| **악기 독주 / BGM / 효과음 SFX** | **`generate_stable_audio`** | **Stable Audio 3.0** (44.1kHz 고해상도 피아노/기타/SFX 폭발음) |
 | 대사 TTS | `generate_qwen3_tts` | custom / clone |
 | 스틸/영상 키우기 | **`upscale_recommend`** → `upscale_image` · `upscale_video` · `upscale_ltx_spatial` | 납품 해상도 · MiniMax→HD는 spatial |
 | **2D → 3D 메쉬 / VRM 프로토** | **`generate_hy3d_mesh`** · `process_mesh_glb` · `export_mesh_vrm` | Hy3D GLB · Blender MCP 후처리 |

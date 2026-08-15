@@ -1,0 +1,461 @@
+{
+  "last_node_id": 20,
+  "last_link_id": 30,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "MarkdownNote",
+      "pos": [
+        -600,
+        -200
+      ],
+      "size": [
+        550,
+        750
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "properties": {},
+      "widgets_values": [
+        "# 🎨 Anima Base v1.0 - Text to Image (T2I)\n\nAnima는 CircleStone Labs & Comfy Org가 개발한 2B 파라미터 경량 2D 애니메이션/일러스트 특화 DiT 모델입니다.\n매우 빠르고 적은 VRAM으로도 최상의 애니메이션 퀄리티를 생성합니다.\n\n---\n\n### 📦 필요한 모델 파일 및 저장 경로\n\n- **Diffusion Model (UNET)** (`models/diffusion_models/`)\n  - 파일명: `anima-base-v1.0.safetensors`\n  - 다운로드: [Anima Base v1.0](https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/diffusion_models/anima-base-v1.0.safetensors)\n\n- **Text Encoder (CLIP)** (`models/text_encoders/ (또는 clip/)`)\n  - 파일명: `qwen_3_06b_base.safetensors`\n  - 다운로드: [Qwen 3 0.6B Base Text Encoder](https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/text_encoders/qwen_3_06b_base.safetensors)\n\n- **VAE** (`models/vae/`)\n  - 파일명: `qwen_image_vae.safetensors`\n  - 다운로드: [Qwen Image VAE](https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/vae/qwen_image_vae.safetensors)\n\n- **LoRA (선택사항-Turbo)** (`models/loras/`)\n  - 파일명: `anima-turbo-lora-v0.2.safetensors`\n  - 다운로드: [Anima Turbo LoRA v0.2](https://huggingface.co/circlestone-labs/Anima-Official-LoRAs/resolve/main/anima-turbo-lora-v0.2.safetensors)\n\n---\n\n### ⚙️ 권장 설정 (Recommended Settings)\n- **기본 모드**: Steps 25~30, CFG 4.0, Sampler `euler`, Scheduler `simple`\n- **Turbo LoRA 모드**: Steps 8, CFG 1.0, Sampler `euler`, Scheduler `simple`\n- **권장 해상도**: 1024x1024, 832x1216 (세로형), 1216x832 (가로형)\n\n---\n💡 **사용 팁**: 모델 파일이 다운로드되어 올바른 폴더에 배치되면 ComfyUI 상단 `Refresh`를 누르면 즉시 로드됩니다.\n"
+      ],
+      "color": "#1e293b",
+      "bgcolor": "#0f172a"
+    },
+    {
+      "id": 2,
+      "type": "UNETLoader",
+      "pos": [
+        0,
+        -200
+      ],
+      "size": [
+        315,
+        82
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "anima-base-v1.0.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "CLIPLoader",
+      "pos": [
+        0,
+        -70
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            2,
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen_3_06b_base.safetensors",
+        "stable_diffusion",
+        "default"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "VAELoader",
+      "pos": [
+        0,
+        80
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "qwen_image_vae.safetensors"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "CLIPTextEncode",
+      "pos": [
+        360,
+        -200
+      ],
+      "size": [
+        450,
+        180
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "title": "Positive Prompt (긍정 프롬프트)",
+      "widgets_values": [
+        "1girl, anime masterpiece, exquisite detailed eyes, vibrant hair, soft cinematic lighting, beautiful composition, high quality anime illustration, 8k wallpaper"
+      ],
+      "color": "#1e3a8a",
+      "bgcolor": "#172554"
+    },
+    {
+      "id": 6,
+      "type": "CLIPTextEncode",
+      "pos": [
+        360,
+        30
+      ],
+      "size": [
+        450,
+        140
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "title": "Negative Prompt (부정 프롬프트)",
+      "widgets_values": [
+        "worst quality, low quality, score_1, score_2, score_3, blurry, jpeg artifacts, extra limbs, bad anatomy, deformed"
+      ],
+      "color": "#7f1d1d",
+      "bgcolor": "#450a0a"
+    },
+    {
+      "id": 7,
+      "type": "EmptyLatentImage",
+      "pos": [
+        360,
+        220
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        832,
+        1216,
+        1
+      ]
+    },
+    {
+      "id": 8,
+      "type": "KSampler",
+      "pos": [
+        860,
+        -200
+      ],
+      "size": [
+        315,
+        262
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 5
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 6
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        123456789,
+        "randomize",
+        28,
+        4.0,
+        "euler",
+        "simple",
+        1.0
+      ]
+    },
+    {
+      "id": 9,
+      "type": "VAEDecode",
+      "pos": [
+        1220,
+        -200
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 8
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 10,
+      "type": "SaveImage",
+      "pos": [
+        1220,
+        -100
+      ],
+      "size": [
+        450,
+        500
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 9
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "Anima_T2I"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      2,
+      0,
+      8,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      3,
+      0,
+      5,
+      0,
+      "CLIP"
+    ],
+    [
+      3,
+      3,
+      0,
+      6,
+      0,
+      "CLIP"
+    ],
+    [
+      4,
+      4,
+      0,
+      9,
+      1,
+      "VAE"
+    ],
+    [
+      5,
+      5,
+      0,
+      8,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      6,
+      6,
+      0,
+      8,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      7,
+      7,
+      0,
+      8,
+      3,
+      "LATENT"
+    ],
+    [
+      8,
+      8,
+      0,
+      9,
+      0,
+      "LATENT"
+    ],
+    [
+      9,
+      9,
+      0,
+      10,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "1. 모델 로더 (Model Loaders)",
+      "bounding": [
+        -20,
+        -280,
+        350,
+        450
+      ],
+      "color": "#3f3f46"
+    },
+    {
+      "title": "2. 프롬프트 & 해상도 설정",
+      "bounding": [
+        340,
+        -280,
+        490,
+        630
+      ],
+      "color": "#1e3a8a"
+    },
+    {
+      "title": "3. 샘플링 & 이미지 생성 (Sampling & Output)",
+      "bounding": [
+        840,
+        -280,
+        850,
+        700
+      ],
+      "color": "#14532d"
+    }
+  ],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

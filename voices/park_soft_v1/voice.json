@@ -1,0 +1,19 @@
+{
+  "id": "park_soft_v1",
+  "display_name": "Park Soft",
+  "ref_audio": "ref.wav",
+  "ref_text": "아 맞다. 포인터 메모리 얘기했었나요? 그 녀석들 정말 골치가 아프거든요. 가끔 인생도 프로그래밍처럼 디버깅이 되면 좋을 텐데 말이에요. 안 그래요? 뭐 어쨌든 제 목소리 잘 들리시죠?",
+  "language": "Korean",
+  "default_instruct": "soft polished Korean male host, warm baritone, even pace, gentle smile, tidy diction, not loud, not theatrical",
+  "notes": "FALLBACK ONLY. Library pack D:/Characters/packs/park_soft_v1 locked VoiceDesign (seed 20260815) as production. Do not use --voice-id park_soft_v1 unless design fails after retry.",
+  "library_pack": "D:/Characters/packs/park_soft_v1",
+  "design_prompt": "30대 초반 한국 남성. 바리톤, 평균 120헤르츠의 따뜻한 가슴 목소리. 살짝 허스키한 저중음. 본인 음색과 같되 더 정돈되고 부드러운 팟캐스트 호스트.",
+  "design_seed": 20260815,
+  "engine": "qwen3_tts_clone",
+  "created_at": "2026-08-15T04:34:26+00:00",
+  "tips": [
+    "Use 5–15 seconds of clean solo speech",
+    "ref_text should match the reference audio exactly",
+    "Avoid music bed / heavy reverb on the sample"
+  ]
+}

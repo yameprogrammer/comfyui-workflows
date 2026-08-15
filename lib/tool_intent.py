@@ -18,6 +18,123 @@ from typing import Any
 # keywords, examples, alternatives[{if, use, cli}]
 INTENT_TOOLS: list[dict[str, Any]] = [
     {
+        "id": "stable_audio_3",
+        "shelf": "VOICE",
+        "cli": "python scripts/generate_stable_audio.py",
+        "script": "generate_stable_audio.py",
+        "summary": "Stable Audio 3.0 44.1kHz 고음질 인스트루먼트(악기 연주/BGM) 및 효과음(SFX) 생성",
+        "when": "피아노/기타/드럼 등 가사 없는 순수 악기 연주, Lo-fi 비트, 앰비언트 BGM, 영화/게임 효과음(SFX), 폭발음, 환경음",
+        "when_not": "가수가 부르는 보컬 완곡 노래(K-Pop 등) -> generate_minimax_music / 단순 대사 TTS -> generate_qwen3_tts",
+        "keywords": [
+            "stable audio", "stable_audio", "stable_audio3", "sfx", "효과음", "사운드 이펙트",
+            "악기", "피아노", "기타", "드럼", "인스트루먼트", "instrumental", "ambient", "사운드트랙",
+            "폴리", "foley", "폭발음", "빗소리", "generate_stable_audio"
+        ],
+        "examples": [
+            'python scripts/generate_stable_audio.py --prompt "Emotional solo grand piano melody, neo-classical, 80 BPM" --duration 15 -o piano.flac',
+            'python scripts/generate_stable_audio.py --mode sfx --prompt "Cinematic heavy explosion with deep sub bass rumble" --duration 5 -o boom.flac',
+            'python scripts/generate_stable_audio.py --prompt "Solo acoustic guitar fingerstyle picking, warm studio room" --duration 20 -o guitar.flac',
+        ],
+        "alternatives": [
+            {"if": "가사가 있는 보컬 완곡 노래", "use": "generate_minimax_music", "cli": "python scripts/generate_minimax_music.py --caption \"...\" --lyrics \"...\" -o song.flac"},
+            {"if": "단순 캐릭터 대사 TTS", "use": "generate_qwen3_tts", "cli": "python scripts/generate_qwen3_tts.py -t \"...\" -o voice.wav"}
+        ],
+    },
+    {
+        "id": "minimax_music3",
+        "shelf": "VOICE",
+        "cli": "python scripts/generate_minimax_music.py",
+        "script": "generate_minimax_music.py",
+        "summary": "MiniMax Music 3 고음질 완곡(보컬 노래) 및 사운드트랙/BGM 생성 (최대 5분)",
+        "when": "한국어/영어 보컬이 포함된 풀 코러스 노래(K-Pop, 발라드, 락, EDM 등) 또는 영상용 고품질 BGM 작곡",
+        "when_not": "단순 짧은 대사 더빙/음성 합성 -> generate_qwen3_tts",
+        "keywords": [
+            "music", "song", "bgm", "minimax music", "minimax_music3", "music3", "노래",
+            "음악", "작곡", "k-pop", "보컬", "한국어 노래", "사운드트랙", "가사로 노래",
+            "배경음악", "generate_minimax_music", "full song", "lyrics"
+        ],
+        "examples": [
+            'python scripts/generate_minimax_music.py --caption "K-Pop acoustic ballad" --lyrics "[Intro]\n...\n[Verse]\n...\n[Chorus]\n..." -o song.flac',
+            'python scripts/generate_minimax_music.py --mode bgm --caption "Cinematic Lo-fi chillhop" --duration 120 -o bgm.flac',
+            'python scripts/generate_minimax_music.py --caption-file cap.txt --lyrics-file lyr.txt -o out.flac',
+        ],
+        "alternatives": [
+            {"if": "단순 캐릭터 대사 TTS", "use": "generate_qwen3_tts", "cli": "python scripts/generate_qwen3_tts.py -t \"...\" -o voice.wav"},
+            {"if": "짧은 앰비언트 루프", "use": "generate_bgm", "cli": "python scripts/generate_bgm.py -o bgm.wav"}
+        ],
+    },
+    {
+        "id": "anima_t2i",
+        "shelf": "GENERATE",
+        "cli": "python scripts/generate_anima.py",
+        "script": "generate_anima.py",
+        "summary": "2D 애니메이션 / 만화 / 일러스트 초경량 고화질 T2I (Anima DiT 2B)",
+        "when": "2D 애니메이션, 만화, 셀채색, 버튜버, 웹툰 스타일의 고품질 일러스트 생성 (Turbo 시 1.5초 초고속)",
+        "when_not": "실사 포토리얼 인물 -> generate_krea / generate_moody",
+        "keywords": [
+            "anima", "animalllite", "lllite", "anime", "2d", "manga", "cel-shaded",
+            "illustration", "애니", "애니메이션", "일러스트", "만화", "웹툰", "선화",
+            "캐릭터", "버튜버", "qwen text encoder", "anima_t2i", "generate_anima", "anima-turbo"
+        ],
+        "examples": [
+            'python scripts/generate_anima.py -p "1girl, anime masterpiece, exquisite face, vibrant lighting" -o out.png',
+            'python scripts/generate_anima.py --turbo -p "1boy, cyber ninja, neon katana" -o out_turbo.png',
+            'python scripts/generate_anima.py -p "..." --width 832 --height 1216 --seed 42 -o out.png',
+        ],
+        "alternatives": [
+            {"if": "선화/스케치 자동 채색", "use": "generate_anima --mode lineart", "cli": "python scripts/generate_anima.py --mode lineart -i sketch.png -p \"...\" -o colored.png"},
+            {"if": "포즈 고정 생성", "use": "generate_anima --mode pose", "cli": "python scripts/generate_anima.py --mode pose -i pose.png -p \"...\" -o pose.png"},
+            {"if": "실사/시네마틱 T2I", "use": "generate_krea", "cli": "python scripts/generate_krea.py -p \"...\" -o out.png"},
+            {"if": "일반 SDXL/Pony 애니", "use": "generate_illustrious_standard", "cli": "python scripts/generate_illustrious_standard.py -p \"1girl, ...\" -o out.png"}
+        ],
+    },
+    {
+        "id": "anima_control_lllite",
+        "shelf": "CAMERA",
+        "cli": "python scripts/generate_anima.py --mode lineart|depth|pose|all-control",
+        "script": "generate_anima.py",
+        "summary": "Anima-LLLite 선화 채색, 깊이 제어, 포즈 고정 및 멀티 컨트롤",
+        "when": "스케치/선화에 자동 채색, 3D 깊이 구도 유지, OpenPose 뼈대 포즈 고정 등 2D 애니 정밀 제어",
+        "when_not": "실사 포즈 제어 -> generate_openpose_pose / generate_moody_controlnet",
+        "keywords": [
+            "anima lllite", "선화 채색", "라인아트", "스케치 채색", "애니 깊이", "애니 뎁스",
+            "애니 포즈", "openpose anime", "lineart coloring", "depth anime", "pose anime",
+            "all-control", "multicontrol", "anima_control", "lllite controlnet"
+        ],
+        "examples": [
+            'python scripts/generate_anima.py --mode lineart -i sketch.png -p "vibrant pastel coloring" -o colored.png',
+            'python scripts/generate_anima.py --mode depth -i depth.png -p "anime sci-fi city" -o depth_out.png',
+            'python scripts/generate_anima.py --mode pose -i pose_stick.png -p "dynamic action pose" -o pose_out.png',
+            'python scripts/generate_anima.py --mode all-control --lineart-img s.png --depth-img d.png --pose-img p.png -p "..." -o out.png',
+        ],
+        "alternatives": [
+            {"if": "기본 애니 T2I", "use": "generate_anima", "cli": "python scripts/generate_anima.py -p \"...\" -o out.png"},
+            {"if": "마스크 부분 수정", "use": "generate_anima --mode inpaint", "cli": "python scripts/generate_anima.py --mode inpaint -i char.png -m mask.png -p \"...\" -o inpaint.png"},
+            {"if": "실사 OpenPose", "use": "generate_openpose_pose", "cli": "python scripts/generate_openpose_pose.py generate -i ref.png --control pose.png -p \"...\" -o out.png"}
+        ],
+    },
+    {
+        "id": "anima_inpaint_hires",
+        "shelf": "TRANSFORM",
+        "cli": "python scripts/generate_anima.py --mode inpaint|hires",
+        "script": "generate_anima.py",
+        "summary": "Anima 4채널 마스크 인페인팅 및 2K/4K 초고해상도 업스케일 디테일러",
+        "when": "2D 애니 캐릭터의 얼굴/의상 부분 수정(인페인팅) 또는 2D 일러스트 2K/4K 선명한 고해상도 확대",
+        "when_not": "실사 사진 업스케일 -> upscale_image / upscale_recommend",
+        "keywords": [
+            "anima inpaint", "애니 인페인팅", "마스크 수정", "부분 수정", "anime upscale",
+            "hires fix anime", "2k anime", "4k anime", "디테일러", "anima hires", "anima_inpaint"
+        ],
+        "examples": [
+            'python scripts/generate_anima.py --mode inpaint -i char.png -m mask.png -p "cute smiling expression" --denoise 0.75 -o inpaint.png',
+            'python scripts/generate_anima.py --mode hires -p "masterpiece anime illustration" --width 832 --height 1216 -o hires_2k.png',
+        ],
+        "alternatives": [
+            {"if": "Qwen 지시 기반 텍스트 편집", "use": "generate_qwen_edit", "cli": "python scripts/generate_qwen_edit.py -i img.png -p \"...\" -o out.png"},
+            {"if": "범용 이미지 업스케일", "use": "upscale_image", "cli": "python scripts/upscale_image.py -i in.png -o out.png"}
+        ],
+    },
+    {
         "id": "still_photoreal",
         "shelf": "GENERATE",
         "cli": "python scripts/generate_krea.py",
