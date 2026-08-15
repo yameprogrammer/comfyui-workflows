@@ -1163,7 +1163,8 @@ INTENT_TOOLS: list[dict[str, Any]] = [
             'python scripts/setup_edit_fonts.py',
             'python scripts/render_title.py --list-fonts',
             'python scripts/render_title.py --list-parts',
-            'python scripts/render_title.py --text "조금만 더" --font yeonung --layout caption --color cyan --bubble yellow --tilt -4 --y 0.82 --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/cap.png"',
+            'python scripts/render_title.py --text "조금만 더" --font yeonung --layout caption --color cyan --bubble yellow --tilt -4 --y 0.82 --split glyphs --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/cap.png"',
+            'python scripts/edit_timeline.py stagger --timeline t.json --glyphs cap.glyphs.json --start 0.4 --end 3.6 --stagger 0.06 --motion pop -o t.json',
             'python scripts/render_title.py --preset yt_hook --font hook --text "포기하지 마" --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/hook.png"',
         ],
         "alternatives": [

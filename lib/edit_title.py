@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from typing import Any
 
@@ -371,6 +372,7 @@ def render_title(
     react_color: str | None = None,
     x: float | None = None,
     y: float | None = None,
+    split: str | None = None,
 ) -> dict[str, Any]:
     try:
         style = compose_style(
@@ -481,6 +483,21 @@ def render_title(
         os.makedirs(parent, exist_ok=True)
     img.save(output_path, "PNG")
     composed = {k: v for k, v in style.items() if not str(k).startswith("_")}
+    extra: dict[str, Any] = {}
+    if (split or "").strip().lower() in {"glyph", "glyphs", "chars", "letters"}:
+        extra = _write_glyphs(
+            text,
+            output_path,
+            width=w,
+            height=h,
+            x0=x0,
+            y0=y0,
+            font=font_o,
+            fill=fill,
+            stroke=stroke,
+            ow=ow,
+            angle=angle,
+        )
     return ok_result(
         tool="render_title",
         path=os.path.abspath(output_path),
@@ -490,4 +507,87 @@ def render_title(
         size=style.get("size"),
         layout=lay,
         composed=composed,
+        **extra,
     )
+
+
+def _char_advance(font, ch: str) -> float:
+    if hasattr(font, "getlength"):
+        return float(font.getlength(ch))
+    from PIL import Image, ImageDraw
+
+    dummy = ImageDraw.Draw(Image.new("RGBA", (8, 8)))
+    box = dummy.textbbox((0, 0), ch, font=font)
+    return float(box[2] - box[0])
+
+
+def _write_glyphs(
+    text: str,
+    output_path: str,
+    *,
+    width: int,
+    height: int,
+    x0: float,
+    y0: float,
+    font,
+    fill,
+    stroke,
+    ow: int,
+    angle: float,
+) -> dict[str, Any]:
+    from PIL import Image, ImageDraw
+
+    stem = os.path.splitext(os.path.abspath(output_path))[0]
+    glyphs: list[dict[str, Any]] = []
+    cursor = 0.0
+    gi = 0
+    for ch in text:
+        adv = _char_advance(font, ch)
+        if ch.isspace():
+            cursor += adv
+            continue
+        layer = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        ld = ImageDraw.Draw(layer)
+        _stroke_text(ld, (x0 + cursor, y0), ch, font, fill, stroke, ow)
+        if abs(angle) > 0.1:
+            layer = layer.rotate(angle, resample=Image.Resampling.BICUBIC, expand=False)
+        bbox = layer.getbbox()
+        if not bbox:
+            cursor += adv
+            continue
+        pad = 12
+        box = (
+            max(0, bbox[0] - pad),
+            max(0, bbox[1] - pad),
+            min(width, bbox[2] + pad),
+            min(height, bbox[3] + pad),
+        )
+        crop = layer.crop(box)
+        g_path = f"{stem}_g{gi:02d}.png"
+        crop.save(g_path, "PNG")
+        glyphs.append(
+            {
+                "i": gi,
+                "ch": ch,
+                "path": os.path.abspath(g_path),
+                "x": int(box[0]),
+                "y": int(box[1]),
+                "w": int(crop.size[0]),
+                "h": int(crop.size[1]),
+            }
+        )
+        gi += 1
+        cursor += adv
+    manifest = {
+        "schema": "edit_glyphs.v1",
+        "text": text,
+        "full": os.path.abspath(output_path),
+        "width": width,
+        "height": height,
+        "glyphs": glyphs,
+    }
+    man_path = stem + ".glyphs.json"
+    with open(man_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+    return {"glyphs": man_path, "glyph_count": len(glyphs)}

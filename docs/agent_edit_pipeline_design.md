@@ -177,8 +177,11 @@ MLT를 v1 필수로 두지 않는다. melt 미설치가 편집 선반을 죽이�
 | `distance` | px, 또는 0–1이면 프레임 비율 |
 | `dx` / `dy` | 시작 오프셋 px (방향보다 우선) |
 
-`compose_motion()`이 병합 SSOT. `python scripts/edit_timeline.py list-motions`  
-Revideo는 글자 자체 키프레임이 필요할 때 (`engine: revideo`).
+`compose_motion()`이 병합 SSOT. `python scripts/edit_timeline.py list-motions`
+
+글자마다 등장 (v2 점프, FFmpeg):  
+`render_title --split glyphs` → `edit_timeline stagger --stagger 0.06`.  
+Revideo는 글자 **안**을 키프레임으로 그릴 때 (`engine: revideo`). 글자 단위 등장은 stagger가 본선.
 
 구현 v1: **Pillow + 지정 폰트 → PNG (투명)**.  
 폰트: `--font` 또는 `EDIT_FONT` 또는 Windows `C:\Windows\Fonts\malgun.ttf`. 없으면 `FONT_MISSING`로 실패.

@@ -1,6 +1,6 @@
 ---
 name: video-edit
-version: 1.3.0
+version: 1.4.0
 description: >
   Editor-in-chief skill for agent_custom. After clips exist, turn a verbal brief
   into EDIT_PLAN + timeline + titles + master render + QA. Use when assembling,
@@ -65,14 +65,14 @@ E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 | “케이팝 뮤비처럼” | 음악 locked, 클립 오디오 mute, 후렴=이벤트, 글자 최소 |
 | “이 곡 깔아” | audio role=master, fade_in 0.2 / fade_out 0.35. VO 있으면 duck 0.28 |
 | “이름 넣어” | lower_third 1회 ~2초 |
-| 훅 글자 | `--font hook`. 모션은 `pop` 바로가기 또는 `scale_from`/`move`를 직접 |
+| 훅 글자 | `--font hook` + `--split glyphs` + `stagger 0.05–0.08` + `motion pop` |
 | 예능 자막 | `--font yeonung`. 방향은 `direction`+`distance`, 급하면 `slide_up` |
 | 이름/정보 | `fade_in`/`fade_out` 짧게 |
 | 얼굴 피해 | `--y 0.82`. CU에 예능 기본 자리 쓰지 마 |
 | “세게 열어” | 첫 컷 짧게, 타이틀은 늦게 |
 
-자막 모션도 부품이다. `fade_in` `fade_out` `move` `scale_from` `scale_to` `direction` `distance` `dx` `dy`.  
-`motion: pop|fade|slide_up` 은 그 부품을 미리 채운 바로가기. 초·픽셀을 사용자에게 묻지 말고 네가 정한다.  
+자막 모션도 부품이다. `fade_in` `fade_out` `move` `scale_from` `scale_to` `direction` `distance` `dx` `dy` `stagger`.  
+`motion: pop|fade|slide_up` 은 바로가기. 글자마다 튀기: `--split glyphs` 후 `edit_timeline stagger`. 초를 묻지 마라.  
 `python scripts/edit_timeline.py list-motions`
 
 ---
@@ -86,8 +86,11 @@ python scripts/setup_edit_fonts.py
 python scripts/render_title.py --list-fonts
 python scripts/render_title.py --list-parts
 python scripts/render_title.py --text "조금만 더" --font yeonung --layout caption \
-  --color cyan --size xl --bubble yellow --tilt -4 --y 0.82 \
+  --color cyan --size xl --bubble yellow --tilt -4 --y 0.82 --split glyphs \
   --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/cap.png"
+python scripts/edit_timeline.py stagger --timeline t.json \
+  --glyphs "%AGENT_WORKSPACE%/edits/s01/cap.glyphs.json" \
+  --start 0.4 --end 3.6 --stagger 0.06 --motion pop -o t.json
 # 바로가기가 맞을 때만 --preset yt_hook / yeonung_shock …
 python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" \
   -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"

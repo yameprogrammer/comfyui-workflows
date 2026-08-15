@@ -57,6 +57,7 @@ def list_motion_parts() -> dict[str, Any]:
             "distance",
             "dx",
             "dy",
+            "stagger",
         ],
         "directions": list(DIRECTIONS),
         "units": {
@@ -68,8 +69,88 @@ def list_motion_parts() -> dict[str, Any]:
             "distance": "px, or 0–1 as fraction of frame",
             "dx": "px start offset (positive = from the right)",
             "dy": "px start offset (positive = from below)",
+            "stagger": "seconds between letters (edit_timeline stagger + --split glyphs)",
         },
     }
+
+
+def load_glyphs(path: str) -> dict[str, Any]:
+    import json
+    import os
+
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict) or not data.get("glyphs"):
+        raise ValueError(f"not a glyphs manifest: {path}")
+    base = os.path.dirname(os.path.abspath(path))
+    for g in data["glyphs"]:
+        gp = str(g.get("path") or "")
+        if gp and not os.path.isabs(gp):
+            g["path"] = os.path.normpath(os.path.join(base, gp))
+    return data
+
+
+def expand_stagger(
+    glyphs: dict[str, Any],
+    *,
+    start: float,
+    end: float,
+    stagger: float = 0.06,
+    motion: str | None = "pop",
+    fade_in: float | None = None,
+    fade_out: float | None = None,
+    move: float | None = None,
+    scale_from: float | None = None,
+    scale_to: float | None = None,
+    direction: str | None = None,
+    distance: float | None = None,
+    dx: float | None = None,
+    dy: float | None = None,
+    id_prefix: str = "g",
+) -> list[dict[str, Any]]:
+    """One overlay per letter. Agent-facing kinetic jump without Revideo."""
+    items = list(glyphs.get("glyphs") or [])
+    if not items:
+        raise ValueError("glyphs manifest is empty")
+    gap = max(0.0, float(stagger))
+    out: list[dict[str, Any]] = []
+    for i, g in enumerate(items):
+        path = str(g.get("path") or "")
+        if not path:
+            continue
+        ov: dict[str, Any] = {
+            "id": f"{id_prefix}{i + 1}",
+            "kind": "caption",
+            "path": path,
+            "text": str(g.get("ch") or ""),
+            "start": round(float(start) + i * gap, 4),
+            "end": float(end),
+        }
+        if g.get("x") is not None:
+            ov["ox"] = int(g["x"])
+        if g.get("y") is not None:
+            ov["oy"] = int(g["y"])
+        if g.get("w") is not None:
+            ov["ow"] = int(g["w"])
+        if g.get("h") is not None:
+            ov["oh"] = int(g["h"])
+        if motion:
+            ov["motion"] = motion
+        for key, val in (
+            ("fade_in", fade_in),
+            ("fade_out", fade_out),
+            ("move", move),
+            ("scale_from", scale_from),
+            ("scale_to", scale_to),
+            ("direction", direction),
+            ("distance", distance),
+            ("dx", dx),
+            ("dy", dy),
+        ):
+            if val is not None:
+                ov[key] = val
+        out.append(ov)
+    return out
 
 
 def _num(value: Any, default: float | None = None) -> float | None:

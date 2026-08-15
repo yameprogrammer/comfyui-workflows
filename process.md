@@ -1,3 +1,7 @@
+## 2026-08-15 — Letter stagger kinetic (v2 jump, FFmpeg)
+- `render_title --split glyphs` + `edit_timeline stagger --stagger 0.06`
+- Revideo not required for per-letter pop.
+
 ## 2026-08-15 — Overlay motion is composable
 - Parts: fade_in/out, move, scale_from/to, direction, distance, dx/dy. Named motion = shortcut.
 

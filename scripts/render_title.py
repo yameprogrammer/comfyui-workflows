@@ -41,6 +41,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--width", type=int, default=1920)
     p.add_argument("--height", type=int, default=1080)
     p.add_argument("--font", default=None)
+    p.add_argument("--split", default=None, help="glyphs — per-letter PNGs for stagger")
     p.add_argument("--output", "-o", default=None)
     p.add_argument("--list-styles", action="store_true")
     p.add_argument("--list-parts", action="store_true")
@@ -104,11 +105,15 @@ def main(argv: list[str] | None = None) -> int:
         react_color=args.react_color,
         x=args.x,
         y=args.y,
+        split=args.split,
     )
     if args.json:
         print(json.dumps(res, indent=2, ensure_ascii=False))
     elif res.get("ok"):
-        print(f"[OK] title → {res.get('path')} preset={res.get('preset')}")
+        extra = ""
+        if res.get("glyphs"):
+            extra = f" glyphs={res.get('glyph_count')} → {res.get('glyphs')}"
+        print(f"[OK] title → {res.get('path')} preset={res.get('preset')}{extra}")
     else:
         print(f"[FAILED] {res.get('error')}: {res.get('message')}", file=sys.stderr)
     return 0 if res.get("ok") else 1

@@ -148,10 +148,9 @@ def compile_ffmpeg(
                     f"if(lt(t,{s:.4f}),{z0:.4f},"
                     f"if(lt(t,{s + move:.4f}),{z0:.4f}+{(z1 - z0):.4f}*min(1,(t-{s:.4f})/{move:.4f}),{z1:.4f}))"
                 )
-                chain += (
-                    f",scale=w='iw*({_ff_expr(z)})':h=-1:eval=frame,"
-                    f"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2:black@0"
-                )
+                chain += f",scale=w='iw*({_ff_expr(z)})':h=-1:eval=frame"
+                if o.get("ox") is None:
+                    chain += f",pad={w}:{h}:(ow-iw)/2:(oh-ih)/2:black@0"
             if fi > 0:
                 chain += f",fade=t=in:st={s:.4f}:d={fi:.3f}:alpha=1"
             if fo > 0:
@@ -159,10 +158,24 @@ def compile_ffmpeg(
             chain += f"[ovs{idx}]"
             fc.append(chain)
             ov_src = f"ovs{idx}"
-        ox, oy = _overlay_xy(m)
+        mx, my = _overlay_xy(m)
+        if o.get("ox") is not None:
+            bx, by = float(o["ox"]), float(o.get("oy") or 0)
+            gw, gh = o.get("ow"), o.get("oh")
+            if need_scale and gw and gh:
+                x = _ff_expr(f"{bx:.1f}-(w-{int(gw)})/2")
+                y = _ff_expr(f"{by:.1f}-(h-{int(gh)})/2")
+            else:
+                x, y = f"{bx:.1f}", f"{by:.1f}"
+            if mx != "0":
+                x = f"{x}+{mx}"
+            if my != "0":
+                y = f"{y}+{my}"
+        else:
+            x, y = mx, my
         out_lab = f"ov{idx}"
         fc.append(
-            f"[{last_v}][{ov_src}]overlay={ox}:{oy}:enable='between(t,{s:.4f},{e:.4f})'[{out_lab}]"
+            f"[{last_v}][{ov_src}]overlay={x}:{y}:enable='between(t,{s:.4f},{e:.4f})'[{out_lab}]"
         )
         last_v = out_lab
 

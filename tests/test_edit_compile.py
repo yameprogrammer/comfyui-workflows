@@ -3,6 +3,7 @@ import tempfile
 import unittest
 
 from lib.edit_compile_ffmpeg import compile_ffmpeg
+from lib.edit_motion import expand_stagger
 from lib.edit_timeline import from_clips
 
 
@@ -160,6 +161,22 @@ class TestEditCompile(unittest.TestCase):
         self.assertIn("80.00", spec["graph"])
         self.assertIn("0.7500", spec["graph"])
         self.assertIn("eval=frame", spec["graph"])
+
+    def test_expand_stagger_offsets_starts(self):
+        pack = {
+            "glyphs": [
+                {"ch": "포", "path": "a.png"},
+                {"ch": "기", "path": "b.png"},
+                {"ch": "하", "path": "c.png"},
+            ]
+        }
+        ovs = expand_stagger(pack, start=0.4, end=3.0, stagger=0.08, motion="pop")
+        self.assertEqual(len(ovs), 3)
+        self.assertAlmostEqual(ovs[0]["start"], 0.4)
+        self.assertAlmostEqual(ovs[1]["start"], 0.48)
+        self.assertAlmostEqual(ovs[2]["start"], 0.56)
+        self.assertEqual(ovs[0]["motion"], "pop")
+        self.assertEqual(ovs[2]["end"], 3.0)
 
 
 if __name__ == "__main__":

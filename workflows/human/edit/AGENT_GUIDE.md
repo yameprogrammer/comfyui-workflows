@@ -37,6 +37,11 @@ python scripts/render_title.py --preset yt_hook --text "포기하지 마" \
 # overlays: path + start/end + motion parts (or shortcut pop|fade|slide)
 #   fade_in fade_out move scale_from scale_to direction distance dx dy
 python scripts/edit_timeline.py list-motions
+python scripts/render_title.py --split glyphs --text "포기하지 마" --font yeonung \
+  --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/cap.png"
+python scripts/edit_timeline.py stagger --timeline t.json \
+  --glyphs "%AGENT_WORKSPACE%/edits/s01/cap.glyphs.json" \
+  --start 0.4 --end 3.6 --stagger 0.06 --motion pop -o t.json
 python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" \
   -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
 

@@ -71,6 +71,29 @@ class TestEditTitle(unittest.TestCase):
             self.assertEqual(r.get("layout"), "caption")
             self.assertGreater(os.path.getsize(path), 200)
 
+    def test_split_glyphs_writes_letters(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = os.path.join(td, "line.png")
+            r = render_title(
+                "가 나",
+                path,
+                layout="caption",
+                width=320,
+                height=240,
+                split="glyphs",
+            )
+            self.assertTrue(r.get("ok"), r)
+            self.assertEqual(r.get("glyph_count"), 2)
+            man = r.get("glyphs")
+            self.assertTrue(man and os.path.isfile(man))
+            import json
+
+            data = json.load(open(man, encoding="utf-8"))
+            self.assertEqual(len(data["glyphs"]), 2)
+            for g in data["glyphs"]:
+                self.assertTrue(os.path.isfile(g["path"]))
+                self.assertGreater(os.path.getsize(g["path"]), 50)
+
     def test_bad_place_rejected(self):
         with self.assertRaises(ValueError):
             compose_style(y=1.4)

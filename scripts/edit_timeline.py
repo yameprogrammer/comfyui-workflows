@@ -17,7 +17,7 @@ import json
 import sys
 
 from lib.comfy_client import fail_result, ok_result
-from lib.edit_motion import list_motion_parts
+from lib.edit_motion import expand_stagger, list_motion_parts, load_glyphs
 from lib.edit_timeline import (
     empty_timeline,
     from_clips,
@@ -55,6 +55,23 @@ def main(argv: list[str] | None = None) -> int:
     p_lm = sub.add_parser("list-motions")
     p_lm.add_argument("--json", action="store_true")
 
+    p_st = sub.add_parser("stagger")
+    p_st.add_argument("--timeline", required=True)
+    p_st.add_argument("--glyphs", required=True, help="*.glyphs.json from render_title --split glyphs")
+    p_st.add_argument("--start", type=float, required=True)
+    p_st.add_argument("--end", type=float, required=True)
+    p_st.add_argument("--stagger", type=float, default=0.06)
+    p_st.add_argument("--motion", default="pop")
+    p_st.add_argument("--fade-in", type=float, default=None)
+    p_st.add_argument("--fade-out", type=float, default=None)
+    p_st.add_argument("--move", type=float, default=None)
+    p_st.add_argument("--scale-from", type=float, default=None)
+    p_st.add_argument("--scale-to", type=float, default=None)
+    p_st.add_argument("--direction", default=None)
+    p_st.add_argument("--distance", type=float, default=None)
+    p_st.add_argument("--output", "-o", required=True)
+    p_st.add_argument("--json", action="store_true")
+
     args = p.parse_args(argv)
 
     if args.cmd == "list-motions":
@@ -70,7 +87,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     try:
-        if args.cmd in ("init", "from-clips"):
+        if args.cmd in ("init", "from-clips", "stagger"):
             die_if_toolbox(args.output)
         if args.cmd == "init":
             tl = empty_timeline(fps=args.fps, width=args.width, height=args.height)
@@ -92,6 +109,33 @@ def main(argv: list[str] | None = None) -> int:
                 path=path,
                 duration=timeline_duration(tl),
                 clips=len(tl["clips"]),
+            )
+        elif args.cmd == "stagger":
+            tl = load_timeline(args.timeline)
+            pack = load_glyphs(args.glyphs)
+            added = expand_stagger(
+                pack,
+                start=args.start,
+                end=args.end,
+                stagger=args.stagger,
+                motion=args.motion,
+                fade_in=args.fade_in,
+                fade_out=args.fade_out,
+                move=args.move,
+                scale_from=args.scale_from,
+                scale_to=args.scale_to,
+                direction=args.direction,
+                distance=args.distance,
+                id_prefix=f"g{len(tl.get('overlays') or [])}_",
+            )
+            tl.setdefault("overlays", []).extend(added)
+            path = save_timeline(tl, args.output)
+            res = ok_result(
+                tool="edit_timeline",
+                path=path,
+                duration=timeline_duration(tl),
+                overlays=len(tl["overlays"]),
+                stagger=args.stagger,
             )
         else:
             tl = load_timeline(args.timeline)
