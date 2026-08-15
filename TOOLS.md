@@ -75,6 +75,7 @@ Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 | **ASSETS** | 캐릭/로케 패키지 *(옵션)* | `character_*` · `location_*` |
 | **MESH** | 2D→3D 메쉬·GLB·VRM 프로토타입 | **`generate_hy3d_mesh`** · `process_mesh_glb` · `export_mesh_vrm` |
 | **BUNDLE** | 멀티샷 묶기·QA *(옵션)* | `story_init` · `assemble_video` · `shot_qa_*` |
+| **EDIT** | 컷·타이틀·믹스·마스터 | **`render_edit`** · `edit_timeline` · `render_title` · `edit_qa_pack` |
 
 전체 표·카드·조합 예: **tool_catalog §1–§3**.
 

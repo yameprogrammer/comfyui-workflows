@@ -16,7 +16,8 @@
       "FINISH",
       "ASSETS",
       "MESH",
-      "BUNDLE"
+      "BUNDLE",
+      "EDIT"
     ],
     "optional_rails": [
       "stories_episode_helpers",
@@ -1296,6 +1297,47 @@
       "scripts": [
         "scripts/generate_midi_cover_bed.py",
         "scripts/generate_midi_render.py"
+      ]
+    },
+    "edit_timeline": {
+      "file": null,
+      "role": "edit_timeline_json",
+      "status": "ready",
+      "shelf": "EDIT",
+      "guide": "workflows/human/edit/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/edit_timeline.py"
+      ]
+    },
+    "render_title": {
+      "file": null,
+      "role": "edit_title_png",
+      "status": "ready",
+      "shelf": "EDIT",
+      "guide": "workflows/human/edit/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/render_title.py"
+      ]
+    },
+    "render_edit": {
+      "file": null,
+      "role": "edit_master_render",
+      "status": "ready",
+      "shelf": "EDIT",
+      "guide": "workflows/human/edit/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/render_edit.py"
+      ]
+    },
+    "edit_qa": {
+      "file": null,
+      "role": "edit_master_qa",
+      "status": "ready",
+      "shelf": "EDIT",
+      "guide": "workflows/human/edit/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/edit_qa_pack.py",
+        "scripts/edit_qa_record.py"
       ]
     }
   }

@@ -1,0 +1,53 @@
+# EDIT — Agent Guide
+
+> **Shelf:** EDIT  
+> **Comfy:** 없음  
+> **스킬:** `skills/video-edit/SKILL.md` — 렌더 전 EDIT_PLAN 필수
+
+사용자는 말만 한다. concat으로 납품하지 마라.
+
+---
+
+## When / When not
+
+| 목표 | 도구 | 말고 |
+|------|------|------|
+| 클립을 타임라인에 | `edit_timeline from-clips` | 에피 디버그 concat → assemble_video |
+| 한글 훅/이름 | `render_title` | 가사 전부 올리기 |
+| 마스터 mp4 | `render_edit` | 생성 클립이 아직 없을 때 |
+| 열어보기 | `edit_qa_pack` + record | 생성 샷 QA → shot_qa_* |
+
+---
+
+## CLI
+
+```bash
+python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 \
+  --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/timeline.json"
+
+python scripts/render_title.py --list-parts
+python scripts/render_title.py --text "조금만 더" --layout caption \
+  --color cyan --size xl --bubble yellow --tilt -4 --y 0.82 \
+  --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/cap.png"
+python scripts/render_title.py --preset yt_hook --text "포기하지 마" \
+  --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/hook.png"
+
+# timeline overlays[].path 에 cap.png 넣고 start/end 지정 후:
+python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" \
+  -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
+
+python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" \
+  -o "%AGENT_WORKSPACE%/edits/s01/qa"
+python scripts/edit_qa_record.py --pack "%AGENT_WORKSPACE%/edits/s01/qa" \
+  --verdict pass --notes "hook reads"
+```
+
+`-o` 는 프로젝트. 이 레포에 쓰면 exit 14.
+
+---
+
+## 게이트
+
+E0 말 → E1 EDIT_PLAN → E2 timeline → E3 titles → E4 render → E5 QA → E6 deliver
+
+문서: `docs/agent_edit_pipeline_design.md`

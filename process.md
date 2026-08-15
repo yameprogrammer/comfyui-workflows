@@ -1,3 +1,12 @@
+## 2026-08-15 — Title parts compose (presets = shortcuts)
+- `render_title` is layout + paint + chrome + x/y. `--list-parts`. `--preset` optional.
+- Agent can invent a look (e.g. caption + cyan + yellow bubble + tilt + y=0.82).
+
+## 2026-08-15 — EDIT shelf v1 (timeline → FFmpeg master)
+- Skill `video-edit` + EDIT_PLAN; video-direction Gate 7 points here (concat is not delivery)
+- CLI: `edit_timeline` · `render_title` · `render_edit` · `edit_qa_pack` / `edit_qa_record`
+- Tests: `python -m unittest tests.test_edit_timeline tests.test_edit_compile tests.test_edit_cli -v`
+
 ## 2026-08-15 — FluidSynth GM render as default MIDI WAV
 - `python scripts/setup_fluidsynth.py` fetches FluidSynth 2.6 win64 + GeneralUser-GS
 - `generate_midi_render` / cover-bed use FluidSynth first (2.6 CLI: `-F out.wav -T wav sf2 mid`)

@@ -122,6 +122,7 @@ FINISH     키우기·다듬기           upscale_recommend → upscale_* · **u
 ASSETS     재사용 패키지(옵션)     character_* · location_* · look_* · ref_pack(lite)
 MESH       2D→3D 메쉬·VRM          **hy3d_mesh** · process_mesh_glb · export_mesh_vrm
 BUNDLE     여러 파일 묶기(옵션)    assemble · episode_* · story_init · qa
+EDIT       컷·타이틀·마스터         **render_edit** · edit_timeline · render_title · edit_qa
 ```
 
 상세 카드는 **§2**. 에피소드 레일은 **§4 (옵션)**.
@@ -580,7 +581,30 @@ python scripts/process_mesh_glb.py --probe   # Blender MCP
 | `episode_identity_sheet` | 크로스샷 얼굴 |
 | `episode_i2v` / `episode_s2v` / `episode_tts` | 배치 모션·TTS (`episode_i2v --motion-preset` · shot.`motion_preset`) |
 | `chain_one_take` / `chain_si2v_last_frame` | 컷 이음 |
-| `assemble_video` | 합본 |
+| `assemble_video` | 에피 디버그 concat (납품 아님) |
+
+### 2.10 EDIT — 컷 · 타이틀 · 마스터
+
+말만 있으면 `skills/video-edit` → EDIT_PLAN → 아래 CLI. concat 납품 금지.
+
+| CLI | 언제 |
+|-----|------|
+| `edit_timeline` | 클립을 타임라인 JSON에 (트림·xfade) |
+| `render_title` | 한글 자막 PNG (부품 조립, 프리셋은 바로가기) |
+| **`render_edit`** | timeline → master.mp4 |
+| `edit_qa_pack` / `edit_qa_record` | 마스터 열고 판정 |
+
+```bash
+python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 -o "%AGENT_WORKSPACE%/edits/s01/timeline.json"
+python scripts/render_title.py --list-parts
+python scripts/render_title.py --text "조금만 더" --layout caption --color cyan --bubble yellow --tilt -4 --y 0.82 --width 1080 --height 1920 -o cap.png
+python scripts/render_title.py --preset caption --text "포기하지 마" --width 1080 --height 1920 -o cap.png
+python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
+python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" -o "%AGENT_WORKSPACE%/edits/s01/qa"
+```
+
+가이드: [edit AGENT_GUIDE](../workflows/human/edit/AGENT_GUIDE.md) · 설계: [agent_edit_pipeline_design.md](agent_edit_pipeline_design.md)
+
 | `episode_subtitles` | 자막 |
 | `export_episode_to_workspace` | 프로젝트 반출 |
 | `episode_status` | 상태 |

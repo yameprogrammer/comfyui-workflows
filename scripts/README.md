@@ -111,6 +111,15 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 | `assets_list.py` | 자산 목록 |
 | `shot_with_character.py` | 캐릭 템플릿 샷 (헬퍼) |
 
+### EDIT — 컷 · 타이틀 · 마스터
+
+| 스크립트 | 역할 |
+|----------|------|
+| `edit_timeline.py` | timeline JSON init / from-clips / validate |
+| `render_title.py` | 한글 타이틀 PNG (부품 조립, `--list-parts`) |
+| `render_edit.py` | 타임라인 → master.mp4 |
+| `edit_qa_pack.py` / `edit_qa_record.py` | 마스터 QA |
+
 ### BUNDLE — 멀티샷 · 에피 · 검수 *(옵션)*
 
 `stories/` 레일·합본·배치를 **원할 때만**.

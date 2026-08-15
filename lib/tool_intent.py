@@ -1131,6 +1131,81 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
     },
     {
+        "id": "edit_timeline",
+        "shelf": "EDIT",
+        "cli": "python scripts/edit_timeline.py",
+        "script": "edit_timeline.py",
+        "summary": "클립을 타임라인 JSON에 올림 (트림·xfade)",
+        "when": "컷을 다시 짜거나 이어 붙일 좌표가 필요할 때. concat 납품 아님.",
+        "when_not": "에피 디버그 일렬 합본만 → assemble_video",
+        "keywords": [
+            "편집", "타임라인", "컷", "이어 붙", "xfade", "크로스페이드",
+            "edit_timeline", "nle", "트림",
+        ],
+        "examples": [
+            'python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 -o "%AGENT_WORKSPACE%/edits/s01/timeline.json"',
+        ],
+        "alternatives": [
+            {"if": "마스터 렌더", "use": "render_edit", "cli": "python scripts/render_edit.py --timeline t.json -o master.mp4"},
+            {"if": "에피 샷 순서 concat", "use": "assemble_video", "cli": "python scripts/assemble_video.py -e EP --stage work"},
+        ],
+    },
+    {
+        "id": "render_title",
+        "shelf": "EDIT",
+        "cli": "python scripts/render_title.py",
+        "script": "render_title.py",
+        "summary": "한글 타이틀 PNG. 자리·색·장식을 조립. 프리셋은 바로가기.",
+        "when": "화면에 글자 한 일 (훅, 이름, 제목). 가사 전부 올리지 않음. 새 룩은 부품으로.",
+        "when_not": "움직이는 키네틱 타이포 (v2 Revideo)",
+        "keywords": ["타이틀", "자막", "캡션", "로어서드", "글자", "render_title", "훅 자막", "예능 자막"],
+        "examples": [
+            'python scripts/render_title.py --list-parts',
+            'python scripts/render_title.py --text "조금만 더" --layout caption --color cyan --bubble yellow --tilt -4 --y 0.82 --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/cap.png"',
+            'python scripts/render_title.py --preset yt_hook --text "포기하지 마" --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/hook.png"',
+        ],
+        "alternatives": [
+            {"if": "타임라인에 올려 렌더", "use": "render_edit", "cli": "python scripts/render_edit.py --timeline t.json -o master.mp4"},
+        ],
+    },
+    {
+        "id": "render_edit",
+        "shelf": "EDIT",
+        "cli": "python scripts/render_edit.py",
+        "script": "render_edit.py",
+        "summary": "타임라인 JSON → 마스터 mp4 (컷/페이드/타이틀/믹스)",
+        "when": "말만 있고 클립이 있을 때 최종 편집본. assemble_video 대신 납품.",
+        "when_not": "생성 클립이 아직 없음 → MOTION 먼저",
+        "keywords": [
+            "렌더", "마스터", "편집본", "render_edit", "최종본", "합본 편집",
+            "크로스페이드", "마스터링", "페이드", "붙여", "훅 자막", "편집해서",
+        ],
+        "examples": [
+            'python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"',
+        ],
+        "alternatives": [
+            {"if": "QA 프레임", "use": "edit_qa", "cli": "python scripts/edit_qa_pack.py -i master.mp4 -o qa"},
+            {"if": "에피 concat만", "use": "assemble_video", "cli": "python scripts/assemble_video.py -e EP --stage work"},
+        ],
+    },
+    {
+        "id": "edit_qa",
+        "shelf": "EDIT",
+        "cli": "python scripts/edit_qa_pack.py",
+        "script": "edit_qa_pack.py",
+        "summary": "마스터 훅/중간/끝 프레임 팩 + 판정 기록",
+        "when": "렌더 후 반드시. 열지 않고 납품 금지.",
+        "when_not": "생성 컷 QA → shot_qa_pack",
+        "keywords": ["편집 qa", "edit_qa", "마스터 검수", "훅 프레임"],
+        "examples": [
+            'python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" -o "%AGENT_WORKSPACE%/edits/s01/qa"',
+            'python scripts/edit_qa_record.py --pack "%AGENT_WORKSPACE%/edits/s01/qa" --verdict pass --notes "hook reads"',
+        ],
+        "alternatives": [
+            {"if": "생성 샷 QA", "use": "shot_qa_pack", "cli": "python scripts/shot_qa_pack.py -e EP -s S01"},
+        ],
+    },
+    {
         "id": "ltx_i2v",
         "shelf": "MOTION",
         "cli": "python scripts/generate_i2v.py",

@@ -22,6 +22,7 @@ Grok / Claude Code / Cursor / Codex 등 **어떤 에이전트든** 이 도구로
 |------|------|------|
 | **1** | **video-direction** | 기획·SHOT_DESIGN 전 |
 | **2** | **generation-prompt** | `shot_compose` / `generate_*` / `episode_i2v|s2v` **직전** |
+| **3** | **video-edit** | 클립이 생긴 뒤 컷·타이틀·믹스·마스터. concat으로 납품 금지 |
 
 ```bash
 python scripts/skill_equip.py list
@@ -53,6 +54,7 @@ python scripts/skill_equip.py install generation-prompt
 |----|------|------|------|
 | **video-direction** | [video-direction/](video-direction/) | 기획·연출·샷 문법·시각 1–10층 | ✅ v1.11 |
 | **generation-prompt** | [generation-prompt/](generation-prompt/) | SHOT → 이미지/영상 **모델 프롬프트** | ✅ v1.0 |
+| **video-edit** | [video-edit/](video-edit/) | 말→EDIT_PLAN→타임라인→마스터 QA | ✅ v1.0 |
 
 ---
 
