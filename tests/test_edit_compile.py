@@ -113,6 +113,54 @@ class TestEditCompile(unittest.TestCase):
         self.assertEqual(tl["overlays"][0]["motion"], "fade")
         self.assertIn("fade=t=in", spec["graph"])
 
+    def test_compose_direction_and_scale_parts(self):
+        from lib.edit_motion import compose_motion
+
+        m = compose_motion(
+            {
+                "start": 0.2,
+                "end": 2.0,
+                "direction": "left",
+                "distance": 120,
+                "scale_from": 0.7,
+                "scale_to": 1.05,
+                "move": 0.25,
+                "fade_in": 0.08,
+            },
+            width=1080,
+            height=1920,
+        )
+        self.assertEqual(m["name"], "custom")
+        self.assertEqual(m["dx"], 120)
+        self.assertEqual(m["dy"], 0)
+        self.assertAlmostEqual(m["scale_from"], 0.7)
+        self.assertAlmostEqual(m["fade_in"], 0.08)
+
+        with tempfile.TemporaryDirectory() as td:
+            a = os.path.join(td, "a.mp4")
+            ov = os.path.join(td, "cap.png")
+            for p in (a, ov):
+                open(p, "wb").write(b"x")
+            tl = from_clips([a], durations=[2.0], width=320, height=240)
+            tl["overlays"].append(
+                {
+                    "id": "t1",
+                    "kind": "caption",
+                    "path": ov,
+                    "start": 0.2,
+                    "end": 1.8,
+                    "direction": "left",
+                    "distance": 80,
+                    "scale_from": 0.75,
+                    "move": 0.2,
+                    "fade_in": 0.08,
+                }
+            )
+            spec = compile_ffmpeg(tl, os.path.join(td, "out.mp4"))
+        self.assertIn("80.00", spec["graph"])
+        self.assertIn("0.7500", spec["graph"])
+        self.assertIn("eval=frame", spec["graph"])
+
 
 if __name__ == "__main__":
     unittest.main()

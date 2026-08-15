@@ -17,6 +17,7 @@ import json
 import sys
 
 from lib.comfy_client import fail_result, ok_result
+from lib.edit_motion import list_motion_parts
 from lib.edit_timeline import (
     empty_timeline,
     from_clips,
@@ -51,7 +52,22 @@ def main(argv: list[str] | None = None) -> int:
     p_val.add_argument("--timeline", required=True)
     p_val.add_argument("--json", action="store_true")
 
+    p_lm = sub.add_parser("list-motions")
+    p_lm.add_argument("--json", action="store_true")
+
     args = p.parse_args(argv)
+
+    if args.cmd == "list-motions":
+        parts = list_motion_parts()
+        if args.json:
+            print(json.dumps(parts, indent=2, ensure_ascii=False))
+        else:
+            print("shortcuts\t" + ", ".join(parts["shortcuts"]))
+            print("parts\t" + ", ".join(parts["parts"]))
+            print("directions\t" + ", ".join(parts["directions"]))
+            for k, v in parts["units"].items():
+                print(f"  {k}\t{v}")
+        return 0
 
     try:
         if args.cmd in ("init", "from-clips"):

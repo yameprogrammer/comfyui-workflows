@@ -30,6 +30,12 @@ class TestEditCli(unittest.TestCase):
         r = _run(["scripts/edit_timeline.py", "-h"])
         self.assertEqual(r.returncode, 0)
 
+    def test_list_motions(self):
+        r = _run(["scripts/edit_timeline.py", "list-motions"])
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("direction", r.stdout)
+        self.assertIn("scale_from", r.stdout)
+
     def test_title_list_fonts(self):
         r = _run(["scripts/render_title.py", "--list-fonts"])
         self.assertEqual(r.returncode, 0, r.stderr)

@@ -34,7 +34,9 @@ python scripts/render_title.py --text "조금만 더" --font yeonung --layout ca
 python scripts/render_title.py --preset yt_hook --text "포기하지 마" \
   --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/hook.png"
 
-# timeline overlays[].path + start/end + motion (pop|fade|slide_up|slide_down)
+# overlays: path + start/end + motion parts (or shortcut pop|fade|slide)
+#   fade_in fade_out move scale_from scale_to direction distance dx dy
+python scripts/edit_timeline.py list-motions
 python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" \
   -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
 

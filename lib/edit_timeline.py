@@ -7,13 +7,14 @@ import os
 from typing import Any
 
 from lib.comfy_client import fail_result, ok_result
+from lib.edit_motion import compose_motion
 from lib.ffmpeg_util import probe_duration
 
 SCHEMA = "edit_timeline.v1"
 FITS = ("cover", "contain", "stretch")
 TRANS_TYPES = ("cut", "crossfade")
 OVERLAY_KINDS = ("title", "lower_third", "caption", "card")
-OVERLAY_MOTIONS = ("none", "fade", "pop", "slide_up", "slide_down")
+OVERLAY_MOTIONS = ("none", "fade", "pop", "slide", "slide_up", "slide_down", "custom")
 
 
 def empty_timeline(
@@ -117,12 +118,14 @@ def validate_timeline(tl: dict) -> dict[str, Any]:
             raise ValueError(f"bad overlay kind {kind}")
         if float(o.get("end") or 0) < float(o.get("start") or 0):
             raise ValueError(f"overlay {o.get('id')} end < start")
-        motion = str(o.get("motion") or "none").strip().lower() or "none"
-        if motion not in OVERLAY_MOTIONS:
-            o["motion"] = "fade"
-            o["warning"] = f"downgraded motion {motion} to fade"
-        else:
-            o["motion"] = motion
+        resolved = compose_motion(
+            o,
+            width=int(tl.get("width") or 1920),
+            height=int(tl.get("height") or 1080),
+        )
+        o["motion"] = resolved["name"]
+        if resolved.get("warning"):
+            o["warning"] = resolved["warning"]
     for t in tl["transitions"]:
         typ = str(t.get("type") or "cut")
         if typ not in TRANS_TYPES:

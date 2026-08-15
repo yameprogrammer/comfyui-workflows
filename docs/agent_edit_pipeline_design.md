@@ -166,18 +166,19 @@ MLT를 v1 필수로 두지 않는다. melt 미설치가 편집 선반을 죽이�
 
 오디오 부품: `fade_in` `fade_out` (초). 베드에 `duck: 0.28` + VO `role: vo` 이면 sidechain.
 
-오버레이 모션 (FFmpeg, v2 첫 칸 — Revideo 전에 에이전트가 씀):
+오버레이 모션은 **부품 조립**. 이름(`pop` 등)은 바로가기.
 
-| `motion` | 기본 |
-|----------|------|
-| `none` | 컷 인 |
-| `fade` | 알파 페이드 인/아웃 |
-| `pop` | 살짝 커지며 페이드 (훅·예능) |
-| `slide_up` | 아래에서 올라옴 |
-| `slide_down` | 위에서 내려옴 |
+| 부품 | 의미 |
+|------|------|
+| `fade_in` / `fade_out` | 초 |
+| `move` | 이동·스케일이 끝나는 초 |
+| `scale_from` / `scale_to` | 시작/끝 크기 (1=정지) |
+| `direction` | `up` `down` `left` `right` |
+| `distance` | px, 또는 0–1이면 프레임 비율 |
+| `dx` / `dy` | 시작 오프셋 px (방향보다 우선) |
 
-초는 `fade_in` / `fade_out` / `move`로 덮어쓸 수 있다. 없으면 스킬이 채운다.  
-Revideo는 `engine: revideo`가 필요할 때 (글자 자체 키프레임) 다음 칸.
+`compose_motion()`이 병합 SSOT. `python scripts/edit_timeline.py list-motions`  
+Revideo는 글자 자체 키프레임이 필요할 때 (`engine: revideo`).
 
 구현 v1: **Pillow + 지정 폰트 → PNG (투명)**.  
 폰트: `--font` 또는 `EDIT_FONT` 또는 Windows `C:\Windows\Fonts\malgun.ttf`. 없으면 `FONT_MISSING`로 실패.

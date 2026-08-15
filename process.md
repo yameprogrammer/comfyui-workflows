@@ -1,3 +1,6 @@
+## 2026-08-15 — Overlay motion is composable
+- Parts: fade_in/out, move, scale_from/to, direction, distance, dx/dy. Named motion = shortcut.
+
 ## 2026-08-15 — EDIT overlay motion (pop / slide / fade)
 - timeline `overlays[].motion`: none|fade|pop|slide_up|slide_down (FFmpeg). Revideo still later.
 
