@@ -36,14 +36,15 @@ EDIT는 원오프·뮤비·쇼츠처럼 **컷을 다시 짜는** 작업.
 
 | CLI | 역할 |
 |-----|------|
+| `edit_pack.py` | 클립+자막+룩 → 마스터 한 줄 (에이전트 기본 손) |
 | `edit_timeline.py` | JSON 생성·검증·샷 목록 import |
 | `render_title.py` | 타이틀/로어서드 스틸 (폰트 고정) |
-| `render_edit.py` | timeline → master.mp4 |
+| `render_edit.py` | 이미 있는 timeline → master.mp4 |
 | `edit_qa_pack.py` / `edit_qa_record.py` | 마스터 프레임 팩 + 판정 |
 | `setup_edit_runtime.py` | (v2) melt / 폰트. v1은 ffmpeg + 맑은고딕 |
 
 스킬: `skills/video-edit/SKILL.md` (편집장 두뇌).  
-intent: `edit_timeline`, `render_title`, `render_edit`, `edit_qa`.
+intent: `edit_pack`, `edit_timeline`, `render_title`, `render_edit`, `edit_qa`.
 
 ---
 
@@ -132,7 +133,8 @@ duration = max(clip.start + (out-in)/speed, overlay.end, audio.end)
 5. audio: `atrim` + `adelay` + `volume` + `amix`.
 6. 맵: `-map [vout] -map [aout] -c:v libx264 -crf 18 -pix_fmt yuv420p -c:a aac -b:a 192k`.
 
-에이전트에게 노출하는 것은 `render_edit.py --timeline t.json -o master.mp4` 뿐.  
+에이전트 기본 손은 `edit_pack.py` (클립+자막+룩 한 줄).  
+이미 timeline이 있으면 `render_edit.py --timeline t.json -o master.mp4`.  
 디버그: `--print-graph` 로 filter_complex만 stdout.
 
 ### 왜 v1이 FFmpeg인가
@@ -198,8 +200,10 @@ Boogu는 스틸 잡지 타이포. EDIT 타이틀의 기본 엔진이 아님 (느
 | 파일 | 책임 |
 |------|------|
 | `lib/edit_timeline.py` | 로드/저장/검증, duration, import_from_shots |
+| `lib/edit_pack.py` | from-clips + title/stagger + look 조립 (한 줄 진입) |
 | `lib/edit_compile_ffmpeg.py` | JSON → ffmpeg argv |
 | `lib/edit_title.py` | 부품 조립 → PNG (프리셋은 바로가기) |
+| `scripts/edit_pack.py` | CLI: 클립+자막+룩 → master (+ `--qa`) |
 | `scripts/edit_timeline.py` | CLI: `init` `validate` `from-clips` |
 | `scripts/render_title.py` | CLI: 텍스트 → png |
 | `scripts/render_edit.py` | CLI: timeline → mp4 |
@@ -221,6 +225,11 @@ Boogu는 스틸 잡지 타이포. EDIT 타이틀의 기본 엔진이 아님 (느
 ## 7. CLI 계약
 
 ```bash
+# 기본 손 (한 줄)
+python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 \
+  --text "포기하지 마" --font yeonung --motion pop --stagger 0.06 --look night \
+  -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
+
 # 빈 타임라인
 python scripts/edit_timeline.py init --fps 24 --width 1080 --height 1920 \
   -o "%AGENT_WORKSPACE%/edits/s01/timeline.json"
@@ -252,9 +261,9 @@ python scripts/render_edit.py \
 ```text
 GATE E0  INTAKE     사용자 말 → 길이, 비율, 플랫폼, 음악 유무, 한 줄 무드
 GATE E1  EDIT_PLAN  페이싱 / 컷 리듬 / 타이틀 일 / 믹스 / 룩   ⛔ 렌더 금지
-GATE E2  TIMELINE   plan을 edit_timeline.v1 으로 옮김
-GATE E3  TITLES     render_title (한글 PNG). 화면에 글자 일마다 1장
-GATE E4  RENDER     render_edit → master.mp4
+GATE E2  TIMELINE   plan을 edit_timeline.v1 으로 옮김     ↘
+GATE E3  TITLES     render_title (한글 PNG)               → 한 줄: edit_pack
+GATE E4  RENDER     master.mp4                            ↗
 GATE E5  QA         edit_qa_pack 열고 기록. fail → E1/E2만 고치고 E4
 GATE E6  DELIVER    프로젝트 경로만. 툴박스에 마스터 금지
 ```

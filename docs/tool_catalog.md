@@ -122,7 +122,7 @@ FINISH     키우기·다듬기           upscale_recommend → upscale_* · **u
 ASSETS     재사용 패키지(옵션)     character_* · location_* · look_* · ref_pack(lite)
 MESH       2D→3D 메쉬·VRM          **hy3d_mesh** · process_mesh_glb · export_mesh_vrm
 BUNDLE     여러 파일 묶기(옵션)    assemble · episode_* · story_init · qa
-EDIT       컷·타이틀·마스터         **render_edit** · edit_timeline · render_title · edit_qa
+EDIT       컷·타이틀·마스터         **edit_pack** · render_edit · edit_timeline · render_title · edit_qa
 ```
 
 상세 카드는 **§2**. 에피소드 레일은 **§4 (옵션)**.
@@ -589,13 +589,15 @@ python scripts/process_mesh_glb.py --probe   # Blender MCP
 
 | CLI | 언제 |
 |-----|------|
+| **`edit_pack`** | 클립+자막+룩 → 마스터 한 줄 (에이전트 기본 손. concat 금지) |
 | `edit_timeline` | 클립을 타임라인 JSON에 (트림·xfade) |
 | `render_title` | 한글 자막 PNG (부품 조립, 프리셋은 바로가기) |
-| **`render_edit`** | timeline → master.mp4 |
+| `render_edit` | 이미 있는 timeline → master.mp4 |
 | `comp_shot` | 클립 룩/키 (night/warm/… 또는 부품) |
 | `edit_qa_pack` / `edit_qa_record` | 마스터 열고 판정 |
 
 ```bash
+python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 --text "포기하지 마" --font yeonung --motion pop --stagger 0.06 --look night -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
 python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 -o "%AGENT_WORKSPACE%/edits/s01/timeline.json"
 python scripts/setup_edit_fonts.py
 python scripts/render_title.py --list-fonts
@@ -628,7 +630,7 @@ python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" -o "%
 | 목표 | 가능한 조합 |
 |------|-------------|
 | 인물 쇼츠 1컷 | `moody` 또는 `character_consistent lock` → `generate_i2v` |
-| 같은 캐릭 여러 장면 | `cc lock` × N → (선택) `assemble_video` |
+| 같은 캐릭 여러 장면 | `cc lock` × N → **`edit_pack`** (납품) · (디버그만) `assemble_video` |
 | 토킹 헤드 | 스틸 → `qwen3_tts` → `generate_s2v` |
 | 각도 먼저 고르기 | `qwen_angle` 또는 `cc pack` → 고른 장으로 lock/i2v |
 | 전신 포즈 | `controlnet` + 전신 레퍼 → i2v |
@@ -644,7 +646,7 @@ python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" -o "%
   각도?                      → qwen_angle
   포즈 구조?                 → controlnet
   움직이기?                  → i2v  (말하기면 s2v)
-  여러 파일 한 영상?          → assemble (원할 때)
+  여러 파일 한 영상?          → edit_pack (납품). assemble 은 디버그 concat
 ```
 
 ---

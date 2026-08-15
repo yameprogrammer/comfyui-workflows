@@ -7,9 +7,13 @@ class TestToolIntent(unittest.TestCase):
     def test_shorts_caption_edit_ranks_edit_not_youtube(self):
         hits = search_intents("쇼츠 자막 넣고 편집", limit=5)
         ids = [h["id"] for h in hits]
-        self.assertIn(hits[0]["id"], {"render_edit", "render_title", "edit_timeline"})
+        self.assertEqual(hits[0]["id"], "edit_pack")
         if "youtube_ref_ingest" in ids:
             self.assertGreater(ids.index("youtube_ref_ingest"), 0)
+
+    def test_concat_phrasing_ranks_edit_pack(self):
+        hits = search_intents("클립 붙여 자막", limit=5)
+        self.assertEqual(hits[0]["id"], "edit_pack")
 
     def test_youtube_url_still_finds_ingest(self):
         hits = search_intents("유튜브 레퍼 자막 뽑아", limit=5)

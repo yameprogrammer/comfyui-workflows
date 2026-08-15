@@ -172,7 +172,10 @@ python scripts/shot_approve.py -e EP -s S0x --status approved
 python scripts/shot_approve.py -e EP -s S0x --clip approved   # after clip QA record
 python scripts/episode_status.py -e EP
 python scripts/assemble_video.py -e EP --stage work
+# 납품 마스터 (concat 아님): equip video-edit → EDIT_PLAN →
+python scripts/edit_pack.py -i a.mp4 -i b.mp4 --text "포기하지 마" --look night \
+  -o "$AGENT_WORKSPACE/edits/s01/master.mp4" --qa
 python scripts/export_episode_to_workspace.py -e EP --dest "$AGENT_WORKSPACE/episodes/EP"
 ```
 
-**Rule:** never jump to final assemble to judge middle cuts. Approve each work clip first. Assemble rejects unapproved clips (exit 22) unless `--force-clip-gate` (debug only).
+**Rule:** never jump to final assemble to judge middle cuts. Approve each work clip first. Assemble rejects unapproved clips (exit 22) unless `--force-clip-gate` (debug only). `assemble_video` is debug concat. Delivery master is `edit_pack`.

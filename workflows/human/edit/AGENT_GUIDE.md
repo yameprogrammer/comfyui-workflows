@@ -12,9 +12,10 @@
 
 | 목표 | 도구 | 말고 |
 |------|------|------|
+| 클립+자막+룩 → 마스터 | **`edit_pack`** | concat / assemble_video 납품 |
 | 클립을 타임라인에 | `edit_timeline from-clips` | 에피 디버그 concat → assemble_video |
 | 한글 훅/이름 | `render_title` | 가사 전부 올리기 |
-| 마스터 mp4 | `render_edit` | 생성 클립이 아직 없을 때 |
+| 이미 있는 timeline | `render_edit` | 처음부터면 edit_pack |
 | 열어보기 | `edit_qa_pack` + record | 생성 샷 QA → shot_qa_* |
 
 ---
@@ -22,6 +23,11 @@
 ## CLI
 
 ```bash
+python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 \
+  --text "포기하지 마" --font yeonung --motion pop --stagger 0.06 --look night \
+  --width 1080 --height 1920 \
+  -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
+
 python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 \
   --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/timeline.json"
 

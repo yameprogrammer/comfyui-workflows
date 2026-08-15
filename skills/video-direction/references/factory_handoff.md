@@ -25,7 +25,8 @@ skill equipped
 → episode_tts / bind (if si2v)
 → episode_i2v | episode_s2v   # freeze gate ON
 → shot_qa_record clip → shot_approve --clip
-→ assemble_video
+→ assemble_video          # 디버그 concat only
+→ edit_pack --qa          # 납품 마스터 (video-edit E1 이후)
 → export_episode_to_workspace
 ```
 
@@ -46,4 +47,4 @@ skill equipped
 | Production keyframe | shot_compose |
 | Lips | episode_s2v only |
 | Preview motion | native video optional; not assemble |
-| Deliver | factory assemble + upscale + export |
+| Deliver | edit_pack + QA + export (assemble = debug concat) |

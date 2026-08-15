@@ -1131,21 +1131,44 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
     },
     {
+        "id": "edit_pack",
+        "shelf": "EDIT",
+        "cli": "python scripts/edit_pack.py",
+        "script": "edit_pack.py",
+        "summary": "클립+자막+룩을 한 줄로 마스터. concat 납품 금지.",
+        "when": "말만 있고 클립이 있을 때 최종 편집본. 에이전트 기본 손. assemble_video 대신.",
+        "when_not": "타임라인만 조일 때 → edit_timeline · PNG만 → render_title · 에피 디버그 concat → assemble_video",
+        "keywords": [
+            "편집", "마스터", "붙여", "이어 붙", "합본 편집", "edit_pack",
+            "한줄 편집", "자막 넣고", "편집해서", "쇼츠 편집", "크로스페이드",
+            "xfade", "마스터링", "최종본", "편집본",
+        ],
+        "examples": [
+            'python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 --text "포기하지 마" --font yeonung --motion pop --stagger 0.06 --look night -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa',
+        ],
+        "alternatives": [
+            {"if": "타임라인만", "use": "edit_timeline", "cli": "python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 -o \"%AGENT_WORKSPACE%/edits/s01/timeline.json\""},
+            {"if": "이미 timeline.json", "use": "render_edit", "cli": "python scripts/render_edit.py --timeline t.json -o master.mp4"},
+            {"if": "에피 샷 순서 concat", "use": "assemble_video", "cli": "python scripts/assemble_video.py -e EP --stage work"},
+        ],
+    },
+    {
         "id": "edit_timeline",
         "shelf": "EDIT",
         "cli": "python scripts/edit_timeline.py",
         "script": "edit_timeline.py",
         "summary": "클립을 타임라인 JSON에 올림 (트림·xfade)",
-        "when": "컷을 다시 짜거나 이어 붙일 좌표가 필요할 때. concat 납품 아님.",
-        "when_not": "에피 디버그 일렬 합본만 → assemble_video",
+        "when": "좌표만 필요하거나 pack 이후 손으로 조일 때. concat 납품 아님.",
+        "when_not": "마스터까지 한 줄 → edit_pack · 에피 디버그 일렬 합본만 → assemble_video",
         "keywords": [
-            "편집", "타임라인", "컷", "이어 붙", "xfade", "크로스페이드",
+            "타임라인", "컷", "이어 붙", "xfade", "크로스페이드",
             "edit_timeline", "nle", "트림",
         ],
         "examples": [
             'python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 -o "%AGENT_WORKSPACE%/edits/s01/timeline.json"',
         ],
         "alternatives": [
+            {"if": "한 줄 마스터", "use": "edit_pack", "cli": "python scripts/edit_pack.py -i a.mp4 -i b.mp4 --text \"포기하지 마\" --look night -o master.mp4 --qa"},
             {"if": "마스터 렌더", "use": "render_edit", "cli": "python scripts/render_edit.py --timeline t.json -o master.mp4"},
             {"if": "에피 샷 순서 concat", "use": "assemble_video", "cli": "python scripts/assemble_video.py -e EP --stage work"},
         ],
@@ -1168,6 +1191,7 @@ INTENT_TOOLS: list[dict[str, Any]] = [
             'python scripts/render_title.py --preset yt_hook --font hook --text "포기하지 마" --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/hook.png"',
         ],
         "alternatives": [
+            {"if": "클립까지 한 줄로", "use": "edit_pack", "cli": "python scripts/edit_pack.py -i a.mp4 --text \"포기하지 마\" --font yeonung -o master.mp4 --qa"},
             {"if": "타임라인에 올려 렌더", "use": "render_edit", "cli": "python scripts/render_edit.py --timeline t.json -o master.mp4"},
         ],
     },
@@ -1196,16 +1220,16 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         "cli": "python scripts/render_edit.py",
         "script": "render_edit.py",
         "summary": "타임라인 JSON → 마스터 mp4 (컷/페이드/타이틀/믹스)",
-        "when": "말만 있고 클립이 있을 때 최종 편집본. assemble_video 대신 납품.",
-        "when_not": "생성 클립이 아직 없음 → MOTION 먼저",
+        "when": "timeline.json 이 이미 있을 때. 처음부터면 edit_pack.",
+        "when_not": "클립만 있고 타임라인 없음 → edit_pack · 생성 클립이 아직 없음 → MOTION 먼저",
         "keywords": [
-            "렌더", "마스터", "편집본", "render_edit", "최종본", "합본 편집",
-            "크로스페이드", "마스터링", "페이드", "붙여", "훅 자막", "편집해서",
+            "렌더", "render_edit", "타임라인 렌더",
         ],
         "examples": [
             'python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"',
         ],
         "alternatives": [
+            {"if": "클립에서 한 줄", "use": "edit_pack", "cli": "python scripts/edit_pack.py -i a.mp4 -i b.mp4 --text \"포기하지 마\" -o master.mp4 --qa"},
             {"if": "QA 프레임", "use": "edit_qa", "cli": "python scripts/edit_qa_pack.py -i master.mp4 -o qa"},
             {"if": "에피 concat만", "use": "assemble_video", "cli": "python scripts/assemble_video.py -e EP --stage work"},
         ],
@@ -1514,6 +1538,7 @@ INTENT_TOOLS: list[dict[str, Any]] = [
             "python scripts/assemble_video.py -e MY_EP --stage work",
         ],
         "alternatives": [
+            {"if": "납품 마스터", "use": "edit_pack", "cli": "python scripts/edit_pack.py -i a.mp4 -i b.mp4 --text \"포기하지 마\" --look night -o \"%AGENT_WORKSPACE%/edits/s01/master.mp4\" --qa"},
             {"if": "클립 하나만", "use": "camera_move / i2v", "cli": "python scripts/generate_camera_move.py -i key.png --preset push_in -o clip.mp4"},
             {"if": "의도 검색", "use": "tool_intent", "cli": "python scripts/tool_intent.py \"키프레임 영상\""},
         ],
@@ -1622,8 +1647,14 @@ def _tokenize(q: str) -> list[str]:
 
 
 _PHRASE_BOOSTS: list[tuple[tuple[str, ...], str, float]] = [
-    (("자막", "편집"), "render_edit", 7.5),
-    (("쇼츠", "편집"), "render_edit", 7.0),
+    (("자막", "편집"), "edit_pack", 8.5),
+    (("쇼츠", "편집"), "edit_pack", 8.0),
+    (("클립", "붙여"), "edit_pack", 7.5),
+    (("클립", "자막"), "edit_pack", 7.0),
+    (("편집해서",), "edit_pack", 6.0),
+    (("한줄", "편집"), "edit_pack", 8.0),
+    (("자막", "편집"), "render_edit", 3.0),
+    (("쇼츠", "편집"), "render_edit", 2.5),
     (("훅", "자막"), "render_title", 7.5),
     (("예능", "자막"), "render_title", 7.0),
     (("쇼츠", "자막"), "render_title", 6.5),

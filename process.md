@@ -1,3 +1,8 @@
+## 2026-08-15 — EDIT one-line pack
+- `python scripts/edit_pack.py -i a.mp4 -i b.mp4 --text "…" --look night -o master.mp4 --qa`
+- from-clips + title/stagger + look + render (+ optional QA). concat 도망 금지.
+- Tests: `python -m unittest tests.test_edit_pack tests.test_tool_intent -v`
+
 ## 2026-08-15 — Agent quality guards (intent + dialect fail-loud)
 - Plan: `docs/superpowers/plans/2026-08-15-agent-quality-guards.md`
 - Intent: 쇼츠 자막 → EDIT. Anima/I2V/MiniMax prompt gates. look.amount, key plate.

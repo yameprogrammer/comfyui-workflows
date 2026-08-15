@@ -1,10 +1,11 @@
 ---
 name: video-edit
-version: 1.5.0
+version: 1.6.0
 description: >
   Editor-in-chief skill for agent_custom. After clips exist, turn a verbal brief
   into EDIT_PLAN + timeline + titles + master render + QA. Use when assembling,
-  cutting, titles, mix, "edit this", shorts finish, MV cut. Do not stop at concat.
+  cutting, titles, mix, "edit this", shorts finish, MV cut. Default hand is
+  edit_pack (one line). Do not stop at concat.
 ---
 
 # video-edit — 편집장 두뇌
@@ -15,7 +16,7 @@ description: >
 
 글자는 이름 붙은 프리셋에 갇히지 않는다. `--layout` + 색/크기/기울기 + `--box`/`--bubble`/`--bar` + `--x --y`를 조립해 이 샷에 맞는 룩을 만든다. `--preset`은 급할 때 바로가기. 폰트는 `--font yeonung|hook|soft|display|gothic` (경로 묻지 마). 없으면 `setup_edit_fonts.py`.
 
-손: `python scripts/edit_timeline.py` · `render_title.py` · `render_edit.py` · `comp_shot.py` · `edit_qa_pack.py`
+손: **`python scripts/edit_pack.py`** (기본) · 부품을 직접 조일 때만 `edit_timeline` · `render_title` · `render_edit` · `comp_shot` · `edit_qa_pack`
 
 생성 붕괴(얼굴, freeze)는 여기서 고치지 않는다. 해당 클립을 다시 GENERATE.
 
@@ -26,9 +27,9 @@ description: >
 ```text
 E0 INTAKE     길이 · 비율 · 플랫폼 · 음악 · 한 줄 무드
 E1 EDIT_PLAN  페이싱 / 컷 / 타이틀 일 / 믹스 / 룩     ⛔ 렌더 금지
-E2 TIMELINE   edit_timeline.v1
-E3 TITLES     글자 일마다 render_title PNG
-E4 RENDER     render_edit → master.mp4
+E2 TIMELINE   edit_timeline.v1     ↘
+E3 TITLES     render_title PNG      → 한 줄: edit_pack (--qa 포함 가능)
+E4 RENDER     master.mp4           ↗
 E5 QA         edit_qa_pack 열기 → record. fail이면 E1/E2만 수정
 E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 ```
@@ -75,12 +76,24 @@ E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 | 배경 빼 | clip `key.color=green` (유사도·배경색은 네가 정함) |
 
 자막 모션도 부품이다. `fade_in` `fade_out` `move` `scale_from` `scale_to` `direction` `distance` `dx` `dy` `stagger`.  
-`motion: pop|fade|slide_up` 은 바로가기. 글자마다 튀기: `--split glyphs` 후 `edit_timeline stagger`. 초를 묻지 마라.  
+`motion: pop|fade|slide_up` 은 바로가기. 글자마다 튀기: `edit_pack --stagger 0.06` (또는 `--split glyphs` 후 `edit_timeline stagger`). 초를 묻지 마라.  
 `python scripts/edit_timeline.py list-motions`
 
 ---
 
 ## CLI
+
+기본 손 (E1 이후 E2–E5):
+
+```bash
+python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 \
+  --text "포기하지 마" --font yeonung --layout caption --color cyan --bubble yellow \
+  --tilt -4 --y 0.82 --motion pop --stagger 0.06 --look night \
+  --width 1080 --height 1920 \
+  -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
+```
+
+부품을 직접 조일 때만:
 
 ```bash
 python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 \

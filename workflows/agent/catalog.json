@@ -1299,6 +1299,16 @@
         "scripts/generate_midi_render.py"
       ]
     },
+    "edit_pack": {
+      "file": null,
+      "role": "edit_one_line_master",
+      "status": "ready",
+      "shelf": "EDIT",
+      "guide": "workflows/human/edit/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/edit_pack.py"
+      ]
+    },
     "edit_timeline": {
       "file": null,
       "role": "edit_timeline_json",

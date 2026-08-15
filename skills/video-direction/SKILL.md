@@ -1,6 +1,6 @@
 ---
 name: video-direction
-version: 1.11.0
+version: 1.12.0
 description: >
   World-class music-video / shorts / story film DIRECTOR skill for agent_custom factory.
   Use when the user wants a video, MV, short, reel, story episode, dance challenge,
@@ -80,7 +80,7 @@ GATE 3  SHOT DESIGN   size rhythm + per-shot grammar      ⛔ no mass gen
 GATE 4  ASSETS        char / loc / look approved packs
 GATE 5  KEYFRAMES     compose → shot_qa_pack → record → approve
 GATE 6  MOTION        full-length I2V/SI2V → freeze gate → clip QA → approve
-GATE 7  ASSEMBLE      **납품 마스터 = video-edit 스킬** (EDIT_PLAN → render_edit → QA)
+GATE 7  ASSEMBLE      **납품 마스터 = video-edit 스킬** (EDIT_PLAN → edit_pack → QA)
                       assemble_video 는 에피 디버그 concat 만. concat 으로 납품 금지.
 ```
 
@@ -307,7 +307,9 @@ python scripts/shot_qa_record.py -e EP -s S0x --stage clip --verdict pass \
 python scripts/shot_approve.py -e EP -s S0x --clip approved
 # 디버그 concat (납품 아님)
 python scripts/assemble_video.py -e EP --stage work
-# 납품 마스터: equip video-edit → EDIT_PLAN → render_edit → edit_qa_pack
+# 납품 마스터: equip video-edit → EDIT_PLAN → edit_pack --qa
+python scripts/edit_pack.py -i a.mp4 -i b.mp4 --text "포기하지 마" --look night \
+  -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
 python scripts/export_episode_to_workspace.py -e EP --dest "..."
 ```
 
