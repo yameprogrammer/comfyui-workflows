@@ -6,9 +6,11 @@ import tempfile
 import unittest
 
 from lib.edit_pack import (
+    attach_mix,
     build_pack,
     build_title_overlays,
     default_title_window,
+    refuse_frozen_clips,
     resolve_title_window,
     sidecar_paths,
     title_kind,
@@ -102,6 +104,26 @@ class TestEditPackLib(unittest.TestCase):
         self.assertAlmostEqual(stag[1]["start"], 0.46)
         self.assertEqual(stag[0]["ox"], 10)
 
+    def test_attach_mix_ducks_bed_under_vo(self):
+        tl = build_pack(["a.mp4"], durations=[4.0], width=320, height=240)
+        tl = attach_mix(tl, audio="bed.wav", vo="line.wav")
+        roles = {a["id"]: a for a in tl["audio"]}
+        self.assertEqual(roles["bed"]["role"], "master")
+        self.assertAlmostEqual(roles["bed"]["duck"], 0.28)
+        self.assertAlmostEqual(roles["bed"]["fade_in"], 0.2)
+        self.assertEqual(roles["vo"]["role"], "vo")
+        only_bed = attach_mix(
+            build_pack(["a.mp4"], durations=[2.0]),
+            audio="bed.wav",
+        )
+        self.assertNotIn("duck", only_bed["audio"][0])
+
+    def test_allow_freeze_skips_gate(self):
+        tl = build_pack(["missing.mp4"], durations=[2.0])
+        out = refuse_frozen_clips(tl, allow_freeze=True)
+        self.assertTrue(out["ok"])
+        self.assertTrue(out.get("allowed"))
+
     def test_stagger_requires_glyphs(self):
         with self.assertRaises(ValueError):
             build_title_overlays(
@@ -119,6 +141,8 @@ class TestEditPackCli(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("xfade", r.stdout)
         self.assertIn("stagger", r.stdout)
+        self.assertIn("audio", r.stdout)
+        self.assertIn("allow-freeze", r.stdout)
 
     def test_toolbox_write_refused(self):
         dest = os.path.join(ROOT, "stories", "_nope_master.mp4")
@@ -169,6 +193,7 @@ class TestEditPackCli(unittest.TestCase):
                     "pop",
                     "--look",
                     "night",
+                    "--allow-freeze",
                     "-o",
                     master,
                     "--qa",
@@ -180,6 +205,70 @@ class TestEditPackCli(unittest.TestCase):
             self.assertTrue(os.path.isfile(os.path.join(td, "timeline.json")))
             self.assertTrue(os.path.isfile(os.path.join(td, "titles", "t1.png")))
             self.assertTrue(os.path.isfile(os.path.join(td, "qa", "qa_pack.json")))
+
+    def test_mix_timeline_and_freeze_refuse(self):
+        if not shutil.which("ffmpeg"):
+            self.skipTest("ffmpeg not on PATH")
+        ff = shutil.which("ffmpeg")
+        with tempfile.TemporaryDirectory() as td:
+            clip = os.path.join(td, "still.mp4")
+            bed = os.path.join(td, "bed.wav")
+            vo = os.path.join(td, "vo.wav")
+            subprocess.run(
+                [
+                    ff, "-y", "-f", "lavfi", "-i", "color=c=red:s=320x240:r=24:d=1.2",
+                    "-pix_fmt", "yuv420p", clip,
+                ],
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(
+                [ff, "-y", "-f", "lavfi", "-i", "sine=frequency=440:duration=1.2", "-ar", "48000", bed],
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(
+                [ff, "-y", "-f", "lavfi", "-i", "sine=frequency=880:duration=0.8", "-ar", "48000", vo],
+                check=True,
+                capture_output=True,
+            )
+            master = os.path.join(td, "master.mp4")
+            r_mix = _run(
+                [
+                    "scripts/edit_pack.py",
+                    "-i", clip,
+                    "--width", "320",
+                    "--height", "240",
+                    "--audio", bed,
+                    "--vo", vo,
+                    "--timeline-only",
+                    "-o", master,
+                    "--json",
+                ]
+            )
+            self.assertEqual(r_mix.returncode, 0, r_mix.stderr + r_mix.stdout)
+            import json
+
+            tl_path = os.path.join(td, "timeline.json")
+            with open(tl_path, encoding="utf-8") as f:
+                data = json.load(f)
+            self.assertEqual(len(data["audio"]), 2)
+            self.assertAlmostEqual(data["audio"][0]["duck"], 0.28)
+            self.assertEqual(data["audio"][1]["role"], "vo")
+
+            r_fr = _run(
+                [
+                    "scripts/edit_pack.py",
+                    "-i", clip,
+                    "--width", "320",
+                    "--height", "240",
+                    "-o", master,
+                    "--json",
+                ]
+            )
+            self.assertNotEqual(r_fr.returncode, 0, r_fr.stdout + r_fr.stderr)
+            blob = r_fr.stdout + r_fr.stderr
+            self.assertIn("FREEZE_PAD_SUSPECT", blob)
 
 
 if __name__ == "__main__":

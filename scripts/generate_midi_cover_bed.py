@@ -15,7 +15,7 @@ import argparse
 import json
 import sys
 
-from lib.midi_arrange import GENRES, KEEP_MODES
+from lib.midi_arrange import DENSITIES, GENRES, KEEP_MODES
 from lib.midi_cover_pack import build_cover_bed
 from lib.output_policy import die_if_toolbox
 
@@ -27,6 +27,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--from-url", dest="from_url", default=None, help="분석 전용 유튜브 URL (원음은 팩에 넣지 않음)")
     p.add_argument("--genre", default="piano_pop", choices=list(GENRES))
     p.add_argument("--keep", default="harmony_only", choices=list(KEEP_MODES))
+    p.add_argument("--density", default="medium", choices=list(DENSITIES), help="sparse|medium|full")
     p.add_argument("--bpm", type=float, default=None)
     p.add_argument("--key", default="C")
     p.add_argument("--bars", type=int, default=8)
@@ -50,6 +51,7 @@ def main(argv: list[str] | None = None) -> int:
         from_url=args.from_url,
         genre=args.genre,
         keep=args.keep,
+        density=args.density,
         bpm=args.bpm,
         key=args.key,
         bars=args.bars,

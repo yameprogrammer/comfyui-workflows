@@ -11,7 +11,11 @@ from typing import Any
 
 from lib.edit_look import compose_look
 from lib.edit_motion import expand_stagger
-from lib.edit_timeline import from_clips, timeline_duration, validate_timeline
+from lib.edit_timeline import from_clips, resolve_media_path, timeline_duration, validate_timeline
+
+DEFAULT_BED_FADE_IN = 0.20
+DEFAULT_BED_FADE_OUT = 0.35
+DEFAULT_DUCK = 0.28
 
 LAYOUT_KIND = {
     "caption": "caption",
@@ -217,6 +221,99 @@ def build_pack(
     if overlays:
         tl.setdefault("overlays", []).extend(overlays)
     return validate_timeline(tl)
+
+
+def attach_mix(
+    tl: dict[str, Any],
+    *,
+    audio: str | None = None,
+    vo: str | None = None,
+    duck: float | None = None,
+    fade_in: float | None = None,
+    fade_out: float | None = None,
+    audio_volume: float | None = None,
+    vo_volume: float | None = None,
+    vo_start: float = 0.0,
+) -> dict[str, Any]:
+    """Bed + optional VO. Duck only when both are present. Seconds are agent-chosen defaults."""
+    if not audio and not vo:
+        return tl
+    items: list[dict[str, Any]] = []
+    if audio:
+        bed: dict[str, Any] = {
+            "id": "bed",
+            "path": audio,
+            "start": 0.0,
+            "in": 0.0,
+            "out": None,
+            "volume": 1.0 if audio_volume is None else float(audio_volume),
+            "role": "master",
+            "fade_in": DEFAULT_BED_FADE_IN if fade_in is None else float(fade_in),
+            "fade_out": DEFAULT_BED_FADE_OUT if fade_out is None else float(fade_out),
+        }
+        if vo:
+            bed["duck"] = DEFAULT_DUCK if duck is None else float(duck)
+        elif duck is not None:
+            bed["duck"] = float(duck)
+        items.append(bed)
+    if vo:
+        items.append(
+            {
+                "id": "vo",
+                "path": vo,
+                "start": float(vo_start or 0.0),
+                "in": 0.0,
+                "out": None,
+                "volume": 1.0 if vo_volume is None else float(vo_volume),
+                "role": "vo",
+            }
+        )
+    tl.setdefault("audio", []).extend(items)
+    return validate_timeline(tl)
+
+
+def refuse_frozen_clips(
+    tl: dict[str, Any],
+    *,
+    timeline_path: str | None = None,
+    allow_freeze: bool = False,
+    sample_root: str | None = None,
+) -> dict[str, Any]:
+    """Fail-loud if any V1 clip looks freeze-padded. Intentional still: allow_freeze."""
+    if allow_freeze:
+        return {"ok": True, "skipped": True, "allowed": True, "hits": []}
+    from lib.visual_qa import gate_work_clip_no_freeze
+
+    hits: list[dict[str, Any]] = []
+    for c in tl.get("clips") or []:
+        raw = str(c.get("path") or "")
+        if not raw:
+            continue
+        path = resolve_media_path(raw, timeline_path=timeline_path)
+        sample_dir = None
+        if sample_root:
+            sample_dir = os.path.join(sample_root, str(c.get("id") or "clip"))
+        gate = gate_work_clip_no_freeze(path, sample_dir=sample_dir, allow_still=False)
+        if gate.get("ok"):
+            continue
+        hits.append(
+            {
+                "id": c.get("id"),
+                "path": path,
+                "error": gate.get("error"),
+                "kind": gate.get("kind"),
+                "message": gate.get("message"),
+            }
+        )
+    if not hits:
+        return {"ok": True, "hits": []}
+    first = hits[0]
+    return {
+        "ok": False,
+        "error": first.get("error") or "FREEZE_PAD_SUSPECT",
+        "hits": hits,
+        "message": first.get("message") or f"frozen clip {first.get('id')}",
+    }
 
 
 def pack_duration(tl: dict[str, Any]) -> float:

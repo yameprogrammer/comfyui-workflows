@@ -16,6 +16,7 @@ GENRES: tuple[str, ...] = (
 )
 
 KEEP_MODES: tuple[str, ...] = ("harmony_only", "contour")
+DENSITIES: tuple[str, ...] = ("sparse", "medium", "full")
 
 ARRANGEMENT_SCHEMA = "midi_arrangement.v1"
 
@@ -30,6 +31,7 @@ _GENRE_INSTRUMENTS: dict[str, list[str]] = {
 _KICK = 36
 _SNARE = 38
 _HAT = 42
+_OPEN_HAT = 46
 
 
 def validate_arrangement(arr: dict) -> dict:
@@ -60,7 +62,10 @@ def validate_arrangement(arr: dict) -> dict:
     out["key"] = str(arr.get("key") or "C")
     out["transpose"] = int(arr.get("transpose") or 0)
     out["bars"] = bars
-    out["density"] = str(arr.get("density") or "sparse")
+    dens = str(arr.get("density") or "medium").strip().lower()
+    if dens not in DENSITIES:
+        raise ValueError(f"Unknown density {dens!r}. Known: {', '.join(DENSITIES)}")
+    out["density"] = dens
     out["instruments"] = instruments
     out["human_brief"] = str(arr.get("human_brief") or "")
     return out
@@ -73,6 +78,7 @@ def default_arrangement(
     key: str,
     bars: int,
     keep: str = "harmony_only",
+    density: str = "medium",
 ) -> dict:
     return validate_arrangement(
         {
@@ -83,7 +89,7 @@ def default_arrangement(
             "key": key,
             "transpose": 0,
             "bars": bars,
-            "density": "sparse",
+            "density": density,
             "instruments": list(_GENRE_INSTRUMENTS.get(genre, _GENRE_INSTRUMENTS["piano_pop"])),
             "human_brief": "",
         }
@@ -169,11 +175,13 @@ def _add_note(events: list[MidiNote], pitch: int, start: int, dur: int, vel: int
     events.append(MidiNote(pitch=int(pitch), start_tick=int(start), duration_tick=int(dur), velocity=int(vel)))
 
 
-def _pattern_drums(genre: str, start: int, end: int, tpq: int) -> list[MidiNote]:
+def _pattern_drums(genre: str, start: int, end: int, tpq: int, *, density: str = "medium") -> list[MidiNote]:
     evs: list[MidiNote] = []
     bar = 4 * tpq
     eighth = tpq // 2
     sixteenth = tpq // 4
+    thick = density != "sparse"
+    extra = density == "full"
     t = start
     while t < end:
         bar_end = min(t + bar, end)
@@ -186,6 +194,14 @@ def _pattern_drums(genre: str, start: int, end: int, tpq: int) -> list[MidiNote]
             while h < bar_end:
                 _add_note(evs, _HAT, h, min(sixteenth, bar_end - h), 50)
                 h += sixteenth
+            if thick:
+                _add_note(evs, _SNARE, t + tpq, min(eighth, bar_end - (t + tpq)), 92)
+                _add_note(evs, _SNARE, t + 3 * tpq, min(eighth, bar_end - (t + 3 * tpq)), 92)
+            if extra:
+                off = t + eighth
+                while off < bar_end:
+                    _add_note(evs, _KICK, off, min(sixteenth, bar_end - off), 72)
+                    off += tpq
         elif genre == "lofi_hiphop":
             _add_note(evs, _KICK, t, eighth, 96)
             late = t + tpq + eighth + (eighth // 2)
@@ -197,54 +213,123 @@ def _pattern_drums(genre: str, start: int, end: int, tpq: int) -> list[MidiNote]
             while h < bar_end:
                 _add_note(evs, _HAT, h, min(eighth, bar_end - h), 45)
                 h += eighth
+            if thick:
+                ghost = t + 2 * tpq + eighth
+                if ghost < bar_end:
+                    _add_note(evs, _SNARE, ghost, sixteenth, 48)
+                h16 = t + sixteenth
+                while h16 < bar_end:
+                    _add_note(evs, _HAT, h16, min(sixteenth, bar_end - h16), 28)
+                    h16 += eighth
+            if extra and t + 3 * tpq + eighth < bar_end:
+                _add_note(evs, _OPEN_HAT, t + 3 * tpq + eighth, sixteenth, 40)
         elif genre == "piano_pop":
             _add_note(evs, _KICK, t, eighth, 92)
             _add_note(evs, _SNARE, t + 2 * tpq, eighth, 96)
+            if thick:
+                _add_note(evs, _KICK, t + 2 * tpq, eighth, 74)
+                _add_note(evs, _SNARE, t + tpq, sixteenth, 70)
+                _add_note(evs, _SNARE, t + 3 * tpq, sixteenth, 70)
             h = t
+            step = sixteenth if extra else eighth
             while h < bar_end:
-                _add_note(evs, _HAT, h, min(eighth, bar_end - h), 48)
-                h += eighth
+                _add_note(evs, _HAT, h, min(step, bar_end - h), 48 if step == eighth else 36)
+                h += step
         else:
             # acoustic_ballad / band_rock
             _add_note(evs, _KICK, t, eighth, 94)
             _add_note(evs, _KICK, t + 2 * tpq, eighth, 90)
-            if genre == "band_rock":
-                _add_note(evs, _SNARE, t + tpq, eighth, 104)
-                _add_note(evs, _SNARE, t + 3 * tpq, eighth, 104)
+            if genre == "band_rock" or thick:
+                _add_note(evs, _SNARE, t + tpq, eighth, 104 if genre == "band_rock" else 86)
+                _add_note(evs, _SNARE, t + 3 * tpq, eighth, 104 if genre == "band_rock" else 86)
+            if extra and genre == "band_rock":
+                _add_note(evs, _KICK, t + eighth, sixteenth, 70)
+                _add_note(evs, _OPEN_HAT, t + 3 * tpq + eighth, sixteenth, 50)
             h = t
             vel = 32 if genre == "acoustic_ballad" else 55
+            step = sixteenth if extra else eighth
             while h < bar_end:
-                _add_note(evs, _HAT, h, min(eighth, bar_end - h), vel)
-                h += eighth
+                _add_note(evs, _HAT, h, min(step, bar_end - h), vel if step == eighth else max(22, vel - 10))
+                h += step
         t += bar
     return evs
 
 
-def _pattern_bass(genre: str, symbol: str, start: int, end: int, tpq: int) -> list[MidiNote]:
+def _pattern_bass(genre: str, symbol: str, start: int, end: int, tpq: int, *, density: str = "medium") -> list[MidiNote]:
     evs: list[MidiNote] = []
     parsed = parse_chord(symbol)
     from lib.music_theory import NOTE_TO_PC
 
     root = 36 + NOTE_TO_PC[parsed["root"]]
     fifth = root + 7
+    octave = root + 12
     eighth = tpq // 2
+    thick = density != "sparse"
+    extra = density == "full"
     if genre in {"band_rock", "edm_pulse"}:
         t = start
+        i = 0
         while t < end:
-            _add_note(evs, root, t, min(eighth - 8, end - t), 92)
+            if extra and i % 4 == 3:
+                pitch = octave
+            elif thick and i % 2 == 1:
+                pitch = fifth
+            else:
+                pitch = root
+            _add_note(evs, pitch, t, min(eighth - 8, end - t), 92 if i % 2 == 0 else 84)
             t += eighth
+            i += 1
     elif genre == "lofi_hiphop":
         mid = start + (end - start) // 2
         _add_note(evs, root, start, max(1, mid - start - 10), 88)
         if mid < end:
-            _add_note(evs, fifth, mid, max(1, end - mid - 10), 80)
+            _add_note(evs, fifth if not extra else octave, mid, max(1, end - mid - 10), 80)
+        if thick:
+            pickup = start + (mid - start) // 2
+            if pickup < mid:
+                _add_note(evs, fifth, pickup, min(eighth, mid - pickup), 70)
     else:
-        # acoustic / piano_pop: root on 1 and 3 if the span is long enough
+        # acoustic / piano_pop: root on 1 and 3; medium+ fills 2 and 4
         _add_note(evs, root, start, min(tpq, end - start), 86)
         third = start + 2 * tpq
         if third < end:
             _add_note(evs, root, third, min(tpq, end - third), 80)
+        if thick:
+            two = start + tpq
+            four = start + 3 * tpq
+            if two < end:
+                _add_note(evs, fifth, two, min(tpq - 12, end - two), 76)
+            if four < end:
+                _add_note(evs, fifth if not extra else octave, four, min(tpq - 12, end - four), 74)
+        if extra:
+            t = start + eighth
+            while t < end:
+                _add_note(evs, root, t, min(eighth - 10, end - t), 64)
+                t += tpq
     return evs
+
+
+def _comp_pitches(symbol: str, instrument: str, density: str) -> list[int]:
+    octave = 3 if instrument == "pad" else 4
+    notes = list(voicing_midis(symbol, octave=octave))
+    if not notes:
+        return [60]
+    if density == "sparse":
+        return notes[:3]
+    extra: list[int] = []
+    root = notes[0]
+    extra.append(root + 12)
+    if density == "full":
+        extra.append(root + 14)
+        if len(notes) > 1:
+            extra.append(notes[1] + 12)
+    seen: set[int] = set()
+    out: list[int] = []
+    for p in notes + extra:
+        if p not in seen and 24 <= p <= 108:
+            seen.add(p)
+            out.append(p)
+    return out
 
 
 def _pattern_comp(
@@ -255,39 +340,48 @@ def _pattern_comp(
     tpq: int,
     *,
     instrument: str,
+    density: str = "medium",
 ) -> list[MidiNote]:
     evs: list[MidiNote] = []
-    octave = 3 if instrument == "pad" else 4
-    notes = voicing_midis(symbol, octave=octave)
+    notes = _comp_pitches(symbol, instrument, density)
     eighth = tpq // 2
+    chord = notes[:4] if density != "sparse" else notes[:3]
     if instrument == "pad" or genre == "lofi_hiphop":
         dur = max(1, end - start - 8)
         vel = 48 if instrument == "pad" else 56
-        for p in notes[:3]:
+        for p in chord:
             _add_note(evs, p, start, dur, vel)
+        if density == "full" and instrument != "pad" and notes:
+            t = start + tpq
+            while t < end:
+                _add_note(evs, notes[0], t, min(eighth - 8, end - t), 50)
+                t += tpq
         return evs
     if genre == "acoustic_ballad":
+        step = eighth if density == "full" else tpq
         t = start
         while t < end:
-            for p in notes[:3]:
-                _add_note(evs, p, t, min(tpq - 12, end - t), 62)
-            t += tpq
+            for p in chord:
+                _add_note(evs, p, t, min(step - 12, end - t), 62)
+            t += step
         return evs
     if genre == "band_rock":
         t = start
         while t < end:
-            for p in notes[:3]:
+            for p in chord:
                 _add_note(evs, p, t, min(eighth - 10, end - t), 78)
             t += eighth
         return evs
     if genre == "edm_pulse" and instrument == "piano":
         t = start + eighth
+        hits = chord if density != "sparse" else notes[:1]
         while t < end:
-            _add_note(evs, notes[0], t, min(eighth - 8, end - t), 70)
-            t += tpq
+            for p in hits[:2]:
+                _add_note(evs, p, t, min(eighth - 8, end - t), 70)
+            t += eighth if density == "full" else tpq
         return evs
-    # piano_pop broken triad
-    cycle = notes[:3] or [60]
+    # piano_pop broken voicing
+    cycle = chord or [60]
     t = start
     i = 0
     while t < end:
@@ -325,6 +419,7 @@ def arrange(
         tpq=tpq,
     )
     genre = spec["genre"]
+    density = str(spec.get("density") or "medium")
     wanted = set(spec["instruments"])
     tracks: list[MidiTrack] = []
 
@@ -332,20 +427,24 @@ def arrange(
         drum_notes: list[MidiNote] = []
         span_start = chords[0]["start_tick"]
         span_end = chords[-1]["end_tick"]
-        drum_notes.extend(_pattern_drums(genre, span_start, span_end, tpq))
+        drum_notes.extend(_pattern_drums(genre, span_start, span_end, tpq, density=density))
         tracks.append(MidiTrack("drums", 9, None, drum_notes))
 
     if "bass" in wanted:
         bass_notes: list[MidiNote] = []
         for c in chords:
-            bass_notes.extend(_pattern_bass(genre, c["symbol"], c["start_tick"], c["end_tick"], tpq))
+            bass_notes.extend(
+                _pattern_bass(genre, c["symbol"], c["start_tick"], c["end_tick"], tpq, density=density)
+            )
         tracks.append(MidiTrack("bass", 1, gm_program("bass"), bass_notes))
 
     if "guitar" in wanted:
         g_notes: list[MidiNote] = []
         for c in chords:
             g_notes.extend(
-                _pattern_comp(genre, c["symbol"], c["start_tick"], c["end_tick"], tpq, instrument="guitar")
+                _pattern_comp(
+                    genre, c["symbol"], c["start_tick"], c["end_tick"], tpq, instrument="guitar", density=density
+                )
             )
         tracks.append(MidiTrack("guitar", 2, gm_program("guitar"), g_notes))
 
@@ -353,7 +452,9 @@ def arrange(
         p_notes: list[MidiNote] = []
         for c in chords:
             p_notes.extend(
-                _pattern_comp(genre, c["symbol"], c["start_tick"], c["end_tick"], tpq, instrument="piano")
+                _pattern_comp(
+                    genre, c["symbol"], c["start_tick"], c["end_tick"], tpq, instrument="piano", density=density
+                )
             )
         tracks.append(MidiTrack("piano", 3, gm_program("piano"), p_notes))
 
@@ -361,7 +462,9 @@ def arrange(
         pad_notes: list[MidiNote] = []
         for c in chords:
             pad_notes.extend(
-                _pattern_comp(genre, c["symbol"], c["start_tick"], c["end_tick"], tpq, instrument="pad")
+                _pattern_comp(
+                    genre, c["symbol"], c["start_tick"], c["end_tick"], tpq, instrument="pad", density=density
+                )
             )
         tracks.append(MidiTrack("pad", 4, gm_program("pad"), pad_notes))
 

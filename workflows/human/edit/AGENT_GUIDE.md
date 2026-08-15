@@ -25,6 +25,7 @@
 ```bash
 python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 \
   --text "포기하지 마" --font yeonung --motion pop --stagger 0.06 --look night \
+  --audio bed.wav --vo line.wav \
   --width 1080 --height 1920 \
   -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
 

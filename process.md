@@ -1,3 +1,11 @@
+## 2026-08-15 — MIDI arrangement density
+- Default `--density medium` (was unused `sparse`). sparse|medium|full drive voicing + rhythm.
+- `generate_midi_arrangement` / `generate_midi_cover_bed --density`
+
+## 2026-08-15 — EDIT pack mix + freeze refuse
+- `edit_pack --audio bed.wav --vo line.wav` (fade 0.2/0.35, duck 0.28). concat 무음 도망 금지.
+- `edit_pack` / `render_edit` refuse FREEZE_PAD_SUSPECT. Intentional still: `--allow-freeze`.
+
 ## 2026-08-15 — EDIT one-line pack
 - `python scripts/edit_pack.py -i a.mp4 -i b.mp4 --text "…" --look night -o master.mp4 --qa`
 - from-clips + title/stagger + look + render (+ optional QA). concat 도망 금지.

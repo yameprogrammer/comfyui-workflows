@@ -1,6 +1,6 @@
 ---
 name: video-edit
-version: 1.6.0
+version: 1.7.0
 description: >
   Editor-in-chief skill for agent_custom. After clips exist, turn a verbal brief
   into EDIT_PLAN + timeline + titles + master render + QA. Use when assembling,
@@ -51,7 +51,7 @@ E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 
 - 같은 프레이밍 느낌 3연속
 - 가사/대사 전부 자막 슬라이드
-- 짧은 클립 freeze-pad로 길이 채우기
+- 짧은 클립 freeze-pad로 길이 채우기 (`edit_pack`/`render_edit` → FREEZE_PAD_SUSPECT. 의도 still만 `--allow-freeze`)
 - 훅 1.5초 안에 아무 일도 없음
 - QA 없이 납품
 - 사용자가 말하지 않은 페이드 초를 되묻기 (네가 정해라)
@@ -64,7 +64,7 @@ E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 |----|-----------|
 | “15초 쇼츠” | 훅 1–1.5s, 컷 4–7, 피크 한 곳 |
 | “케이팝 뮤비처럼” | 음악 locked, 클립 오디오 mute, 후렴=이벤트, 글자 최소 |
-| “이 곡 깔아” | audio role=master, fade_in 0.2 / fade_out 0.35. VO 있으면 duck 0.28 |
+| “이 곡 깔아” | `edit_pack --audio bed.wav` (fade 0.2/0.35). VO면 `--vo line.wav` → duck 0.28 |
 | “이름 넣어” | lower_third 1회 ~2초 |
 | 훅 글자 | `--font hook` + `--split glyphs` + `stagger 0.05–0.08` + `motion pop` |
 | 예능 자막 | `--font yeonung`. 방향은 `direction`+`distance`, 급하면 `slide_up` |
@@ -89,6 +89,7 @@ E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 \
   --text "포기하지 마" --font yeonung --layout caption --color cyan --bubble yellow \
   --tilt -4 --y 0.82 --motion pop --stagger 0.06 --look night \
+  --audio bed.wav --vo line.wav \
   --width 1080 --height 1920 \
   -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
 ```

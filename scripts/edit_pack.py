@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""One-line EDIT: clips + title + look → master (not concat).
+"""One-line EDIT: clips + title + look + mix → master (not concat).
 
   python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 \\
     --text "포기하지 마" --font yeonung --motion pop --stagger 0.06 --look night \\
+    --audio bed.wav --vo line.wav \\
     -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa
 """
 
@@ -19,10 +20,12 @@ from lib.comfy_client import fail_result, ok_result
 from lib.edit_compile_ffmpeg import compile_ffmpeg
 from lib.edit_motion import load_glyphs
 from lib.edit_pack import (
+    attach_mix,
     build_pack,
     build_title_overlays,
     pack_duration,
     plan_warning,
+    refuse_frozen_clips,
     resolve_title_window,
     sidecar_paths,
     title_kind,
@@ -85,9 +88,19 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--amount", type=float, default=None)
     p.add_argument("--lut", default=None)
 
+    p.add_argument("--audio", default=None, help="bed / master music (wav/mp3/mp4)")
+    p.add_argument("--vo", default=None, help="voice-over; ducks --audio when both set")
+    p.add_argument("--duck", type=float, default=None, help="bed duck amount when VO present (default 0.28)")
+    p.add_argument("--audio-fade-in", type=float, default=None)
+    p.add_argument("--audio-fade-out", type=float, default=None)
+    p.add_argument("--audio-volume", type=float, default=None)
+    p.add_argument("--vo-volume", type=float, default=None)
+    p.add_argument("--vo-start", type=float, default=0.0)
+
     p.add_argument("--qa", action="store_true")
     p.add_argument("--timeline-only", action="store_true", help="write timeline (+ title PNG), skip ffmpeg")
     p.add_argument("--print-graph", action="store_true")
+    p.add_argument("--allow-freeze", action="store_true", help="intentional still / debug only")
     p.add_argument("--json", action="store_true")
     args = p.parse_args(argv)
 
@@ -192,6 +205,18 @@ def main(argv: list[str] | None = None) -> int:
             )
             tl.setdefault("overlays", []).extend(overlays)
             tl = validate_timeline(tl)
+        if args.audio or args.vo:
+            tl = attach_mix(
+                tl,
+                audio=args.audio,
+                vo=args.vo,
+                duck=args.duck,
+                fade_in=args.audio_fade_in,
+                fade_out=args.audio_fade_out,
+                audio_volume=args.audio_volume,
+                vo_volume=args.vo_volume,
+                vo_start=args.vo_start,
+            )
         timeline_path = save_timeline(tl, paths["timeline"])
     except Exception as e:
         res = fail_result(error="PACK_INVALID", message=str(e), tool="edit_pack")
@@ -203,6 +228,27 @@ def main(argv: list[str] | None = None) -> int:
 
     warn = plan_warning(args.output)
     duration = pack_duration(tl)
+
+    if not args.timeline_only and not args.print_graph:
+        sample_root = os.path.join(os.path.dirname(paths["master"]), "_freeze_qa")
+        freeze = refuse_frozen_clips(
+            tl,
+            timeline_path=timeline_path,
+            allow_freeze=args.allow_freeze,
+            sample_root=sample_root,
+        )
+        if not freeze.get("ok"):
+            res = fail_result(
+                error=freeze.get("error") or "FREEZE_PAD_SUSPECT",
+                message=freeze.get("message"),
+                tool="edit_pack",
+                hits=freeze.get("hits"),
+            )
+            if args.json:
+                print(json.dumps(res, indent=2, ensure_ascii=False))
+            else:
+                print(f"[FAILED] {res.get('error')} {res.get('message')}", file=sys.stderr)
+            return 1
 
     if args.timeline_only or args.print_graph:
         spec = None
@@ -224,6 +270,7 @@ def main(argv: list[str] | None = None) -> int:
             duration=duration,
             clips=len(tl["clips"]),
             overlays=len(tl.get("overlays") or []),
+            audio=len(tl.get("audio") or []),
             look=(tl.get("look") or {}).get("name"),
             warning=warn,
         )
@@ -286,6 +333,7 @@ def main(argv: list[str] | None = None) -> int:
         duration=spec["duration"],
         clips=len(tl["clips"]),
         overlays=len(tl.get("overlays") or []),
+        audio=len(tl.get("audio") or []),
         look=(tl.get("look") or {}).get("name"),
         qa=qa_path,
         warning=warn,

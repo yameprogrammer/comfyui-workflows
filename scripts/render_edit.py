@@ -10,10 +10,12 @@ import _bootstrap  # noqa: F401
 
 import argparse
 import json
+import os
 import sys
 
 from lib.comfy_client import fail_result, ok_result
 from lib.edit_compile_ffmpeg import compile_ffmpeg
+from lib.edit_pack import refuse_frozen_clips
 from lib.edit_timeline import load_timeline
 from lib.ffmpeg_util import run_ffmpeg
 from lib.output_policy import die_if_toolbox
@@ -24,6 +26,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--timeline", required=True)
     p.add_argument("--output", "-o", required=True)
     p.add_argument("--print-graph", action="store_true")
+    p.add_argument("--allow-freeze", action="store_true", help="intentional still / debug only")
     p.add_argument("--json", action="store_true")
     args = p.parse_args(argv)
     try:
@@ -33,6 +36,26 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         tl = load_timeline(args.timeline)
+        if not args.print_graph:
+            sample_root = os.path.join(os.path.dirname(os.path.abspath(args.output)), "_freeze_qa")
+            freeze = refuse_frozen_clips(
+                tl,
+                timeline_path=args.timeline,
+                allow_freeze=args.allow_freeze,
+                sample_root=sample_root,
+            )
+            if not freeze.get("ok"):
+                res = fail_result(
+                    error=freeze.get("error") or "FREEZE_PAD_SUSPECT",
+                    message=freeze.get("message"),
+                    tool="render_edit",
+                    hits=freeze.get("hits"),
+                )
+                if args.json:
+                    print(json.dumps(res, indent=2, ensure_ascii=False))
+                else:
+                    print(f"[FAILED] {res.get('error')} {res.get('message')}", file=sys.stderr)
+                return 1
         spec = compile_ffmpeg(tl, args.output, timeline_path=args.timeline)
     except FileNotFoundError as e:
         res = fail_result(error="CLIP_MISSING", message=str(e), tool="render_edit")
@@ -76,8 +99,6 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def os_ab(p: str) -> str:
-    import os
-
     return os.path.abspath(p)
 
 

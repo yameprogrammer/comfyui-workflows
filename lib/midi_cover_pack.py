@@ -80,6 +80,7 @@ def build_cover_bed(
     from_url: str | None = None,
     genre: str = "piano_pop",
     keep: str = "harmony_only",
+    density: str = "medium",
     bpm: float | None = None,
     key: str = "C",
     bars: int = 8,
@@ -134,6 +135,7 @@ def build_cover_bed(
         key=str(sk.get("key") or key),
         bars=int(bars),
         keep=keep,
+        density=density,
     )
     arr["transpose"] = int(transpose)
     arr = validate_arrangement(arr)

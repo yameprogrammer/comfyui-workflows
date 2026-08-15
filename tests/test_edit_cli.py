@@ -127,7 +127,7 @@ class TestEditCli(unittest.TestCase):
             )
             self.assertEqual(r.returncode, 0, r.stderr)
             master = os.path.join(td, "master.mp4")
-            r2 = _run(["scripts/render_edit.py", "--timeline", tl, "-o", master])
+            r2 = _run(["scripts/render_edit.py", "--timeline", tl, "-o", master, "--allow-freeze"])
             self.assertEqual(r2.returncode, 0, r2.stderr + r2.stdout)
             self.assertTrue(os.path.isfile(master))
             self.assertGreater(os.path.getsize(master), 1000)

@@ -41,6 +41,19 @@ class TestArrange(unittest.TestCase):
         self.assertTrue(drums)
         self.assertTrue(drums[0].events)
 
+    def test_medium_thicker_than_sparse(self):
+        sk = _skel()
+        sparse = default_arrangement(genre="piano_pop", bpm=96, key="C", bars=4, density="sparse")
+        medium = default_arrangement(genre="piano_pop", bpm=96, key="C", bars=4, density="medium")
+        self.assertEqual(medium["density"], "medium")
+        n_s = sum(len(t.events) for t in arrange(sk, sparse))
+        n_m = sum(len(t.events) for t in arrange(sk, medium))
+        self.assertGreater(n_m, n_s)
+
+    def test_unknown_density(self):
+        with self.assertRaises(ValueError):
+            validate_arrangement({"genre": "piano_pop", "density": "wall_of_sound"})
+
     def test_transpose_changes_pitch(self):
         a = default_arrangement(genre="acoustic_ballad", bpm=80, key="C", bars=4)
         a["transpose"] = 0

@@ -1101,7 +1101,7 @@ INTENT_TOOLS: list[dict[str, Any]] = [
             "acoustic", "lofi", "코드 진행", "미디",
         ],
         "examples": [
-            'python scripts/generate_midi_arrangement.py --chords "Am,F,C,G" --genre acoustic_ballad -o "%AGENT_WORKSPACE%/beds/bed.mid"',
+            'python scripts/generate_midi_arrangement.py --chords "Am,F,C,G" --genre acoustic_ballad --density medium -o "%AGENT_WORKSPACE%/beds/bed.mid"',
             'python scripts/generate_midi_arrangement.py --skeleton skel.json --genre lofi_hiphop -o "%AGENT_WORKSPACE%/beds/bed.mid"',
         ],
         "alternatives": [
@@ -1144,7 +1144,7 @@ INTENT_TOOLS: list[dict[str, Any]] = [
             "xfade", "마스터링", "최종본", "편집본",
         ],
         "examples": [
-            'python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 --text "포기하지 마" --font yeonung --motion pop --stagger 0.06 --look night -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa',
+            'python scripts/edit_pack.py -i a.mp4 -i b.mp4 --xfade 0.25 --text "포기하지 마" --font yeonung --motion pop --stagger 0.06 --look night --audio bed.wav --vo line.wav -o "%AGENT_WORKSPACE%/edits/s01/master.mp4" --qa',
         ],
         "alternatives": [
             {"if": "타임라인만", "use": "edit_timeline", "cli": "python scripts/edit_timeline.py from-clips -i a.mp4 -i b.mp4 --xfade 0.25 -o \"%AGENT_WORKSPACE%/edits/s01/timeline.json\""},

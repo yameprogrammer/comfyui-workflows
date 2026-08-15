@@ -32,6 +32,8 @@
 
 `acoustic_ballad` · `lofi_hiphop` · `band_rock` · `edm_pulse` · `piano_pop`
 
+밀도 `--density`: `sparse` (뼈대만) · **`medium` (기본, 보이싱+리듬 조금 두껍게)** · `full`
+
 ---
 
 ## 4. CLI
