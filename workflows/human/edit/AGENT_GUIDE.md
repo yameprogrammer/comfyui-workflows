@@ -34,7 +34,7 @@ python scripts/render_title.py --text "조금만 더" --font yeonung --layout ca
 python scripts/render_title.py --preset yt_hook --text "포기하지 마" \
   --width 1080 --height 1920 -o "%AGENT_WORKSPACE%/edits/s01/hook.png"
 
-# timeline overlays[].path 에 cap.png 넣고 start/end 지정 후:
+# timeline overlays[].path + start/end + motion (pop|fade|slide_up|slide_down)
 python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" \
   -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
 

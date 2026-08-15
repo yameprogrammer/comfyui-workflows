@@ -70,6 +70,49 @@ class TestEditCompile(unittest.TestCase):
         self.assertIn("fade=t=in", spec["graph"])
         self.assertIn("alpha=1", spec["graph"])
 
+    def test_overlay_pop_motion_in_graph(self):
+        with tempfile.TemporaryDirectory() as td:
+            a = os.path.join(td, "a.mp4")
+            ov = os.path.join(td, "cap.png")
+            for p in (a, ov):
+                open(p, "wb").write(b"x")
+            tl = from_clips([a], durations=[2.0], width=320, height=240)
+            tl["overlays"].append(
+                {
+                    "id": "t1",
+                    "kind": "caption",
+                    "path": ov,
+                    "start": 0.3,
+                    "end": 1.6,
+                    "motion": "pop",
+                }
+            )
+            spec = compile_ffmpeg(tl, os.path.join(td, "out.mp4"))
+        self.assertIn("eval=frame", spec["graph"])
+        self.assertIn("fade=t=in:st=0.3000", spec["graph"])
+        self.assertIn("overlay=", spec["graph"])
+
+    def test_unknown_motion_downgraded(self):
+        with tempfile.TemporaryDirectory() as td:
+            a = os.path.join(td, "a.mp4")
+            ov = os.path.join(td, "cap.png")
+            for p in (a, ov):
+                open(p, "wb").write(b"x")
+            tl = from_clips([a], durations=[1.0], width=320, height=240)
+            tl["overlays"].append(
+                {
+                    "id": "t1",
+                    "kind": "caption",
+                    "path": ov,
+                    "start": 0.0,
+                    "end": 0.8,
+                    "motion": "explode",
+                }
+            )
+            spec = compile_ffmpeg(tl, os.path.join(td, "out.mp4"))
+        self.assertEqual(tl["overlays"][0]["motion"], "fade")
+        self.assertIn("fade=t=in", spec["graph"])
+
 
 if __name__ == "__main__":
     unittest.main()

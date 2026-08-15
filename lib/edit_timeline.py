@@ -13,6 +13,7 @@ SCHEMA = "edit_timeline.v1"
 FITS = ("cover", "contain", "stretch")
 TRANS_TYPES = ("cut", "crossfade")
 OVERLAY_KINDS = ("title", "lower_third", "caption", "card")
+OVERLAY_MOTIONS = ("none", "fade", "pop", "slide_up", "slide_down")
 
 
 def empty_timeline(
@@ -116,6 +117,12 @@ def validate_timeline(tl: dict) -> dict[str, Any]:
             raise ValueError(f"bad overlay kind {kind}")
         if float(o.get("end") or 0) < float(o.get("start") or 0):
             raise ValueError(f"overlay {o.get('id')} end < start")
+        motion = str(o.get("motion") or "none").strip().lower() or "none"
+        if motion not in OVERLAY_MOTIONS:
+            o["motion"] = "fade"
+            o["warning"] = f"downgraded motion {motion} to fade"
+        else:
+            o["motion"] = motion
     for t in tl["transitions"]:
         typ = str(t.get("type") or "cut")
         if typ not in TRANS_TYPES:

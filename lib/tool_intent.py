@@ -1157,7 +1157,7 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         "script": "render_title.py",
         "summary": "한글 타이틀 PNG. 자리·색·장식을 조립. 프리셋은 바로가기.",
         "when": "화면에 글자 한 일 (훅, 이름, 제목). 가사 전부 올리지 않음. 새 룩은 부품으로.",
-        "when_not": "움직이는 키네틱 타이포 (v2 Revideo)",
+        "when_not": "글자 자체를 키프레임으로 그리는 모션 (Revideo, 다음 칸). 팝/슬라이드는 overlays[].motion",
         "keywords": ["타이틀", "자막", "캡션", "로어서드", "글자", "render_title", "훅 자막", "예능 자막"],
         "examples": [
             'python scripts/setup_edit_fonts.py',

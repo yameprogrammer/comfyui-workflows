@@ -9,6 +9,41 @@ from lib.edit_timeline import play_dur, resolve_media_path, timeline_duration, v
 from lib.ffmpeg_util import probe_duration
 
 VO_ROLES = ("vo", "vocal", "dialogue", "speech", "host", "voice")
+_MOTION_FADE = {
+    "fade": (0.12, 0.10, 0.0),
+    "pop": (0.10, 0.10, 0.16),
+    "slide_up": (0.14, 0.12, 0.18),
+    "slide_down": (0.14, 0.12, 0.18),
+}
+
+
+def _ff_expr(expr: str) -> str:
+    return expr.replace(",", "\\,")
+
+
+def _motion_times(o: dict) -> tuple[str, float, float, float, float, float]:
+    motion = str(o.get("motion") or "none").strip().lower() or "none"
+    defaults = _MOTION_FADE.get(motion, (0.0, 0.0, 0.0))
+    fi = float(o.get("fade_in") if o.get("fade_in") is not None else defaults[0])
+    fo = float(o.get("fade_out") if o.get("fade_out") is not None else defaults[1])
+    move = float(o.get("move") if o.get("move") is not None else defaults[2])
+    s = float(o.get("start") or 0.0)
+    e = float(o.get("end") or 0.0)
+    return motion, s, e, max(0.0, fi), max(0.0, fo), max(0.0, move)
+
+
+def _overlay_xy(motion: str, s: float, e: float, move: float) -> tuple[str, str]:
+    if move <= 0 or motion not in ("pop", "slide_up", "slide_down"):
+        return "0", "0"
+    din = max(0.04, move)
+    dout = max(0.04, move * 0.75)
+    intro = f"max(0,1-min(1,max(0,t-{s:.4f})/{din:.4f}))"
+    outro = f"max(0,1-min(1,max(0,{e:.4f}-t)/{dout:.4f}))"
+    if motion == "slide_up":
+        return "0", _ff_expr(f"72*max({intro},{outro})")
+    if motion == "slide_down":
+        return "0", _ff_expr(f"-56*max({intro},{outro})")
+    return "0", _ff_expr(f"18*{intro}")
 
 
 def _ff_path(path: str) -> str:
@@ -113,23 +148,32 @@ def compile_ffmpeg(
     last_v = "vgrade"
 
     for idx, o, _rp in overlay_files:
-        s, e = float(o.get("start") or 0.0), float(o.get("end") or 0.0)
-        fi = max(0.0, float(o.get("fade_in") or 0.0))
-        fo = max(0.0, float(o.get("fade_out") or 0.0))
+        motion, s, e, fi, fo, move = _motion_times(o)
+        need_prep = fi > 0 or fo > 0 or motion == "pop"
         ov_src = f"{idx}:v"
-        if fi > 0 or fo > 0:
-            hold = max(0.05, e - s)
+        if need_prep:
             chain = f"[{idx}:v]format=rgba,fps={fps},loop=loop=-1:size=1:start=0"
+            if motion == "pop" and move > 0:
+                # grow 0.84 → 1.0 over move seconds (timeline clock)
+                z = (
+                    f"if(lt(t,{s:.4f}),0.84,"
+                    f"if(lt(t,{s + move:.4f}),0.84+0.16*min(1,(t-{s:.4f})/{move:.4f}),1))"
+                )
+                chain += (
+                    f",scale=w='iw*({_ff_expr(z)})':h=-1:eval=frame,"
+                    f"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2:black@0"
+                )
             if fi > 0:
-                chain += f",fade=t=in:st=0:d={fi:.3f}:alpha=1"
+                chain += f",fade=t=in:st={s:.4f}:d={fi:.3f}:alpha=1"
             if fo > 0:
-                chain += f",fade=t=out:st={max(0.0, hold - fo):.3f}:d={fo:.3f}:alpha=1"
+                chain += f",fade=t=out:st={max(s, e - fo):.4f}:d={fo:.3f}:alpha=1"
             chain += f"[ovs{idx}]"
             fc.append(chain)
             ov_src = f"ovs{idx}"
+        ox, oy = _overlay_xy(motion, s, e, move)
         out_lab = f"ov{idx}"
         fc.append(
-            f"[{last_v}][{ov_src}]overlay=0:0:enable='between(t,{s:.4f},{e:.4f})'[{out_lab}]"
+            f"[{last_v}][{ov_src}]overlay={ox}:{oy}:enable='between(t,{s:.4f},{e:.4f})'[{out_lab}]"
         )
         last_v = out_lab
 

@@ -1,6 +1,6 @@
 ---
 name: video-edit
-version: 1.1.0
+version: 1.2.0
 description: >
   Editor-in-chief skill for agent_custom. After clips exist, turn a verbal brief
   into EDIT_PLAN + timeline + titles + master render + QA. Use when assembling,
@@ -65,10 +65,13 @@ E6 DELIVER    프로젝트 -o 만. assemble_video는 납품이 아님
 | “케이팝 뮤비처럼” | 음악 locked, 클립 오디오 mute, 후렴=이벤트, 글자 최소 |
 | “이 곡 깔아” | audio role=master, fade_in 0.2 / fade_out 0.35. VO 있으면 duck 0.28 |
 | “이름 넣어” | lower_third 1회 ~2초 |
-| 훅 글자 | 부품으로 조립. `--font hook`. 급하면 `yt_hook` |
-| 예능 자막 | `--font yeonung --layout yeonung --tilt -4 --color yellow`. 말풍선 `--bubble` |
+| 훅 글자 | 부품으로 조립. `--font hook`. 타임라인 `motion: pop` |
+| 예능 자막 | `--font yeonung` + `motion: pop` 또는 `slide_up` |
+| 이름/정보 | `motion: fade` |
 | 얼굴 피해 | `--y 0.82` (0–1, 글자 중심). CU에 예능 기본 자리 쓰지 마 |
 | “세게 열어” | 첫 컷 짧게, 타이틀은 늦게 |
+
+자막 모션은 사용자가 초를 말하지 않아도 네가 고른다. `none` `fade` `pop` `slide_up` `slide_down`. 키네틱 엔진(Revideo) 전에 FFmpeg가 이 넷을 한다.
 
 ---
 
