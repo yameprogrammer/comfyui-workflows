@@ -7,7 +7,7 @@
 - **이 공장 스택**: **Krea2 Turbo (Flow Matching) T2I** · Moody / Z-Image-Turbo I2I · Wan2.2 I2V · LTX SI2V · (선택) Grok 네이티브  
 - **관련**: [moody_workflow_guide.md](moody_workflow_guide.md) · [video_director_master_persona.md](video_director_master_persona.md) · [image_cut_verification_gate.md](image_cut_verification_gate.md) · [agent_rules.md](../agent_rules.md) **Rule 7.5** · [AGENTS.md](../AGENTS.md)  
 - **에이전트 스킬 (실행 강제)**: [skills/generation-prompt/SKILL.md](../skills/generation-prompt/SKILL.md) — SHOT→PROMPT_PACK · 생성 직전 equip  
-- **모델별 방언 (v1.2+)**: [skills/generation-prompt/references/model_prompt_matrix.md](../skills/generation-prompt/references/model_prompt_matrix.md) — Krea / Z-Image / Illustrious / Qwen / Ideogram / Wan / LTX  
+- **모델별 방언 (v1.3)**: [skills/generation-prompt/references/model_prompt_matrix.md](../skills/generation-prompt/references/model_prompt_matrix.md) — **모든 `generate_*` 라우팅**. Anima / Krea2 transform / camera_move / Wan Animate / H3 / Music / Hy3D 포함. 행렬에 없는 CLI에 Krea 장문을 넣지 말 것.  
 - **리서치 로그**: [skills/generation-prompt/RESEARCH.md](../skills/generation-prompt/RESEARCH.md)
 
 > **기본 이미지 생성 모델**: Krea2 Turbo. 실사 키프레임은 `generate_krea` 우선.  

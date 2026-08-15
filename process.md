@@ -1,3 +1,6 @@
+## 2026-08-15 — generation-prompt v1.3 (full generate_* dialects)
+- Matrix lists every live generate_* ; Anima / Krea2 transform / camera_move / Wan Animate / H3 / music / Hy3D
+
 ## 2026-08-15 — EDIT look/key (v3, FFmpeg)
 - timeline `look` + `comp_shot.py` (punch/night/warm/cool/soft/bleach)
 - Parts: contrast sat brightness gamma temperature lut. Clip `key` chromakey.

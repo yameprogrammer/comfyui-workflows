@@ -1,6 +1,6 @@
 ---
 name: generation-prompt
-version: 1.2.0
+version: 1.3.0
 description: >
   Translate shot design into high-quality IMAGE and VIDEO model prompts for agent_custom.
   Routes each factory CLI/backend to its researched dialect (Krea2 NL, Z-Image clauses,
@@ -68,15 +68,22 @@ G. Call scripts/generate_*.py with that string only
 
 | CLI family | Dialect | Ref file |
 |------------|---------|----------|
-| `generate_krea*` | NL one paragraph 90–140w | `krea2_still_prompts.md` |
+| `generate_krea` / draft / nsfw | NL paragraph 90–140w | `krea2_still_prompts.md` |
+| `generate_krea2_style/control/identity/detail*` | Change / lock / local | `krea2_transform.md` |
 | `generate_moody*` | Clause stack 40–120w | `still_image_prompts.md` + `moody_zimage.md` |
-| `generate_illustrious_standard` | Danbooru + quality tags | `illustrious_tags.md` |
+| `generate_illustrious_*` | Danbooru + quality tags | `illustrious_tags.md` |
+| **`generate_anima`** | **2D tags** (not Krea) | `anima_2d.md` |
 | `generate_qwen_edit` / inpaint / angle | Imperative keep-rest | `qwen_edit.md` |
+| `generate_style_transfer` / viewpoint / character_consistent | Instruction / preset | `style_viewpoint.md` |
 | `generate_ideogram4` / `boogu_typo` | JSON / exactly reading | `ideogram4_typography.md` |
-| `generate_i2v` LTX default | Motion chronological | `ltx23_video.md` + `motion_video_prompts.md` |
-| `generate_yaw_wan22` / Wan | Motion→camera lexicon | `wan22_i2v.md` + `motion_video_prompts.md` |
+| `generate_i2v` LTX | Motion chronological | `ltx23_video.md` + `motion_video_prompts.md` |
+| `generate_camera_move` / idle / dance_ref | Preset + extra only | `camera_move.md` |
+| `generate_yaw_wan22` / Wan I2V | Motion→camera | `wan22_i2v.md` |
+| `generate_wan_animate2` / `wan22_animate` | Split look/bg/pose | `wan_animate.md` |
+| `generate_minimax_h3` | Shot + camera + ref tags | `minimax_h3.md` |
 | `generate_s2v` SI2V | Mouth + micro perf | `motion_video_prompts.md` |
-| `generate_flf2v` / v2v | Bridge / change | `ltx23_video.md` |
+| `generate_minimax_music` / `stable_audio` / `bgm` | Genre/BPM/source | `music_audio.md` |
+| `generate_hy3d_mesh` | Image is the prompt | `mesh_3d.md` |
 
 Full matrix + DO/DON’T: **`references/model_prompt_matrix.md`**.
 
@@ -102,6 +109,10 @@ Turbo: **prefer positive constraints** (negatives often ignored).
 ```text
 masterpiece, best quality, newest, absurdres, highres, 1girl, solo, [tags...]
 ```
+
+### 4d. Anima (2D) — § see `anima_2d.md`
+
+Same tag family as Illustrious. **Never** a Krea photoreal paragraph. Replace the CLI default soup.
 
 ---
 
@@ -202,7 +213,15 @@ backend=krea2|moody|ltx23|wan22|... | source=SHOT_DESIGN
 | Ideogram / Boogu | `references/ideogram4_typography.md` |
 | Shared motion | `references/motion_video_prompts.md` |
 | LTX depth | `references/ltx23_video.md` |
-| Wan depth | `references/wan22_i2v.md` |
+| Wan I2V | `references/wan22_i2v.md` |
+| Anima 2D | `references/anima_2d.md` |
+| Krea2 style/control/detail | `references/krea2_transform.md` |
+| Camera-move presets | `references/camera_move.md` |
+| Wan Animate | `references/wan_animate.md` |
+| MiniMax H3 | `references/minimax_h3.md` |
+| Music / SFX | `references/music_audio.md` |
+| Style / viewpoint / ID lock | `references/style_viewpoint.md` |
+| Hy3D mesh | `references/mesh_3d.md` |
 | Banned + cross-model traps | `references/banned_and_weak.md` |
 | Lexicon camera/light | `references/keyword_lexicon.md` |
 | Research log | `RESEARCH.md` |

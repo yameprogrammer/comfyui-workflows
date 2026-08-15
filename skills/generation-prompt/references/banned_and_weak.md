@@ -64,6 +64,11 @@ Full dialect: `references/krea2_still_prompts.md`.
 |---------|----------------|
 | Illustrious `masterpiece, 1girl` on Krea/Z-Image photoreal MV | Wrong dialect → taggy or off-style |
 | Krea 140w still essay pasted into Wan/LTX I2V | Re-locks look, weak motion, identity fight |
+| Default Anima `1girl, anime masterpiece, 8k render` as a hero | Empty 2D soup — write real tags |
+| Krea paragraph on `generate_anima` | Photoreal language on a 2D model |
+| Still essay in `--look` / `--pose-prompt` on Wan-Animate-2 | Identity/drive fight |
+| Movie scene as MiniMax `--caption` | Wrong modality — genre/BPM/instruments |
+| Hy3D "prompted" with a messy crop | Mesh follows the still, not the essay |
 | Qwen mega-edit (pose+wardrobe+bg+face) one shot | Drift; chain small edits |
 | Ideogram free prose for critical brand spelling | Use typed `text` / `exactly reading` |
 | Moody Turbo: trust long negative only | Turbo often ignores negatives — positive locks |

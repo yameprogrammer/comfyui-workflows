@@ -159,6 +159,18 @@ warp, identity morph, freeze frame, flicker, extra limbs, face melt, whip pan, s
 
 ---
 
+## 10.5 Other LTX CLIs
+
+| CLI | Prompt |
+|-----|--------|
+| `generate_ltx23_latentheart` | Same I2V dialect. Do not add "latentheart" as a style word. |
+| `generate_ltx23_redmix_i2v` | Same I2V. Redmix is a grade/backend, not a prompt keyword. |
+| `generate_ltx_nsfw_i2v` / `generate_ltx_nsfw_director` | Motion + performance only. Director: global/base prompt = shot intent, not a still essay. |
+| `generate_ltx_relight` | Light change only (`warmer key from camera left`). No new scene. |
+| `upscale_ltx_spatial` | No creative prompt. |
+
+---
+
 ## 11. Quality gates (생성 전 체크)
 
 - [ ] 단일 생성 = 97프레임 이내

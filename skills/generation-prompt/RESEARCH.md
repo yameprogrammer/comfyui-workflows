@@ -2,7 +2,8 @@
 
 - **v1:** 2026-07-16 — general still/motion craft  
 - **v1.1:** 2026-07-17 — Krea2 dialect  
-- **v1.2:** 2026-07-17 — full factory model matrix (tool_catalog CLIs)
+- **v1.2:** 2026-07-17 — full factory model matrix (tool_catalog CLIs)  
+- **v1.3:** 2026-08-15 — matrix covers all live `generate_*`; new dialects: Anima, Krea2 transform, camera_move, Wan Animate, MiniMax H3, music/SFX, Hy3D, style/viewpoint
 
 **Scope:** Prompt dialects for agent_custom Comfy stack. Not every SaaS model.
 
@@ -19,21 +20,11 @@
 
 ---
 
-## 2. Factory inventory mapped (2026-07-17)
+## 2. Factory inventory mapped (2026-08-15)
 
-From `docs/tool_catalog.md`, `scripts/generate_*.py`, `workflows/agent/presets`:
+Routing SSOT: `references/model_prompt_matrix.md` (every live `generate_*`).
 
-| Family | CLI examples | Dialect file |
-|--------|--------------|--------------|
-| Krea2 | generate_krea, generate_krea_nsfw | krea2_still_prompts.md |
-| Z-Image / Lonecat | generate_moody* | moody_zimage.md |
-| Illustrious XL | generate_illustrious_standard | illustrious_tags.md |
-| Qwen Edit | generate_qwen_edit / inpaint / angle | qwen_edit.md |
-| Ideogram4 / Boogu | generate_ideogram4, generate_boogu_typo | ideogram4_typography.md |
-| LTX 2.3 | generate_i2v, flf2v, s2v, v2v, latentheart, redmix | ltx23_video.md |
-| Wan 2.2 | generate_yaw_wan22, wan I2V | wan22_i2v.md |
-| Shared motion | — | motion_video_prompts.md |
-| Routing | — | model_prompt_matrix.md |
+New in v1.3: `anima_2d.md` · `krea2_transform.md` · `camera_move.md` · `wan_animate.md` · `minimax_h3.md` · `music_audio.md` · `mesh_3d.md` · `style_viewpoint.md`
 
 ---
 
@@ -107,7 +98,6 @@ From `docs/tool_catalog.md`, `scripts/generate_*.py`, `workflows/agent/presets`:
 ## 5. Out of scope
 
 - Midjourney flag encyclopedia  
-- Audio-only BGM prompts (ACE-Step — separate doc)  
 - Training LoRAs  
 - Non-factory SaaS APIs beyond Grok hybrid notes  
 
