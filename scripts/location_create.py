@@ -26,6 +26,7 @@ from lib.location_package import (
     validate_location_id,
 )
 from lib.prompt_assembly import assemble_prompt, load_text
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 
 EXIT_OK = 0
 EXIT_USAGE = 2
@@ -38,7 +39,7 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Create location package + master_wide candidates")
     parser.add_argument("--id", required=True, help="location_id (snake_case)")
     parser.add_argument("--name", required=True, help="Display name")
-    parser.add_argument("--model", "-m", choices=["real", "pro", "wild"], default=None)
+    parser.add_argument("--model", "-m", choices=list(ZIMAGE_MODEL_CHOICES), default=None)
     parser.add_argument("--profile", choices=["video_ref", "artbook"], default=None)
     parser.add_argument("--candidates", type=int, default=None)
     parser.add_argument("--seed-base", type=int, default=None)

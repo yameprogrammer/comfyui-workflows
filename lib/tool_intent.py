@@ -156,10 +156,34 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
         "alternatives": [
             {"if": "I2I denoise·스타일 실험", "use": "moody T2I/I2I", "cli": "python scripts/generate_moody.py -m pro -p \"...\" -o out.png"},
+            {"if": "Flux.1 프롬프트 추종/일러스트", "use": "generate_flux", "cli": "python scripts/generate_flux.py -p \"...\" -o \"%AGENT_WORKSPACE%/stills/flux.png\""},
+            {"if": "SDXL 클래식/라이트닝 스카우트", "use": "generate_sdxl", "cli": "python scripts/generate_sdxl.py -m lightning -p \"...\" -o \"%AGENT_WORKSPACE%/stills/scout.png\""},
             {"if": "애니/일루스 태그", "use": "Illustrious XL", "cli": "python scripts/generate_illustrious_standard.py -p \"1girl, ...\" -o out.png"},
             {"if": "18+ NSFW", "use": "Krea NSFW", "cli": "python scripts/generate_krea_nsfw.py -p \"...\" -o out.png"},
             {"if": "레퍼 얼굴 유지하며 장면만 변경", "use": "character_consistent", "cli": "python scripts/generate_character_consistent.py --mode lock -i face.png -p \"...\" -o out.png"},
             {"if": "Lonecat Krea2 v7 전체 기능 맵", "use": "krea2_features", "cli": "python scripts/krea2_features.py list"},
+        ],
+    },
+    {
+        "id": "prompt_dialect",
+        "shelf": "META",
+        "cli": "python scripts/prompt_dialect.py",
+        "script": "prompt_dialect.py",
+        "summary": "모델별 공식 프롬프트 방언 — 고른 CLI에 맞는 -p 작성법",
+        "when": "스틸 generate 직전, 모델은 정했는데 프롬프트 형식을 모를 때",
+        "when_not": "도구 자체를 모를 때 → tool_intent",
+        "keywords": [
+            "prompt dialect", "프롬프트", "방언", "공식 프롬프트", "prompting guide",
+            "prompt_dialect", "어떻게 써", "프롬프트 작성",
+        ],
+        "examples": [
+            "python scripts/prompt_dialect.py list",
+            "python scripts/prompt_dialect.py show krea",
+            "python scripts/prompt_dialect.py show flux",
+            'python scripts/prompt_dialect.py pick "시네 인물 한 장"',
+        ],
+        "alternatives": [
+            {"if": "어느 CLI인지 모름", "use": "tool_intent", "cli": "python scripts/tool_intent.py \"실사 한 장\""},
         ],
     },
     {
@@ -569,6 +593,94 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
     },
     {
+        "id": "still_flux",
+        "shelf": "GENERATE",
+        "cli": "python scripts/generate_flux.py",
+        "script": "generate_flux.py",
+        "summary": "Flux.1 Dev Q4 T2I — 프롬프트 추종·일러스트 대안 (Krea 기본 아님)",
+        "when": "Flux 룩, 프롬프트 추종, 일러스트/일반 T2I. 시네 키프레임 기본은 여전히 generate_krea",
+        "when_not": "시네 실사 기본 → generate_krea · 타이포 → ideogram · 애니 태그 → illustrious/anima · 마스크 인페 → generate_flux_fill",
+        "keywords": [
+            "flux", "flux1", "flux.1", "flux dev", "generate_flux",
+            "프롬프트 추종", "flux t2i", "flux still",
+        ],
+        "examples": [
+            'python scripts/generate_flux.py -p "a red bicycle leaning on a rainy alley wall, cinematic" -o "%AGENT_WORKSPACE%/stills/flux.png" --seed 42',
+            "python scripts/generate_flux.py --check-models",
+        ],
+        "alternatives": [
+            {"if": "시네 실사 키프레임", "use": "generate_krea", "cli": "python scripts/generate_krea.py -p \"...\" -o out.png"},
+            {"if": "Flux.2 Klein 빠른 T2I/I2I", "use": "generate_flux2_klein", "cli": "python scripts/generate_flux2_klein.py --mode t2i -p \"...\" -o out.png"},
+            {"if": "타이포/간판 글자", "use": "generate_ideogram4", "cli": "python scripts/generate_ideogram4.py --slot title_card --text TITLE -o out.png"},
+        ],
+    },
+    {
+        "id": "still_flux_fill",
+        "shelf": "TRANSFORM",
+        "cli": "python scripts/generate_flux_fill.py",
+        "script": "generate_flux_fill.py",
+        "summary": "Flux.1 Fill 마스크 인페 (실사/일반)",
+        "when": "마스크로 로고·소품·옷만 교체. Qwen 지시 편집이 아닐 때",
+        "when_not": "마스크 없이 문장 편집 → generate_qwen_edit · Qwen InstantX 룩 → generate_qwen_inpaint · 애니 마스크 → generate_anima --mode inpaint",
+        "keywords": [
+            "flux fill", "flux1 fill", "flux inpaint", "generate_flux_fill",
+            "fill dev", "마스크 인페 flux",
+        ],
+        "examples": [
+            'python scripts/generate_flux_fill.py -i still.png --mask hole.png -p "remove the straw, keep the cup" -o "%AGENT_WORKSPACE%/stills/fill.png"',
+        ],
+        "alternatives": [
+            {"if": "마스크 없이 지시", "use": "qwen_edit", "cli": "python scripts/generate_qwen_edit.py -i img.png -p \"remove the straw\" -o out.png"},
+            {"if": "Qwen InstantX", "use": "qwen_inpaint", "cli": "python scripts/generate_qwen_inpaint.py -i img.png --mask m.png -p \"...\" -o out.png"},
+            {"if": "애니 마스크", "use": "anima inpaint", "cli": "python scripts/generate_anima.py --mode inpaint -i c.png -m m.png -p \"...\" -o out.png"},
+        ],
+    },
+    {
+        "id": "still_flux2_klein",
+        "shelf": "GENERATE",
+        "cli": "python scripts/generate_flux2_klein.py",
+        "script": "generate_flux2_klein.py",
+        "summary": "Flux.2 Klein 9B T2I / I2I (디스크에 edit 가중치 없음)",
+        "when": "Flux2 Klein 룩의 빠른 한 장 또는 denoise I2I",
+        "when_not": "시네 기본 → generate_krea · 지시 편집 → generate_qwen_edit · 타이포 → ideogram",
+        "keywords": [
+            "klein", "flux2", "flux 2", "flux.2", "generate_flux2_klein",
+            "klein 9b", "klein t2i", "klein i2i",
+        ],
+        "examples": [
+            'python scripts/generate_flux2_klein.py --mode t2i -p "vintage motorcycle at a diner sunset" -o "%AGENT_WORKSPACE%/stills/klein.png"',
+            'python scripts/generate_flux2_klein.py --mode i2i -i still.png -p "overcast coastal cliff" --denoise 0.55 -o "%AGENT_WORKSPACE%/stills/klein_i2i.png"',
+        ],
+        "alternatives": [
+            {"if": "시네 실사", "use": "generate_krea", "cli": "python scripts/generate_krea.py -p \"...\" -o out.png"},
+            {"if": "문장 지시 편집", "use": "qwen_edit", "cli": "python scripts/generate_qwen_edit.py -i img.png -p \"...\" -o out.png"},
+            {"if": "Flux.1 Dev", "use": "generate_flux", "cli": "python scripts/generate_flux.py -p \"...\" -o out.png"},
+        ],
+    },
+    {
+        "id": "still_sdxl",
+        "shelf": "GENERATE",
+        "cli": "python scripts/generate_sdxl.py",
+        "script": "generate_sdxl.py",
+        "summary": "SDXL 실사 T2I — Juggernaut / Lightning 스카우트 / Pony (Illustrious 아님)",
+        "when": "클래식 SDXL 실사, 초고속 스카우트, Pony score 태그. 시네 기본은 Krea",
+        "when_not": "시네 키프레임 → generate_krea · 애니 Danbooru XL → generate_illustrious_* · 18+ 기본 → generate_krea_nsfw",
+        "keywords": [
+            "sdxl", "juggernaut", "dreamshaper", "lightning sdxl", "pony",
+            "generate_sdxl", "pornmaster", "ragnarok",
+        ],
+        "examples": [
+            'python scripts/generate_sdxl.py -m juggernaut -p "cinematic portrait, window light" -o "%AGENT_WORKSPACE%/stills/sdxl.png"',
+            'python scripts/generate_sdxl.py -m lightning -p "street fashion full body" -o "%AGENT_WORKSPACE%/stills/scout.png"',
+            "python scripts/generate_sdxl.py --list-profiles",
+        ],
+        "alternatives": [
+            {"if": "시네 실사 기본", "use": "generate_krea", "cli": "python scripts/generate_krea.py -p \"...\" -o out.png"},
+            {"if": "Illustrious/NoobAI 태그", "use": "generate_illustrious_standard", "cli": "python scripts/generate_illustrious_standard.py -p \"1girl, ...\" -o out.png"},
+            {"if": "18+ 기본", "use": "generate_krea_nsfw", "cli": "python scripts/generate_krea_nsfw.py -p \"...\" -o out.png"},
+        ],
+    },
+    {
         "id": "typography",
         "shelf": "GENERATE",
         "cli": "python scripts/generate_ideogram4.py",
@@ -686,6 +798,7 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
         "alternatives": [
             {"if": "마스크 없이 전체 지시", "use": "qwen_edit", "cli": "python scripts/generate_qwen_edit.py -i img.png -p \"change jacket to blue\" -o out.png"},
+            {"if": "실사/일반 마스크 (Flux Fill)", "use": "flux_fill", "cli": "python scripts/generate_flux_fill.py -i img.png --mask m.png -p \"blue jacket\" -o \"%AGENT_WORKSPACE%/stills/fill.png\""},
             {"if": "얼굴 전체 ID 리믹스", "use": "character_consistent", "cli": "python scripts/generate_character_consistent.py --mode soft -i face.png -p \"smile\" -o out.png"},
         ],
     },
@@ -1249,6 +1362,52 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
         "alternatives": [
             {"if": "생성 샷 QA", "use": "shot_qa_pack", "cli": "python scripts/shot_qa_pack.py -e EP -s S01"},
+            {"if": "원오프 스틸/클립/오디오 평가", "use": "review_media", "cli": 'python scripts/review_media.py pack -i hero.png --intent "..." -o "%AGENT_WORKSPACE%/reviews/hero"'},
+        ],
+    },
+    {
+        "id": "output_review",
+        "shelf": "REVIEW",
+        "cli": "python scripts/review_media.py",
+        "script": "review_media.py",
+        "summary": "원오프 생성물 능동 평가 — 파일 열고 brief 대비 판정, fail이면 다음 레버",
+        "when": "generate_* 직후, 유저에게 보여 주기 전, 모션/믹스/납품으로 넘기기 전. 품질·검수·잘 나왔는지",
+        "when_not": "에피소드 키프레임/클립 → shot_qa_pack · 편집 마스터 → edit_qa_pack · 초안 스카우트만 하고 버릴 때",
+        "keywords": [
+            "review", "review_media", "output-review", "output_review",
+            "평가", "검수", "능동 평가", "품질 평가", "잘 나왔", "어때",
+            "리뷰", "qa", "열어", "판정", "결과물",
+        ],
+        "examples": [
+            'python scripts/review_media.py pack -i "%AGENT_WORKSPACE%/stills/hero.png" --intent "medium, yellow parasol" -o "%AGENT_WORKSPACE%/reviews/hero"',
+            'python scripts/review_media.py record --pack "%AGENT_WORKSPACE%/reviews/hero" --verdict pass --opened --notes "medium OK; hands OK"',
+            "python scripts/review_media.py show still",
+            "python scripts/review_media.py lever S4_anatomy",
+        ],
+        "alternatives": [
+            {"if": "에피소드 샷 QA", "use": "shot_qa_pack", "cli": "python scripts/shot_qa_pack.py -e EP -s S03"},
+            {"if": "편집 마스터 QA", "use": "edit_qa", "cli": 'python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" -o "%AGENT_WORKSPACE%/edits/s01/qa"'},
+        ],
+    },
+    {
+        "id": "shot_qa",
+        "shelf": "REVIEW",
+        "cli": "python scripts/shot_qa_pack.py",
+        "script": "shot_qa_pack.py",
+        "summary": "에피소드 키프레임/클립 비교 팩 + 판정 (approve 전 필수)",
+        "when": "stories/<ep> 샷을 approved 하기 전. identity_ref | current | prev 를 연다",
+        "when_not": "원오프 -o 한 장 → review_media · 편집 마스터 → edit_qa",
+        "keywords": [
+            "shot_qa", "shot_qa_pack", "shot_qa_record", "키프레임 검수",
+            "클립 검수", "visual qa", "열어보기",
+        ],
+        "examples": [
+            "python scripts/shot_qa_pack.py -e EP -s S03",
+            "python scripts/shot_qa_record.py -e EP -s S03 --stage keyframe --verdict pass --pass-required --notes \"opened pack; anatomy OK\"",
+            "python scripts/shot_qa_pack.py -e EP -s S03 --stage clip",
+        ],
+        "alternatives": [
+            {"if": "원오프 파일", "use": "review_media", "cli": 'python scripts/review_media.py pack -i hero.png --intent "..." -o "%AGENT_WORKSPACE%/reviews/hero"'},
         ],
     },
     {
@@ -1647,6 +1806,16 @@ def _tokenize(q: str) -> list[str]:
 
 
 _PHRASE_BOOSTS: list[tuple[tuple[str, ...], str, float]] = [
+    (("flux", "fill"), "still_flux_fill", 8.0),
+    (("flux1", "fill"), "still_flux_fill", 8.0),
+    (("flux", "inpaint"), "still_flux_fill", 7.0),
+    (("flux", "dev"), "still_flux", 7.0),
+    (("flux1",), "still_flux", 6.5),
+    (("klein",), "still_flux2_klein", 7.5),
+    (("flux2",), "still_flux2_klein", 7.0),
+    (("juggernaut",), "still_sdxl", 7.5),
+    (("dreamshaper",), "still_sdxl", 6.5),
+    (("sdxl",), "still_sdxl", 5.5),
     (("자막", "편집"), "edit_pack", 8.5),
     (("쇼츠", "편집"), "edit_pack", 8.0),
     (("클립", "붙여"), "edit_pack", 7.5),
@@ -1800,6 +1969,12 @@ _PHRASE_BOOSTS: list[tuple[tuple[str, ...], str, float]] = [
     (("워루도",), "export_mesh_vrm", 6.0),
     (("메쉬", "정리"), "process_mesh_glb", 6.0),
     (("auto", "rig"), "process_mesh_glb", 5.0),
+    (("능동", "평가"), "output_review", 9.0),
+    (("품질", "평가"), "output_review", 8.0),
+    (("결과", "검수"), "output_review", 8.0),
+    (("잘", "나왔"), "output_review", 7.0),
+    (("파일", "열"), "output_review", 6.0),
+    (("열어", "보"), "output_review", 6.0),
 ]
 
 

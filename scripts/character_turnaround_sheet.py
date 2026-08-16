@@ -27,6 +27,7 @@ from lib.openpose_multiview import (
     ensure_head_turnaround_strip,
 )
 from lib.profiles import ensure_export_dirs, get_profile
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 
 
 EXIT_OK = 0
@@ -75,7 +76,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Multi-view OpenPose character turnaround sheet")
     ap.add_argument("--id", required=True)
     ap.add_argument("--mode", choices=["body", "head", "both"], default="both")
-    ap.add_argument("--model", default="pro", choices=["real", "pro", "wild"])
+    ap.add_argument("--model", default="pro", choices=list(ZIMAGE_MODEL_CHOICES))
     ap.add_argument("--strength", type=float, default=0.78)
     ap.add_argument("--seed", type=int, default=99001)
     ap.add_argument("--timeout", type=int, default=600)

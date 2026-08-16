@@ -92,6 +92,15 @@ def main(argv=None) -> int:
             if res.get("ok"):
                 print(f"[OK] Stable Audio generation complete ({res.get('elapsed_seconds', 0)}s)")
                 print(f"Output saved to: {res.get('path')}")
+                try:
+                    from lib.output_review import print_review_nudge
+
+                    print_review_nudge(
+                        str(res.get("path") or ""),
+                        intent=str(prompt_text or ""),
+                    )
+                except Exception:
+                    pass
             else:
                 print(f"[FAILED] {res.get('error')}: {res.get('message')}", file=sys.stderr)
 

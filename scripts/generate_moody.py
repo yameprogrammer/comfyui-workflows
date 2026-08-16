@@ -33,6 +33,7 @@ from lib.comfy_client import (
 )
 from lib.comfy_engine_session import FAMILY_MOODY, ensure_engine
 from lib.prompt_assembly import load_text
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES, format_profile_table
 from lib.workflow_api_runner import run_workflow_api, select_lonecat_preset
 from lib.workflow_paths import default_workflow, resolve_workflow
 
@@ -475,9 +476,14 @@ if __name__ == "__main__":
         "--model",
         "-m",
         type=str,
-        choices=["real", "pro", "wild"],
+        choices=list(ZIMAGE_MODEL_CHOICES),
         default="real",
-        help="Moody model alias → unet_name",
+        help="Z-Image alias: real|pro|wild|v13|turbo|gguf",
+    )
+    parser.add_argument(
+        "--list-profiles",
+        action="store_true",
+        help="List on-disk Z-Image aliases and exit",
     )
     parser.add_argument("--output", "-o", type=str, default=None)
     parser.add_argument("--seed", type=int, default=None)
@@ -517,6 +523,10 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    if args.list_profiles:
+        print(format_profile_table("zimage"))
+        sys.exit(0)
 
     prompt_text = load_text(args.prompt_file) if args.prompt_file else args.prompt
     negative_text = (

@@ -60,6 +60,7 @@ agent_custom/
 * **도구 목록·특징 SSOT:** [docs/tool_catalog.md](docs/tool_catalog.md) (프로젝트는 여기서 선택).
 * **주요 CLI 매핑 (요약 — 상세는 카탈로그):**
   - still **기본 실사:** `generate_krea` · 대안 I2I/실험: `generate_moody` · 18+: `generate_krea_nsfw`
+  - still **유휴 패밀리:** `generate_flux` (Flux.1 Dev) · `generate_flux2_klein` · `generate_sdxl` (Juggernaut/Lightning/Pony) · 마스크 인페 `generate_flux_fill` (Qwen InstantX 아님)
   - **MESH 3D:** `generate_hy3d_mesh` (이미지→GLB) · `process_mesh_glb` · `export_mesh_vrm` — 가이드 `workflows/human/hy3d_mesh/AGENT_GUIDE.md`
   - I2I·CN: `generate_moody_i2i*` / `generate_moody_controlnet`
   - Qwen: `generate_qwen_edit` · `generate_qwen_inpaint` · `generate_qwen_angle`
@@ -194,7 +195,7 @@ agent_custom/
 ### Rule 7.0 영상 연출 레일 (**옵션** — `stories/` 에피소드 본선을 쓸 때만)
 * **적용 조건:** 프로젝트가 이 레포의 **에피소드 패키지 + shot_compose + assemble** 레일을 쓰기로 한 경우.  
   단일 I2V/still/inpaint 도구 호출만 할 때는 **이 절을 강제하지 않는다.**
-* **권장 스킬:** [skills/video-direction/SKILL.md](skills/video-direction/SKILL.md) · [generation-prompt](skills/generation-prompt/SKILL.md)  
+* **권장 스킬:** [skills/video-direction/SKILL.md](skills/video-direction/SKILL.md) · [generation-prompt](skills/generation-prompt/SKILL.md) · [output-review](skills/output-review/SKILL.md)  
 * **권장 산출 (에피소드 레일):** `CREATIVE.md` · `SHOT_DESIGN.md` → 키프레임 QA → 모션 → clip approve → assemble  
 * **컷 문법 (레일 사용 시):** 동일 framing 3연속 금지 · coverage · freeze-pad 금지 — 상세 master persona  
 * **범위 밖:** 도구 버그픽스·스모크·카탈로그 단일 CLI.  
@@ -350,6 +351,17 @@ agent_custom/
 - extend 프롬프트는 **모션·카메라만** (얼굴·의상 재서술 금지 — generation_prompt_craft §3 동일).
 - 완성된 분할 클립은 **`assemble_video.py`** 또는 `assemble_single_take.py` 로 이어붙인다.
 - VRAM 절약 + 품질 유지 모두 이 방식이 단일 장클립보다 우수.
+
+### Rule 7.7 원오프 생성물 능동 평가 (toolbox `-o` · hard 습관)
+* **문제**: `generate_*` exit 0 만 보고 완료한다. 파일이 생긴 것과 목표에 맞는 것은 다르다.
+* **SSOT**: [skills/output-review/SKILL.md](skills/output-review/SKILL.md) · CLI `review_media.py`
+* **의무 (유저에게 보여 주거나 모션/믹스/납품으로 넘길 때)**
+  1. 생성 전 brief 1–5줄 (의도 · 금지 · 종류).  
+  2. `review_media pack` → **파일을 연다** (스틸=이미지, 클립=프레임, 오디오=스펙트로그램+probe).  
+  3. `review_media record --opened` — pass 에 `--opened` 없으면 exit 23.  
+  4. fail → `review_media lever <ID>` 의 CLI. 같은 프롬프트 재호출 금지.  
+  5. 초안 스카우트만 버리고 안 보여줄 때는 record 생략 가능.
+* **에피소드** 키프레임/클립은 Rule 7.3 `shot_qa_*`. **편집 마스터**는 `edit_qa_*`. 이 규칙이 그걸 대체하지 않는다.
 
 ### Rule 8.0 에이전트 자체 도구·스킬 자율 활용 (전 에이전트 · 영상 작업)
 * **문제**: 유저는 Grok/Claude/Codex 등 **에이전트마다 다른 네이티브 툴·스킬·MCP**를 세세히 알 수 없어 “이때 뭘 쓰세요”라고 지시하기 어렵다.  

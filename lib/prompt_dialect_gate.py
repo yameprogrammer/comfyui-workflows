@@ -15,6 +15,10 @@ DIALECT_HINT = {
     "generate_camera_move": "skills/generation-prompt/references/camera_move.md",
     "generate_minimax_music": "skills/generation-prompt/references/music_audio.md",
     "generate_krea": "skills/generation-prompt/references/krea2_still_prompts.md",
+    "generate_flux": "skills/generation-prompt/references/flux_still.md",
+    "generate_flux_fill": "skills/generation-prompt/references/flux_still.md",
+    "generate_flux2_klein": "skills/generation-prompt/references/flux_still.md",
+    "generate_sdxl": "skills/generation-prompt/references/sdxl_still.md",
 }
 
 ANIMA_SOUP = "1girl, anime masterpiece, exquisite face, detailed lighting, rich colors, studio quality, 8k render"

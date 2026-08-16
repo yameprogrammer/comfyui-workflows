@@ -15,6 +15,7 @@ from lib.character_package import CharacterPackage, asset_filename, validate_cha
 from lib.comfy_client import utc_now_iso, write_meta
 from lib.profiles import PROFILE_IDS, get_profile
 from lib.prompt_assembly import assemble_prompt, load_text
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 
 
 EXIT_OK = 0
@@ -111,7 +112,7 @@ def main(argv=None) -> int:
         default=None,
         help="Shot template id from prompts/shot_templates.json",
     )
-    parser.add_argument("--model", "-m", choices=["real", "pro", "wild"], default=None)
+    parser.add_argument("--model", "-m", choices=list(ZIMAGE_MODEL_CHOICES), default=None)
     parser.add_argument("--profile", choices=list(PROFILE_IDS), default=None)
     parser.add_argument(
         "--denoise",

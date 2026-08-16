@@ -40,6 +40,7 @@ import os
 import sys
 
 from lib.comfy_client import fail_result, ok_result, resolve_meta_out, write_meta
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 from lib.openpose_maps import (
     ensure_all_openpose_maps,
     ensure_openpose_map,
@@ -220,7 +221,7 @@ def main(argv: list[str] | None = None) -> int:
     p_gen.add_argument("--negative", default="")
     p_gen.add_argument("--strength", type=float, default=0.85, help="ControlNet strength")
     p_gen.add_argument("--denoise", type=float, default=None)
-    p_gen.add_argument("--model", choices=["real", "pro", "wild"], default="pro")
+    p_gen.add_argument("--model", choices=list(ZIMAGE_MODEL_CHOICES), default="pro")
     p_gen.add_argument("--seed", type=int, default=None)
     p_gen.add_argument("--width", type=int, default=768)
     p_gen.add_argument("--height", type=int, default=1280)

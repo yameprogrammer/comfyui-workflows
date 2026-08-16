@@ -626,7 +626,7 @@ if __name__ == "__main__":
         help="ControlNet strength (official default 1.0)",
     )
     parser.add_argument(
-        "--model", "-m", type=str, choices=["real", "pro", "wild"], default="real"
+        "--model", "-m", type=str, choices=list(MODEL_MAPPING), default="real"
     )
     parser.add_argument("--output", "-o", type=str, default=None)
     parser.add_argument("--seed", type=int, default=None)

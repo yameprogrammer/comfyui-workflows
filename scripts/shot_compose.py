@@ -18,6 +18,7 @@ from lib.character_package import CharacterPackage, validate_character_id
 from lib.comfy_client import utc_now_iso, write_meta
 from lib.location_package import LocationPackage, validate_location_id
 from lib.prompt_assembly import assemble_prompt
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 from lib.story_package import (
     StoryPackage,
     load_look_cores,
@@ -572,7 +573,7 @@ def main(argv=None) -> int:
         default=None,
         help="establishing|wide|medium|closeup|insert",
     )
-    parser.add_argument("--model", "-m", choices=["real", "pro", "wild"], default=None)
+    parser.add_argument("--model", "-m", choices=list(ZIMAGE_MODEL_CHOICES), default=None)
     parser.add_argument("--denoise", "-d", type=float, default=None)
     parser.add_argument("--cfg", "-c", type=float, default=None)
     parser.add_argument("--seed", type=int, default=None)

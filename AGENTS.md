@@ -7,6 +7,7 @@ It is a **collection of media tools** (still / edit / I2V / TTS / …) driven by
 Your goal (the video you need)
   → pick intents from the catalog shelves (GENERATE / TRANSFORM / MOTION / …)
   → call scripts/ with -o / --output pointing at YOUR project
+  → review_media pack → open the file → record pass/fail → next lever
   → never leave finished media in this repo
 ```
 
@@ -17,7 +18,8 @@ Your goal (the video you need)
 | Start at **[TOOLS.md](TOOLS.md)** or `python scripts/tool_intent.py "…"`, then **[docs/tool_catalog.md](docs/tool_catalog.md)** | Treat CREATIVE→assemble as mandatory for every job |
 | Pass **`-o` / `--output` / `--dest`** to a path **outside** this repo (or set `AGENT_WORKSPACE`) | Write mp4/png/wav into `stories/`, `dumps/`, `characters/<id>/`, `deliveries/` |
 | Before heavy gen: `python scripts/failure_note.py before "…"`; on FAIL: `failure_note.py add` | Repeat known factory failures (freeze, feet, mass approve, …) |
-| Combine tools freely for *this* video | Assume character package / QA gate is required for one-off cuts |
+| After `generate_*`: equip **output-review**, open the file, `review_media record` | Treat CLI exit 0 as quality, or skip opening the file |
+| Combine tools freely for *this* video | Assume episode approve / assemble is required for one-off cuts |
 | Keep project media in **your** project folder | Leave “finished” work only here |
 | Use `stories/_template` + approve + assemble **only if you choose that recipe — and still write the episode into your project** | Confuse optional helpers with “the only way” or treat this repo as a media archive |
 
@@ -54,6 +56,7 @@ Do **not** skip to `shot_compose` / batch motion without this skill (or equivale
 |-------|----------|-----|
 | **1** | **[skills/video-direction/SKILL.md](skills/video-direction/SKILL.md)** | **Equip first** — gated direction + handoff |
 | **2** | **[skills/generation-prompt/SKILL.md](skills/generation-prompt/SKILL.md)** | **Before generate** — still/I2V/SI2V prompt packs (no tag-soup) |
+| **2b** | **[skills/output-review/SKILL.md](skills/output-review/SKILL.md)** | **After generate** — open file, judge brief, next lever |
 | **3** | **[docs/video_director_master_persona.md](docs/video_director_master_persona.md)** | Long-form shot grammar SSOT |
 | **4** | [docs/video_creative_director_persona.md](docs/video_creative_director_persona.md) | Creative Pack fields |
 | **5** | [docs/image_cut_verification_gate.md](docs/image_cut_verification_gate.md) | Open-file QA before approve |

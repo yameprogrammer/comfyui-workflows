@@ -35,6 +35,7 @@ from generate_moody_i2i import generate_i2i_image
 from generate_qwen_edit import generate_qwen_edit
 from lib.comfy_client import utc_now_iso, write_meta
 from lib.story_package import StoryPackage, validate_episode_id
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 
 EXIT_OK = 0
 EXIT_USAGE = 2
@@ -92,7 +93,7 @@ def main(argv=None) -> int:
         default=None,
         help="Sampler CFG (moody default 1.0; qwen uses engine defaults if omitted)",
     )
-    p.add_argument("--model", "-m", choices=["real", "pro", "wild"], default="real")
+    p.add_argument("--model", "-m", choices=list(ZIMAGE_MODEL_CHOICES), default="real")
     p.add_argument(
         "--lightning",
         action=argparse.BooleanOptionalAction,

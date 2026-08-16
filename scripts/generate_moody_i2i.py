@@ -525,7 +525,7 @@ if __name__ == "__main__":
         help="CFG (meta only on Lonecat preset; baked in graph)",
     )
     parser.add_argument(
-        "--model", "-m", type=str, choices=["real", "pro", "wild"], default="real"
+        "--model", "-m", type=str, choices=list(MODEL_MAPPING), default="real"
     )
     parser.add_argument("--output", "-o", type=str, default=None, help="Output path")
     parser.add_argument("--seed", type=int, default=None, help="Fixed seed")

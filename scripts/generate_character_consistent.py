@@ -25,6 +25,7 @@ import sys
 
 from lib.character_consistency import MODES, mode_denoise_defaults, run_character_consistent
 from lib.prompt_assembly import load_text
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -69,7 +70,7 @@ def main(argv: list[str] | None = None) -> int:
         default=0.75,
         help="ControlNet strength for pose mode (default 0.75)",
     )
-    p.add_argument("--model", "-m", choices=["real", "pro", "wild"], default="pro")
+    p.add_argument("--model", "-m", choices=list(ZIMAGE_MODEL_CHOICES), default="pro")
     p.add_argument("--seed", type=int, default=None)
     p.add_argument("--negative", default="")
     p.add_argument("--negative-file", default=None)

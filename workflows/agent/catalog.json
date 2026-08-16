@@ -5,6 +5,8 @@
     "model": "intent_shelves",
     "entry": "TOOLS.md",
     "catalog_ssot": "docs/tool_catalog.md",
+    "review_skill": "skills/output-review/SKILL.md",
+    "review_cli": "scripts/review_media.py",
     "intent_search_cli": "scripts/tool_intent.py",
     "intent_index": "lib/tool_intent.py",
     "shelves": [
@@ -17,7 +19,8 @@
       "ASSETS",
       "MESH",
       "BUNDLE",
-      "EDIT"
+      "EDIT",
+      "REVIEW"
     ],
     "optional_rails": [
       "stories_episode_helpers",
@@ -1391,6 +1394,71 @@
       "shelf": "GENERATE",
       "scripts": ["scripts/generate_ideogram4.py"]
     },
+    "prompt_dialect": {
+      "file": null,
+      "role": "prompt_dialect",
+      "status": "ready",
+      "shelf": "META",
+      "description": "Official still-prompt recipes per factory image model. No Comfy.",
+      "scripts": ["scripts/prompt_dialect.py"],
+      "guide": "skills/generation-prompt/references/still_model_picker.md"
+    },
+    "generate_flux": {
+      "file": null,
+      "format": "native_api_graph",
+      "role": "text_to_image",
+      "family": "flux1",
+      "status": "ready",
+      "shelf": "GENERATE",
+      "description": "Flux.1 Dev Q4 T2I. Prompt-following / illustration alternative. Not cinematic default (Krea).",
+      "runner": "lib/flux1_runner.py",
+      "guide": "workflows/human/flux1/AGENT_GUIDE.md",
+      "used_by": ["scripts/generate_flux.py"],
+      "scripts": ["scripts/generate_flux.py"],
+      "notes": "Weights Flux1/flux1-dev-Q4_K_S.gguf + clip_l + t5xxl_fp16 + ae. DualCLIPLoader type=flux."
+    },
+    "generate_flux_fill": {
+      "file": null,
+      "format": "native_api_graph",
+      "role": "image_inpaint",
+      "family": "flux1",
+      "status": "ready",
+      "shelf": "TRANSFORM",
+      "description": "Flux.1 Fill Dev Q4 mask inpaint. White=edit. Not Qwen InstantX, not Anima inpaint.",
+      "runner": "lib/flux1_runner.py",
+      "guide": "workflows/human/flux1/AGENT_GUIDE.md",
+      "used_by": ["scripts/generate_flux_fill.py"],
+      "scripts": ["scripts/generate_flux_fill.py"],
+      "notes": "Replaces planned generate_inpaint.py / flux1-fill-dev gap."
+    },
+    "generate_flux2_klein": {
+      "file": null,
+      "format": "native_api_graph",
+      "role": "text_to_image_and_i2i",
+      "family": "flux2_klein",
+      "status": "ready",
+      "shelf": "GENERATE",
+      "description": "Flux.2 Klein 9B GGUF T2I + I2I. No native edit weights on disk.",
+      "runner": "lib/flux2_klein_runner.py",
+      "guide": "workflows/human/flux2_klein/AGENT_GUIDE.md",
+      "used_by": ["scripts/generate_flux2_klein.py"],
+      "scripts": ["scripts/generate_flux2_klein.py"],
+      "tasks": ["t2i", "i2i"]
+    },
+    "generate_sdxl": {
+      "file": null,
+      "format": "native_api_graph",
+      "role": "text_to_image_sdxl",
+      "family": "sdxl_still",
+      "status": "ready",
+      "shelf": "GENERATE",
+      "description": "SDXL photoreal T2I: Juggernaut / Dreamshaper Lightning / Pony / NSFW ckpt. Not Illustrious.",
+      "runner": "lib/sdxl_runner.py",
+      "guide": "workflows/human/sdxl_photoreal/AGENT_GUIDE.md",
+      "used_by": ["scripts/generate_sdxl.py"],
+      "scripts": ["scripts/generate_sdxl.py"],
+      "profiles": ["juggernaut", "lightning", "pony", "nsfw"]
+    },
     "generate_ltx_relight": {
       "file": null,
       "role": "relight",
@@ -1425,6 +1493,14 @@
       "status": "ready",
       "shelf": "META",
       "scripts": ["scripts/ltx_lora_status.py"]
+    },
+    "output_review": {
+      "file": null,
+      "role": "review",
+      "status": "ready",
+      "shelf": "REVIEW",
+      "scripts": ["scripts/review_media.py"],
+      "guide": "skills/output-review/SKILL.md"
     }
   }
 }

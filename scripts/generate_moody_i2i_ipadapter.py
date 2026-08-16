@@ -17,6 +17,7 @@ import _bootstrap  # noqa: F401
 import argparse
 
 from lib.comfy_client import DEFAULT_SERVER
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 from generate_moody_i2i_lock import generate_i2i_lock
 
 # Kept for import compatibility; inject is no longer used on the default path.
@@ -155,7 +156,7 @@ def main(argv=None) -> int:
     p.add_argument("--input", "-i", required=True)
     p.add_argument("--prompt", "-p", required=True)
     p.add_argument("--output", "-o", default=None)
-    p.add_argument("--model", "-m", choices=["real", "pro", "wild"], default="pro")
+    p.add_argument("--model", "-m", choices=list(ZIMAGE_MODEL_CHOICES), default="pro")
     p.add_argument("--denoise", "-d", type=float, default=0.55)
     p.add_argument("--cfg", type=float, default=3.5)
     p.add_argument(

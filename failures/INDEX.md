@@ -4,6 +4,7 @@ Do not edit by hand — `python scripts/failure_note.py add` regenerates.
 
 | id | sev | stage | tags | symptom |
 |----|-----|-------|------|---------|
+| `FN-20260815-001` | medium | keyframe | inpaint, eye, krita, qwen, anima | Krita MCP ellipse fill looks stamped; Qwen InstantX inpaint upscaled 960->153... |
 | `FN-20260729-002` | high | clip | infinitetalk, missing_node, s2v, comfy_n | generate_s2v --backend infinitetalk fails QUEUE_FAILED missing_node_type WanV... |
 | `FN-20260729-001` | high | character_sheet | identity_drift, full_sheet, auto_approve | full_sheet for green_lighter_idol_v1 drifts face from master_front; costume s... |
 | `FN-20260715-006` | high | keyframe | prompt_ignored, face_cu_spam, insert_fai | Weak or conflicted prompts: character face core overrode insert/action; tag-s... |
@@ -13,4 +14,4 @@ Do not edit by hand — `python scripts/failure_note.py add` regenerates.
 | `FN-20260715-002` | high | keyframe | anatomy_feet, insert_failed, face_cu_spa | Shoe insert requested but result was face close-up with deformed raised leg/f... |
 | `FN-20260715-001` | critical | clip | freeze_pad, duration_mismatch, qa_skippe | All cuts freeze for last 30-50 percent of duration (e.g. S01 freezes 5s-8s). ... |
 
-_Updated: 2026-07-29T22:25:54+00:00 · count=8_
+_Updated: 2026-08-15T12:55:51+00:00 · count=9_

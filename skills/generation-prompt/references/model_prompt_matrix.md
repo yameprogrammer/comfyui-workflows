@@ -2,7 +2,7 @@
 
 **When:** before writing any `still_prompt` / `motion_prompt` / caption / edit instruction.  
 **Catalog:** `docs/tool_catalog.md` · CLI under `scripts/generate_*.py`  
-**Updated:** 2026-08-15 (full generate_* inventory)
+**Updated:** 2026-08-15 (v1.4 official still dialects + `prompt_dialect` CLI)
 
 If a CLI is **not** in this table: **stop**. Do not invent a Krea essay. Add a row or use the "no prompt" line.
 
@@ -10,15 +10,20 @@ If a CLI is **not** in this table: **stop**. Do not invent a Krea essay. Add a r
 
 ## 1. GENERATE — stills
 
-| CLI / backend | Family | Dialect | Ref |
-|---------------|--------|---------|-----|
-| `generate_krea` / `generate_krea_nsfw` | Krea2 Turbo | NL paragraph 90–140w | `krea2_still_prompts.md` |
+| CLI / backend | Family | Official form | Ref |
+|---------------|--------|---------------|-----|
+| `generate_krea` / `generate_krea_nsfw` | Krea2 Turbo | NL paragraph 90–140w (krea-ai prompting.md) | `krea2_still_prompts.md` |
 | `generate_krea_draft` | Krea2 draft | Same NL, shorter 40–80w | `krea2_transform.md` |
-| `generate_moody*` / Lonecat Z-Image | Z-Image Turbo | Clause stack 40–120w | `still_image_prompts.md` · `moody_zimage.md` |
+| `generate_moody*` / Lonecat Z-Image | Z-Image Turbo | Long detailed clauses; Turbo ignores neg (Tongyi HF) | `moody_zimage.md` |
 | `generate_illustrious_standard` | Illustrious / NoobAI | Danbooru + quality tags | `illustrious_tags.md` |
-| `generate_illustrious_advanced` | Illustrious + extras | Same tags; don't add photoreal essay | `illustrious_tags.md` |
-| **`generate_anima`** | Anima DiT 2B | **2D tags** (not Krea NL) | `anima_2d.md` |
+| `generate_illustrious_advanced` | Illustrious + extras | Same tags; no photoreal essay | `illustrious_tags.md` |
+| **`generate_anima`** | Anima DiT 2B | Hybrid tags + short NL (not Krea) | `anima_2d.md` |
+| **`generate_flux`** | Flux.1 Dev | BFL NL 30–80w; no negatives | `flux_still.md` |
+| **`generate_flux2_klein`** | Flux.2 Klein 9B | BFL Subject→Action→Style→Context; no upsample | `flux_still.md` |
+| **`generate_sdxl`** | SDXL | Juggernaut NL or tags; Pony scores | `sdxl_still.md` |
 | Grok `image_gen` | Grok | NL 2–5 sentences | SKILL §Grok |
+
+Picker: `python scripts/prompt_dialect.py pick "…"` · `show <id>` · `still_model_picker.md`
 
 ---
 
@@ -30,6 +35,7 @@ If a CLI is **not** in this table: **stop**. Do not invent a Krea essay. Add a r
 | `generate_moody_controlnet` | Materials/light; pose from CN | `moody_zimage.md` |
 | `generate_qwen_edit` | Imperative, one change | `qwen_edit.md` |
 | `generate_qwen_inpaint` | Masked region only | `qwen_edit.md` §inpaint |
+| `generate_flux_fill` | Mask contents only | `flux_still.md` |
 | `generate_qwen_angle` | Angle + keep identity | `qwen_edit.md` §angle |
 | `generate_krea2_style` | Krea NL **content**; style from `-i` | `krea2_transform.md` |
 | `generate_krea2_control` | Materials/light; pose from map | `krea2_transform.md` |

@@ -13,6 +13,7 @@ import urllib.request
 from datetime import datetime, timezone
 from typing import Any, TextIO
 
+from lib.still_model_profiles import ZIMAGE_UNET_ALIASES as MODEL_MAPPING
 
 DEFAULT_SERVER = "127.0.0.1:8188"
 WORKSPACE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -152,12 +153,6 @@ _AGENT_CACHE_DIR = os.path.join(WORKSPACE_ROOT, ".agent_cache")
 _LAUNCH_LOCK_PATH = os.path.join(_AGENT_CACHE_DIR, "comfy_launch.lock")
 _LAUNCH_STATE_PATH = os.path.join(_AGENT_CACHE_DIR, "comfy_launch_state.json")
 _COMFY_LOG_HINT = r"F:\ComfyUI_windows_portable\ComfyUI\user\comfyui.log"
-
-MODEL_MAPPING = {
-    "real": "ZImageTurbo\\moodyRealMix_zitV6DPO.safetensors",
-    "pro": "ZImageTurbo\\moodyProMix_zitV12DPO.safetensors",
-    "wild": "ZImageTurbo\\moodyWildMixZIBZID_v01.safetensors",
-}
 
 # Process-local: servers confirmed up after ensure (avoid redundant full ensure chatter).
 _ready_servers: set[str] = set()
@@ -1254,4 +1249,10 @@ def fail_result(**extra) -> dict:
 def ok_result(**extra) -> dict:
     result = {"ok": True}
     result.update(extra)
+    try:
+        from lib.output_review import attach_review_hint
+
+        attach_review_hint(result)
+    except Exception:
+        pass
     return result

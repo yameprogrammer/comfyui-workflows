@@ -1,3 +1,20 @@
+## 2026-08-16 — output-review (active judge after generate_*)
+- Skill `skills/output-review` · CLI `review_media pack|record|show|lever`
+- Toolbox loop: generate → open file → record. exit 0 ≠ quality.
+- REVIEW shelf in TOOLS.md / tool_catalog / tool_intent. Rule 7.7.
+- Tests: `python -m unittest tests.test_output_review tests.test_tool_intent -v`
+
+## 2026-08-15 — official still prompt dialects
+- `python scripts/prompt_dialect.py list|show|pick` — BFL Flux, Tongyi Z-Image, Juggernaut, Qwen, Krea, Illustrious, Anima, Ideogram
+- Skill v1.4: `still_model_picker.md` · upgraded `flux_still.md` / `sdxl_still.md`
+- Tests: `python -m unittest tests.test_prompt_dialect -v`
+
+## 2026-08-15 — idle still models (Flux / Klein / SDXL + aliases)
+- New CLIs: `generate_flux` · `generate_flux_fill` · `generate_flux2_klein` · `generate_sdxl`
+- Krea `--profile turbo|int8|animosity|raw|redcraft|gpt|mix` · Moody `-m` adds `v13|turbo|gguf`
+- Not a second cinematic default (still Krea). Fill ≠ Qwen InstantX. SDXL ≠ Illustrious.
+- Tests: `python -m unittest tests.test_still_idle_models tests.test_tool_intent -v`
+
 ## 2026-08-15 — edit_pack QA default + multi-text + assemble warn
 - QA pack on by default (`--no-qa` to skip). `--text` repeatable (sequential windows).
 - `assemble_video` stderr: debug concat; delivery is `edit_pack`.

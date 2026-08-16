@@ -47,6 +47,11 @@ def main(argv=None) -> int:
         help=f"API preset (default {DEFAULT_PRESET})",
     )
     p.add_argument(
+        "--profile",
+        default=None,
+        help="Krea unet flavor: turbo|int8|animosity|raw|redcraft|gpt|mix (gpt = NSFW mix)",
+    )
+    p.add_argument(
         "--unet-name",
         default=None,
         help="Optional UNET override (default from ports: Krea2Turbo/krea2_turbo_fp8_scaled)",
@@ -108,6 +113,7 @@ def main(argv=None) -> int:
         timeout_sec=args.timeout,
         preset=args.preset,
         unet_name=args.unet_name,
+        profile=args.profile,
         return_dict=True,
     )
     if isinstance(r, dict) and r.get("ok"):

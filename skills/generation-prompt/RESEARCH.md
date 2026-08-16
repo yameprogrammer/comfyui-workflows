@@ -3,7 +3,8 @@
 - **v1:** 2026-07-16 — general still/motion craft  
 - **v1.1:** 2026-07-17 — Krea2 dialect  
 - **v1.2:** 2026-07-17 — full factory model matrix (tool_catalog CLIs)  
-- **v1.3:** 2026-08-15 — matrix covers all live `generate_*`; new dialects: Anima, Krea2 transform, camera_move, Wan Animate, MiniMax H3, music/SFX, Hy3D, style/viewpoint
+- **v1.3:** 2026-08-15 — matrix covers all live `generate_*`; new dialects: Anima, Krea2 transform, camera_move, Wan Animate, MiniMax H3, music/SFX, Hy3D, style/viewpoint  
+- **v1.4:** 2026-08-15 — official still recipes (BFL Flux / Tongyi Z-Image / Juggernaut / Qwen Edit) + `scripts/prompt_dialect.py`
 
 **Scope:** Prompt dialects for agent_custom Comfy stack. Not every SaaS model.
 
@@ -72,6 +73,18 @@ New in v1.3: `anima_2d.md` · `krea2_transform.md` · `camera_move.md` · `wan_a
 - Composition: upper body / cowboy shot / full body — don’t conflict  
 - NL only lightly on Illustrious 2.0+  
 → Skill: illustrious_tags.md (exception to global quality-tag ban)  
+
+### 3.8 Flux.1 / Flux.2 Klein (v1.4)
+
+- BFL Prompting Guide + Basics: NL, Subject→Action→Style→Context, front-load, quotes for text
+- FLUX.2: **no negatives**; 30–80w ideal; camera/film names; Klein **no upsampling**
+→ Skill: flux_still.md · CLI: prompt_dialect show flux1|flux_fill|flux2_klein
+
+### 3.9 SDXL Juggernaut / Pony (v1.4)
+
+- RunDiffusion: Natural language **or** tagging; Ragnarok accepts both
+- Pony: score_9 prefix (factory auto) — not Illustrious quality soup
+→ Skill: sdxl_still.md
 
 ### 3.7 Ideogram 4
 

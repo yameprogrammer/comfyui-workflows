@@ -15,6 +15,7 @@ import json
 import sys
 
 from lib.ref_pack import REF_PACK_PROFILES, run_ref_pack
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -31,7 +32,7 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Output directory for pack files",
     )
-    p.add_argument("--model", "-m", choices=["real", "pro", "wild"], default="pro")
+    p.add_argument("--model", "-m", choices=list(ZIMAGE_MODEL_CHOICES), default="pro")
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--timeout", type=int, default=600)
     p.add_argument(

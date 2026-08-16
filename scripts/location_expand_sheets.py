@@ -21,6 +21,7 @@ from lib.location_package import (
     validate_location_id,
 )
 from lib.prompt_assembly import assemble_prompt
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 
 EXIT_OK = 0
 EXIT_USAGE = 2
@@ -57,7 +58,7 @@ def main(argv=None) -> int:
         help="Group or preset keys: all_mvp, angles, lighting, landmarks, or preset ids",
     )
     parser.add_argument("--source", default=None, help="Source image (default: primary master)")
-    parser.add_argument("--model", "-m", choices=["real", "pro", "wild"], default="pro")
+    parser.add_argument("--model", "-m", choices=list(ZIMAGE_MODEL_CHOICES), default="pro")
     parser.add_argument("--profile", choices=["video_ref", "artbook"], default=None)
     parser.add_argument("--candidates", type=int, default=1)
     parser.add_argument("--seed-base", type=int, default=None)

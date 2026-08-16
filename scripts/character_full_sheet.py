@@ -38,6 +38,7 @@ from lib.profiles import (
 )
 from lib.comfy_client import utc_now_iso
 from lib.wardrobe import wardrobe_status
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 
 
 EXIT_OK = 0
@@ -293,7 +294,7 @@ def main(argv=None) -> int:
     p.add_argument("--run", action="store_true", help="Phased expand + approve + export")
     p.add_argument("--export-only", action="store_true", help="Only build review grids")
     p.add_argument("--approve-only", action="store_true", help="Only auto-approve + export")
-    p.add_argument("--model", default="pro", choices=["real", "pro", "wild"])
+    p.add_argument("--model", default="pro", choices=list(ZIMAGE_MODEL_CHOICES))
     p.add_argument("--candidates", type=int, default=1)
     p.add_argument("--seed-base", type=int, default=94001)
     p.add_argument("--timeout", type=int, default=600)

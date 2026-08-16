@@ -19,6 +19,14 @@ class TestToolIntent(unittest.TestCase):
         hits = search_intents("유튜브 레퍼 자막 뽑아", limit=5)
         self.assertEqual(hits[0]["id"], "youtube_ref_ingest")
 
+    def test_flux_fill_outranks_generic_inpaint_on_flux_words(self):
+        hits = search_intents("flux fill mask inpaint", limit=5)
+        self.assertEqual(hits[0]["id"], "still_flux_fill")
+
+    def test_review_query_ranks_output_review(self):
+        hits = search_intents("결과물 능동 평가", limit=3)
+        self.assertEqual(hits[0]["id"], "output_review")
+
     def test_examples_not_dumps(self):
         from lib.tool_intent import INTENT_TOOLS
 

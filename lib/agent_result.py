@@ -59,6 +59,10 @@ def print_agent_summary(result: dict[str, Any]) -> None:
     if result.get("message"):
         print(f"message={result.get('message')}")
     print(f"exit_code={result.get('exit_code')}")
+    if result.get("next_action"):
+        print(f"next_action={result.get('next_action')}")
+    if result.get("review_cli"):
+        print(f"review_cli={result.get('review_cli')}")
     for s in result.get("stages") or []:
         print(
             f"  stage={s.get('name')} exit={s.get('exit_code')} "

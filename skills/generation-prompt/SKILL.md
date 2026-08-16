@@ -1,10 +1,10 @@
 ---
 name: generation-prompt
-version: 1.3.0
+version: 1.4.0
 description: >
   Translate shot design into high-quality IMAGE and VIDEO model prompts for agent_custom.
   Routes each factory CLI/backend to its researched dialect (Krea2 NL, Z-Image clauses,
-  Illustrious Danbooru, Qwen edit instructions, Ideogram JSON, Wan/LTX motion).
+  Illustrious Danbooru, Flux/SDXL NL, Qwen edit instructions, Ideogram JSON, Wan/LTX motion).
   Use for T2I/I2I/I2V/SI2V, shot_compose, generate_*, prompt pack, "make it more detailed".
   Bans tag-soup on photoreal paths and wardrobe re-essay on motion. Slash: /generation-prompt
 ---
@@ -24,15 +24,17 @@ You are not a lyric poet and not a one-size-fits-all tag dump.
 ## 0. Equip (mandatory before generate_*)
 
 ```bash
-# from factory root
-# read this SKILL + model_prompt_matrix + the one dialect file for your CLI
+# from factory root — stills
+python scripts/prompt_dialect.py pick "시네 인물"
+python scripts/prompt_dialect.py show krea
+# then generate_* with THAT dialect only
 ```
 
 1. SHOT_DESIGN (or CREATIVE shot row) loaded  
-2. **CLI / backend chosen** (QUALITY_POLICY or tool_catalog)  
-3. Open **`references/model_prompt_matrix.md`** → dialect row  
-4. Open that dialect’s primary reference file  
-5. Write still/motion/edit string → gates → CLI only with that string  
+2. **CLI chosen** (`tool_intent` or QUALITY_POLICY)  
+3. **`python scripts/prompt_dialect.py show <family>`** (or open that `ref`)  
+4. Write still/motion/edit string in **that** official form  
+5. Gates → `generate_*` with that string only  
 
 ---
 
@@ -73,6 +75,9 @@ G. Call scripts/generate_*.py with that string only
 | `generate_moody*` | Clause stack 40–120w | `still_image_prompts.md` + `moody_zimage.md` |
 | `generate_illustrious_*` | Danbooru + quality tags | `illustrious_tags.md` |
 | **`generate_anima`** | **2D tags** (not Krea) | `anima_2d.md` |
+| `generate_flux` / `generate_flux2_klein` | NL 1–3 sentences | `flux_still.md` |
+| `generate_flux_fill` | Mask contents only | `flux_still.md` |
+| `generate_sdxl` | short NL / Pony scores | `sdxl_still.md` |
 | `generate_qwen_edit` / inpaint / angle | Imperative keep-rest | `qwen_edit.md` |
 | `generate_style_transfer` / viewpoint / character_consistent | Instruction / preset | `style_viewpoint.md` |
 | `generate_ideogram4` / `boogu_typo` | JSON / exactly reading | `ideogram4_typography.md` |
@@ -205,6 +210,7 @@ backend=krea2|moody|ltx23|wan22|... | source=SHOT_DESIGN
 
 | Need | File |
 |------|------|
+| **Still picker + official form** | `python scripts/prompt_dialect.py` · `references/still_model_picker.md` |
 | **Start here — routing** | `references/model_prompt_matrix.md` |
 | Krea2 still | `references/krea2_still_prompts.md` |
 | Moody / Z-Image | `references/moody_zimage.md` · `still_image_prompts.md` |
@@ -215,6 +221,8 @@ backend=krea2|moody|ltx23|wan22|... | source=SHOT_DESIGN
 | LTX depth | `references/ltx23_video.md` |
 | Wan I2V | `references/wan22_i2v.md` |
 | Anima 2D | `references/anima_2d.md` |
+| Flux.1 / Klein | `references/flux_still.md` |
+| SDXL photoreal | `references/sdxl_still.md` |
 | Krea2 style/control/detail | `references/krea2_transform.md` |
 | Camera-move presets | `references/camera_move.md` |
 | Wan Animate | `references/wan_animate.md` |
@@ -233,13 +241,14 @@ backend=krea2|moody|ltx23|wan22|... | source=SHOT_DESIGN
 
 - [ ] generation-prompt equipped  
 - [ ] tool_catalog / QUALITY_POLICY → CLI known  
-- [ ] **model_prompt_matrix row read**  
+- [ ] **model_prompt_matrix / `prompt_dialect show` applied**  
 - [ ] dialect reference file applied  
 - [ ] still and/or motion/edit string written  
 - [ ] gates pass  
 - [ ] I2V has no wardrobe essay  
 - [ ] Typography uses literal text mechanism if text is hero  
 - [ ] No cross-dialect contamination  
+- [ ] After generate: **output-review** (`review_media pack` → open → record). exit 0 ≠ done  
 
 ---
 
@@ -251,4 +260,4 @@ backend=krea2|moody|ltx23|wan22|... | source=SHOT_DESIGN
 | image_edit | change-first + keep identity |
 | image_to_video | 1–2 sentences, single move, continuous |
 
-Then factory QA same as other stills/clips.
+Then factory QA same as other stills/clips (`output-review` / `review_media`).

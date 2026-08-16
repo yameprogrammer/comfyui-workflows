@@ -28,6 +28,7 @@ from lib.character_package import (
 )
 from lib.comfy_client import utc_now_iso
 from lib.profiles import PROFILE_IDS, ensure_export_dirs, get_profile
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 
 EXIT_OK = 0
 EXIT_USAGE = 2
@@ -55,7 +56,7 @@ def main(argv=None) -> int:
     p.add_argument("--profile", choices=list(PROFILE_IDS), default="video_ref")
     p.add_argument(
         "--model",
-        choices=["real", "pro", "wild"],
+        choices=list(ZIMAGE_MODEL_CHOICES),
         default="pro",
         help="Moody model key stored in bible (sheet expand default)",
     )

@@ -8,7 +8,8 @@
 
 ## Dialect
 
-Anima is **tag-friendly 2D**, closer to Illustrious than Krea.
+Anima is **tag-friendly 2D**, closer to Illustrious than Krea.  
+Official (CircleStone): hybrid of **Danbooru tags + short natural language**; anime-specialized 2B. Studio `~style` phrases are weaker than real Danbooru tags.
 
 ```text
 [quality], [count], [character], [hair/eyes], [wardrobe], [pose/action], [setting], [light], [style]

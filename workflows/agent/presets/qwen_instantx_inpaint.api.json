@@ -224,10 +224,6 @@
     "class_type": "LoaderGGUF",
     "inputs": {
       "gguf_name": "QwenImage\\qwen-image-edit-2511-Q4_K_M.gguf"
-    },
-    "_meta": {
-      "title": "UNet GGUF (agent)",
-      "note": "swapped from UNETLoader for VRAM; gguf=QwenImage\\qwen-image-edit-2511-Q4_K_M.gguf"
     }
   },
   "121:253": {

@@ -8,8 +8,10 @@
 
 ```text
 목표(영상·컷)  →  의도 고르기(§1)  →  when/when-not 확인
-              →  CLI 1회 (-o 프로젝트)  →  다음 의도
+              →  CLI 1회 (-o 프로젝트)  →  review_media (파일 열기)  →  다음 의도
 ```
+
+생성 `exit 0` ≠ 품질 통과. 스킬: [output-review](../skills/output-review/SKILL.md)
 
 | 이 문서가 하는 일 | 하지 않는 일 |
 |------------------|--------------|
@@ -27,6 +29,14 @@ python scripts/tool_intent.py "같은 사람 유지"
 python scripts/tool_intent.py search "dance reference" --limit 3
 python scripts/tool_intent.py list --shelf MOTION
 python scripts/tool_intent.py shelves
+
+# 모델별 공식 프롬프트 방언 (생성 직전)
+python scripts/prompt_dialect.py pick "시네 인물"
+python scripts/prompt_dialect.py show flux
+
+# 생성 직후 능동 평가
+python scripts/review_media.py pack -i hero.png --intent "medium, yellow parasol" -o "%AGENT_WORKSPACE%/reviews/hero"
+python scripts/tool_intent.py "결과 검수"
 ```
 
 ### 생성 전 실수 방지 (`failure_note`)
@@ -56,6 +66,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | **FAIL 후** `failure_note.py add` | 침묵 (조직 학습 리셋) |
 | `-o`로 출력 경로 명시 · 필요 시 프로젝트로 복사 | 공장 `stories/`만 최종본으로 착각 |
 | 막히면 when-not · 대안 도구 · `failure_note` 검색 | 같은 도구 denoise만 무작정 상향 |
+| `generate_*` 후 **파일을 열고** `review_media record` | exit 0 만 보고 완료/납품 |
 | 에피/캐릭 **패키지 헬퍼는 원할 때만** | 패키지를 모든 스틸의 전제 조건으로 |
 | 스킬·자체 툴을 품질에 맞게 병행 (Rule 8) | 카탈로그에 없는 도구를 있는 척 호출 |
 
@@ -70,6 +81,9 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | 하고 싶은 일 | 먼저 볼 CLI | 한 줄 |
 |--------------|-------------|--------|
 | 텍스트만으로 실사 한 장 | **`generate_krea`** | Krea2 기본 (실사 T2I) |
+| Flux.1 프롬프트 추종 / 일러스트 | **`generate_flux`** | Flux.1 Dev Q4 (Krea 기본 아님) |
+| Flux.2 Klein 빠른 T2I / I2I | **`generate_flux2_klein`** | Klein 9B GGUF · edit 가중치 없음 |
+| SDXL 실사 / 라이트닝 스카우트 | **`generate_sdxl`** | Juggernaut · Lightning · Pony (Illustrious 아님) |
 | 실사 한 장 — I2I 제어·스타일 실험 | `generate_moody` | Lonecat 대안 T2I |
 | 애니/일루스 한 장 (경량·초고속 2D) | **`generate_anima`** | **Anima DiT 2B** (애니/만화/웹툰 특화 · Turbo 시 1.5s) |
 | 애니/일루스 한 장 (SDXL 태그) | `generate_illustrious_standard` | XL 태그 스틸 |
@@ -81,6 +95,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | 사진 살짝 고치기 (ID) | `generate_moody_i2i` · `…_i2i_lock` | denoise 낮게 |
 | “배경만 밤으로” 문장 편집 | `generate_qwen_edit` | 전역 instruction |
 | 옷·손 등 **부위만** | `generate_qwen_inpaint` | **마스크** 필수 |
+| 실사/일반 **마스크 인페** (Flux Fill) | **`generate_flux_fill`** | 흰색=수정 · Qwen InstantX 아님 |
 | 옆/뒤 등 **각도** | `generate_qwen_angle` | multi-view |
 | 포즈 맵에 맞추기 | **`generate_openpose_pose`** · `generate_moody_controlnet` · `cc --mode pose` | OpenPose → Fun Union CN (**not Qwen**) |
 | 타이틀·간판 글자 | `generate_ideogram4` | 가벼운 타이포 |
@@ -108,13 +123,14 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | **유튜브 레퍼 이해** | **`youtube_ingest`** · `youtube_highlights` | 자막·요약·하이라이트 클립 |
 | **화성 뼈대 채보** | **`extract_music_skeleton`** | 로컬 음원/코드 → BPM·키·코드 JSON |
 | **새 장르 MIDI 반주 / 커버 베드** | **`generate_midi_arrangement`** · **`generate_midi_cover_bed`** | 화성만 가져와서 편곡 MIDI (+ Suno/MiniMax 핸드오프 팩) |
+| **생성물 평가 / 잘 나왔는지** | **`review_media`** | 파일 열고 brief 대비 판정. 에피소드는 `shot_qa_*` |
 
 ### 1.B 의도 선반 지도 (조합용)
 
 ```text
 INGEST     밖 레퍼 가져오기        youtube_ingest · youtube_highlights · **extract_music_skeleton**
-GENERATE   빈 화면 → 그림          krea*(기본) · moody · illustrious · ideogram · boogu
-TRANSFORM  있는 그림 고치기         i2i · character_consistent · qwen_edit · inpaint · ref_pack · style_transfer
+GENERATE   빈 화면 → 그림          krea*(기본) · moody · illustrious · flux · klein · sdxl · ideogram · boogu
+TRANSFORM  있는 그림 고치기         i2i · character_consistent · qwen_edit · inpaint · flux_fill · ref_pack · style_transfer
 CAMERA     각도·포즈·시점·프레이밍   qwen_angle · viewpoint · **openpose_pose** · controlnet · reframe
 MOTION     그림 → 영상             camera_move · idle_loop · dance_ref · **wan_animate2** · **wan22_animate** · extract_pose · i2v · flf · s2v · **minimax_h3** · yaw
 VOICE      말·노래 재료            qwen3_tts · voice_register · bgm · **midi_cover_bed**
@@ -123,6 +139,7 @@ ASSETS     재사용 패키지(옵션)     character_* · location_* · look_* �
 MESH       2D→3D 메쉬·VRM          **hy3d_mesh** · process_mesh_glb · export_mesh_vrm
 BUNDLE     여러 파일 묶기(옵션)    assemble · episode_* · story_init · qa
 EDIT       컷·타이틀·마스터         **edit_pack** · render_edit · edit_timeline · render_title · edit_qa
+REVIEW     생성물 능동 평가         **review_media** · shot_qa_* · edit_qa_*
 ```
 
 상세 카드는 **§2**. 에피소드 레일은 **§4 (옵션)**.
@@ -170,6 +187,8 @@ python scripts/tool_intent.py "유튜브 자막"
 
 ```bash
 python scripts/generate_krea.py -p "cinematic portrait..." -o out.png --seed 42
+python scripts/generate_krea.py --list-profiles
+python scripts/generate_krea.py --profile animosity -p "..." -o out.png
 # Lonecat v7 feature inventory
 python scripts/krea2_features.py list --ready
 # Native v7 P0 slices (ready)
@@ -204,6 +223,9 @@ python scripts/generate_krea2_region_detail.py -i nsfw.png -o out.png --region b
 
 ```bash
 python scripts/generate_moody.py -m pro -p "cinematic portrait..." -o out.png --seed 42
+python scripts/generate_moody.py --list-profiles
+python scripts/generate_moody.py -m v13 -p "..." -o out.png
+python scripts/generate_moody.py -m turbo -p "..." -o out.png
 ```
 
 #### Illustrious Standard (애니 XL)
@@ -231,6 +253,28 @@ python scripts/generate_illustrious_detailer.py -i still.png -o polished.png
 python scripts/generate_illustrious_detailer.py -i still.png -o out.png --inpaint -p "fix hands"
 python scripts/generate_illustrious_detailer.py -i still.png -o out.png --outpaint
 ```
+
+#### Flux.1 / Flux.2 Klein / SDXL (유휴 가중치)
+
+시네 기본은 여전히 **Krea2**. 아래는 디스크에 있던 별 패밀리.
+
+| CLI | 언제 | 말고 |
+|-----|------|------|
+| **`generate_flux`** | Flux.1 Dev Q4 프롬프트 추종·일러스트 | Krea 키프레임 · 타이포 · 애니 태그 |
+| **`generate_flux2_klein`** | Klein 9B 빠른 T2I / I2I | 지시 편집 → Qwen · 시네 기본 → Krea |
+| **`generate_sdxl`** | Juggernaut / Lightning 스카우트 / Pony | Illustrious `--ckpt`에 넣지 말 것 |
+| **`generate_flux_fill`** | 마스크 실사/일반 인페 (흰색=수정) | 문장만 → Qwen edit · InstantX → qwen_inpaint |
+
+```bash
+python scripts/generate_flux.py -p "red bicycle in a rainy alley" -o "%AGENT_WORKSPACE%/stills/flux.png"
+python scripts/generate_flux_fill.py -i still.png --mask hole.png -p "no straw" -o fill.png
+python scripts/generate_flux2_klein.py --mode t2i -p "diner sunset motorcycle" -o klein.png
+python scripts/generate_sdxl.py -m lightning -p "street fashion" -o scout.png
+python scripts/generate_krea.py --list-profiles
+python scripts/generate_moody.py --list-profiles
+```
+
+가이드: [flux1](../workflows/human/flux1/AGENT_GUIDE.md) · [klein](../workflows/human/flux2_klein/AGENT_GUIDE.md) · [sdxl](../workflows/human/sdxl_photoreal/AGENT_GUIDE.md)
 
 #### 타이포 · 포스터
 
@@ -608,17 +652,36 @@ python scripts/render_title.py --preset caption --text "포기하지 마" --widt
 python scripts/comp_shot.py --list-looks
 python scripts/comp_shot.py --look night -i clip.mp4 -o "%AGENT_WORKSPACE%/graded.mp4"
 python scripts/render_edit.py --timeline "%AGENT_WORKSPACE%/edits/s01/timeline.json" -o "%AGENT_WORKSPACE%/edits/s01/master.mp4"
-python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" -o "%AGENT_WORKSPACE%/edits/s01/qa"
 ```
 
 가이드: [edit AGENT_GUIDE](../workflows/human/edit/AGENT_GUIDE.md) · 설계: [agent_edit_pipeline_design.md](agent_edit_pipeline_design.md)
+
+### 2.11 REVIEW — 생성물 능동 평가
+
+`exit 0` 은 파일이 생겼다는 뜻이다. 유저에게 보여 주거나 모션/믹스/납품으로 넘기기 **전**에 연다.
+
+스킬: [output-review](../skills/output-review/SKILL.md)
+
+| CLI | 언제 |
+|-----|------|
+| **`review_media`** | 원오프 스틸·클립·오디오 (`-o` 한 장). pack → 열기 → record |
+| `shot_qa_pack` / `shot_qa_record` | 에피소드 키프레임·클립 (approve 게이트) |
+| `edit_qa_pack` / `edit_qa_record` | 편집 마스터 |
+
+```bash
+python scripts/review_media.py pack -i "%AGENT_WORKSPACE%/stills/hero.png" --intent "medium, yellow parasol" -o "%AGENT_WORKSPACE%/reviews/hero"
+python scripts/review_media.py record --pack "%AGENT_WORKSPACE%/reviews/hero" --verdict pass --opened --notes "medium OK; hands OK"
+python scripts/review_media.py lever S4_anatomy
+python scripts/shot_qa_pack.py -e EP -s S03
+python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" -o "%AGENT_WORKSPACE%/edits/s01/qa"
+```
 
 | `episode_subtitles` | 자막 |
 | `export_episode_to_workspace` | 프로젝트 반출 |
 | `episode_status` | 상태 |
 | `failure_note.py` | 실패 교훈 · **`before`** 생성 전 프리플라이트 · `search`/`add` |
 
-연출 사고(장편·뮤비 기획 시 권장 스킬): [skills/video-direction](../skills/video-direction/SKILL.md) · [generation-prompt](../skills/generation-prompt/SKILL.md)  
+연출 사고(장편·뮤비 기획 시 권장 스킬): [skills/video-direction](../skills/video-direction/SKILL.md) · [generation-prompt](../skills/generation-prompt/SKILL.md) · [output-review](../skills/output-review/SKILL.md)  
 → **스킬도 강제 공정이 아님.** 품질이 필요할 때 장착.
 
 ---

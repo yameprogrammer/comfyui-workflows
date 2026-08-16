@@ -36,6 +36,9 @@ FAMILY_HY3D = "hy3d"  # Hunyuan3D / Kijai Hy3D mesh
 FAMILY_ACE = "ace_step"  # BGM
 FAMILY_QWEN_EDIT = "qwen_edit_2509"  # Qwen-Image-Edit-2509 instruction edit (fp8 + VL)
 FAMILY_QWEN_ANGLE = "qwen_edit_2511_angle"  # Qwen-Image-Edit-2511 multi-angle (GGUF + Angles LoRA)
+FAMILY_FLUX1 = "flux1"  # Flux.1 Dev GGUF + DualCLIP T5
+FAMILY_FLUX2 = "flux2_klein"  # Flux.2 Klein 9B GGUF
+FAMILY_SDXL = "sdxl_still"  # SDXL checkpoints (not Illustrious)
 FAMILY_OTHER = "other"
 
 # Optional minimum free memory after switch free (env overrides)

@@ -36,6 +36,7 @@ from lib.profiles import (
 from lib.prompt_assembly import assemble_prompt
 from lib.sheet_prompt_policy import core_for_preset
 from lib.sheet_qa_heuristics import check_sheet_output, extract_lower_body_crop
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 from lib.wardrobe import (
     get_wardrobe_default,
     inject_instruction_for_preset,
@@ -128,7 +129,7 @@ def main(argv=None) -> int:
         help="turnaround,expression,costume | all_mvp (profile-aware) | preset ids (or use --only)",
     )
     parser.add_argument("--source", default=None, help="Source image (default: approved master)")
-    parser.add_argument("--model", "-m", choices=["real", "pro", "wild"], default=None)
+    parser.add_argument("--model", "-m", choices=list(ZIMAGE_MODEL_CHOICES), default=None)
     parser.add_argument(
         "--profile",
         choices=list(PROFILE_IDS),

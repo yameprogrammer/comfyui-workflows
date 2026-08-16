@@ -23,6 +23,7 @@ import sys
 
 from lib.comfy_client import utc_now_iso
 from lib.contact_sheet import build_contact_sheet
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 from lib.location_package import (
     LocationPackage,
     get_location_profile,
@@ -209,7 +210,7 @@ def main(argv=None) -> int:
     p.add_argument("--run", action="store_true", help="Expand MVP + approve + export")
     p.add_argument("--export-only", action="store_true")
     p.add_argument("--approve-only", action="store_true")
-    p.add_argument("--model", default="pro", choices=["real", "pro", "wild"])
+    p.add_argument("--model", default="pro", choices=list(ZIMAGE_MODEL_CHOICES))
     p.add_argument("--profile", choices=["video_ref", "artbook"], default=None)
     p.add_argument("--candidates", type=int, default=1)
     p.add_argument("--seed-base", type=int, default=43001)

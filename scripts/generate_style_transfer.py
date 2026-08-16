@@ -18,6 +18,7 @@ import argparse
 import json
 import sys
 
+from lib.still_model_profiles import ZIMAGE_MODEL_CHOICES
 from lib.style_transfer import (
     ENGINES,
     MODES,
@@ -82,7 +83,7 @@ def main(argv: list[str] | None = None) -> int:
         help="Do not emphasize face/identity lock in instruction",
     )
     p.add_argument("--denoise", "-d", type=float, default=None, help="I2I denoise only")
-    p.add_argument("--model", "-m", choices=["real", "pro", "wild"], default="pro")
+    p.add_argument("--model", "-m", choices=list(ZIMAGE_MODEL_CHOICES), default="pro")
     p.add_argument("--seed", type=int, default=None)
     p.add_argument("--timeout", type=int, default=600)
     p.add_argument("--meta-out", default=None)

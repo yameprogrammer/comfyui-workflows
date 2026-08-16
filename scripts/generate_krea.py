@@ -30,6 +30,11 @@ from lib.comfy_client import (
     write_meta,
 )
 from lib.comfy_engine_session import ensure_engine
+from lib.still_model_profiles import (
+    KREA_PROFILE_CHOICES,
+    format_profile_table,
+    resolve_krea_unet,
+)
 from lib.workflow_api_runner import run_workflow_api, select_lonecat_preset
 from lib.workflow_paths import default_workflow, resolve_workflow
 
@@ -66,6 +71,7 @@ def generate_krea_image(
     preset: str | None = None,
     backend: str | None = None,
     unet_name: str | None = None,
+    profile: str | None = None,
     lora_name: str | None = None,
     lora_strength: float = 1.0,
     rebalance: bool = False,
@@ -124,6 +130,7 @@ def generate_krea_image(
             timeout_sec=timeout_sec,
             preset=preset,
             unet_name=unet_name,
+            profile=profile,
             lora_name=lora_name,
             lora_strength=lora_strength,
             rebalance=rebalance,
@@ -156,6 +163,7 @@ def _generate_krea_workflow_api(
     timeout_sec: float,
     preset: str | None,
     unet_name: str | None,
+    profile: str | None = None,
     lora_name: str | None = None,
     lora_strength: float = 1.0,
     rebalance: bool = False,
@@ -171,8 +179,12 @@ def _generate_krea_workflow_api(
     output_filename = die_if_toolbox(output_filename)
 
     ports: dict = {"positive": prompt_text}
-    if unet_name:
-        ports["unet_name"] = unet_name
+    try:
+        resolved_unet = resolve_krea_unet(profile, unet_name)
+    except KeyError as e:
+        return fail_result(error="BAD_PROFILE", message=str(e))
+    if resolved_unet:
+        ports["unet_name"] = resolved_unet
     if width is not None:
         ports["width"] = int(width)
     if height is not None:
@@ -187,6 +199,8 @@ def _generate_krea_workflow_api(
     print(
         f"Krea T2I via workflow_api preset={preset_name} "
         f"size={width}x{height}"
+        + (f" profile={profile}" if profile else "")
+        + (f" unet={resolved_unet}" if resolved_unet else "")
         + (f" lora={lora_name}@{lora_strength}" if lora_name else "")
         + (f" rebalance={rebalance_multiplier}" if rebalance else "")
     )
@@ -254,6 +268,12 @@ def _generate_krea_workflow_api(
         write_meta(meta_path, meta)
 
     print(f"Krea T2I image successfully saved to: {out_abs}")
+    try:
+        from lib.output_review import print_review_nudge
+
+        print_review_nudge(out_abs, intent=prompt_text)
+    except Exception:
+        pass
     return ok_result(
         output_path=out_abs,
         seed=applied_seed,
@@ -547,6 +567,17 @@ if __name__ == "__main__":
     parser.add_argument("--height", type=int, default=None)
     parser.add_argument("--timeout", type=float, default=600)
     parser.add_argument("--preset", type=str, default=None, help=f"default {DEFAULT_KREA_PRESET}")
+    parser.add_argument(
+        "--profile",
+        choices=list(KREA_PROFILE_CHOICES),
+        default=None,
+        help="Krea unet flavor: turbo (default) | int8 | animosity | raw | redcraft | gpt | mix",
+    )
+    parser.add_argument(
+        "--list-profiles",
+        action="store_true",
+        help="List on-disk Krea unet aliases and exit",
+    )
     parser.add_argument("--unet-name", type=str, default=None)
     parser.add_argument(
         "--lora",
@@ -582,6 +613,10 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    if args.list_profiles:
+        print(format_profile_table("krea"))
+        sys.exit(0)
+
     if args.list_features:
         from lib.krea2_features import all_features, format_feature, status_summary
 
@@ -608,6 +643,7 @@ if __name__ == "__main__":
         preset=args.preset,
         backend="legacy_mini" if args.legacy_mini else "workflow_api",
         unet_name=args.unet_name,
+        profile=args.profile,
         lora_name=args.lora,
         lora_strength=float(args.lora_strength),
         rebalance=bool(args.rebalance),

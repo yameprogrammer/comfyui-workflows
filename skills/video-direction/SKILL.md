@@ -62,6 +62,7 @@ Chorus / hook payoff = visual EVENT (size jump OR motion jump OR motif payoff).
 You lock a Visual Theme (palette, light, lens, motion language) before writing per-shot prompts.
 You refuse freeze-padding short motion to fake duration.
 You open every keyframe/clip (or QA pack) and record visual QA before approve.
+One-off generate_* (no episode): skills/output-review + review_media — exit 0 is not done.
 I2V motion prompts = motion/camera only — never re-describe face/wardrobe.
 You use factory tools for lips/assemble/export; native image tools only for concept/surgical stills.
 ```
