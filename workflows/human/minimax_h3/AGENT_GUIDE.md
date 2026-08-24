@@ -1,8 +1,8 @@
 # MiniMax H3 — Agent 가이드
 
-> **Toolbox shelf:** MOTION (Seedance-class local T2V / I2V / R2V / **A2V** + polish + **native stereo audio**)  
+> **Toolbox shelf:** MOTION (Seedance-class local T2V / I2V / R2V + polish + **native stereo audio**)  
 > **CLI:** `python scripts/generate_minimax_h3.py`  
-> **Alternatives:** episode I2V default → `generate_i2v` (LTX) · Wan easy T2V → `generate_yaw_wan22` · production lip → `generate_s2v`  
+> **Alternatives:** episode I2V default → `generate_i2v` (LTX) · Wan easy T2V → `generate_yaw_wan22` · **클론 VO 파형 립** → `generate_s2v` (IT)  
 > **Catalog:** [docs/tool_catalog.md](../../../docs/tool_catalog.md) §2.4 MOTION  
 > **Official docs:** [ComfyUI MiniMax H3](https://docs.comfy.org/tutorials/video/minimax/minimax-h3) · [HF Comfy-Org/MiniMax-H3](https://huggingface.co/Comfy-Org/MiniMax-H3)  
 > **Deno recipes:** [A2V](https://youtu.be/puBAu9qt5qM) · [MultiRef + polish](https://youtu.be/s7JDBLfTGKI)
@@ -12,7 +12,8 @@
 **Runner:** `lib/minimax_h3_runner.py` · family `minimax_h3`
 
 > **실 노드 유지** (`MiniMaxH3ImageToVideo` / `MiniMaxH3ReferenceToVideo`). 미니 그래프 재작성 금지.  
-> T2V/I2V/R2V: 네이티브 **스테레오 오디오** 한 패스. **A2V**: 소스 오디오 먹스(립싱크/MV 레시피).
+> T2V/I2V: H3가 대사·SFX·음악을 **같이 생성** (`<d>[Korean] …</d>`). R2V `-a` = 음색 레퍼(먹스 아님).  
+> **A2V Simple / AudioToVideo = Deno 먹스 트릭. 공식 아님. 호스트 본선 금지.** SSOT: vault `decisions/2026-08-17-a2v-lipsync-chain.md`.
 
 ---
 
@@ -23,7 +24,7 @@
 | 시네마틱 애니/실사 **텍스트→영상** (시댄스급 품질 목표) | 에피소드 본선 I2V 대량 (기본은 LTX 720p) |
 | 키프레임 **I2V** + 샷/카메라/오디오를 한 프롬프트에 | 저지연 2–4초 초안만 필요 → LTX draft |
 | **멀티 레퍼**로 캐릭·스타일·모션 고정 (R2V) | 15초 초과의 안정 체인 → LTX last-frame chain |
-| **A2V** 이미지+노래/대사 립싱크·MV 초안 | 프로덕션 토킹헤드 품질 → InfiniteTalk / LTX IA2V (`s2v`) |
+| 키프레임 + `<d>` 로 **H3가 말하게** (I2VA) | 클론 VO를 입에 그대로 → `s2v` / IT. `--task a2v` 먹스 금지 |
 | work 클립 **폴리시** (VSR+RIFE 24→48) | 일반 납품 업스케일만 → `upscale_video` / LTX spatial |
 
 ---
@@ -48,10 +49,17 @@ python scripts/generate_minimax_h3.py -i start.png --last end.png -p "continuous
 python scripts/generate_minimax_h3.py --task r2v --ref-image hero.png --ref-image style.png \
   -p "Use <Picture 1> as identity. <Picture 2> sets the city style. She walks toward camera." -o r2v.mp4
 
-# A2V audio-to-video (source audio muxed)
-python scripts/generate_minimax_h3.py --task a2v -i face.png -a line.wav --duration 5 \
-  -p "[reference generation + audio reference] Use <Picture 1> identity. Lips sync every syllable of <Audio 1>." \
-  -o a2v.mp4 --profile work
+# I2VA — H3 speaks (official). Do NOT pass -a
+python scripts/generate_minimax_h3.py --task i2v -i face.png --profile native \
+  -p "The host (S1) says: <d>[Korean] 안녕하세요. 야매플머입니다.</d>" -o speak.mp4
+
+# R2V timbre only (official). Different-sentence wav. H3 audio kept
+python scripts/generate_minimax_h3.py --task r2v --ref-image face.png -a other_line.wav \
+  --profile native -p "<Audio 1> is voice-timbre only. (S1) says: <d>[Korean] 오늘은 솔직하게 가겠습니다.</d>" \
+  -o timbre.mp4
+
+# A2V mux (Deno, unofficial) — host talking-head 금지. MV 실험만
+# python scripts/generate_minimax_h3.py --task a2v ...
 
 # Post-polish (RTX VSR×2 + RIFE×2 → 48fps; auto-fallback rife-only)
 python scripts/generate_minimax_h3.py --task polish -i work.mp4 -o polished.mp4
@@ -113,8 +121,8 @@ ComfyUI 콤보 이름: `MinimaxH3\minimax_h3_…` (서브폴더 포함).
 | `MiniMax_H3_I2V_ImageToVideo.json` | I2V / FL | `--task i2v` / flf |
 | `MiniMax_H3_R2V_ReferenceToVideo.json` | R2V stock | `--task r2v` |
 | **`MiniMax_H3_R2V_MultiRef_Deno.json`** | Multi-ref Deno 로더 | `--task r2v` (API는 stock; UI가 편함) |
-| **`MiniMax_H3_A2V_Simple.json`** | A2V stock | **`--task a2v`** |
-| `MiniMax_H3_A2V_AudioToVideo.json` | A2V Full (Whisper+LLM) | UI 전용 (Deno+Ollama) |
+| **`MiniMax_H3_A2V_Simple.json`** | Deno 먹스 (비공식) | `--task a2v` — **호스트 본선 금지** |
+| `MiniMax_H3_A2V_AudioToVideo.json` | Deno 먹스 + Whisper/LLM | UI 전용. 공식 아님 |
 | **`MiniMax_H3_PostPolish_Upscale60fps.json`** | RTX VSR + RIFE | **`--task polish`** |
 | **`MiniMax_LTX_Spatial_Full_Upscale.json`** | work → HD 생성형 업스케일 | `upscale_ltx_spatial.py` |
 | `MiniMax_H3_README.md` | 로컬 설치·레시피 메모 | — |
@@ -146,12 +154,12 @@ python scripts/upscale_ltx_spatial.py -i work.mp4 -o out.mp4 --path full
 
 필요 custom nodes: **ComfyUI-LTXVideo** + **crt-nodes** + **ComfyUI-GGUF** + **VideoHelperSuite**
 
-### 6.2 A2V / MultiRef / Polish (2026-08-12)
+### 6.2 Official speak vs A2V mux (2026-08-17)
 
-- **A2V Simple**: 이미지 + 오디오 → 립싱크/MV; 최종 MP4에 **원본 오디오** 먹스.  
-- **A2V Full (Deno)**: Whisper 가사 + Gemma 음향 분석 + Ollama 프롬프트 디렉터 — Comfy UI 전용.  
-- **MultiRef Deno**: 한 케이블 최대 9장 레퍼 (`DenoMiniMaxH3ReferenceImageLoader`).  
-- **PostPolish**: VSR Medium ×2 → RIFE ×2 (24→**48**fps). RTX VFX 없으면 `--polish-mode rife`.
+- **공식 말하기:** I2V 템플릿 / `--task i2v` + `<d>[Korean]`. `-a` 넣지 말 것.  
+- **공식 음색:** R2V / MultiRef + `ref_audios`. CreateVideo는 `VAEDecodeAudio`.  
+- **A2V Simple/Full:** H3 생성음을 버리고 원본 wav를 얹음. 운이 좋으면 립처럼 보임. 호스트 금지.  
+- **PostPolish:** VSR Medium ×2 → RIFE ×2 (24→**48**fps). RTX VFX 없으면 `--polish-mode rife`.
 
 스모크 (4090): A2V 0.2MP 5s ~50s · MultiRef ~110s · polish RTX+RIFE ~25s → 1216×704@48.
 
@@ -162,8 +170,8 @@ python scripts/upscale_ltx_spatial.py -i work.mp4 -o out.mp4 --path full
 - **VRAM:** pruned int8 + dynamic load. 4090 24GB OK. 3060급은 draft/work + 짧은 duration.  
 - **속도:** LTX lightx2v 초안보다 느림. 품질 히어로·오디오 포함 쇼츠에 적합.  
 - **에피 본선:** `video_backends.json` default I2V는 여전히 **LTX**. MiniMax는 의도적 품질/오디오 도구.  
-- **R2V/A2V**는 fl2va와 **다른 unet** (`ref2va`).  
-- A2V 프로덕션 립 품질은 s2v/IT가 우선; MiniMax A2V는 쇼츠/MV 실험에 강함.  
+- **R2V**는 fl2va와 **다른 unet** (`ref2va`).  
+- 클론 VO 파형 립은 `s2v`/IT. MiniMax A2V 먹스는 공식 립싱크가 아님.  
 - Sage Attention 옵션 시 약 2× 가속 가능 (공식 문서; 미기본).
 
 ---
@@ -176,5 +184,6 @@ python scripts/upscale_ltx_spatial.py -i work.mp4 -o out.mp4 --path full
 | MiniMax work → HD 생성형 | LTX spatial full | `python scripts/upscale_ltx_spatial.py -i work.mp4 -o hd.mp4 --path full` |
 | MiniMax work → 빠른 선명+보간 | polish | `python scripts/generate_minimax_h3.py --task polish -i work.mp4 -o p.mp4` |
 | 빠른 Wan T2V 실험 | YAW | `python scripts/generate_yaw_wan22.py --task t2v -p "..." -o out.mp4` |
-| 프로덕션 립싱크 대사 | s2v | `python scripts/generate_s2v.py -i face.png -a line.wav -o talk.mp4` |
+| 클론 VO 파형을 입에 그대로 | s2v | `python scripts/generate_s2v.py -i face.png -a line.wav -o talk.mp4` |
+| H3가 말하게 | minimax i2v | `python scripts/generate_minimax_h3.py --task i2v -i face.png -p "... <d>[Korean] …</d>"` |
 | 카메라 의도만 | camera_move | `python scripts/generate_camera_move.py -i key.png --preset push_in -o clip.mp4` |

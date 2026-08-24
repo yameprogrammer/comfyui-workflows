@@ -92,18 +92,36 @@ def _find_video_in_history(history_entry: dict) -> dict | None:
     return None
 
 
-def _copy_video_info(info: dict, out_path: str) -> None:
+def _copy_video_info(info: dict, out_path: str, server: str = DEFAULT_SERVER) -> None:
+    ensure_parent_dir(out_path)
+    fullpath = info.get("fullpath")
+    if fullpath and os.path.isfile(fullpath):
+        shutil.copy2(fullpath, out_path)
+        return
+
     filename = info.get("filename")
     subfolder = info.get("subfolder", "")
     ftype = info.get("type", "output")
     base = COMFY_OUTPUT_DIR if ftype == "output" else COMFY_TEMP_DIR
     src = os.path.join(base, subfolder, filename) if subfolder else os.path.join(base, filename)
-    ensure_parent_dir(out_path)
     if os.path.isfile(src):
         shutil.copy2(src, out_path)
         return
-    # fallback newest agent_upscale mp4
-    raise FileNotFoundError(f"Video not found on disk: {src}")
+
+    # Try downloading via Comfy /view API
+    if filename:
+        url = (
+            f"http://{server}/view?filename={urllib.parse.quote(filename)}"
+            f"&subfolder={urllib.parse.quote(subfolder)}&type={ftype}"
+        )
+        try:
+            urllib.request.urlretrieve(url, out_path)
+            if os.path.isfile(out_path) and os.path.getsize(out_path) > 0:
+                return
+        except Exception:
+            pass
+
+    raise FileNotFoundError(f"Video not found on disk or via API: {src}")
 
 
 def build_esrgan_image_prompt(
@@ -412,7 +430,7 @@ def run_comfy_video(
     vinfo = _find_video_in_history(hist)
     try:
         if vinfo:
-            _copy_video_info(vinfo, output_path)
+            _copy_video_info(vinfo, output_path, server=server)
         else:
             # newest matching prefix
             candidates = []

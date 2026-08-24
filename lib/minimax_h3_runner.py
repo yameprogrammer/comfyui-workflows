@@ -511,12 +511,12 @@ def generate_minimax_h3(
             last_name = _stage_image(last_image_path, server_address)
         for p in ref_images or []:
             ref_names.append(_stage_image(p, server_address))
-        # A2V: identity from -i becomes Picture 1 when no explicit --ref-image
-        if task_v == "a2v":
-            if not ref_names and first_name:
-                ref_names = [first_name]
-            if audio_path:
-                audio_name = _stage_media(audio_path, server_address, prefix="mmh3a")
+        # R2V/A2V: identity from -i becomes Picture 1 when no explicit --ref-image
+        if task_v in ("a2v", "r2v") and not ref_names and first_name:
+            ref_names = [first_name]
+        # A2V muxes this wav. R2V uses it as timbre only (H3 still decodes speech).
+        if audio_path and task_v in ("a2v", "r2v"):
+            audio_name = _stage_media(audio_path, server_address, prefix="mmh3a")
     except Exception as e:
         return fail_result(error="stage_image", message=str(e))
 

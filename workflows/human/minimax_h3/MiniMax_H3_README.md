@@ -41,12 +41,15 @@ Optional extras for full Deno A2V auto-prompt lane:
 | `MiniMax_H3_I2V_ImageToVideo.json` | First/last frame → video+audio | `fl2va` |
 | `MiniMax_H3_R2V_ReferenceToVideo.json` | Multi-ref image/video/audio → video+audio | `ref2va` |
 
-### Audio-to-Video
+### Audio-to-Video (Deno mux — **not official MiniMax**)
+
+H3 official speak = I2V/T2V above (`<d>[Korean]`, keep `VAEDecodeAudio`). Timbre = official R2V `ref_audios`, still H3 audio.  
+These two graphs **throw away H3 audio** and mux the loaded wav. Looks synced when lucky. Do not use for host talking-head.
 
 | File | Mode | Dependencies |
 |------|------|----------------|
-| **`MiniMax_H3_A2V_Simple.json`** | Image + audio → lip-sync / MV-style clip; **original audio muxed** into MP4 | Stock nodes only |
-| **`MiniMax_H3_A2V_AudioToVideo.json`** | Same idea + Whisper + Gemma analysis + local LLM prompt director (Deno) | `deno-custom-nodes`, VideoHelperSuite, **gemma4 installed**, Ollama optional |
+| **`MiniMax_H3_A2V_Simple.json`** | Deno: generate mouth, **mux original audio** | Stock nodes only |
+| **`MiniMax_H3_A2V_AudioToVideo.json`** | Same mux + Whisper + Gemma + local LLM | `deno-custom-nodes`, VHS, gemma4, Ollama optional |
 
 ### Multi-ref anime R2V + post-polish ([s7JDBLfTGKI](https://youtu.be/s7JDBLfTGKI))
 

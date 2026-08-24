@@ -72,7 +72,7 @@ def main(argv=None) -> int:
         "--audio",
         "-a",
         default=None,
-        help="A2V reference audio (wav/mp3); muxed into final MP4",
+        help="A2V: muxed performance wav. R2V: timbre-only (H3 still speaks <d>)",
     )
     p.add_argument(
         "--ref-image",
@@ -202,7 +202,8 @@ def main(argv=None) -> int:
         task = "r2v"
     if args.image and args.last and task == "i2v":
         task = "flf"
-    if args.audio:
+    # Explicit --task r2v + --audio = timbre ref (do not force A2V mux)
+    if args.audio and task not in ("r2v", "a2v"):
         task = "a2v"
 
     print(

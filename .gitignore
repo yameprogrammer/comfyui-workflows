@@ -58,6 +58,11 @@ third_party/fonts/*.ttf
 third_party/fonts/*.otf
 third_party/fonts/*.part
 
+# Third-party git repos / bridges
+third_party/capcut-mcp/
+third_party/krita-cli/
+third_party/krita-mcp/
+
 
 .agent_cache/
 
