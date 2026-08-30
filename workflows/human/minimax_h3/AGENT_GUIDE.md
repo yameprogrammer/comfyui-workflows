@@ -24,6 +24,7 @@
 | 시네마틱 애니/실사 **텍스트→영상** (시댄스급 품질 목표) | 에피소드 본선 I2V 대량 (기본은 LTX 720p) |
 | 키프레임 **I2V** + 샷/카메라/오디오를 한 프롬프트에 | 저지연 2–4초 초안만 필요 → LTX draft |
 | **멀티 레퍼**로 캐릭·스타일·모션 고정 (R2V) | 15초 초과의 안정 체인 → LTX last-frame chain |
+| R2V **3뷰 연락처 시트** (얼굴+의상, opt-in 스카우트) | 팩 본선 턴어라운드 → `character_full_sheet` / Qwen. toobusy 설치 금지 |
 | 키프레임 + `<d>` 로 **H3가 말하게** (I2VA) | 클론 VO를 입에 그대로 → `s2v` / IT. `--task a2v` 먹스 금지 |
 | work 클립 **폴리시** (VSR+RIFE 24→48) | 일반 납품 업스케일만 → `upscale_video` / LTX spatial |
 
@@ -59,6 +60,11 @@ python scripts/generate_minimax_h3.py --task r2v -i hero.png --ref-video plate.m
 # Carry look — same room as previous clip (tail 22 frames → <Video 1>, no soundtrack)
 python scripts/generate_minimax_h3.py --task r2v -i hero.png --carry-from clip_a.mp4 \
   --profile work -p "Keep the room layout from <Video 1>. Subject 1 walks to the shelf." -o clip_b.mp4
+
+# Contact sheet — Picture 1 identity/body, Picture 2 outfit only. First frame is the sheet
+python -c "from pathlib import Path; from lib.minimax_h3_runner import build_contact_sheet_prompt; Path('sheet_prompt.txt').write_text(build_contact_sheet_prompt(), encoding='utf-8')"
+python scripts/generate_minimax_h3.py --task r2v --ref-image face.png --ref-image outfit.png \
+  --ref-image-size max --profile work --duration 0.2 --prompt-file sheet_prompt.txt -o sheet.mp4
 
 # I2VA — H3 speaks (official). Do NOT pass -a
 python scripts/generate_minimax_h3.py --task i2v -i face.png --profile native \
@@ -193,6 +199,7 @@ python scripts/upscale_ltx_spatial.py -i work.mp4 -o out.mp4 --path full
 - **속도:** LTX lightx2v 초안보다 느림. 품질 히어로·오디오 포함 쇼츠에 적합.  
 - **에피 본선:** `video_backends.json` default I2V는 여전히 **LTX**. MiniMax는 의도적 품질/오디오 도구.  
 - **R2V**는 fl2va와 **다른 unet** (`ref2va`).  
+- R2V 3뷰 연락처 시트는 opt-in 스카우트. 팩 `approved/` 턴은 `character_full_sheet`. toobusy / H3 Image VAE 안 씀.  
 - 클론 VO 파형 립은 `s2v`/IT. MiniMax A2V 먹스는 공식 립싱크가 아님.  
 - Sage Attention 옵션 시 약 2× 가속 가능 (공식 문서; 미기본).
 

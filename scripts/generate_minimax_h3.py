@@ -26,6 +26,10 @@ under F:\\model (extra_model_paths).
   python scripts/generate_minimax_h3.py --task r2v -i hero.png --carry-from clip_a.mp4 \\
       -p "Keep the room from <Video 1>. Subject 1 walks to the shelf." -o clip_b.mp4
 
+  # Contact sheet (still collage, not video): face=Picture 1, outfit=Picture 2
+  python scripts/generate_minimax_h3.py --task r2v --ref-image face.png --ref-image outfit.png \\
+      --ref-image-size max --duration 0.2 -p "summary: [reference generation] One static still, not a video. ..." -o sheet.mp4
+
   # Audio-to-Video (ref audio + identity; source audio muxed — lip-sync / MV)
   python scripts/generate_minimax_h3.py --task a2v -i face.png -a line.wav \\
       -p "[reference generation + audio reference] Use <Picture 1> identity; lips sync <Audio 1>." \\

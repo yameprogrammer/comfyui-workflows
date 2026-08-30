@@ -76,6 +76,39 @@ LENGTH_EXPR = "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17"
 CARRY_FRAME_CHOICES = (5, 22, 39, 56)
 CARRY_FRAMES_DEFAULT = 22
 
+# R2V still collage (TooBusy / Reddit H3-as-editor). Not character_full_sheet.
+def build_contact_sheet_prompt(*, extra: str = "") -> str:
+    """3-view still collage. Picture 1 = identity/body, Picture 2 = outfit only."""
+    extra_block = ""
+    extra_s = (extra or "").strip()
+    if extra_s:
+        extra_block = (
+            "\nUSER DIRECTION — HIGHEST PRIORITY (keep Picture 1 identity and "
+            f"Picture 2 outfit roles):\n{extra_s}\n"
+        )
+    return (
+        "subject_definitions: <Subject 1> is the person in <Picture 1>; preserve "
+        "face, age, skin, hair, and body build from <Picture 1>. <Picture 2> is "
+        "outfit only — colors, materials, footwear, wearable accessories. Do not "
+        "copy the outfit donor's face, age, gender, or body.\n"
+        "summary: [reference generation] One static still, not a video. One "
+        "turnaround contact sheet of Subject 1 wearing the <Picture 2> costume.\n"
+        "retention_analysis: <Picture 1> fully_preserved - identity and body. "
+        "<Picture 2> fully_preserved - costume design only. <Subject 1> "
+        "partially_preserved - same person in every cell; pose changes per panel.\n"
+        "detailed_description: The target is one still image, not a video. "
+        "Exactly three equal vertical photographs left to right on a neutral "
+        "light-grey studio background. Photo 1: complete full-body front, "
+        "relaxed A-pose, head and feet visible. Photo 2: complete full-body "
+        "strict 90-degree right-side view. Photo 3: complete full-body back view. "
+        "Same identity, body, costume, scale, ground line, and lighting in all "
+        "three. No extra panel, no merged cells, no captions, no logos, no extra "
+        "people, no motion.\n"
+        f"{extra_block}"
+        "overall_soundscape: silence\n"
+        "non_diegetic_music: N/A"
+    )
+
 # Agent quality tiers (ResolutionSelector megapixels + defaults)
 PROFILES: dict[str, dict[str, Any]] = {
     "draft": {

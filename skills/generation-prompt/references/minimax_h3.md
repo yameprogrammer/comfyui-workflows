@@ -91,6 +91,21 @@ overall_soundscape: quiet store, footsteps
 non_diegetic_music: N/A
 ```
 
+### Contact sheet (3-view still, not video)
+
+Opt-in scout. Does **not** replace `character_full_sheet` / Qwen turnaround. Do **not** install toobusy. `--ref-image face.png --ref-image outfit.png` (order = Picture 1, Picture 2) + `--ref-image-size max`. Outfit still: mannequin or flat-lay — a worn-on donor body leaks into Subject 1. Pose photos as extra refs bleed; describe the pose in text instead.
+
+```text
+subject_definitions: <Subject 1> is the person in <Picture 1>; preserve face, age, skin, hair, and body build from <Picture 1>. <Picture 2> is outfit only — colors, materials, footwear, wearable accessories. Do not copy the outfit donor's face, age, gender, or body.
+summary: [reference generation] One static still, not a video. One turnaround contact sheet of Subject 1 wearing the <Picture 2> costume.
+retention_analysis: <Picture 1> fully_preserved - identity and body. <Picture 2> fully_preserved - costume design only. <Subject 1> partially_preserved - same person in every cell; pose changes per panel.
+detailed_description: The target is one still image, not a video. Exactly three equal vertical photographs left to right on a neutral light-grey studio background. Photo 1: complete full-body front, relaxed A-pose, head and feet visible. Photo 2: complete full-body strict 90-degree right-side view. Photo 3: complete full-body back view. Same identity, body, costume, scale, ground line, and lighting in all three. No extra panel, no merged cells, no captions, no logos, no extra people, no motion.
+overall_soundscape: silence
+non_diegetic_music: N/A
+```
+
+Helper: `lib.minimax_h3_runner.build_contact_sheet_prompt`. Extra body/framing notes go in `extra=`. Take the first decoded frame of the clip as the sheet. `--duration 0.2` snaps to **5 frames**; `0.3` snaps to 22.
+
 ---
 
 ## A2V (audio + face)
@@ -115,6 +130,7 @@ No creative prompt.
 - [ ] Three field names present (except banned A2V mux / polish)
 - [ ] I2V/FLF starts with the alignment sentence
 - [ ] R2V tags every `<Picture n>` / `<Video n>` + one role each
+- [ ] Contact sheet: Picture 1 identity/body, Picture 2 outfit only; "still, not a video"; three named panels
 - [ ] One camera move; holds use positive lock language
 - [ ] Dialogue in `<d>[Korean] …</d>` with a named speaker
 - [ ] `non_diegetic_music: N/A` when no score

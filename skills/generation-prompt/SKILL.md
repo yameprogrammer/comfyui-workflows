@@ -142,6 +142,7 @@ Shared hard rules: **`motion_video_prompts.md`**
 
 - **LTX:** optional chronological beats + audio — `ltx23_video.md`  
 - **Wan:** subject/motion/camera order, camera lexicon — `wan22_i2v.md`  
+- **H3 R2V contact sheet:** Picture 1 identity / Picture 2 outfit; still collage, not video — `minimax_h3.md`  
 - **SI2V:** natural speech mouth motion + micro performance only  
 
 **Forbidden on I2V body:** face beauty essay, full wardrobe, masterpiece soup.

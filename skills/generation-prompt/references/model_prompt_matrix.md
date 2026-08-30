@@ -71,7 +71,7 @@ Picker: `python scripts/prompt_dialect.py pick "…"` · `show <id>` · `still_m
 | `generate_wan22_nsfw_i2v` | Wan I2V | Same as Wan I2V | `wan22_i2v.md` |
 | `generate_ltx23_latentheart` / `redmix_i2v` / `ltx_nsfw_*` | LTX family | Same I2V; no brand words | `ltx23_video.md` §10.5 |
 | `generate_ltx_relight` | Relight | Light only | `ltx23_video.md` §10.5 |
-| `generate_minimax_h3` | H3 T2V/I2V/R2V/A2V | Shot + camera + audio tags | `minimax_h3.md` |
+| `generate_minimax_h3` | H3 T2V/I2V/R2V/A2V | Shot + camera + audio tags; R2V contact-sheet = still collage | `minimax_h3.md` |
 | Grok `image_to_video` | Grok | 1–2 sentences, one move | SKILL §Grok |
 
 ---
@@ -102,7 +102,7 @@ Picker: `python scripts/prompt_dialect.py pick "…"` · `show <id>` · `still_m
 | **Wan Animate** | Split look / bg / pose | Choreograph in `--look` |
 | **Camera-move** | Preset + extra | Second camera move |
 | **MiniMax Music / SA3** | Genre BPM instruments | Visual still language |
-| **H3** | Shot + camera; `<Picture n>` on R2V | Untagged refs |
+| **H3** | Shot + camera; `<Picture n>` + one job; contact sheet: P1 identity / P2 outfit | Untagged refs; outfit donor body; pose-photo bleed |
 | **Hy3D** | Clean still | Treat as T2I |
 
 ---
