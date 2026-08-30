@@ -54,9 +54,9 @@ INTENT_TOOLS: list[dict[str, Any]] = [
             "배경음악", "generate_minimax_music", "full song", "lyrics"
         ],
         "examples": [
-            'python scripts/generate_minimax_music.py --caption "K-Pop acoustic ballad" --lyrics "[Intro]\n...\n[Verse]\n...\n[Chorus]\n..." -o song.flac',
+            'python scripts/generate_minimax_music.py --caption-file cap.txt --lyrics "[Intro]\\n...\\n[Verse]\\n...\\n[Chorus]\\n..." -o song.flac',
             'python scripts/generate_minimax_music.py --mode bgm --caption "Cinematic Lo-fi chillhop" --duration 120 -o bgm.flac',
-            'python scripts/generate_minimax_music.py --caption-file cap.txt --lyrics-file lyr.txt -o out.flac',
+            'python scripts/generate_minimax_music.py --caption-file cap.txt --lyrics-file lyr.txt --duration 300 --tiled-decode -o out.flac',
         ],
         "alternatives": [
             {"if": "단순 캐릭터 대사 TTS", "use": "generate_qwen3_tts", "cli": "python scripts/generate_qwen3_tts.py -t \"...\" -o voice.wav"},

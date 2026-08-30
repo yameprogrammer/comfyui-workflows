@@ -7,7 +7,7 @@ or instrumental background soundtracks up to 5 minutes (300s) long.
 Examples:
   # 1. Full Song with Korean Lyrics (Default mode: song)
   python scripts/generate_minimax_music.py \
-    --caption "K-Pop, emotional acoustic ballad, warm guitar, piano, female vocal" \
+    --caption-file cap.txt \
     --lyrics "[Intro]\n(기타 선율)\n[Verse]\n창가에 비가 내리면...\n[Chorus]\n너를 기억해" \
     -o workspace/kpop_ballad.flac
 
@@ -18,10 +18,10 @@ Examples:
     --duration 120 \
     -o workspace/cyber_bgm.flac
 
-  # 3. Read Lyrics & Caption from Text Files
+  # 3. Long song: ceiling 300s, tiled VAE decode for VRAM
   python scripts/generate_minimax_music.py \
-    --caption-file my_caption.txt \
-    --lyrics-file my_lyrics.txt \
+    --caption-file cap.txt --lyrics-file lyr.txt \
+    --duration 300 --tiled-decode \
     -o workspace/full_song.flac
 
 Guide: workflows/human/minimax_music/AGENT_GUIDE.md
@@ -56,11 +56,23 @@ def main(argv=None) -> int:
         default="song",
         help="Generation mode: song (with vocals) or bgm (instrumental only)",
     )
-    p.add_argument("--duration", "-d", type=float, default=60.0, help="Target duration in seconds (4.0 ~ 300.0, default: 60.0)")
-    p.add_argument("--steps", type=int, default=35, help="Sampling steps (default: 35, quality: 50)")
-    p.add_argument("--cfg", type=float, default=4.0, help="CFG scale (default: 4.0)")
+    p.add_argument(
+        "--duration",
+        "-d",
+        type=float,
+        default=None,
+        help="Max duration in seconds (ceiling, 4–300). Song default 180, BGM default 60. Output may be shorter.",
+    )
+    p.add_argument("--steps", type=int, default=30, help="KSampler steps (official template: 30)")
+    p.add_argument("--cfg", type=float, default=1.7, help="KSampler CFG (official template: 1.7)")
     p.add_argument("--sampler", default="euler", help="KSampler name (default: euler)")
     p.add_argument("--scheduler", default="simple", help="Scheduler name (default: simple)")
+    p.add_argument(
+        "--tiled-decode",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Tiled audio VAE decode. Default: on when duration >= 240s. Use --no-tiled-decode on a 4090 for 3-min songs.",
+    )
     p.add_argument("--seed", type=int, default=None, help="Random seed")
     p.add_argument("--server", default=DEFAULT_SERVER, help=f"ComfyUI server URL (default: {DEFAULT_SERVER})")
     p.add_argument("--json", action="store_true", help="Output machine-readable JSON result")
@@ -99,6 +111,7 @@ def main(argv=None) -> int:
             sampler=args.sampler,
             scheduler=args.scheduler,
             server_url=args.server,
+            tiled_decode=args.tiled_decode,
         )
 
         if args.json:

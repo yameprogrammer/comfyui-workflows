@@ -147,8 +147,8 @@
         "Global Metadata: K-Pop, Synth-Pop, upbeat dance track. 124 BPM, A minor. Energetic, infectious hook, polished modern studio production, sparkling synth arpeggios, dynamic drop in chorus.\n\nVocal Details: Clear and charismatic female vocal, bright tone, confident delivery with airy backing harmonies, catchy ad-libs and doubled vocal layers in the chorus.\n\nArrangement: Punchy kick drum, crisp snare on 2 and 4, driving side-chained sub-bass, bright retro 80s synthesizer brass, shimmering hi-hats. Intro: Synth arpeggio fade in with soft vocal hum. Verse: Stripped back beat with driving bassline. Chorus: Full explosive synth drop with energetic vocal. Bridge: Half-time atmospheric drum breakdown. Outro: Final energetic chorus hook fading into synth echoes.",
         "[Intro]\nYeah, let's go!\nLight up the night\n\n[Verse 1]\nNeon city lights glowing in my eyes\nStepping to the rhythm, leaving doubts behind\nFeel the electric pulse under my feet\nEvery heartbeat syncing to the beat\n\n[Pre-Chorus]\nTake a breath, countdown 3, 2, 1\nThe party's only just begun\n\n[Chorus]\nShine bright, we are unstoppable!\nDancing through the stars, feel the miracle\nTurn up the music, let the bassline soar\nWe'll keep on dancing, forever more!\n\n[Verse 2]\nEchoes in the air, shadows fade away\nNo looking back now, this is our day\nColors exploding across the sky\nSpreading our wings, ready to fly\n\n[Chorus]\nShine bright, we are unstoppable!\nDancing through the stars, feel the miracle\nTurn up the music, let the bassline soar\nWe'll keep on dancing, forever more!\n\n[Bridge]\nSoft glow, quiet whisper in the dark...\nCatch the spark...\nHere comes the drop!\n\n[Chorus]\nShine bright, we are unstoppable!\nDancing through the stars, feel the miracle\nTurn up the music, let the bassline soar\nWe'll keep on dancing, forever more!\n\n[Outro]\nForever more...\nYeah...\nFade out into the light",
         42,
-        120.0,
-        1.5,
+        180.0,
+        1.7,
         50
       ],
       "title": "MiniMax Music 3 Generator (Caption & Lyrics)"
@@ -281,13 +281,13 @@
       "widgets_values": [
         42,
         "randomize",
-        50,
-        4.0,
+        30,
+        1.7,
         "euler",
         "simple",
         1.0
       ],
-      "title": "Music KSampler (50 steps)"
+      "title": "Music KSampler (30 steps / CFG 1.7)"
     },
     {
       "id": 8,

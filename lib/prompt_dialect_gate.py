@@ -78,7 +78,7 @@ def check_music_caption(caption: str | None) -> dict[str, Any]:
         return {
             "ok": False,
             "error": "PROMPT_DIALECT",
-            "message": "MiniMax --caption required (genre, BPM, instruments, vocal). " + matrix_hint("generate_minimax_music"),
+            "message": "MiniMax --caption required (Global Metadata / Vocal Details / Arrangement). " + matrix_hint("generate_minimax_music"),
         }
     low = text.lower()
     hits = [t for t in _MUSIC_VISUAL if t in low]

@@ -87,7 +87,7 @@ G. Call scripts/generate_*.py with that string only
 | `generate_wan_animate2` / `wan22_animate` | Split look/bg/pose | `wan_animate.md` |
 | `generate_minimax_h3` | Shot + camera + ref tags | `minimax_h3.md` |
 | `generate_s2v` SI2V | Mouth + micro perf | `motion_video_prompts.md` |
-| `generate_minimax_music` / `stable_audio` / `bgm` | Genre/BPM/source | `music_audio.md` |
+| `generate_minimax_music` / `stable_audio` / `bgm` | 3-part caption + tagged lyrics | `music_audio.md` |
 | `generate_hy3d_mesh` | Image is the prompt | `mesh_3d.md` |
 
 Full matrix + DO/DON’T: **`references/model_prompt_matrix.md`**.
@@ -180,6 +180,7 @@ Shared hard rules: **`motion_video_prompts.md`**
 - Illustrious: quality + subject count — `illustrious_tags.md`  
 - Qwen: one change — `qwen_edit.md`  
 - Ideogram: literal text typed — `ideogram4_typography.md`  
+- Music 3: 3-part caption, lyrics in `--lyrics` — `music_audio.md`  
 
 **Gate fail ⇒ do not call generate CLI.**
 

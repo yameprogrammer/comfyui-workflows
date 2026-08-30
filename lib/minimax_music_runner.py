@@ -32,6 +32,18 @@ DEFAULT_DIT = "minimax_music3_dit_fp16.safetensors"
 DEFAULT_TEXT_ENCODER = "minimax_music3_text_encoder_pruned_int8_convrot.safetensors"
 DEFAULT_VAE = "minimax_music3_dav.safetensors"
 
+# Official Comfy template (audio_minimax_music_3): KSampler 30 / CFG 1.7, TextEncode 1.7.
+DEFAULT_STEPS = 30
+DEFAULT_CFG = 1.7
+DEFAULT_ENCODE_CFG = 1.7
+DEFAULT_SONG_DURATION = 180.0
+DEFAULT_BGM_DURATION = 60.0
+MIN_DURATION = 4.0
+MAX_DURATION = 300.0
+TILED_DECODE_SECONDS = 240.0
+TILED_TILE_SIZE = 1536
+TILED_OVERLAP = 64
+
 DEFAULT_SONG_CAPTION = (
     "Global Metadata: Upbeat energetic Synthwave K-Pop track. 124 BPM, A minor. "
     "Bright sparkling synth arpeggios, driving sub bass, polished modern studio production.\n\n"
@@ -55,26 +67,45 @@ DEFAULT_BGM_CAPTION = (
 DEFAULT_BGM_LYRICS = "[Intro]\n(rain and vinyl crackle)\n\n[Instrumental]\n\n[Outro]\n(fading piano echoes)"
 
 
+def clamp_duration(duration: float) -> float:
+    return max(MIN_DURATION, min(MAX_DURATION, float(duration)))
+
+
+def default_duration(mode: str) -> float:
+    """Song ceiling 180s; BGM 60s. max_duration is a cap, not exact length."""
+    if str(mode).lower() in ("bgm", "instrumental", "soundtrack"):
+        return DEFAULT_BGM_DURATION
+    return DEFAULT_SONG_DURATION
+
+
+def resolve_tiled_decode(tiled_decode: bool | None, duration: float) -> bool:
+    """Official template default is off; on at 4+ minutes to cut VAE VRAM."""
+    if tiled_decode is not None:
+        return bool(tiled_decode)
+    return float(duration) >= TILED_DECODE_SECONDS
+
+
 def build_music3_api_prompt(
     caption: str = DEFAULT_SONG_CAPTION,
     lyrics: str = DEFAULT_SONG_LYRICS,
-    duration: float = 60.0,
+    duration: float = DEFAULT_SONG_DURATION,
     seed: int | None = None,
-    steps: int = 35,
-    cfg: float = 4.0,
+    steps: int = DEFAULT_STEPS,
+    cfg: float = DEFAULT_CFG,
     sampler: str = "euler",
     scheduler: str = "simple",
     filename_prefix: str = "audio/MiniMax_Music3",
     dit_model: str = DEFAULT_DIT,
     text_encoder: str = DEFAULT_TEXT_ENCODER,
     vae_model: str = DEFAULT_VAE,
+    encode_cfg: float = DEFAULT_ENCODE_CFG,
+    tiled_decode: bool = False,
 ) -> dict[str, Any]:
     """Assemble API graph for MiniMax Music 3."""
     if seed is None:
         seed = random.randint(1, 2**31 - 1)
 
-    # Clamp duration (4s to 300s)
-    dur = max(4.0, min(300.0, float(duration)))
+    dur = clamp_duration(duration)
 
     return {
         "1": {
@@ -106,7 +137,7 @@ def build_music3_api_prompt(
                 "lyrics": lyrics,
                 "seed": seed,
                 "max_duration": dur,
-                "cfg_scale": 1.5,
+                "cfg_scale": float(encode_cfg),
                 "top_k": 50
             }
         },
@@ -138,13 +169,25 @@ def build_music3_api_prompt(
                 "denoise": 1.0
             }
         },
-        "8": {
-            "class_type": "VAEDecodeAudio",
-            "inputs": {
-                "samples": ["7", 0],
-                "vae": ["3", 0]
+        "8": (
+            {
+                "class_type": "VAEDecodeAudioTiled",
+                "inputs": {
+                    "samples": ["7", 0],
+                    "vae": ["3", 0],
+                    "tile_size": TILED_TILE_SIZE,
+                    "overlap": TILED_OVERLAP,
+                },
             }
-        },
+            if tiled_decode
+            else {
+                "class_type": "VAEDecodeAudio",
+                "inputs": {
+                    "samples": ["7", 0],
+                    "vae": ["3", 0],
+                },
+            }
+        ),
         "9": {
             "class_type": "SaveAudio",
             "inputs": {
@@ -160,13 +203,15 @@ def generate_minimax_music(
     lyrics: str | None = None,
     output_path: str | Path | None = None,
     mode: str = "song",
-    duration: float = 60.0,
+    duration: float | None = None,
     seed: int | None = None,
-    steps: int = 35,
-    cfg: float = 4.0,
+    steps: int = DEFAULT_STEPS,
+    cfg: float = DEFAULT_CFG,
     sampler: str = "euler",
     scheduler: str = "simple",
     server_url: str = DEFAULT_SERVER,
+    tiled_decode: bool | None = None,
+    encode_cfg: float = DEFAULT_ENCODE_CFG,
 ) -> dict[str, Any]:
     """Generate vocal songs or BGM via MiniMax Music 3."""
     t_start = time.time()
@@ -175,6 +220,10 @@ def generate_minimax_music(
     actual_caption = caption or (DEFAULT_BGM_CAPTION if is_bgm else DEFAULT_SONG_CAPTION)
     actual_lyrics = lyrics or (DEFAULT_BGM_LYRICS if is_bgm else DEFAULT_SONG_LYRICS)
     prefix = "audio/MiniMax_Music3_BGM" if is_bgm else "audio/MiniMax_Music3_Song"
+    if duration is None:
+        duration = default_duration("bgm" if is_bgm else "song")
+    duration = clamp_duration(duration)
+    use_tiled = resolve_tiled_decode(tiled_decode, duration)
 
     prompt_graph = build_music3_api_prompt(
         caption=actual_caption,
@@ -186,6 +235,8 @@ def generate_minimax_music(
         sampler=sampler,
         scheduler=scheduler,
         filename_prefix=prefix,
+        encode_cfg=encode_cfg,
+        tiled_decode=use_tiled,
     )
 
     prompt_id = queue_prompt(server_url, prompt_graph)
@@ -221,9 +272,12 @@ def generate_minimax_music(
         "backend": "minimax_music3",
         "caption": actual_caption,
         "lyrics": actual_lyrics,
+        "duration_ceiling": duration,
         "duration_target": duration,
         "steps": steps,
         "cfg": cfg,
+        "encode_cfg": encode_cfg,
+        "tiled_decode": use_tiled,
         "seed": seed,
         "prompt_id": prompt_id,
         "created_at": utc_now_iso(),

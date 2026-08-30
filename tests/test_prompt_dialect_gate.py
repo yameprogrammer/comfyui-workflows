@@ -20,6 +20,12 @@ class TestPromptDialectGate(unittest.TestCase):
     def test_music_visual_refused(self):
         self.assertFalse(check_music_caption("a woman stands in rain, photoreal, 8k").get("ok"))
         self.assertTrue(check_music_caption("K-Pop ballad, female vocal, piano, 90 BPM").get("ok"))
+        three = (
+            "Global Metadata: K-pop ballad, 84 BPM\n\n"
+            "Vocal Details: Korean female lead\n\n"
+            "Arrangement: guitar verse, drums on chorus"
+        )
+        self.assertTrue(check_music_caption(three).get("ok"))
 
     def test_i2v_look_essay_not_ok(self):
         self.assertFalse(

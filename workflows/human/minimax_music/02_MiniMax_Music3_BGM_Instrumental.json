@@ -147,8 +147,8 @@
         "Global Metadata: Cinematic Cyberpunk Lo-fi BGM, instrumental only. 90 BPM, D minor. Moody, atmospheric, nostalgic neon night vibes, deep sub bass, smooth electric piano chords.\n\nVocal Details: Instrumental only, strictly no human voice, no vocals, pure soundtrack.\n\nArrangement: Analog synth pads, warm Rhodes piano, gentle vinyl crackle, subtle hi-hats and lazy swing snare. Ethereal atmospheric soundscapes with gradual build-up and relaxing chillout resolution.",
         "[Intro]\n(rain and vinyl crackle)\n\n[Instrumental]\n\n[Bridge]\n(synth pad swell)\n\n[Instrumental]\n\n[Outro]\n(fading piano echoes)",
         42,
-        120.0,
-        1.5,
+        60.0,
+        1.7,
         50
       ],
       "title": "MiniMax Music 3 Generator (Caption & Lyrics)"
@@ -281,13 +281,13 @@
       "widgets_values": [
         42,
         "randomize",
-        50,
-        4.0,
+        30,
+        1.7,
         "euler",
         "simple",
         1.0
       ],
-      "title": "Music KSampler (50 steps)"
+      "title": "Music KSampler (30 steps / CFG 1.7)"
     },
     {
       "id": 8,
