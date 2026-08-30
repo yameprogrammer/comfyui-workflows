@@ -22,6 +22,10 @@ under F:\\model (extra_model_paths).
   python scripts/generate_minimax_h3.py --task r2v -i hero.png --ref-video plate.mp4 \\
       -p "subject_definitions: <Subject 1> is <Picture 1>. <Video 1> is motion/camera." -o swap.mp4
 
+  # Carry look: next clip in the same room. Tail of clip A (default 22f) → <Video 1>
+  python scripts/generate_minimax_h3.py --task r2v -i hero.png --carry-from clip_a.mp4 \\
+      -p "Keep the room from <Video 1>. Subject 1 walks to the shelf." -o clip_b.mp4
+
   # Audio-to-Video (ref audio + identity; source audio muxed — lip-sync / MV)
   python scripts/generate_minimax_h3.py --task a2v -i face.png -a line.wav \\
       -p "[reference generation + audio reference] Use <Picture 1> identity; lips sync <Audio 1>." \\
@@ -51,6 +55,8 @@ from lib.minimax_h3_runner import (
     CLIP_NAME,
     VAE_AUDIO,
     VAE_VIDEO,
+    CARRY_FRAME_CHOICES,
+    CARRY_FRAMES_DEFAULT,
     generate_minimax_h3,
     list_profiles,
     polish_minimax_h3,
@@ -91,6 +97,18 @@ def main(argv=None) -> int:
         default=None,
         dest="ref_videos",
         help="R2V motion/camera plate (repeat up to 3). Tag as <Video n>. Resampled to 24fps and generation canvas",
+    )
+    p.add_argument(
+        "--carry-from",
+        default=None,
+        help="Previous clip whose last N frames pin the room for this R2V (carry look). Becomes <Video 1>; silent",
+    )
+    p.add_argument(
+        "--carry-frames",
+        type=int,
+        default=CARRY_FRAMES_DEFAULT,
+        choices=CARRY_FRAME_CHOICES,
+        help="Tail length for --carry-from (H3 latent grid: 5/22/39/56). Default 22 (~0.9s)",
     )
     p.add_argument(
         "--ref-image-size",
@@ -264,7 +282,7 @@ def main(argv=None) -> int:
         task = "a2v"
     if args.image and task == "t2v" and not args.audio:
         task = "i2v"
-    if (args.ref_images or args.ref_videos) and task in ("t2v", "i2v"):
+    if (args.ref_images or args.ref_videos or args.carry_from) and task in ("t2v", "i2v"):
         task = "r2v"
     if args.image and args.last and task == "i2v":
         task = "flf"
@@ -287,6 +305,8 @@ def main(argv=None) -> int:
         last_image_path=args.last,
         ref_images=args.ref_images,
         ref_videos=args.ref_videos,
+        carry_from=args.carry_from,
+        carry_frames=args.carry_frames,
         audio_path=args.audio,
         seed=args.seed,
         duration=args.duration,

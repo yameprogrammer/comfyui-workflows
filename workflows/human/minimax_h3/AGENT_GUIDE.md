@@ -56,6 +56,10 @@ python scripts/generate_minimax_h3.py --task r2v --ref-image hero.png --ref-imag
 python scripts/generate_minimax_h3.py --task r2v -i hero.png --ref-video plate.mp4 \
   --profile work -p "subject_definitions: <Subject 1> is <Picture 1>. <Video 1> is motion and camera." -o swap.mp4
 
+# Carry look — same room as previous clip (tail 22 frames → <Video 1>, no soundtrack)
+python scripts/generate_minimax_h3.py --task r2v -i hero.png --carry-from clip_a.mp4 \
+  --profile work -p "Keep the room layout from <Video 1>. Subject 1 walks to the shelf." -o clip_b.mp4
+
 # I2VA — H3 speaks (official). Do NOT pass -a
 python scripts/generate_minimax_h3.py --task i2v -i face.png --profile native \
   -p "The host (S1) says: <d>[Korean] 안녕하세요. 야매플머입니다.</d>" -o speak.mp4

@@ -78,6 +78,19 @@ overall_soundscape: match the physical action sounds of <Video 1>
 non_diegetic_music: N/A
 ```
 
+### Carry look (same room, next clip)
+
+`--carry-from clip_a.mp4` takes the last **22 frames** (~0.9s, H3 grid) of clip A, silent, as `<Video 1>`. Pick a well-lit, readable tail — not a face in shadow or a whip pan. This is **not** FLF same-PNG (that zooms). Soundtrack does not carry.
+
+```text
+subject_definitions: <Subject 1> is <Picture 1>.
+summary: [video editing] Same store as <Video 1>. Subject 1 walks from the counter to the right-hand shelves.
+retention_analysis: <Video 1> fully_preserved - room layout, POS, window, shelves. <Subject 1> fully_preserved - identity.
+detailed_description: [Shot 1] Hold the opening framing of <Video 1> for a beat (weight shift only), then Subject 1 turns and walks to the shelves. Locked-off or one motivated camera move. Do not rebuild the room.
+overall_soundscape: quiet store, footsteps
+non_diegetic_music: N/A
+```
+
 ---
 
 ## A2V (audio + face)

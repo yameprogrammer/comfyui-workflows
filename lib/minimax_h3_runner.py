@@ -72,6 +72,9 @@ SAGE_ATTENTION_MODES = (
 
 # Duration (sec) → frame length on 17k+5 grid @24fps (official template expression)
 LENGTH_EXPR = "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17"
+# H3 latent-step-aligned tails (same set Motion Context uses for carry look).
+CARRY_FRAME_CHOICES = (5, 22, 39, 56)
+CARRY_FRAMES_DEFAULT = 22
 
 # Agent quality tiers (ResolutionSelector megapixels + defaults)
 PROFILES: dict[str, dict[str, Any]] = {
@@ -219,6 +222,25 @@ def probe_video(path: str) -> dict[str, Any]:
     }
 
 
+def _ffmpeg_bin() -> str | None:
+    """PATH / FFMPEG_PATH, then imageio-ffmpeg's bundled binary. None if missing."""
+    env = os.environ.get("FFMPEG_PATH") or os.environ.get("FFMPEG")
+    if env and os.path.isfile(env):
+        return env
+    which = shutil.which("ffmpeg")
+    if which:
+        return which
+    try:
+        import imageio_ffmpeg
+
+        exe = imageio_ffmpeg.get_ffmpeg_exe()
+        if exe and os.path.isfile(exe):
+            return exe
+    except Exception:
+        pass
+    return None
+
+
 def prepare_ref_video(
     path: str,
     *,
@@ -238,7 +260,7 @@ def prepare_ref_video(
     except Exception:
         has_audio = False
 
-    ffmpeg = shutil.which("ffmpeg")
+    ffmpeg = _ffmpeg_bin()
     if not ffmpeg:
         name = f"mmh3v_{src.stem[:40]}_{int(time.time() * 1000) % 10_000_000}{src.suffix.lower()}"
         shutil.copy2(src, dest_dir / name)
@@ -275,6 +297,55 @@ def prepare_ref_video(
     cmd.append(str(dest))
     subprocess.check_call(cmd, timeout=120)
     return name, has_audio
+
+
+def extract_carry_tail(path: str, dest_dir: Path, frames: int = CARRY_FRAMES_DEFAULT) -> str:
+    """Last N frames of a clip as a silent 24fps mp4. N must be 5/22/39/56.
+
+    Uses PATH ffmpeg, then imageio-ffmpeg's bundled binary. Never copies the
+    source clip — that would feed the *first* N frames after a later -t trim.
+    """
+    if int(frames) not in CARRY_FRAME_CHOICES:
+        raise ValueError(f"carry_frames must be one of {CARRY_FRAME_CHOICES}, got {frames}")
+    src = Path(path).expanduser().resolve()
+    if not src.is_file():
+        raise FileNotFoundError(f"carry-from video not found: {src}")
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    tail_sec = int(frames) / 24.0
+    name = f"mmh3carry_{src.stem[:40]}_{int(time.time() * 1000) % 10_000_000}.mp4"
+    dest = dest_dir / name
+    ffmpeg = _ffmpeg_bin()
+    if not ffmpeg:
+        raise RuntimeError(
+            "ffmpeg is required to extract --carry-from tail (last N frames). "
+            "Install ffmpeg on PATH or imageio-ffmpeg; copying the source would "
+            "use the wrong end of the clip."
+        )
+    # -sseof is relative to EOF so we do not need ffprobe duration (a missing
+    # duration used to seek to 0 and take the *first* N frames).
+    cmd = [
+        ffmpeg,
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-sseof",
+        f"-{tail_sec:.4f}",
+        "-i",
+        str(src),
+        "-t",
+        f"{tail_sec:.4f}",
+        "-r",
+        "24",
+        "-an",
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
+        str(dest),
+    ]
+    subprocess.check_call(cmd, timeout=120)
+    return str(dest)
 
 
 def _resolve_local_video(filename: str, subfolder: str, ftype: str, server: str) -> str:
@@ -715,6 +786,8 @@ def generate_minimax_h3(
     last_image_path: str | None = None,
     ref_images: Sequence[str] | None = None,
     ref_videos: Sequence[str] | None = None,
+    carry_from: str | None = None,
+    carry_frames: int = CARRY_FRAMES_DEFAULT,
     audio_path: str | None = None,
     seed: int | None = None,
     duration: float | None = None,
@@ -776,10 +849,10 @@ def generate_minimax_h3(
         task_v = "flf"  # first+last convenience
     if task_v == "a2v" and not audio_path:
         return fail_result(error="missing_audio", message="a2v requires audio_path")
-    if task_v == "r2v" and not image_path and not (ref_images or []) and not (ref_videos or []):
+    if task_v == "r2v" and not image_path and not (ref_images or []) and not (ref_videos or []) and not carry_from:
         return fail_result(
             error="missing_ref",
-            message="r2v requires --ref-image / -i and/or --ref-video",
+            message="r2v requires --ref-image / -i and/or --ref-video / --carry-from",
         )
     if task_v == "a2v" and not image_path and not (ref_images or []):
         return fail_result(
@@ -815,18 +888,30 @@ def generate_minimax_h3(
         if task_v == "r2v":
             input_dir = Path(get_comfy_input_dir(server_address))
             vw, vh = canvas_wh(graph_mp, aspect_ratio)
-            for i, vp in enumerate(list(ref_videos or [])[:3]):
+            carry_n = int(carry_frames if carry_frames is not None else CARRY_FRAMES_DEFAULT)
+            plates: list[tuple[str, bool]] = []
+            if carry_from:
+                tail = extract_carry_tail(carry_from, input_dir, frames=carry_n)
+                # Layout only — do not steal duration from the 22-frame tail.
+                plates.append((tail, True))
+            for vp in list(ref_videos or []):
+                plates.append((vp, False))
+            duration_locked = duration is not None
+            for i, (vp, is_carry) in enumerate(plates[:3]):
                 info = {}
                 try:
                     info = probe_video(vp)
                 except Exception:
                     info = {}
                 src_dur = info.get("duration")
-                # Match first plate length when the caller did not pass --duration.
-                if i == 0 and duration is None and src_dur:
+                if (not is_carry) and (not duration_locked) and src_dur:
                     duration_v = min(15.0, max(0.2, float(src_dur)))
-                dur_use = h3_snapped_duration(duration_v)
-                duration_v = dur_use
+                    duration_locked = True
+                if is_carry:
+                    dur_use = carry_n / 24.0
+                else:
+                    dur_use = h3_snapped_duration(duration_v)
+                    duration_v = dur_use
                 staged, has_a = prepare_ref_video(
                     vp,
                     dest_dir=input_dir,
@@ -835,7 +920,7 @@ def generate_minimax_h3(
                     height=vh,
                 )
                 video_names.append(staged)
-                video_audio_flags.append(bool(has_a))
+                video_audio_flags.append(False if is_carry else bool(has_a))
         # A2V muxes this wav. R2V uses it as timbre only (H3 still decodes speech).
         if audio_path and task_v in ("a2v", "r2v"):
             audio_name = _stage_media(audio_path, server_address, prefix="mmh3a")
@@ -918,6 +1003,8 @@ def generate_minimax_h3(
         "created_at": utc_now_iso(),
         "mux_source_audio": task_v == "a2v",
         "ref_videos": list(ref_videos or []),
+        "carry_from": carry_from,
+        "carry_frames": int(carry_frames) if carry_from else None,
         "sage_attention": sage_attention,
         "sage_allow_compile": bool(sage_allow_compile),
         "sol_attn": bool(sol_attn),
