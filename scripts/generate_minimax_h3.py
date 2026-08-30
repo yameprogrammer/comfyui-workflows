@@ -18,6 +18,10 @@ under F:\\model (extra_model_paths).
   python scripts/generate_minimax_h3.py --task r2v --ref-image a.png --ref-image b.png \\
       -p "Use <Picture 1> as identity; <Picture 2> for style; she walks" -o out.mp4
 
+  # V2V edit: plate motion + identity still. --duration omitted → plate length (snapped)
+  python scripts/generate_minimax_h3.py --task r2v -i hero.png --ref-video plate.mp4 \\
+      -p "subject_definitions: <Subject 1> is <Picture 1>. <Video 1> is motion/camera." -o swap.mp4
+
   # Audio-to-Video (ref audio + identity; source audio muxed — lip-sync / MV)
   python scripts/generate_minimax_h3.py --task a2v -i face.png -a line.wav \\
       -p "[reference generation + audio reference] Use <Picture 1> identity; lips sync <Audio 1>." \\
@@ -82,6 +86,13 @@ def main(argv=None) -> int:
         help="R2V/A2V reference image (repeat up to 9). Tag as <Picture n> in prompt",
     )
     p.add_argument(
+        "--ref-video",
+        action="append",
+        default=None,
+        dest="ref_videos",
+        help="R2V motion/camera plate (repeat up to 3). Tag as <Video n>. Resampled to 24fps and generation canvas",
+    )
+    p.add_argument(
         "--ref-image-size",
         choices=("match", "max"),
         default="match",
@@ -106,7 +117,25 @@ def main(argv=None) -> int:
         "--profile",
         choices=tuple(PROFILES.keys()),
         default="work",
-        help="draft|work|native|hero (default work)",
+        help="draft|work|native|hero|native_fast (default work)",
+    )
+    p.add_argument(
+        "--latent-upscale",
+        type=float,
+        default=None,
+        help="3D latent spatial scale after split (2.0 = Deno 15+5). Default from profile",
+    )
+    p.add_argument(
+        "--start-megapixels",
+        type=float,
+        default=None,
+        help="first-pass megapixels when --latent-upscale>1 (default final/scale^2)",
+    )
+    p.add_argument(
+        "--split-steps",
+        type=int,
+        default=None,
+        help="first-pass step count for SplitSigmas (default 15 of 20)",
     )
     p.add_argument(
         "--aspect",
@@ -115,6 +144,37 @@ def main(argv=None) -> int:
     )
     p.add_argument("--timeout", type=int, default=1800, help="seconds (native can need 600+)")
     p.add_argument("--server", default=DEFAULT_SERVER)
+    p.add_argument(
+        "--sage-attention",
+        default="auto",
+        choices=(
+            "disabled",
+            "auto",
+            "sageattn_qk_int8_pv_fp16_cuda",
+            "sageattn_qk_int8_pv_fp16_triton",
+            "sageattn_qk_int8_pv_fp8_cuda",
+            "sageattn_qk_int8_pv_fp8_cuda++",
+            "sageattn3",
+            "sageattn3_per_block_mean",
+        ),
+        help="KJ PathchSageAttentionKJ mode (default auto). disabled = stock attention A/B",
+    )
+    p.add_argument(
+        "--sage-allow-compile",
+        action="store_true",
+        help="pass allow_compile=true to PathchSageAttentionKJ (Deno Speed x6 leaves this off)",
+    )
+    p.add_argument(
+        "--sol-attn",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Patch SolAttnMiniMax after Sage. Default off: Sage+Sol was ~130s/it on 4090. Use --sol-attn to opt in",
+    )
+    p.add_argument(
+        "--sol-verbose",
+        action="store_true",
+        help="SolAttnMiniMax verbose=true (look for [sol_attn] sparse cuda-int8)",
+    )
     p.add_argument(
         "--free-policy",
         default=None,
@@ -132,12 +192,18 @@ def main(argv=None) -> int:
     if args.list_profiles:
         print("=== MiniMax H3 profiles ===\n")
         for k, v in list_profiles().items():
+            extra = ""
+            if float(v.get("latent_upscale", 1) or 1) > 1:
+                extra = (
+                    f" start_mp={v.get('start_megapixels', v['megapixels'] / (v['latent_upscale'] ** 2)):.3f}"
+                    f" x{v['latent_upscale']} split={v.get('split_steps')}+{int(v['steps']) - int(v.get('split_steps', 0))}"
+                )
             print(
                 f"  {k}: megapixels={v['megapixels']} duration={v['duration']}s "
-                f"steps={v['steps']}"
+                f"steps={v['steps']}{extra}"
             )
             print(f"       {v['notes']}")
-        print("\nBench RTX 4090: work ~113s · native ~378s for 5s clip (2026-08-07)")
+        print("\nBench RTX 4090 5s: work ~113s · native ~378s (2026-08-07) · native_fast ~242s (Sage+15+5, 2026-08-27)")
         print("Tasks: t2v|i2v|flf|r2v|a2v|polish  ·  UI: workflows/human/minimax_h3/")
         return 0
 
@@ -198,7 +264,7 @@ def main(argv=None) -> int:
         task = "a2v"
     if args.image and task == "t2v" and not args.audio:
         task = "i2v"
-    if args.ref_images and task in ("t2v", "i2v"):
+    if (args.ref_images or args.ref_videos) and task in ("t2v", "i2v"):
         task = "r2v"
     if args.image and args.last and task == "i2v":
         task = "flf"
@@ -210,7 +276,7 @@ def main(argv=None) -> int:
         f"MiniMax H3 task={task} profile={args.profile} "
         f"duration={args.duration or PROFILES[args.profile]['duration']}s "
         f"mp={args.megapixels or PROFILES[args.profile]['megapixels']} "
-        f"out={out}"
+        f"sage={args.sage_attention} out={out}"
     )
 
     result = generate_minimax_h3(
@@ -220,6 +286,7 @@ def main(argv=None) -> int:
         image_path=args.image,
         last_image_path=args.last,
         ref_images=args.ref_images,
+        ref_videos=args.ref_videos,
         audio_path=args.audio,
         seed=args.seed,
         duration=args.duration,
@@ -231,6 +298,13 @@ def main(argv=None) -> int:
         timeout_sec=float(args.timeout),
         server_address=args.server,
         free_policy=args.free_policy,
+        sage_attention=args.sage_attention,
+        sage_allow_compile=bool(args.sage_allow_compile),
+        sol_attn=bool(args.sol_attn),
+        sol_verbose=bool(args.sol_verbose),
+        latent_upscale=args.latent_upscale,
+        split_steps=args.split_steps,
+        start_megapixels=args.start_megapixels,
     )
 
     if not result.get("ok"):

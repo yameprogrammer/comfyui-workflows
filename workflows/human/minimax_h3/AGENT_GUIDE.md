@@ -38,6 +38,9 @@ python scripts/generate_minimax_h3.py -p "Anime cinematic, silver-haired heroine
 # Native canvas (~1344x768) — RTX 4090 ≈ 6분 / 5s
 python scripts/generate_minimax_h3.py -p "..." -o out_native.mp4 --profile native --seed 42
 
+# Native fast (Sage + 15@0.25MP + 3D latent x2 + 5@1MP)
+python scripts/generate_minimax_h3.py -p "..." -o out_fast.mp4 --profile native_fast --seed 42
+
 # Draft scout
 python scripts/generate_minimax_h3.py -p "..." -o scout.mp4 --profile draft
 
@@ -48,6 +51,10 @@ python scripts/generate_minimax_h3.py -i start.png --last end.png -p "continuous
 # R2V multi-ref (ref2va weights) — agent path = stock LoadImage×N
 python scripts/generate_minimax_h3.py --task r2v --ref-image hero.png --ref-image style.png \
   -p "Use <Picture 1> as identity. <Picture 2> sets the city style. She walks toward camera." -o r2v.mp4
+
+# V2V edit — plate keeps motion/camera; still swaps identity/outfit/prop
+python scripts/generate_minimax_h3.py --task r2v -i hero.png --ref-video plate.mp4 \
+  --profile work -p "subject_definitions: <Subject 1> is <Picture 1>. <Video 1> is motion and camera." -o swap.mp4
 
 # I2VA — H3 speaks (official). Do NOT pass -a
 python scripts/generate_minimax_h3.py --task i2v -i face.png --profile native \
@@ -67,6 +74,10 @@ python scripts/generate_minimax_h3.py --task polish -i work.mp4 -o polished.mp4 
 
 python scripts/generate_minimax_h3.py --list-profiles
 python scripts/generate_minimax_h3.py --list-models
+
+# Attention A/B (default is Sage auto; Deno Speed x6 compile off)
+python scripts/generate_minimax_h3.py -p "..." -o sage.mp4 --profile draft --sage-attention auto
+python scripts/generate_minimax_h3.py -p "..." -o stock.mp4 --profile draft --sage-attention disabled
 ```
 
 ---
@@ -79,8 +90,11 @@ python scripts/generate_minimax_h3.py --list-models
 | **`work`** | **0.4** | **~864×480** | **20** | **에이전트 기본** | **~113s** |
 | `native` | 0.98 | ~1344×768 | 20 | H3 네이티브 캔버스 | **~378s** |
 | `hero` | 0.98 | ~1344×768 | 24 | 소수 히어로 컷 | native+ |
+| `native_fast` | 0.98 | ~1344×768 | 20 (15+5) | Sage + 0.25MP→×2 latent | **~242s** (vs native ~378s) |
 
 H3 단변 목표 ≈ **768px**, 최대 그리드 32 배수. 세로 쇼츠: `--aspect 9:16`.
+
+Attention: 기본 `--sage-attention auto` (`UNETLoader` → `PathchSageAttentionKJ` → guider). 끄려면 `--sage-attention disabled`. `--sol-attn`은 기본 꺼짐(4090에서 Sage+Sol이 130s/it로 역전). Speed x6 본선은 `native_fast`(Sage+15+5). SSOT: `decisions/2026-08-27-minimax-h3-speed-x6.md`.
 
 ---
 
@@ -102,10 +116,13 @@ ComfyUI 콤보 이름: `MinimaxH3\minimax_h3_…` (서브폴더 포함).
 
 ## 5. 프롬프트 팁
 
-1. **한 블록**에 장면 개요 + 타임라인 샷 + 카메라 + **오디오**(대사/SFX/음악).  
-2. 타임라인 예: `[0s-1.5s] Shot 1: ...`  
-3. R2V: 연결 순서대로 `<Picture 1>`, `<Video 1>`, `<Audio 1>` 태그 + **각 레퍼 역할** 명시.  
-4. length는 24fps에서 **17프레임 블록 그리드**로 스냅됨 (duration 초 입력).
+에이전트가 공식 3필드를 쓴다. Omni Prompt-Rewriter LoRA는 4090 기본 그래프에 넣지 말 것. SSOT: `skills/generation-prompt/references/minimax_h3.md`.
+
+1. I2V 첫 줄: `For the target video, at 0.00 seconds into the target video, <Picture 1> (from [Shot 1]) is fully referenced.` 빈 줄 다음 세 필드.
+2. 필드: `integrated_multimodal_description` / `overall_soundscape` / `non_diegetic_music` (`N/A` = 점수 없음).
+3. 샷: `[Shot 1]` 타임스탬프 없음. 컷이 있을 때만 `[Shot 2] At 00:03.000, the camera cuts to …`. 홀드: `locked tripod, no zoom, no dolly, no push-in`.
+4. 대사: 화자 `(S2)` + `<d>[Korean] …</d>`. R2V는 레퍼마다 역할 태그.
+5. length는 24fps에서 **17프레임 블록 그리드**로 스냅됨 (duration 초 입력).
 
 공식 가이드:  
 - Base: [VIDEO_PROMPT_WRITING_GUIDE_base_en.md](https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/VIDEO_PROMPT_WRITING_GUIDE_base_en.md)  
@@ -117,6 +134,7 @@ ComfyUI 콤보 이름: `MinimaxH3\minimax_h3_…` (서브폴더 포함).
 
 | 파일 | 모드 | 에이전트 대응 |
 |------|------|----------------|
+| **`MiniMax_H3_NativeFast_T2V_I2V.json`** | T2V/I2V Sage+15+5 | `--profile native_fast` |
 | `MiniMax_H3_T2V_TextToVideo.json` | T2V | `--task t2v` |
 | `MiniMax_H3_I2V_ImageToVideo.json` | I2V / FL | `--task i2v` / flf |
 | `MiniMax_H3_R2V_ReferenceToVideo.json` | R2V stock | `--task r2v` |

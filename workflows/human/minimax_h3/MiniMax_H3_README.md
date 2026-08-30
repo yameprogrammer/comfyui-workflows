@@ -37,6 +37,7 @@ Optional extras for full Deno A2V auto-prompt lane:
 
 | File | Mode | Notes |
 |------|------|--------|
+| **`MiniMax_H3_NativeFast_T2V_I2V.json`** | T2V/I2V Sage + 15+5 latent ×2 | `fl2va`. 1패스 0.245 MP → 최종 ~1344×768. Sol 넣지 말 것 |
 | `MiniMax_H3_T2V_TextToVideo.json` | Text → video+audio | `fl2va` weights |
 | `MiniMax_H3_I2V_ImageToVideo.json` | First/last frame → video+audio | `fl2va` |
 | `MiniMax_H3_R2V_ReferenceToVideo.json` | Multi-ref image/video/audio → video+audio | `ref2va` |
