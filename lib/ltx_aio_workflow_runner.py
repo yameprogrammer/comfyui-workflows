@@ -334,6 +334,8 @@ def build_aio_switched_api(
     video_vae: str | None = None,
     vbvr: bool | None = None,
     vbvr_strength: float | None = None,
+    asian_face: bool | None = None,
+    asian_face_strength: float | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Apply mode switches on real AIO UI WF, expand to API, inject run params.
 

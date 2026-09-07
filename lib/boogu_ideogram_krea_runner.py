@@ -189,6 +189,9 @@ def build_api(
     _set(api, "11", "filename_prefix", f"{filename_prefix}_boogu")
 
     # Ideogram caption + noise seed
+    if "907:203" in api and "model" not in api["907:203"].get("inputs", {}):
+        if "907:185" in api:
+            _set(api, "907:203", "model", ["907:185", 0])
     if "907:186" in api:
         _set(api, "907:186", "text", caption)
     if "907:184" in api:
@@ -205,6 +208,8 @@ def build_api(
         _set(api, "927", "text", caption)
     if "922" in api:
         _set(api, "922", "seed", seed_i + 2)
+        _set(api, "922", "sampler_name", "euler_ancestral")
+        _set(api, "922", "scheduler", "simple")
         if krea_denoise is not None:
             _set(api, "922", "denoise", float(krea_denoise))
     _set(api, "926", "filename_prefix", f"{filename_prefix}_krea2")

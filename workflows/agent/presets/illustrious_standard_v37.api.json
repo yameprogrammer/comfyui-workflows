@@ -1,27 +1,17 @@
 {
-  "83": {
-    "class_type": "easy hiresFix",
+  "75": {
+    "class_type": "ImpactSwitch",
     "inputs": {
-      "image": [
+      "select": 1,
+      "sel_mode": false,
+      "input1": [
         "28",
         0
       ],
-      "vae": [
-        "40",
+      "input2": [
+        "28",
         0
-      ],
-      "model_name": "4x_foolhardy_Remacri.pth",
-      "rescale_after_model": true,
-      "rescale_method": "lanczos",
-      "rescale": "by percentage",
-      "percent": 50,
-      "width": 1024,
-      "height": 1024,
-      "longer_side": 1024,
-      "crop": "disabled",
-      "image_output": "Hide",
-      "link_id": 0,
-      "save_prefix": "ComfyUI"
+      ]
     }
   },
   "73": {
@@ -79,6 +69,10 @@
   "54": {
     "class_type": "Image Saver",
     "inputs": {
+      "images": [
+        "75",
+        0
+      ],
       "steps": [
         "18",
         1
@@ -87,6 +81,7 @@
         "18",
         2
       ],
+      "modelname": "fabricatedXL_v70",
       "sampler_name": [
         "18",
         3
@@ -118,7 +113,6 @@
       "filename": "%time_%basemodelname_%seed",
       "path": "",
       "extension": "png",
-      "modelname": "",
       "lossless_webp": true,
       "quality_jpeg_or_webp": 100,
       "optimize_png": false,
@@ -132,11 +126,7 @@
       "download_civitai_data": true,
       "easy_remix": false,
       "show_preview": true,
-      "custom": "",
-      "images": [
-        "83",
-        1
-      ]
+      "custom": ""
     }
   },
   "50": {
