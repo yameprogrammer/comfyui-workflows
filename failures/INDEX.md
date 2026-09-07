@@ -4,6 +4,21 @@ Do not edit by hand — `python scripts/failure_note.py add` regenerates.
 
 | id | sev | stage | tags | symptom |
 |----|-----|-------|------|---------|
+| `FN-20260902-006` | high | keyframe | krea2, s12, t2i | T2I invented a printer, gibberish card text 데와단라CO, recast face, high angle, ... |
+| `FN-20260902-005` | medium | still | krea, identity, pose, costume, sheet | kim costume_default from seated master_front stayed seated MCU twice (seeds 1... |
+| `FN-20260902-004` | high | still | krea, identity, expression, smile | kim expr_knowing_laugh v1 (seed 455550237) became a teeth-wide commercial gri... |
+| `FN-20260902-003` | high | still | krea, location, pantry, food_disco, yell | Pantry recast p03/p04 (seeds 52201/52202) got slim brown foil sticks but stil... |
+| `FN-20260902-002` | high | still | krea, location, pos, card_insert, negati | Empty POS desk stills (54001/54002 and retry +100) always seat a standing hol... |
+| `FN-20260902-001` | high | still | krea, location, pantry, food_disco, pack | Empty Korean office pantry gens (seeds 52001/52002 and retry +100) rendered y... |
+| `FN-20260830-008` | high | keyframe | illustrious_advanced, style_drift, lora | Advanced_V37 ignored prompts; 6/6 locks = cyberpunk schoolgirl fire Tokyo sky... |
+| `FN-20260830-007` | high | clip | i2v, motion, jump | Jump takeoff cannot be made to read as a jump after multiple I2V/FLF pairs |
+| `FN-20260830-006` | high | clip | i2v, motion, jump | Takeoff FLF looks like a frog squat rubber-banding into a hanging doll with f... |
+| `FN-20260830-005` | high | clip | i2v, motion, jump | Jump takeoff clip looks like mid-air pose morph; body stays hovering, no floo... |
+| `FN-20260830-004` | high | clip | fall, s05_job, push-in, minimax_h3 | S04_11 t99 Luna sitting on the floor. Fall is Sequence 5 job. Camera also lef... |
+| `FN-20260830-003` | high | clip | identity_swap, jersey, tracking, minimax | S04_09 tracking I2V: t50 silver hair wears 10; t99 camera flies to hoop, 10 i... |
+| `FN-20260830-002` | high | clip | dunk, rim_grab, layup, minimax_h3 | S04_06 chorus-1 layup I2V became a rim-hang dunk by t50/t99. Hand grabbed the... |
+| `FN-20260830-001` | high | clip | flf, zoom, camera_breathing, minimax_h3, | Static FLF clips S03_01 and S02_04: framing inflates/undulates mid-take (Ken ... |
+| `FN-20260829-001` | high | clip | extra_hands, extra_limbs, flf, minimax_h | S01_05 FLF mid-frames grew helper arms from off-screen; jersey 11 became 1; s... |
 | `FN-20260815-001` | medium | keyframe | inpaint, eye, krita, qwen, anima | Krita MCP ellipse fill looks stamped; Qwen InstantX inpaint upscaled 960->153... |
 | `FN-20260729-002` | high | clip | infinitetalk, missing_node, s2v, comfy_n | generate_s2v --backend infinitetalk fails QUEUE_FAILED missing_node_type WanV... |
 | `FN-20260729-001` | high | character_sheet | identity_drift, full_sheet, auto_approve | full_sheet for green_lighter_idol_v1 drifts face from master_front; costume s... |
@@ -14,4 +29,4 @@ Do not edit by hand — `python scripts/failure_note.py add` regenerates.
 | `FN-20260715-002` | high | keyframe | anatomy_feet, insert_failed, face_cu_spa | Shoe insert requested but result was face close-up with deformed raised leg/f... |
 | `FN-20260715-001` | critical | clip | freeze_pad, duration_mismatch, qa_skippe | All cuts freeze for last 30-50 percent of duration (e.g. S01 freezes 5s-8s). ... |
 
-_Updated: 2026-08-15T12:55:51+00:00 · count=9_
+_Updated: 2026-09-02T23:07:51+00:00 · count=24_

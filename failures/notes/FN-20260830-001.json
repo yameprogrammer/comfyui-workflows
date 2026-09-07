@@ -1,0 +1,26 @@
+{
+  "id": "FN-20260830-001",
+  "created_at": "2026-08-30T00:04:18+00:00",
+  "agent": "grok",
+  "episode_id": "eclipse_overlap",
+  "shot_id": "S03_01",
+  "stage": "clip",
+  "tags": [
+    "flf",
+    "zoom",
+    "camera_breathing",
+    "minimax_h3",
+    "framing"
+  ],
+  "symptom": "Static FLF clips S03_01 and S02_04: framing inflates/undulates mid-take (Ken Burns zoom) even though first=last PNG and prompt said static camera",
+  "root_cause": "H3 FLF interpolates a path A to B. When A=B it still invents a mid journey; character CUs default to push-in then rubber-band back. Word breathing maps to camera breathing. Pack negatives (zoom punch-in) never reach generate_minimax_h3 (no --negative).",
+  "fix": "Do not use FLF when first equals last. Use I2V. Prompt must start: locked tripod, no zoom, no dolly, no push-in, framing stays identical. Never say breathing for camera-lock shots. Put no-zoom in the positive string.",
+  "prevention": "Static/micro hold: task=i2v only. FLF only when last frame is a different composition. QA: t00 vs t50 scale must stay ~1.00; if subject grows, FAIL. H3 has no negative flag.",
+  "related_paths": [
+    "D:\\뮤직비디오 작업\\Eclipse Overlap\\06_video_clips\\seq3_v1\\S03_01_flf_zoom_fail.mp4",
+    "D:\\뮤직비디오 작업\\Eclipse Overlap\\06_video_clips\\seq2_v1\\S02_04_flf_zoom_fail.mp4"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

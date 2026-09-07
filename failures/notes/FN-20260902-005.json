@@ -1,0 +1,25 @@
+{
+  "id": "FN-20260902-005",
+  "created_at": "2026-09-02T14:16:10+00:00",
+  "agent": "GATE4-sheet-chem",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "still",
+  "tags": [
+    "krea",
+    "identity",
+    "pose",
+    "costume",
+    "sheet"
+  ],
+  "symptom": "kim costume_default from seated master_front stayed seated MCU twice (seeds 1996162929, 439065189); sleeves also rolled. Full-length standing never landed at ref_boost 4",
+  "root_cause": "krea2_identity_edit with ref_boost 4 locks source pose/crop. Seated chest-up master cannot become full-length standing by prompt alone",
+  "fix": "Do not re-roll the same identity-edit for standing. Next lever: pose control / dual-ref with a standing structure plate as the pose source, or a dedicated fullbody still, then identity lock",
+  "prevention": "Costume full-length: do not expect identity-edit from a seated master at ref_boost 4 to un-seat. Start from a standing plate or ControlNet pose. Keep identity-edit for expression/sleeve/crop-near-source.",
+  "related_paths": [
+    "D:\\Characters\\packs\\kim_daeri_v1\\refs\\costume_default.png"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

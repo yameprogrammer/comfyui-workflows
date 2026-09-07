@@ -1,0 +1,24 @@
+{
+  "id": "FN-20260902-004",
+  "created_at": "2026-09-02T14:16:10+00:00",
+  "agent": "GATE4-sheet-chem",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "still",
+  "tags": [
+    "krea",
+    "identity",
+    "expression",
+    "smile"
+  ],
+  "symptom": "kim expr_knowing_laugh v1 (seed 455550237) became a teeth-wide commercial grin instead of a small knowing laugh",
+  "root_cause": "Krea2 identity-edit maps 'laugh' to a full smile with teeth even when told not a wide idol smile",
+  "fix": "Rewrite to closed-mouth knowing chuckle: lips together, no teeth visible, eyes slightly narrowed. Do not reuse the laugh/smile noun without closed-mouth lock",
+  "prevention": "Kim expression edits: name closed-mouth / lips together / no teeth in the positive. Never lead with laugh/smile alone. Open the file; teeth-wide is a hard fail.",
+  "related_paths": [
+    "D:\\Characters\\packs\\kim_daeri_v1\\refs\\expr_knowing_laugh.png"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

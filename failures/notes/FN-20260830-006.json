@@ -1,0 +1,23 @@
+{
+  "id": "FN-20260830-006",
+  "created_at": "2026-08-30T07:23:08+00:00",
+  "agent": "grok",
+  "episode_id": "eclipse-overlap",
+  "shot_id": "S07_01",
+  "stage": "clip",
+  "tags": [
+    "i2v",
+    "motion",
+    "jump"
+  ],
+  "symptom": "Takeoff FLF looks like a frog squat rubber-banding into a hanging doll with fused legs and sock feet",
+  "root_cause": "Start still was a wide horse squat; last still was straight dangling legs. FLF interpolated silhouette morph, not a basketball jump.",
+  "fix": "Start: tall athletic gather, feet under shoulders, slight knee bend. Last: original tucked dunk-approach airborne. Ban squat and hanging-stick pair.",
+  "prevention": "Jump FLF: start and last must share a tall athletic silhouette. Wide squat vs dangling legs = morph. Last frame = tucked dunk approach, not legs hanging straight.",
+  "related_paths": [
+    "D:\\뮤직비디오 작업\\Eclipse Overlap\\06_video_clips\\seq7_v1\\S07_01_hangdoll_fail.mp4"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

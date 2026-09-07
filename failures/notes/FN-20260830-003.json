@@ -1,0 +1,24 @@
+{
+  "id": "FN-20260830-003",
+  "created_at": "2026-08-30T00:56:29+00:00",
+  "agent": "grok",
+  "episode_id": "eclipse_overlap",
+  "shot_id": "S04_09",
+  "stage": "clip",
+  "tags": [
+    "identity_swap",
+    "jersey",
+    "tracking",
+    "minimax_h3"
+  ],
+  "symptom": "S04_09 tracking I2V: t50 silver hair wears 10; t99 camera flies to hoop, 10 is on silver back, SOL becomes a tiny extra face",
+  "root_cause": "Tracking plus dribble let H3 complete a drive-to-rim path and swap jersey identities. Still already had a duplicate 11.",
+  "fix": "Locked tripod. Explicit: silver hair keeps 11, red hair keeps 10 boxing out with back to camera. No tracking toward hoop.",
+  "prevention": "Post-chorus two-player court: lock numbers in the positive string. Do not track toward the rim. QA t50 jersey digits.",
+  "related_paths": [
+    "D:\\뮤직비디오 작업\\Eclipse Overlap\\06_video_clips\\seq4_v1\\S04_09_idswap_fail.mp4"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

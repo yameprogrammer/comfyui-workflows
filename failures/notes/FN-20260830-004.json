@@ -1,0 +1,24 @@
+{
+  "id": "FN-20260830-004",
+  "created_at": "2026-08-30T01:09:31+00:00",
+  "agent": "grok",
+  "episode_id": "eclipse_overlap",
+  "shot_id": "S04_11",
+  "stage": "clip",
+  "tags": [
+    "fall",
+    "s05_job",
+    "push-in",
+    "minimax_h3"
+  ],
+  "symptom": "S04_11 t99 Luna sitting on the floor. Fall is Sequence 5 job. Camera also left the MCU for a wide NBA-style court with crowd faces.",
+  "root_cause": "Prompt 'slow push-in, he drives' let H3 complete a drive narrative into a fall. 4.5s is long enough to invent S05.",
+  "fix": "Locked tripod. Same stance. Knee off floor. Defender arm stays. Do not say drive/fall. Keep duration modest.",
+  "prevention": "S04_11: never say drive or fall. Lock framing. QA t99: if knee or butt on floor, FAIL. Fall only S05.",
+  "related_paths": [
+    "D:\\뮤직비디오 작업\\Eclipse Overlap\\06_video_clips\\seq4_v1\\S04_11_fall_fail.mp4"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}
