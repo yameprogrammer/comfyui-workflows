@@ -65,17 +65,33 @@ def _list_skills() -> list[dict]:
 def _default_dests(target: str) -> list[Path]:
     home = Path.home()
     repo_grok = Path(WORKSPACE_ROOT) / ".grok" / "skills"
+    repo_codex = Path(WORKSPACE_ROOT) / ".codex" / "skills"
+    gemini_dests = [
+        home / ".gemini" / "config" / "skills",
+        home / ".gemini" / "skills",
+        home / ".gemini" / "antigravity-cli" / "skills",
+    ]
+    codex_dests = [
+        repo_codex,
+        home / ".codex" / "skills",
+    ]
     if target == "grok":
         return [repo_grok, home / ".grok" / "skills"]
     if target == "claude":
         return [home / ".claude" / "skills"]
     if target == "cursor":
         return [Path(WORKSPACE_ROOT) / ".cursor" / "skills", home / ".cursor" / "skills"]
+    if target == "gemini":
+        return gemini_dests
+    if target == "codex":
+        return codex_dests
     if target == "all":
         return [
             repo_grok,
             home / ".grok" / "skills",
             home / ".claude" / "skills",
+            *gemini_dests,
+            *codex_dests,
         ]
     # auto: prefer in-repo .grok + user claude if exists
     return [repo_grok]
@@ -105,7 +121,7 @@ def main(argv=None) -> int:
     ins.add_argument("skill_id")
     ins.add_argument(
         "--target",
-        choices=["auto", "grok", "claude", "cursor", "all"],
+        choices=["auto", "grok", "claude", "cursor", "gemini", "codex", "all"],
         default="auto",
         help="Where to install (default: repo .grok/skills)",
     )
@@ -122,7 +138,7 @@ def main(argv=None) -> int:
     ch.add_argument("skill_id")
     ch.add_argument(
         "--target",
-        choices=["auto", "grok", "claude", "cursor", "all"],
+        choices=["auto", "grok", "claude", "cursor", "gemini", "codex", "all"],
         default="auto",
     )
 
@@ -138,7 +154,7 @@ def main(argv=None) -> int:
             print(f"  {r['id']:<24} v={r['version'] or '?'}  {r['skill_md']}")
         print(
             "\nEquip: python scripts/skill_equip.py install <id> "
-            "[--target grok|claude|all]"
+            "[--target grok|claude|gemini|codex|all]"
         )
         print("Session minimum: read skills/<id>/SKILL.md fully before video work.")
         return EXIT_OK

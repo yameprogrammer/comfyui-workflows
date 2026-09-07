@@ -214,6 +214,7 @@ Factory: episode `format` drives work size — camera notes must match.
 | Constraint | Camera implication |
 |------------|-------------------|
 | I2V/SI2V short clips | Design **full motion length**; no freeze pad |
+| Camera path must match a 3D move | **`generate_previz` plate → H3 `--ref-video`** (`skills/camera-previz`). Do not hope a motion prompt recreates an orbit |
 | Multi-move prompts fail | **One move** |
 | Identity drift | Don’t re-describe face in motion prompt; lock size/angle across si2v chain |
 | Anatomy risk | Insert hands/feet = risk tag + careful size |

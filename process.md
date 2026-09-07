@@ -1,3 +1,10 @@
+## 2026-09-07 — camera-previz (Blender plate → H3 --ref-video)
+- Skill `skills/camera-previz` v1.1 · CLI `generate_previz` · MOTION shelf
+- Modes: `--preset` (wipe) · `--from-scene` · `--exec-file` (custom bpy, object heroes)
+- Then `generate_minimax_h3 --task r2v --ref-video`. H3 cap 15s. Iterate plate before H3.
+- Not Higgsfield/Claude Desktop. Equip: `python scripts/skill_equip.py install camera-previz --target all`
+- Tests: `python -m unittest tests.test_previz tests.test_tool_intent -v`
+
 ## 2026-08-16 — output-review (active judge after generate_*)
 - Skill `skills/output-review` · CLI `review_media pack|record|show|lever`
 - Toolbox loop: generate → open file → record. exit 0 ≠ quality.

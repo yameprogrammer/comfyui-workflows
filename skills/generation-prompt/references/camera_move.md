@@ -47,6 +47,10 @@ Treat as `idle` preset: breathing, micro face, **camera locked**. No travel.
 
 ---
 
+Lock a 3D camera instead of guessing: `generate_previz` then H3 `--ref-video`. Skill: `skills/camera-previz`.
+
+---
+
 ## Gates
 
 - [ ] A preset id was chosen (unless listing)  

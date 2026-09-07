@@ -68,6 +68,7 @@ third_party/krita-mcp/
 
 # Grok & Scratch files
 .grok/
+.codex/
 _tmp_*
 dumps/
 

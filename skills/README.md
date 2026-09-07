@@ -21,6 +21,7 @@ Grok / Claude Code / Cursor / Codex 등 **어떤 에이전트든** 이 도구로
 | 순서 | 스킬 | 언제 |
 |------|------|------|
 | **1** | **video-direction** | 기획·SHOT_DESIGN 전 (영상 기획을 할 때만) |
+| **1b** | **camera-previz** | 카메라 경로를 3D로 잠글 때 (Blender 플레이트 → H3 `--ref-video`) |
 | **2** | **generation-prompt** | `shot_compose` / `generate_*` / `episode_i2v|s2v` **직전** |
 | **3** | **output-review** | `generate_*` **직후**. 파일 열고 판정. exit 0 ≠ 완료 |
 | **4** | **video-edit** | 클립이 생긴 뒤 컷·타이틀·믹스·마스터. concat으로 납품 금지 |
@@ -55,6 +56,7 @@ python scripts/skill_equip.py install output-review
 | id | 경로 | 용도 | 상태 |
 |----|------|------|------|
 | **video-direction** | [video-direction/](video-direction/) | 기획·연출·샷 문법·시각 1–10층 | ✅ v1.11 |
+| **camera-previz** | [camera-previz/](camera-previz/) | Blender 블록 플레이트 → H3 카메라 잠금 (프리셋+커스텀) | ✅ v1.1 |
 | **generation-prompt** | [generation-prompt/](generation-prompt/) | SHOT → 모델별 방언 프롬프트 | ✅ v1.3 |
 | **video-edit** | [video-edit/](video-edit/) | 말→EDIT_PLAN→타임라인→마스터 QA | ✅ v1.5 |
 | **output-review** | [output-review/](output-review/) | generate_* 결과 능동 평가 · fail→레버 | ✅ v1.0 |

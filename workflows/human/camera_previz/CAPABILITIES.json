@@ -1,0 +1,21 @@
+{
+  "id": "camera_previz",
+  "status": "ready",
+  "shelf": "MOTION",
+  "family": "blender_previz",
+  "runner": "lib/previz_blender.py",
+  "cli": ["scripts/generate_previz.py"],
+  "requires": {
+    "comfy": false,
+    "blender_mcp": true,
+    "ffmpeg": true
+  },
+  "presets": ["corridor_follow", "push_in", "orbit", "side_track"],
+  "modes": ["preset", "from-scene", "exec-file"],
+  "outputs": ["mp4"],
+  "notes": [
+    "Plate only. H3 R2V --ref-video is a separate CLI.",
+    "Custom shots: agent bpy then --from-scene / --exec-file. Object heroes OK.",
+    "H3 cap 15s. Not the Higgsfield Blender plugin."
+  ]
+}

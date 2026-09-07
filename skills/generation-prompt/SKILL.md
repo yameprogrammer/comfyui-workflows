@@ -83,6 +83,7 @@ G. Call scripts/generate_*.py with that string only
 | `generate_ideogram4` / `boogu_typo` | JSON / exactly reading | `ideogram4_typography.md` |
 | `generate_i2v` LTX | Motion chronological | `ltx23_video.md` + `motion_video_prompts.md` |
 | `generate_camera_move` / idle / dance_ref | Preset + extra only | `camera_move.md` |
+| **`generate_previz`** then H3 `--ref-video` | Plate owns camera; H3 V2V fields | `minimax_h3.md` § V2V + `skills/camera-previz` |
 | `generate_yaw_wan22` / Wan I2V | Motion→camera | `wan22_i2v.md` |
 | `generate_wan_animate2` / `wan22_animate` | Split look/bg/pose | `wan_animate.md` |
 | `generate_minimax_h3` | Shot + camera + ref tags | `minimax_h3.md` |
@@ -227,6 +228,7 @@ backend=krea2|moody|ltx23|wan22|... | source=SHOT_DESIGN
 | SDXL photoreal | `references/sdxl_still.md` |
 | Krea2 style/control/detail | `references/krea2_transform.md` |
 | Camera-move presets | `references/camera_move.md` |
+| Blender previz → H3 | `skills/camera-previz/SKILL.md` · `minimax_h3.md` V2V |
 | Wan Animate | `references/wan_animate.md` |
 | MiniMax H3 | `references/minimax_h3.md` |
 | Music / SFX | `references/music_audio.md` |

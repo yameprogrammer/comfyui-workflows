@@ -132,7 +132,7 @@ INGEST     밖 레퍼 가져오기        youtube_ingest · youtube_highlights �
 GENERATE   빈 화면 → 그림          krea*(기본) · moody · illustrious · flux · klein · sdxl · ideogram · boogu
 TRANSFORM  있는 그림 고치기         i2i · character_consistent · qwen_edit · inpaint · flux_fill · ref_pack · style_transfer
 CAMERA     각도·포즈·시점·프레이밍   qwen_angle · viewpoint · **openpose_pose** · controlnet · reframe
-MOTION     그림 → 영상             camera_move · idle_loop · dance_ref · **wan_animate2** · **wan22_animate** · extract_pose · i2v · flf · s2v · **minimax_h3** · yaw
+MOTION     그림 → 영상             camera_move · **previz** · idle_loop · dance_ref · **wan_animate2** · **wan22_animate** · extract_pose · i2v · flf · s2v · **minimax_h3** · yaw
 VOICE      말·노래 재료            qwen3_tts · voice_register · bgm · **midi_cover_bed**
 FINISH     키우기·다듬기           upscale_recommend → upscale_* · **upscale_ltx_spatial** · ltx_relight · face_enhance(실험)
 ASSETS     재사용 패키지(옵션)     character_* · location_* · look_* · ref_pack(lite)
@@ -406,7 +406,8 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 
 | CLI | 언제 | 말고 / 메모 |
 |-----|------|-------------|
-| **`generate_camera_move`** | 카메라 무빙 의도 한 방 (push_in, pan, idle…) | 스틸 시점만 → `generate_viewpoint` · 립 → s2v |
+| **`generate_camera_move`** | 카메라 무빙 의도 한 방 (push_in, pan, idle…) | 스틸 시점만 → `generate_viewpoint` · 립 → s2v · **경로 잠금** → `generate_previz` |
+| **`generate_previz`** | Blender 블록 프리비즈 (`--preset` / `--from-scene` / `--exec-file`) | I2V 추측 → `camera_move` · 그 다음 H3 `--ref-video` · 커스텀·물체 히어로 OK · Higgsfield 아님 · H3 ≤15s |
 | **`generate_idle_loop`** | 대기 모션 + **루프** (pingpong 기본 · roundtrip · idle) | 대사 립 → s2v · 스토리 카메라 → camera_move |
 | **`generate_dance_ref`** | 레퍼 댄스/제스처 → 캐릭 스틸 모션 (V2V motion, 빠른 초안) | 얼굴 고정 크로스 캐스트 → **wan22_animate** · 립 → s2v |
 | **`generate_wan22_animate`** | 댄스/제스처 레퍼 → 다른 캐릭 **얼굴 고정** 리타겟 | 포즈 없이/새 배경 → **wan_animate2** · 빠른 초안 → dance_ref · 립 → s2v |
@@ -442,6 +443,11 @@ LTX 품질: [ltx23_quality_research_and_improvement.md](ltx23_quality_research_a
 ```bash
 python scripts/generate_camera_move.py --list-presets
 python scripts/generate_camera_move.py -i key.png --preset push_in -o clip.mp4 --seed 42
+python scripts/generate_previz.py --probe
+python scripts/generate_previz.py --preset corridor_follow -o plate.mp4
+python scripts/generate_previz.py --from-scene -o plate.mp4
+python scripts/generate_previz.py --exec-file build.py -o plate.mp4 --seconds 5
+python scripts/generate_minimax_h3.py --task r2v -i hero.png --ref-video plate.mp4 --profile work -o clip.mp4
 python scripts/generate_camera_move.py -i key.png --preset talk_gesture \
   -p "holding a cup" -o talk.mp4
 # idle + seamless loop (pingpong)
@@ -468,7 +474,7 @@ python scripts/generate_minimax_h3.py --task polish -i mm_work.mp4 -o mm_polishe
 python scripts/generate_minimax_h3.py --list-profiles
 ```
 
-가이드: [camera_move](../workflows/human/camera_move/AGENT_GUIDE.md) · [idle_loop](../workflows/human/idle_loop/AGENT_GUIDE.md) · [dance_ref](../workflows/human/dance_ref/AGENT_GUIDE.md) · [wan_animate2](../workflows/human/wan_animate2/AGENT_GUIDE.md) · [wan22_animate_dance](../workflows/human/wan22_animate_dance/AGENT_GUIDE.md) · [minimax_h3](../workflows/human/minimax_h3/AGENT_GUIDE.md)
+가이드: [camera_move](../workflows/human/camera_move/AGENT_GUIDE.md) · [camera_previz](../workflows/human/camera_previz/AGENT_GUIDE.md) · [idle_loop](../workflows/human/idle_loop/AGENT_GUIDE.md) · [dance_ref](../workflows/human/dance_ref/AGENT_GUIDE.md) · [wan_animate2](../workflows/human/wan_animate2/AGENT_GUIDE.md) · [wan22_animate_dance](../workflows/human/wan22_animate_dance/AGENT_GUIDE.md) · [minimax_h3](../workflows/human/minimax_h3/AGENT_GUIDE.md)
 
 ---
 

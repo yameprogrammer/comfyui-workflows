@@ -27,6 +27,10 @@ class TestToolIntent(unittest.TestCase):
         hits = search_intents("결과물 능동 평가", limit=3)
         self.assertEqual(hits[0]["id"], "output_review")
 
+    def test_previz_query_ranks_camera_previz(self):
+        hits = search_intents("프리비즈", limit=3)
+        self.assertEqual(hits[0]["id"], "camera_previz")
+
     def test_examples_not_dumps(self):
         from lib.tool_intent import INTENT_TOOLS
 

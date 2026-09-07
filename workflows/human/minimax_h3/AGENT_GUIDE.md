@@ -24,6 +24,7 @@
 | 시네마틱 애니/실사 **텍스트→영상** (시댄스급 품질 목표) | 에피소드 본선 I2V 대량 (기본은 LTX 720p) |
 | 키프레임 **I2V** + 샷/카메라/오디오를 한 프롬프트에 | 저지연 2–4초 초안만 필요 → LTX draft |
 | **멀티 레퍼**로 캐릭·스타일·모션 고정 (R2V) | 15초 초과의 안정 체인 → LTX last-frame chain |
+| **카메라 경로 잠금** (Blender 플레이트 `--ref-video`) | 텍스트로 카메라 추측 → `camera_move`. 스킬 `camera-previz` |
 | R2V **3뷰 연락처 시트** (얼굴+의상, opt-in 스카우트) | 팩 본선 턴어라운드 → `character_full_sheet` / Qwen. toobusy 설치 금지 |
 | 키프레임 + `<d>` 로 **H3가 말하게** (I2VA) | 클론 VO를 입에 그대로 → `s2v` / IT. `--task a2v` 먹스 금지 |
 | work 클립 **폴리시** (VSR+RIFE 24→48) | 일반 납품 업스케일만 → `upscale_video` / LTX spatial |
