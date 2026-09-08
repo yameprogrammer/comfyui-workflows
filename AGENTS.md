@@ -39,14 +39,18 @@ Catalog SSOT: intent-first **[docs/tool_catalog.md](docs/tool_catalog.md)** · M
 |------|------|
 | **Skill SSOT** | **[skills/](skills/)** · equip contract [skills/README.md](skills/README.md) |
 | **Director skill** | **[skills/video-direction/SKILL.md](skills/video-direction/SKILL.md)** |
+| **Camera lock** | **[skills/camera-previz/SKILL.md](skills/camera-previz/SKILL.md)** — Blender plate → H3 `--ref-video`. CLI: `python scripts/generate_previz.py`. Hub copy: `F:\AI_Skills\skills\camera-previz` |
 
 **Rule:** If your agent session does **not** already have `video-direction` loaded:
 
 ```bash
 python scripts/skill_equip.py list
 python scripts/skill_equip.py install video-direction --target grok   # or claude / all
+python scripts/skill_equip.py install camera-previz --target all      # grok/claude/codex/gemini/cursor/hub
 # Minimum if install unavailable: READ skills/video-direction/SKILL.md fully and adopt it
 ```
+
+Lock a 3D camera / 프리비즈 / playblast → load `camera-previz` **before** `generate_camera_move`. Do not invent that path in an I2V prompt.
 
 Do **not** skip to `shot_compose` / batch motion without this skill (or equivalent master persona load).
 

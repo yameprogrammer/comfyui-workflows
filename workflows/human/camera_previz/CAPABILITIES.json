@@ -11,11 +11,14 @@
     "ffmpeg": true
   },
   "presets": ["corridor_follow", "push_in", "orbit", "side_track"],
-  "modes": ["preset", "from-scene", "exec-file"],
-  "outputs": ["mp4"],
+  "modes": ["preset", "from-scene", "exec-file", "list-cameras"],
+  "outputs": ["mp4", "blend"],
+  "flags": ["--camera", "--save-blend", "--list-cameras"],
   "notes": [
     "Plate only. H3 R2V --ref-video is a separate CLI.",
     "Custom shots: agent bpy then --from-scene / --exec-file. Object heroes OK.",
+    "Multi-shot: cameras Shot_A/B + --camera per mp4. --save-blend is the editable copy.",
+    "Plate QA fail-closed: color role, clip_start, camera-in-geo, leftover constraint.",
     "H3 cap 15s. Not the Higgsfield Blender plugin."
   ]
 }

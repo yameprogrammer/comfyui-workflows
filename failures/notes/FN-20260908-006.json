@@ -1,0 +1,25 @@
+{
+  "id": "FN-20260908-006",
+  "created_at": "2026-09-08T23:10:54+00:00",
+  "agent": "grok",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "clip",
+  "tags": [
+    "h3",
+    "r2v",
+    "previz"
+  ],
+  "symptom": "Person R2V pasted master_full as a cardboard cutout onto the orange corridor_follow proxy; block remains",
+  "root_cause": "Ref2VA weighted Video 1 orange proxy materials over Picture 1, same class as FN-20260908-004 graybox",
+  "fix": "Rerun R2V with --ref-image-size max and a prompt that discards the orange volume",
+  "prevention": "Person previz R2V: --ref-image-size max; prompt must say the orange block is discarded. Smoke one plate before batch.",
+  "related_paths": [
+    "F:\\Agent_media_tools\\tmp\\previz_smoke_v12\\h3_follow.mp4"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": [
+    "FN-20260908-004"
+  ]
+}

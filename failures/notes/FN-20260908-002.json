@@ -1,0 +1,23 @@
+{
+  "id": "FN-20260908-002",
+  "created_at": "2026-09-08T13:11:55+00:00",
+  "agent": "grok",
+  "episode_id": "slow_drip",
+  "shot_id": "S32",
+  "stage": "keyframe",
+  "tags": [
+    "krea2",
+    "tower",
+    "drop"
+  ],
+  "symptom": "Hanging coffee drop rendered as Edison bulb or closed glass sphere",
+  "root_cause": "Prompt used round/pea/glass-sphere language; Krea maps hanging object in metal frame to a lamp",
+  "fix": "Use S11 dialect: hanging amber coffee drop; teardrop of liquid coffee hanging in open air. Do not write round, pea, bulb, or enclosed glass sphere.",
+  "prevention": "Lock tower geometry sentence from ART_BIBLE / S11 still. Never add round/pea to the drop.",
+  "related_paths": [
+    "D:\\뮤직비디오 작업\\[적합] Slow Drip\\05_keyframes\\S32.png"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

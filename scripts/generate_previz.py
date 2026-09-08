@@ -6,8 +6,9 @@ Requires Blender running with MCP addon (default 127.0.0.1:9876, Allow Online Ac
   python scripts/generate_previz.py --probe
   python scripts/generate_previz.py --list-presets
   python scripts/generate_previz.py --preset corridor_follow -o plate.mp4
-  python scripts/generate_previz.py --from-scene -o plate.mp4
+  python scripts/generate_previz.py --from-scene --camera Shot_A -o plate_a.mp4 --save-blend scene.blend
   python scripts/generate_previz.py --exec-file build.py -o plate.mp4
+  python scripts/generate_previz.py --list-cameras
 
   python scripts/generate_minimax_h3.py --task r2v -i hero.png --ref-video plate.mp4 \\
       --profile work --prompt-file prompt.txt -o clip.mp4
@@ -32,6 +33,7 @@ from lib.previz_blender import (
     exec_then_render,
     h3_r2v_prompt,
     list_presets,
+    list_scene_cameras,
     render_open_scene,
     render_previz,
 )
@@ -82,6 +84,21 @@ def main(argv=None) -> int:
         default=None,
         help="write the stock H3 R2V V2V prompt to this .txt",
     )
+    p.add_argument(
+        "--camera",
+        default=None,
+        help="scene camera name to playblast (Shot_A, PrevizCam, ...)",
+    )
+    p.add_argument(
+        "--save-blend",
+        default=None,
+        help="write an editable .blend copy after bake (not a substitute for the mp4 plate)",
+    )
+    p.add_argument(
+        "--list-cameras",
+        action="store_true",
+        help="print cameras in the live Blender scene",
+    )
     args = p.parse_args(argv)
 
     if args.list_presets:
@@ -90,10 +107,17 @@ def main(argv=None) -> int:
             print(f"  {k}: {summary}")
         print("\nCustom shot: build in Blender (MCP bpy), then --from-scene")
         print("  or --exec-file build.py -o plate.mp4")
+        print("Multi-shot: name cameras Shot_A/B/C, then --camera Shot_A -o a.mp4")
+        print("Editable file: --save-blend scene.blend (mp4 is still the H3 plate)")
         return 0
 
     if args.probe:
         r = probe_blender(host=args.host, port=args.port)
+        print(json.dumps(r, ensure_ascii=False, indent=2))
+        return 0 if r.get("ok") else 1
+
+    if args.list_cameras:
+        r = list_scene_cameras(host=args.host, port=args.port, timeout_sec=float(args.timeout))
         print(json.dumps(r, ensure_ascii=False, indent=2))
         return 0 if r.get("ok") else 1
 
@@ -106,7 +130,10 @@ def main(argv=None) -> int:
             return 0
 
     if not args.output:
-        p.error("--output/-o required (unless --probe / --list-presets / --write-h3-prompt)")
+        p.error(
+            "--output/-o required (unless --probe / --list-presets / "
+            "--list-cameras / --write-h3-prompt)"
+        )
 
     modes = sum(
         [
@@ -128,6 +155,9 @@ def main(argv=None) -> int:
         host=args.host,
         port=args.port,
         timeout_sec=float(args.timeout),
+        camera=args.camera,
+        save_blend=args.save_blend,
+        hero=args.hero,
     )
 
     if args.preset:
@@ -152,6 +182,10 @@ def main(argv=None) -> int:
     extra = ""
     if result.get("camera"):
         extra = f" camera={result.get('camera')} objects={result.get('objects')}"
+    if result.get("cameras"):
+        extra += f" cameras={result.get('cameras')}"
+    if result.get("blend"):
+        extra += f" blend={result.get('blend')}"
     print(
         f"  preset={result.get('preset')} frames={result.get('frames')} "
         f"seconds={result.get('seconds'):.2f} bytes={result.get('bytes')}{extra}"

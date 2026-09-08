@@ -934,18 +934,19 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         "cli": "python scripts/generate_previz.py",
         "script": "generate_previz.py",
         "summary": "Blender 블록 프리비즈 플레이트 → H3 --ref-video 카메라 잠금",
-        "when": "카메라 경로를 3D에서 잠그고 MiniMax H3가 그 앵글을 따라가게 (프리셋 또는 커스텀 bpy)",
+        "when": "카메라 경로를 3D에서 잠그고 MiniMax H3가 그 앵글을 따라가게 (프리셋, 커스텀 bpy, 멀티샷 Shot_A)",
         "when_not": "텍스트 I2V 추측 → camera_move · 립 홀드 → H3 i2v/s2v · Higgsfield/Claude 금지 · 20초 원테이크는 H3 불가",
         "keywords": [
             "previz", "previs", "previsualization", "프리비즈", "플레이블라스트",
             "playblast", "blender", "블렌더", "camera path", "카메라 경로",
             "카메라 잠금", "ref-video", "blockout", "generate_previz",
             "from-scene", "급카메라", "커스텀 장면", "테니스공",
+            "컬러코드", "save-blend", "Shot_A",
         ],
         "examples": [
-            "python scripts/generate_previz.py --preset corridor_follow -o \"%AGENT_WORKSPACE%/plates/follow.mp4\"",
-            "python scripts/generate_previz.py --from-scene -o \"%AGENT_WORKSPACE%/plates/custom.mp4\"",
-            "python scripts/generate_previz.py --exec-file build.py -o \"%AGENT_WORKSPACE%/plates/custom.mp4\" --seconds 5",
+            "python scripts/generate_previz.py --preset corridor_follow -o \"%AGENT_WORKSPACE%/plates/follow.mp4\" --save-blend \"%AGENT_WORKSPACE%/plates/follow.blend\"",
+            "python scripts/generate_previz.py --from-scene --camera Shot_A -o \"%AGENT_WORKSPACE%/plates/shot_a.mp4\"",
+            "python scripts/generate_previz.py --exec-file build.py -o \"%AGENT_WORKSPACE%/plates/custom.mp4\" --seconds 5 --camera Shot_A",
             "python scripts/generate_minimax_h3.py --task r2v -i hero.png --ref-video plate.mp4 --profile work -o \"%AGENT_WORKSPACE%/clips/follow.mp4\"",
         ],
         "alternatives": [

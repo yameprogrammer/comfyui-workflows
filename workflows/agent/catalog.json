@@ -858,7 +858,7 @@
       "role": "blender_previz_plate",
       "family": "blender_previz",
       "status": "ready",
-      "description": "Blender MCP block previz (camera path playblast). Feed MP4 to MiniMax H3 --task r2v --ref-video. Not Higgsfield.",
+      "description": "Blender MCP block previz (camera path playblast, multi-shot --camera, --save-blend). Feed MP4 to MiniMax H3 --task r2v --ref-video. Plate QA fail-closed. Not Higgsfield.",
       "runner": "lib/previz_blender.py",
       "guide": "workflows/human/camera_previz/AGENT_GUIDE.md",
       "capabilities": "workflows/human/camera_previz/CAPABILITIES.json",
@@ -872,7 +872,7 @@
         "orbit",
         "side_track"
       ],
-      "notes": "Needs Blender MCP :9876 + ffmpeg. Preset wipes scene; --from-scene / --exec-file keep it. H3 --ref-video is a separate CLI. Cap 15s."
+      "notes": "Needs Blender MCP :9876 + ffmpeg. Preset wipes scene; --from-scene / --exec-file keep it. --camera Shot_A / --save-blend / --list-cameras. H3 --ref-video is a separate CLI. Cap 15s."
     },
     "hy3d_mesh": {
       "file": null,

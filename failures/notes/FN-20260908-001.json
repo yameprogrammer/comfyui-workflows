@@ -1,0 +1,21 @@
+{
+  "id": "FN-20260908-001",
+  "created_at": "2026-09-08T11:30:25+00:00",
+  "agent": "unknown",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "keyframe",
+  "tags": [
+    "krea",
+    "slow-drip",
+    "tower"
+  ],
+  "symptom": "Krea2 maps cold-brew tower to iced drinking tumbler",
+  "root_cause": "prompt said tower but Krea defaulted to cafe iced-glass still life",
+  "fix": "positive lock: vertical Dutch cold-brew drip tower, ice chamber on top, small cup beneath",
+  "prevention": "name the tower geometry (ice chamber, column, spout, cup under) before naming the drop",
+  "related_paths": [],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

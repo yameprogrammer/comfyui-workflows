@@ -1,0 +1,23 @@
+{
+  "id": "FN-20260908-004",
+  "created_at": "2026-09-08T15:03:34+00:00",
+  "agent": "grok",
+  "episode_id": "slow_drip",
+  "shot_id": "S22",
+  "stage": "clip",
+  "tags": [
+    "h3",
+    "r2v",
+    "previz"
+  ],
+  "symptom": "Object R2V kept gray Blender proxy look instead of Krea watercolor Picture 1",
+  "root_cause": "Ref2VA weighted Video 1 materials over Picture 1 when plate is abstract graybox",
+  "fix": "Rerun with --ref-image-size max; if still gray, switch that shot to I2V from the keyframe",
+  "prevention": "Object previz R2V: max ref image; smoke one plate before the batch. S22 I2V recovered look.",
+  "related_paths": [
+    "D:\\뮤직비디오 작업\\[적합] Slow Drip\\06_clips\\S22_work.mp4"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

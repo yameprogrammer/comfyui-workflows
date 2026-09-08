@@ -75,8 +75,11 @@ def _default_dests(target: str) -> list[Path]:
         repo_codex,
         home / ".codex" / "skills",
     ]
+    hub_skills = Path(r"F:\AI_Skills\skills")
     if target == "grok":
         return [repo_grok, home / ".grok" / "skills"]
+    if target == "hub":
+        return [hub_skills]
     if target == "claude":
         return [home / ".claude" / "skills"]
     if target == "cursor":
@@ -90,8 +93,11 @@ def _default_dests(target: str) -> list[Path]:
             repo_grok,
             home / ".grok" / "skills",
             home / ".claude" / "skills",
+            Path(WORKSPACE_ROOT) / ".cursor" / "skills",
+            home / ".cursor" / "skills",
             *gemini_dests,
             *codex_dests,
+            hub_skills,
         ]
     # auto: prefer in-repo .grok + user claude if exists
     return [repo_grok]
@@ -121,7 +127,7 @@ def main(argv=None) -> int:
     ins.add_argument("skill_id")
     ins.add_argument(
         "--target",
-        choices=["auto", "grok", "claude", "cursor", "gemini", "codex", "all"],
+        choices=["auto", "grok", "claude", "cursor", "gemini", "codex", "hub", "all"],
         default="auto",
         help="Where to install (default: repo .grok/skills)",
     )
@@ -138,7 +144,7 @@ def main(argv=None) -> int:
     ch.add_argument("skill_id")
     ch.add_argument(
         "--target",
-        choices=["auto", "grok", "claude", "cursor", "gemini", "codex", "all"],
+        choices=["auto", "grok", "claude", "cursor", "gemini", "codex", "hub", "all"],
         default="auto",
     )
 

@@ -1,3 +1,10 @@
+## 2026-09-09 — camera-previz v1.2 (multi-shot, color contract, plate QA)
+- Skill v1.2 · `--camera` / `--save-blend` / `--list-cameras`
+- Plate QA fail-closed: hero orange only on Hero*, clip_start, camera-in-geo, leftover TRACK_TO
+- mp4 = H3 plate; .blend = restage file. Multi-cut → Shot_A/B cameras, not one PrevizCam
+- Tests: `python -m unittest tests.test_previz tests.test_tool_intent -v`
+- Equip: `python scripts/skill_equip.py install camera-previz --target grok` · hub `F:\AI_Skills\skills\camera-previz` + `SKILLS_INDEX.md`
+
 ## 2026-09-07 — camera-previz (Blender plate → H3 --ref-video)
 - Skill `skills/camera-previz` v1.1 · CLI `generate_previz` · MOTION shelf
 - Modes: `--preset` (wipe) · `--from-scene` · `--exec-file` (custom bpy, object heroes)

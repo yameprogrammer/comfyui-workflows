@@ -407,7 +407,7 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 | CLI | 언제 | 말고 / 메모 |
 |-----|------|-------------|
 | **`generate_camera_move`** | 카메라 무빙 의도 한 방 (push_in, pan, idle…) | 스틸 시점만 → `generate_viewpoint` · 립 → s2v · **경로 잠금** → `generate_previz` |
-| **`generate_previz`** | Blender 블록 프리비즈 (`--preset` / `--from-scene` / `--exec-file`) | I2V 추측 → `camera_move` · 그 다음 H3 `--ref-video` · 커스텀·물체 히어로 OK · Higgsfield 아님 · H3 ≤15s |
+| **`generate_previz`** | Blender 블록 프리비즈 (`--preset` / `--from-scene` / `--exec-file` / `--camera` / `--save-blend`) | I2V 추측 → `camera_move` · 그 다음 H3 `--ref-video` · 멀티샷 `Shot_A` · 플레이트 QA 실패 시 H3 금지 · Higgsfield 아님 · H3 ≤15s |
 | **`generate_idle_loop`** | 대기 모션 + **루프** (pingpong 기본 · roundtrip · idle) | 대사 립 → s2v · 스토리 카메라 → camera_move |
 | **`generate_dance_ref`** | 레퍼 댄스/제스처 → 캐릭 스틸 모션 (V2V motion, 빠른 초안) | 얼굴 고정 크로스 캐스트 → **wan22_animate** · 립 → s2v |
 | **`generate_wan22_animate`** | 댄스/제스처 레퍼 → 다른 캐릭 **얼굴 고정** 리타겟 | 포즈 없이/새 배경 → **wan_animate2** · 빠른 초안 → dance_ref · 립 → s2v |
@@ -445,8 +445,9 @@ python scripts/generate_camera_move.py --list-presets
 python scripts/generate_camera_move.py -i key.png --preset push_in -o clip.mp4 --seed 42
 python scripts/generate_previz.py --probe
 python scripts/generate_previz.py --preset corridor_follow -o plate.mp4
-python scripts/generate_previz.py --from-scene -o plate.mp4
-python scripts/generate_previz.py --exec-file build.py -o plate.mp4 --seconds 5
+python scripts/generate_previz.py --from-scene --camera Shot_A -o plate_a.mp4 --save-blend scene.blend
+python scripts/generate_previz.py --exec-file build.py -o plate.mp4 --seconds 5 --camera Shot_A
+python scripts/generate_previz.py --list-cameras
 python scripts/generate_minimax_h3.py --task r2v -i hero.png --ref-video plate.mp4 --profile work -o clip.mp4
 python scripts/generate_camera_move.py -i key.png --preset talk_gesture \
   -p "holding a cup" -o talk.mp4

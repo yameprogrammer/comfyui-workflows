@@ -1,0 +1,23 @@
+{
+  "id": "FN-20260908-005",
+  "created_at": "2026-09-08T15:03:34+00:00",
+  "agent": "grok",
+  "episode_id": "slow_drip",
+  "shot_id": "S19",
+  "stage": "clip",
+  "tags": [
+    "h3",
+    "B7",
+    "drop"
+  ],
+  "symptom": "S19 hanging-drop hold becomes a pouring stream by mid",
+  "root_cause": "H3 treats attached coffee drop as a faucet over 8s even when prompt forbids fall",
+  "fix": "I2V from keyframe still poured. Edit trim to first 2s of hang, or accept native retry. Do not ship 8s pour as B7.",
+  "prevention": "B7 shots: shorter duration or edit-trim the hang. Never trust 8s I2V to keep a drop attached.",
+  "related_paths": [
+    "D:\\뮤직비디오 작업\\[적합] Slow Drip\\06_clips\\S19_work.mp4"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}
