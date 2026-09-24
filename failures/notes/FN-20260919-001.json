@@ -1,0 +1,26 @@
+{
+  "id": "FN-20260919-001",
+  "created_at": "2026-09-19T08:47:10+00:00",
+  "agent": "antigravity",
+  "episode_id": "20260923",
+  "shot_id": "S02",
+  "stage": "clip",
+  "tags": [
+    "h3",
+    "r2v",
+    "previz",
+    "proxy_leak"
+  ],
+  "symptom": "scene_02_h3_take01 exposed raw Blender proxy geometry (gray wall and orange cylinder) instead of photoreal coast",
+  "root_cause": "Blender plate used saturated hero orange cylinder and flat rectangular walls; prompt lacked explicit proxy discard instructions and retention_analysis preserved Video 1 spatial blocking; ref_images was omitted from meta.json",
+  "fix": "Redesigned Blender plate with neutral depth-like shading and organic rocky/tree silhouettes; updated prompt with explicit proxy discard instructions and full Picture 1 preservation; recorded ref_images in meta",
+  "prevention": "Never use saturated/emissive geometric solids in previz plates; always specify proxy discard in H3 prompts and verify neutral depth plates before batch generation",
+  "related_paths": [
+    "D:\\플레이리스트\\20260923\\work\\clips\\scene_02_h3_take01.mp4"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": [
+    "FN-20260908-006"
+  ]
+}

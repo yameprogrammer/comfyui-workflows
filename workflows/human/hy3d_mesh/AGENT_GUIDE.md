@@ -1,9 +1,13 @@
 # Hy3D mesh toolbox — agent guide
 
 **Shelf:** MESH  
-**Status:** `generate_hy3d_mesh` = **ready** · Blender steps = **ready_experimental**
+**Status:** `generate_hy3d_mesh` = **license_blocked_kr** (not agent default)
 
-Image → 3D mesh (GLB) for character / prop assets, then optional Blender clean / VRM.
+Hunyuan3D-2 Community License **excludes Korea**. Agent MESH default is **`generate_trellis_mesh`** (`workflows/human/trellis/AGENT_GUIDE.md`).
+
+Call this pack only when the user names Hunyuan / Hy3D.
+
+Image → 3D mesh (GLB) via Kijai Hunyuan3DWrapper, then optional Blender clean / VRM.
 
 ## When / when not
 
@@ -66,6 +70,14 @@ python scripts/export_mesh_vrm.py -i clean.glb -o avatar.vrm
 Also writes a sidecar `.glb` next to the VRM when export succeeds.
 
 ## Recommended agent recipe
+
+**Do not use this recipe.** Agent default:
+
+```text
+front still → generate_trellis_mesh → process_mesh_glb → export_mesh_vrm
+```
+
+Hunyuan-only (user named it):
 
 ```text
 front still (Krea / character_consistent)

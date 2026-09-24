@@ -1,0 +1,30 @@
+{
+  "id": "trellis2_mesh",
+  "status": "ready",
+  "shelf": "MESH",
+  "family": "trellis2",
+  "runner": "lib/trellis2_mesh_runner.py",
+  "cli": [
+    "scripts/generate_trellis_mesh.py",
+    "scripts/process_mesh_glb.py",
+    "scripts/export_mesh_vrm.py"
+  ],
+  "requires": {
+    "comfy": true,
+    "custom_nodes": ["ComfyUI-TRELLIS2"],
+    "models": [
+      "trellis2/ckpts/",
+      "dinov3/model.safetensors"
+    ],
+    "blender_mcp_for_post": true,
+    "vrm_addon_for_export": true
+  },
+  "profiles": ["draft", "work", "hero"],
+  "outputs": ["glb"],
+  "notes": [
+    "work = default 1024_cascade + PBR",
+    "draft = 512 geometry only",
+    "not a hero character rig",
+    "Hunyuan generate_hy3d_mesh is KR license blocked"
+  ]
+}

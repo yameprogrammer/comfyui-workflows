@@ -1,18 +1,15 @@
 #!/usr/bin/env python3
 """
-Qwen instruction image edit via official workflow:
+Qwen instruction image edit.
 
-  image_qwen_image_edit_2509.json
-  → presets/qwen_edit_2509.api.json (subgraph Image Edit Qwen 2509 flattened)
+Default preset: qwen_edit_2511 (Lightning 4-step).
+Latest edit: --preset qwen_image_21_edit (Qwen-Image 2.1 GGUF, steps 25, no Lightning).
 
-Default: workflow_api (fp8 UNet + turbo Lightning switch).
-Legacy homemade graphs: --backend gguf_2509|gguf_2511|fp8_2509_legacy
-  or AGENT_QWEN_EDIT_BACKEND=legacy_*
+  python scripts/generate_qwen_edit.py --preset qwen_image_21_edit -i src.png -p "..." -o out.png
+  python scripts/generate_qwen_edit.py -i src.png -p "..." -o out.png
 
-Role coexistence:
-  - Moody I2I → soft denoise
-  - generate_qwen_angle → multi-view <sks>
-  - This CLI → natural-language instruction edit
+-o is required. Extra refs: -i2 / -i3 (wired at runtime onto the active graph).
+Guide: workflows/human/Qwen_Image_2.1_Edit_AGENT_GUIDE.md
 """
 
 from __future__ import annotations
@@ -25,6 +22,7 @@ import json
 import os
 import random
 import shutil
+import sys
 from typing import Any
 
 from lib.comfy_client import (
@@ -41,10 +39,11 @@ from lib.comfy_client import (
     write_meta,
 )
 from lib.comfy_engine_session import (
-    FAMILY_QWEN_ANGLE,
     FAMILY_QWEN_EDIT,
+    FAMILY_QWEN_IMAGE_21,
     ensure_engine,
 )
+from lib.output_policy import ToolboxWriteError, assert_outside_toolbox
 from lib.workflow_api_runner import (
     apply_ports,
     resolve_preset,
@@ -52,6 +51,7 @@ from lib.workflow_api_runner import (
 )
 
 DEFAULT_PRESET = "qwen_edit_2511"
+PRESET_QWEN21 = "qwen_image_21_edit"
 
 # Official template structure + GGUF (agent: avoid ~20GB fp8 UNETLoader)
 GGUF_2509_Q5 = r"QwenImage\Qwen-Image-Edit-2509-Q5_K_M.gguf"
@@ -123,22 +123,30 @@ def _inject_multi_ref(
     image2_name: str | None,
     image3_name: str | None,
 ) -> dict[str, Any]:
-    """Attach optional image2/image3 LoadImage nodes to TextEncode 111/110."""
+    """Attach optional image2/image3 LoadImage nodes to TextEncode 111/110 or Qwen 2.1 TextEncode 484."""
     api = copy.deepcopy(api)
     if image2_name:
         api["79"] = {
             "class_type": "LoadImage",
             "inputs": {"image": image2_name},
         }
-        api["111"]["inputs"]["image2"] = ["79", 0]
-        api["110"]["inputs"]["image2"] = ["79", 0]
+        if "111" in api:
+            api["111"]["inputs"]["image2"] = ["79", 0]
+        if "110" in api:
+            api["110"]["inputs"]["image2"] = ["79", 0]
+        if "484" in api:
+            api["484"]["inputs"]["images.image_2"] = ["79", 0]
     if image3_name:
         api["80"] = {
             "class_type": "LoadImage",
             "inputs": {"image": image3_name},
         }
-        api["111"]["inputs"]["image3"] = ["80", 0]
-        api["110"]["inputs"]["image3"] = ["80", 0]
+        if "111" in api:
+            api["111"]["inputs"]["image3"] = ["80", 0]
+        if "110" in api:
+            api["110"]["inputs"]["image3"] = ["80", 0]
+        if "484" in api:
+            api["484"]["inputs"]["images.image_3"] = ["80", 0]
     return api
 
 
@@ -171,7 +179,31 @@ def generate_qwen_edit(
     preset: str | None = None,
 ) -> dict:
     backend = _resolve_backend(backend)
-    gguf_name = gguf_name or GGUF_2511_Q4
+    active_preset = preset or DEFAULT_PRESET
+    qwen21 = active_preset == PRESET_QWEN21
+    if qwen21:
+        lightning = False
+        gguf_name = gguf_name or "Qwen-Image-2.1-Q4.gguf"
+        if steps is None:
+            steps = 25
+        if cfg is None:
+            cfg = 1.0
+    else:
+        gguf_name = gguf_name or GGUF_2511_Q4
+        if steps is None:
+            steps = 4 if lightning else 20
+        if cfg is None:
+            cfg = 1.0 if lightning else 4.0
+
+    if not output_filename:
+        return fail_result(
+            error="OUTPUT_REQUIRED",
+            message="pass -o to a path outside this toolbox",
+        )
+    try:
+        output_filename = assert_outside_toolbox(output_filename)
+    except ToolboxWriteError as e:
+        return fail_result(error="TOOLBOX_WRITE", message=str(e))
 
     if not os.path.isfile(input_image_path):
         return fail_result(error="SOURCE_MISSING", message=input_image_path)
@@ -182,7 +214,7 @@ def generate_qwen_edit(
         if p and not os.path.isfile(p):
             return fail_result(error="SOURCE_MISSING", message=f"{label}: {p}")
 
-    family = FAMILY_QWEN_EDIT
+    family = FAMILY_QWEN_IMAGE_21 if qwen21 else FAMILY_QWEN_EDIT
     if not skip_engine_session:
         eng = ensure_engine(family, server_address, caller="generate_qwen_edit")
         if not eng.get("ok"):
@@ -193,21 +225,17 @@ def generate_qwen_edit(
             )
 
     seed = seed if seed is not None else random.randint(1, 2**31 - 1)
-    if steps is None:
-        steps = 4 if lightning else 20
-    if cfg is None:
-        cfg = 1.0 if lightning else 4.0
 
     prompt = (prompt_text or "").strip()
     if not prompt:
         return fail_result(error="PROMPT_EMPTY", message="edit prompt required")
-    if not raw_prompt and IDENTITY_SUFFIX.lower() not in prompt.lower():
+    if (
+        not qwen21
+        and not raw_prompt
+        and IDENTITY_SUFFIX.lower() not in prompt.lower()
+    ):
         prompt = f"{prompt.rstrip('.')}. {IDENTITY_SUFFIX}"
 
-    if output_filename is None:
-        output_filename = os.path.join(
-            r"F:\generated_images", f"qwen_edit_{seed}.png"
-        )
     parent = os.path.dirname(os.path.abspath(output_filename))
     if parent:
         os.makedirs(parent, exist_ok=True)
@@ -258,12 +286,15 @@ def _generate_workflow_api(
     ports: dict[str, Any] = {
         "input_image": os.path.abspath(input_image_path),
         "positive": prompt,
+        "negative": negative_text,
         "enable_turbo": bool(lightning),
         "denoise": float(denoise),
         "lightning_strength": float(lightning_strength),
         "gguf_name": gguf_name,
         "lora_name": lora_name,
-        "filename_prefix": f"QwenEdit_2509_{seed}",
+        "steps": int(steps),
+        "cfg": float(cfg),
+        "filename_prefix": f"QwenEdit_{preset}_{seed}",
     }
     # When turbo off, quality primitives already 20/4; allow override via steps/cfg ports
     if lightning:
@@ -278,7 +309,10 @@ def _generate_workflow_api(
         f"Qwen-Edit workflow_api preset={preset} turbo={lightning} "
         f"gguf={gguf_name} steps={steps} cfg={cfg} denoise={denoise} seed={seed}"
     )
-    print("  source_wf=image_qwen_image_edit_2509 (LoaderGGUF, not fp8 UNET)")
+    if preset == PRESET_QWEN21:
+        print("  source_wf=qwen_image_21_edit (UnetLoaderGGUF + TextEncodeQwenImage21)")
+    else:
+        print(f"  source_wf={preset}")
     print(f"  image1={input_image_path}")
     if input_image2_path:
         print(f"  image2={input_image2_path}")
@@ -463,8 +497,8 @@ def _ok_meta(
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(
         description=(
-            "Qwen instruction edit via image_qwen_image_edit_2509 API preset. "
-            "Default: workflow_api (fp8 + turbo switch)."
+            "Qwen instruction edit. Default preset qwen_edit_2511 (Lightning). "
+            "Latest: --preset qwen_image_21_edit (2.1 GGUF, no Lightning). -o required."
         )
     )
     p.add_argument("--input", "-i", required=True)
@@ -478,7 +512,7 @@ def main(argv=None) -> int:
         "--backend",
         choices=list(BACKENDS),
         default="workflow_api",
-        help="workflow_api=official 2509 (default); gguf_*/fp8_2509=legacy mini",
+        help="workflow_api (default). gguf_*/fp8_* map to the same API path.",
     )
     p.add_argument("--preset", default=None, help=f"default {DEFAULT_PRESET}")
     p.add_argument("--gguf", default=None)
@@ -518,7 +552,11 @@ def main(argv=None) -> int:
         raw_prompt=args.raw_prompt,
         preset=args.preset,
     )
-    return 0 if r.get("ok") else 1
+    if not r.get("ok"):
+        print(f"[qwen_edit] FAIL {r.get('error')}: {r.get('message')}", file=sys.stderr)
+        return 1
+    print(f"[qwen_edit] ok → {r.get('output_path')}")
+    return 0
 
 
 if __name__ == "__main__":

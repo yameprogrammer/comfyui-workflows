@@ -4,6 +4,9 @@ Do not edit by hand — `python scripts/failure_note.py add` regenerates.
 
 | id | sev | stage | tags | symptom |
 |----|-----|-------|------|---------|
+| `FN-20260919-002` | high | clip | h3, r2v, camera_roll, composition, rejec | scene_07_h3_take01 exhibited severe 35-degree camera roll and diagonal horizo... |
+| `FN-20260919-001` | high | clip | h3, r2v, previz, proxy_leak | scene_02_h3_take01 exposed raw Blender proxy geometry (gray wall and orange c... |
+| `FN-20260909-001` | high | keyframe | krea2, rebalance, black | generate_krea --rebalance 2.0 writes 1920x1088 RGB all-zero PNG (~10KB). Same... |
 | `FN-20260908-006` | high | clip | h3, r2v, previz | Person R2V pasted master_full as a cardboard cutout onto the orange corridor_... |
 | `FN-20260908-005` | high | clip | h3, B7, drop | S19 hanging-drop hold becomes a pouring stream by mid |
 | `FN-20260908-004` | high | clip | h3, r2v, previz | Object R2V kept gray Blender proxy look instead of Krea watercolor Picture 1 |
@@ -35,4 +38,4 @@ Do not edit by hand — `python scripts/failure_note.py add` regenerates.
 | `FN-20260715-002` | high | keyframe | anatomy_feet, insert_failed, face_cu_spa | Shoe insert requested but result was face close-up with deformed raised leg/f... |
 | `FN-20260715-001` | critical | clip | freeze_pad, duration_mismatch, qa_skippe | All cuts freeze for last 30-50 percent of duration (e.g. S01 freezes 5s-8s). ... |
 
-_Updated: 2026-09-08T23:10:54+00:00 · count=30_
+_Updated: 2026-09-19T09:15:19+00:00 · count=33_

@@ -136,9 +136,9 @@ def main() -> int:
             f"intent_cards={len(INTENT_TOOLS)} errors={len(errors)} warns={len(warns)}"
         )
         if errors:
-            print("FAIL — fix planned/ready drift or missing scripts")
+            print("FAIL - fix planned/ready drift or missing scripts")
         else:
-            print("OK — no hard drift")
+            print("OK - no hard drift")
 
     return 1 if errors else 0
 

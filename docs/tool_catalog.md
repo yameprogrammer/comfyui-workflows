@@ -119,7 +119,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | **악기 독주 / BGM / 효과음 SFX** | **`generate_stable_audio`** | **Stable Audio 3.0** (44.1kHz 고해상도 피아노/기타/SFX 폭발음) |
 | 대사 TTS | `generate_qwen3_tts` | custom / clone |
 | 스틸/영상 키우기 | **`upscale_recommend`** → `upscale_image` · `upscale_video` · `upscale_ltx_spatial` | 납품 해상도 · MiniMax→HD는 spatial |
-| **2D → 3D 메쉬 / VRM 프로토** | **`generate_hy3d_mesh`** · `process_mesh_glb` · `export_mesh_vrm` | Hy3D GLB · Blender MCP 후처리 |
+| **2D → 3D 메쉬 / VRM 프로토** | **`generate_trellis_mesh`** · `process_mesh_glb` · `export_mesh_vrm` | TRELLIS 2 GLB · Blender MCP 후처리 |
 | **유튜브 레퍼 이해** | **`youtube_ingest`** · `youtube_highlights` | 자막·요약·하이라이트 클립 |
 | **화성 뼈대 채보** | **`extract_music_skeleton`** | 로컬 음원/코드 → BPM·키·코드 JSON |
 | **새 장르 MIDI 반주 / 커버 베드** | **`generate_midi_arrangement`** · **`generate_midi_cover_bed`** | 화성만 가져와서 편곡 MIDI (+ Suno/MiniMax 핸드오프 팩) |
@@ -136,7 +136,7 @@ MOTION     그림 → 영상             camera_move · **previz** · idle_loop 
 VOICE      말·노래 재료            qwen3_tts · voice_register · bgm · **midi_cover_bed**
 FINISH     키우기·다듬기           upscale_recommend → upscale_* · **upscale_ltx_spatial** · ltx_relight · face_enhance(실험)
 ASSETS     재사용 패키지(옵션)     character_* · location_* · look_* · ref_pack(lite)
-MESH       2D→3D 메쉬·VRM          **hy3d_mesh** · process_mesh_glb · export_mesh_vrm
+MESH       2D→3D 메쉬·VRM          **trellis2_mesh** · process_mesh_glb · export_mesh_vrm
 BUNDLE     여러 파일 묶기(옵션)    assemble · episode_* · story_init · qa
 EDIT       컷·타이틀·마스터         **edit_pack** · render_edit · edit_timeline · render_title · edit_qa
 REVIEW     생성물 능동 평가         **review_media** · shot_qa_* · edit_qa_*
@@ -336,10 +336,12 @@ python scripts/generate_style_transfer.py --mode ref \
 
 | CLI | 언제 | 말고 |
 |-----|------|------|
-| `generate_qwen_edit` | 영역 없이 전체 지시 편집 | 손/얼굴 **국소만** |
-| `generate_qwen_inpaint` | 마스크 안만 교체 | 마스크 없이 전체 분위기 |
+| `generate_qwen_edit --preset qwen_image_21_edit` | **최신 Qwen-Image 2.1** (2K/GGUF/w4a8) 전역 지시어 편집 | 국소 마스킹 인페 |
+| `generate_qwen_edit` | Qwen Edit (2509/2511 Lightning 4스텝 지원) | 손/얼굴 **국소만** |
+| `generate_qwen_inpaint` | 마스크 안만 교체 (InstantX ControlNet) | 마스크 없이 전체 분위기 |
 
-가이드: [Qwen InstantX Inpaint](../workflows/human/Qwen_InstantX_Inpaint_AGENT_GUIDE.md)
+가이드: [Qwen Image 2.1 Edit](../workflows/human/Qwen_Image_2.1_Edit_AGENT_GUIDE.md) · [Qwen InstantX Inpaint](../workflows/human/Qwen_InstantX_Inpaint_AGENT_GUIDE.md)
+
 
 ---
 
@@ -586,22 +588,23 @@ python scripts/generate_ltx_relight.py -v exterior.mp4 -o relit.mp4 \
 
 | CLI | 언제 | 말고 | 상태 |
 |-----|------|------|------|
-| **`generate_hy3d_mesh`** | 프론트 스틸 → GLB (Hy3D / Hunyuan3D) | 영상 모션 · 2D만 필요 | **ready** |
+| **`generate_trellis_mesh`** | 프론트 스틸 → GLB (TRELLIS 2, MIT) | 히어로 리그 · 쿼드 토폴로지 | **ready** (에이전트 기본) |
+| **`generate_hy3d_mesh`** | 사용자가 Hunyuan을 이름으로 지정 | 한국 상업 로컬 본선 | **license_blocked_kr** |
 | **`process_mesh_glb`** | raw GLB 클린 · 라이트 auto-rig | Blender MCP 없음 · 프로덕션 본 맵 | ready_experimental |
 | **`export_mesh_vrm`** | GLB → VRM (Warudo/VTuber 프로토) | 프로덕션 휴머노이드 QA | ready_experimental |
 
 ```bash
-python scripts/generate_hy3d_mesh.py -i front.png -o mesh.glb --seed 42
-python scripts/generate_hy3d_mesh.py -i front.png -o scout.glb --profile draft
+python scripts/generate_trellis_mesh.py -i front.png -o mesh.glb --seed 42
+python scripts/generate_trellis_mesh.py -i front.png -o scout.glb --profile draft
 python scripts/process_mesh_glb.py -i mesh.glb -o clean.glb
 python scripts/process_mesh_glb.py -i mesh.glb -o rigged.glb --auto-rig
 python scripts/export_mesh_vrm.py -i clean.glb -o avatar.vrm
 python scripts/process_mesh_glb.py --probe   # Blender MCP
 ```
 
-**레시피:** front still → `generate_hy3d_mesh` → (옵션) `process_mesh_glb` → (옵션) `export_mesh_vrm`.  
-**가이드:** [hy3d_mesh/AGENT_GUIDE](../workflows/human/hy3d_mesh/AGENT_GUIDE.md)  
-**주의:** auto-rig은 프로토타입 품질. 레거시 `scripts/fix_mecha_*` / `export_patlabor_*` 는 SSOT 아님.
+**레시피:** front still → `generate_trellis_mesh` → (옵션) `process_mesh_glb` → (옵션) `export_mesh_vrm`.  
+**가이드:** [trellis/AGENT_GUIDE](../workflows/human/trellis/AGENT_GUIDE.md)  
+**주의:** auto-rig은 프로토타입 품질. Hunyuan3D-2는 KR Territory 제외 — `generate_hy3d_mesh`를 기본으로 부르지 말 것. 레거시 `scripts/fix_mecha_*` / `export_patlabor_*` 는 SSOT 아님.
 
 ---
 

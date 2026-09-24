@@ -63,7 +63,7 @@ def main(argv=None) -> int:
         "--seconds",
         type=float,
         default=None,
-        help=f"length 1–{MAX_SECONDS:.0f}s at 24fps (preset default {DEFAULT_SECONDS:.0f}; "
+        help=f"length 1-{MAX_SECONDS:.0f}s at 24fps (preset default {DEFAULT_SECONDS:.0f}; "
         "--from-scene uses the scene range if omitted)",
     )
     p.add_argument("--width", type=int, default=1280)

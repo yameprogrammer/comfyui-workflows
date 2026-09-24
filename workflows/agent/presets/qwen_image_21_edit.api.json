@@ -1,0 +1,148 @@
+{
+  "470": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "qwen_image_21_input.png"
+    }
+  },
+  "485": {
+    "class_type": "UnetLoaderGGUF",
+    "inputs": {
+      "unet_name": "Qwen-Image-2.1-Q4.gguf"
+    }
+  },
+  "477": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_8b_w4a8.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    }
+  },
+  "478": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+    }
+  },
+  "483": {
+    "class_type": "QwenImage21Cache",
+    "inputs": {
+      "cache_device": "auto",
+      "device": "default",
+      "model": [
+        "485",
+        0
+      ]
+    }
+  },
+  "484": {
+    "class_type": "TextEncodeQwenImage21",
+    "inputs": {
+      "prompt": "the 2 women are taking a selfie at the park",
+      "negative_prompt": "",
+      "resolution": 1024,
+      "clip": [
+        "477",
+        0
+      ],
+      "vae": [
+        "478",
+        0
+      ],
+      "images.image_1": [
+        "470",
+        0
+      ]
+    }
+  },
+  "13": {
+    "class_type": "ResolutionSelector",
+    "inputs": {
+      "aspect_ratio": "1:1 (Square)",
+      "megapixels": 1,
+      "multiple": 32
+    }
+  },
+  "479": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "batch_size": 1,
+      "height": [
+        "13",
+        1
+      ],
+      "width": [
+        "13",
+        0
+      ]
+    }
+  },
+  "482": {
+    "class_type": "ComfySwitchNode",
+    "inputs": {
+      "value": false,
+      "on_false": [
+        "484",
+        2
+      ],
+      "on_true": [
+        "479",
+        0
+      ]
+    }
+  },
+  "481": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 588430706262100,
+      "steps": 25,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": [
+        "483",
+        0
+      ],
+      "positive": [
+        "484",
+        0
+      ],
+      "negative": [
+        "484",
+        1
+      ],
+      "latent_image": [
+        "482",
+        0
+      ]
+    }
+  },
+  "480": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "481",
+        0
+      ],
+      "vae": [
+        "478",
+        0
+      ]
+    }
+  },
+  "461": {
+    "class_type": "SaveImageAdvanced",
+    "inputs": {
+      "filename_prefix": "Qwen_Image_2.1",
+      "format": "png",
+      "bit_depth": "8-bit",
+      "color_space": "sRGB",
+      "images": [
+        "480",
+        0
+      ]
+    }
+  }
+}

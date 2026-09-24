@@ -33,7 +33,7 @@ Picker: `python scripts/prompt_dialect.py pick "…"` · `show <id>` · `still_m
 |-----|---------|-----|
 | `generate_moody_i2i*` / `i2i_lock` / `i2i_ipadapter` | Change-first + keep face | `still_image_prompts.md` §I2I |
 | `generate_moody_controlnet` | Materials/light; pose from CN | `moody_zimage.md` |
-| `generate_qwen_edit` | Imperative, one change | `qwen_edit.md` |
+| `generate_qwen_edit` | Imperative, one change. `--preset qwen_image_21_edit`: same dialect, no auto keep-suffix, no Lightning | `qwen_edit.md` |
 | `generate_qwen_inpaint` | Masked region only | `qwen_edit.md` §inpaint |
 | `generate_flux_fill` | Mask contents only | `flux_still.md` |
 | `generate_qwen_angle` | Angle + keep identity | `qwen_edit.md` §angle |
@@ -85,7 +85,8 @@ Picker: `python scripts/prompt_dialect.py pick "…"` · `show <id>` · `still_m
 | `generate_bgm` | Short instrumental caption | `music_audio.md` |
 | `generate_midi_*` | **No image/music NL prompt** (skeleton/arrange flags) | — |
 | `generate_qwen3_tts` / `episode_tts` | Spoken text, not a visual prompt | — |
-| `generate_hy3d_mesh` | Image is the prompt | `mesh_3d.md` |
+| `generate_trellis_mesh` | Image is the prompt | `mesh_3d.md` |
+| `generate_hy3d_mesh` | **Do not call** (KR license). Image is the prompt if user named Hunyuan | `mesh_3d.md` |
 
 ---
 
@@ -103,7 +104,7 @@ Picker: `python scripts/prompt_dialect.py pick "…"` · `show <id>` · `still_m
 | **Camera-move** | Preset + extra | Second camera move |
 | **MiniMax Music / SA3** | 3-part caption; lyrics in `--lyrics` | Visual still language; lyrics inside caption |
 | **H3** | Shot + camera; `<Picture n>` + one job; contact sheet: P1 identity / P2 outfit | Untagged refs; outfit donor body; pose-photo bleed |
-| **Hy3D** | Clean still | Treat as T2I |
+| **TRELLIS 2** | Clean still | Treat as T2I; default to Hunyuan |
 
 ---
 

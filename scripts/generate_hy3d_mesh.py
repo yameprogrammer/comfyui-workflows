@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Image → 3D mesh (GLB) via Hunyuan3D / Kijai Hy3D wrapper.
 
+**Not the agent MESH default.** Hunyuan3D-2 Community License excludes Korea.
+Agent default: `generate_trellis_mesh` (TRELLIS 2, MIT weights).
+Call this CLI only when the user names Hunyuan / Hy3D.
+
 Requires ComfyUI + ComfyUI-Hunyuan3DWrapper and DiT weights.
 
-  # Default work profile (geometry + postprocess)
   python scripts/generate_hy3d_mesh.py -i hero_front.png -o out.glb --seed 42
 
   # Fast scout
@@ -72,8 +75,14 @@ def main(argv=None) -> int:
     p.add_argument("--list-profiles", action="store_true")
     args = p.parse_args(argv)
 
+    print(
+        "WARNING: generate_hy3d_mesh is KR Community License blocked. "
+        "Agent MESH default is generate_trellis_mesh.",
+        file=sys.stderr,
+    )
+
     if args.list_profiles:
-        print("=== Hy3D mesh profiles ===\n")
+        print("=== Hy3D mesh profiles (NOT agent default) ===\n")
         for k, v in list_profiles().items():
             print(
                 f"  {k}: steps={v['steps']} guidance={v['guidance']} "

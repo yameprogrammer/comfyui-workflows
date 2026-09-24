@@ -847,6 +847,7 @@
       "format": "api",
       "role": "qwen_instruction_edit",
       "family": "qwen_edit",
+      "status": "ready",
       "source": "image_qwen_image_edit_2509",
       "used_by": [
         "scripts/generate_qwen_edit.py",
@@ -874,13 +875,29 @@
       ],
       "notes": "Needs Blender MCP :9876 + ffmpeg. Preset wipes scene; --from-scene / --exec-file keep it. --camera Shot_A / --save-blend / --list-cameras. H3 --ref-video is a separate CLI. Cap 15s."
     },
+    "trellis2_mesh": {
+      "file": null,
+      "format": "native_api_graph",
+      "role": "image_to_mesh",
+      "family": "trellis2",
+      "status": "ready",
+      "description": "Microsoft TRELLIS 2 image-to-mesh GLB (MIT weights). Agent MESH default. Profiles draft/work/hero.",
+      "runner": "lib/trellis2_mesh_runner.py",
+      "guide": "workflows/human/trellis/AGENT_GUIDE.md",
+      "capabilities": "workflows/human/trellis/CAPABILITIES.json",
+      "used_by": [
+        "scripts/generate_trellis_mesh.py"
+      ],
+      "default_profile": "work",
+      "notes": "Requires ComfyUI-TRELLIS2 + models/trellis2 + dinov3. Not a hero character rig. Hunyuan is KR-blocked."
+    },
     "hy3d_mesh": {
       "file": null,
       "format": "native_api_graph",
       "role": "image_to_mesh",
       "family": "hy3d",
-      "status": "ready",
-      "description": "Hunyuan3D / Kijai Hy3D image-to-mesh GLB. Profiles draft/work/hero. Optional texture paint path.",
+      "status": "license_blocked_kr",
+      "description": "Hunyuan3D / Kijai Hy3D image-to-mesh GLB. KR Community License excludes Korea. Not agent default.",
       "runner": "lib/hy3d_mesh_runner.py",
       "guide": "workflows/human/hy3d_mesh/AGENT_GUIDE.md",
       "capabilities": "workflows/human/hy3d_mesh/CAPABILITIES.json",
@@ -888,7 +905,7 @@
         "scripts/generate_hy3d_mesh.py"
       ],
       "default_profile": "work",
-      "notes": "Requires ComfyUI-Hunyuan3DWrapper. Not episode default. Blender post is separate tools."
+      "notes": "Do not call unless the user names Hunyuan/Hy3D. Agent default is trellis2_mesh."
     },
     "process_mesh_glb": {
       "file": null,
@@ -1399,21 +1416,27 @@
       "role": "speech_to_video",
       "status": "ready",
       "shelf": "MOTION",
-      "scripts": ["scripts/generate_s2v.py"]
+      "scripts": [
+        "scripts/generate_s2v.py"
+      ]
     },
     "generate_bgm": {
       "file": null,
       "role": "bgm",
       "status": "ready",
       "shelf": "VOICE",
-      "scripts": ["scripts/generate_bgm.py"]
+      "scripts": [
+        "scripts/generate_bgm.py"
+      ]
     },
     "generate_ideogram4": {
       "file": null,
       "role": "typography",
       "status": "ready",
       "shelf": "GENERATE",
-      "scripts": ["scripts/generate_ideogram4.py"]
+      "scripts": [
+        "scripts/generate_ideogram4.py"
+      ]
     },
     "prompt_dialect": {
       "file": null,
@@ -1421,7 +1444,9 @@
       "status": "ready",
       "shelf": "META",
       "description": "Official still-prompt recipes per factory image model. No Comfy.",
-      "scripts": ["scripts/prompt_dialect.py"],
+      "scripts": [
+        "scripts/prompt_dialect.py"
+      ],
       "guide": "skills/generation-prompt/references/still_model_picker.md"
     },
     "generate_flux": {
@@ -1434,8 +1459,12 @@
       "description": "Flux.1 Dev Q4 T2I. Prompt-following / illustration alternative. Not cinematic default (Krea).",
       "runner": "lib/flux1_runner.py",
       "guide": "workflows/human/flux1/AGENT_GUIDE.md",
-      "used_by": ["scripts/generate_flux.py"],
-      "scripts": ["scripts/generate_flux.py"],
+      "used_by": [
+        "scripts/generate_flux.py"
+      ],
+      "scripts": [
+        "scripts/generate_flux.py"
+      ],
       "notes": "Weights Flux1/flux1-dev-Q4_K_S.gguf + clip_l + t5xxl_fp16 + ae. DualCLIPLoader type=flux."
     },
     "generate_flux_fill": {
@@ -1448,8 +1477,12 @@
       "description": "Flux.1 Fill Dev Q4 mask inpaint. White=edit. Not Qwen InstantX, not Anima inpaint.",
       "runner": "lib/flux1_runner.py",
       "guide": "workflows/human/flux1/AGENT_GUIDE.md",
-      "used_by": ["scripts/generate_flux_fill.py"],
-      "scripts": ["scripts/generate_flux_fill.py"],
+      "used_by": [
+        "scripts/generate_flux_fill.py"
+      ],
+      "scripts": [
+        "scripts/generate_flux_fill.py"
+      ],
       "notes": "Replaces planned generate_inpaint.py / flux1-fill-dev gap."
     },
     "generate_flux2_klein": {
@@ -1462,9 +1495,16 @@
       "description": "Flux.2 Klein 9B GGUF T2I + I2I. No native edit weights on disk.",
       "runner": "lib/flux2_klein_runner.py",
       "guide": "workflows/human/flux2_klein/AGENT_GUIDE.md",
-      "used_by": ["scripts/generate_flux2_klein.py"],
-      "scripts": ["scripts/generate_flux2_klein.py"],
-      "tasks": ["t2i", "i2i"]
+      "used_by": [
+        "scripts/generate_flux2_klein.py"
+      ],
+      "scripts": [
+        "scripts/generate_flux2_klein.py"
+      ],
+      "tasks": [
+        "t2i",
+        "i2i"
+      ]
     },
     "generate_sdxl": {
       "file": null,
@@ -1476,52 +1516,94 @@
       "description": "SDXL photoreal T2I: Juggernaut / Dreamshaper Lightning / Pony / NSFW ckpt. Not Illustrious.",
       "runner": "lib/sdxl_runner.py",
       "guide": "workflows/human/sdxl_photoreal/AGENT_GUIDE.md",
-      "used_by": ["scripts/generate_sdxl.py"],
-      "scripts": ["scripts/generate_sdxl.py"],
-      "profiles": ["juggernaut", "lightning", "pony", "nsfw"]
+      "used_by": [
+        "scripts/generate_sdxl.py"
+      ],
+      "scripts": [
+        "scripts/generate_sdxl.py"
+      ],
+      "profiles": [
+        "juggernaut",
+        "lightning",
+        "pony",
+        "nsfw"
+      ]
     },
     "generate_ltx_relight": {
       "file": null,
       "role": "relight",
       "status": "ready",
       "shelf": "FINISH",
-      "scripts": ["scripts/generate_ltx_relight.py"]
+      "scripts": [
+        "scripts/generate_ltx_relight.py"
+      ]
     },
     "youtube_ingest": {
       "file": null,
       "role": "youtube_ref",
       "status": "ready",
       "shelf": "INGEST",
-      "scripts": ["scripts/youtube_ingest.py"]
+      "scripts": [
+        "scripts/youtube_ingest.py"
+      ]
     },
     "upscale_video": {
       "file": null,
       "role": "upscale_video",
       "status": "ready",
       "shelf": "FINISH",
-      "scripts": ["scripts/upscale_video.py"]
+      "scripts": [
+        "scripts/upscale_video.py"
+      ]
     },
     "upscale_recommend": {
       "file": null,
       "role": "upscale_pick",
       "status": "ready",
       "shelf": "FINISH",
-      "scripts": ["scripts/upscale_recommend.py"]
+      "scripts": [
+        "scripts/upscale_recommend.py"
+      ]
     },
     "ltx_lora_status": {
       "file": null,
       "role": "ltx_lora_status",
       "status": "ready",
       "shelf": "META",
-      "scripts": ["scripts/ltx_lora_status.py"]
+      "scripts": [
+        "scripts/ltx_lora_status.py"
+      ]
     },
     "output_review": {
       "file": null,
       "role": "review",
       "status": "ready",
       "shelf": "REVIEW",
-      "scripts": ["scripts/review_media.py"],
+      "scripts": [
+        "scripts/review_media.py"
+      ],
       "guide": "skills/output-review/SKILL.md"
+    },
+    "qwen_image_21_edit": {
+      "file": "presets/qwen_image_21_edit.api.json",
+      "ports": "presets/qwen_image_21_edit.ports.json",
+      "format": "api",
+      "role": "qwen_image_21_instruction_edit",
+      "family": "qwen_edit",
+      "status": "ready",
+      "description": "Qwen-Image 2.1 Low VRAM GGUF image edit workflow with TextEncodeQwenImage21, QwenImage21Cache, native 2K support.",
+      "purpose": "High-fidelity natural language instruction image editing & multi-image reference fusion under Low VRAM.",
+      "source_ui": "workflows/human/qwen_image_2.1_edit.json",
+      "guide": "workflows/human/Qwen_Image_2.1_Edit_AGENT_GUIDE.md",
+      "used_by": [
+        "scripts/generate_qwen_edit.py"
+      ],
+      "shelf": "TRANSFORM",
+      "models": {
+        "unet_gguf": "Qwen-Image-2.1-Q4.gguf",
+        "clip": "qwen3vl_8b_w4a8.safetensors",
+        "vae": "qwen_image_2.1_vae_bf16.safetensors"
+      }
     }
   }
 }

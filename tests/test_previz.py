@@ -125,6 +125,8 @@ class TestPreviz(unittest.TestCase):
             cwd=_ROOT,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         self.assertEqual(r.returncode, 0)
         self.assertIn("--camera", r.stdout)
@@ -137,8 +139,10 @@ class TestPreviz(unittest.TestCase):
             cwd=_ROOT,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
-        combined = r.stderr + r.stdout
+        combined = (r.stderr or "") + (r.stdout or "")
         self.assertNotIn("--output/-o required", combined)
 
     def test_cli_rejects_mode_collision(self):
@@ -155,9 +159,11 @@ class TestPreviz(unittest.TestCase):
             cwd=_ROOT,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         self.assertNotEqual(r.returncode, 0)
-        self.assertIn("only one", (r.stderr + r.stdout).lower())
+        self.assertIn("only one", ((r.stderr or "") + (r.stdout or "")).lower())
 
 
 if __name__ == "__main__":

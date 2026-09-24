@@ -78,7 +78,7 @@ G. Call scripts/generate_*.py with that string only
 | `generate_flux` / `generate_flux2_klein` | NL 1–3 sentences | `flux_still.md` |
 | `generate_flux_fill` | Mask contents only | `flux_still.md` |
 | `generate_sdxl` | short NL / Pony scores | `sdxl_still.md` |
-| `generate_qwen_edit` / inpaint / angle | Imperative keep-rest | `qwen_edit.md` |
+| `generate_qwen_edit` / inpaint / angle | Imperative keep-rest. 2.1 preset: no auto suffix | `qwen_edit.md` |
 | `generate_style_transfer` / viewpoint / character_consistent | Instruction / preset | `style_viewpoint.md` |
 | `generate_ideogram4` / `boogu_typo` | JSON / exactly reading | `ideogram4_typography.md` |
 | `generate_i2v` LTX | Motion chronological | `ltx23_video.md` + `motion_video_prompts.md` |
@@ -89,7 +89,7 @@ G. Call scripts/generate_*.py with that string only
 | `generate_minimax_h3` | Shot + camera + ref tags | `minimax_h3.md` |
 | `generate_s2v` SI2V | Mouth + micro perf | `motion_video_prompts.md` |
 | `generate_minimax_music` / `stable_audio` / `bgm` | 3-part caption + tagged lyrics | `music_audio.md` |
-| `generate_hy3d_mesh` | Image is the prompt | `mesh_3d.md` |
+| `generate_trellis_mesh` | Image is the prompt | `mesh_3d.md` |
 
 Full matrix + DO/DON’T: **`references/model_prompt_matrix.md`**.
 
@@ -233,7 +233,7 @@ backend=krea2|moody|ltx23|wan22|... | source=SHOT_DESIGN
 | MiniMax H3 | `references/minimax_h3.md` |
 | Music / SFX | `references/music_audio.md` |
 | Style / viewpoint / ID lock | `references/style_viewpoint.md` |
-| Hy3D mesh | `references/mesh_3d.md` |
+| TRELLIS 2 mesh | `references/mesh_3d.md` |
 | Banned + cross-model traps | `references/banned_and_weak.md` |
 | Lexicon camera/light | `references/keyword_lexicon.md` |
 | Research log | `RESEARCH.md` |

@@ -1,0 +1,23 @@
+{
+  "id": "FN-20260909-001",
+  "created_at": "2026-09-09T11:59:28+00:00",
+  "agent": "unknown",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "keyframe",
+  "tags": [
+    "krea2",
+    "rebalance",
+    "black"
+  ],
+  "symptom": "generate_krea --rebalance 2.0 writes 1920x1088 RGB all-zero PNG (~10KB). Same prompt without --rebalance is a real still.",
+  "root_cause": "ConditioningKrea2Rebalance injection on krea2_t2i_v10 currently zeros decode. Scout same-day morning with rebalance had worked.",
+  "fix": "Omit --rebalance until the injection is re-verified. Probe extrema before treating exit 0 as a picture.",
+  "prevention": "After generate_krea, check PNG size/extrema. If ~10KB and RGB (0,0,0), do not advance. Retry without --rebalance.",
+  "related_paths": [
+    "D:\\뮤직비디오 작업\\[적합] 고속도로 방전 구역 (No Signal Drive)\\05_look\\cast"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

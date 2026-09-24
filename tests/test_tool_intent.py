@@ -31,6 +31,14 @@ class TestToolIntent(unittest.TestCase):
         hits = search_intents("프리비즈", limit=3)
         self.assertEqual(hits[0]["id"], "camera_previz")
 
+    def test_image_to_3d_ranks_trellis_not_hunyuan(self):
+        hits = search_intents("이미지 3d", limit=5)
+        self.assertEqual(hits[0]["id"], "trellis2_mesh")
+
+    def test_hunyuan_name_still_finds_hy3d(self):
+        hits = search_intents("hunyuan3d", limit=3)
+        self.assertEqual(hits[0]["id"], "hy3d_mesh")
+
     def test_examples_not_dumps(self):
         from lib.tool_intent import INTENT_TOOLS
 

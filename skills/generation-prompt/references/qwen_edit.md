@@ -1,7 +1,7 @@
 # Qwen Image Edit / Inpaint / Multi-angle prompts
 
 **CLI:** `generate_qwen_edit`, `generate_qwen_inpaint`, `generate_qwen_angle`, `character_qwen_turns`  
-**Models:** Qwen-Image-Edit (factory 2509/2511 GGUF + Lightning) · InstantX inpaint · Angles LoRA
+**Models:** Qwen-Image-Edit 2511 GGUF + Lightning (default) · `--preset qwen_image_21_edit` (2.1 GGUF, no Lightning) · InstantX inpaint · Angles LoRA
 
 ---
 
@@ -74,6 +74,20 @@ same wardrobe and lighting style, photoreal character sheet
 ```
 
 Use factory angle tokens / `<sks>` when CLI documents them — don’t invent conflicting LoRA triggers.
+
+---
+
+## Qwen-Image 2.1 (`--preset qwen_image_21_edit`)
+
+Same imperative dialect. One job. The CLI does **not** append the identity-lock suffix on this preset, and Lightning flags are ignored (steps 25 / cfg 1).
+
+```text
+Change the background to rainy Seoul night street bokeh. Keep the woman, wardrobe, and medium framing.
+```
+
+Multi-ref (`-i` + `-i2`): say which image is the scene and which is the donor. Do not rely on a hidden keep-suffix.
+
+Human T2I file `workflows/human/qwen_image_2.1_t2i.json` has no agent CLI.
 
 ---
 

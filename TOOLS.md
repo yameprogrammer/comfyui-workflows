@@ -86,7 +86,7 @@ Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 | **INGEST** | 유튜브 레퍼 이해 · 화성 뼈대 | `youtube_ingest` · `youtube_highlights` · **`extract_music_skeleton`** |
 | **FINISH** | 업스케일 · 디테일러 · 포스트 | `upscale_*` · **`generate_anima --mode hires`** · **`generate_illustrious_detailer`** · **`generate_krea2_face/eyes/hand_detail`** · **`generate_krea2_region_detail`** · **`generate_krea2_post`** · `generate_rmbg` · `ltx_relight` |
 | **ASSETS** | 캐릭/로케 패키지 *(옵션)* | `character_*` · `location_*` |
-| **MESH** | 2D→3D 메쉬·GLB·VRM 프로토타입 | **`generate_hy3d_mesh`** · `process_mesh_glb` · `export_mesh_vrm` |
+| **MESH** | 2D→3D 메쉬·GLB·VRM 프로토타입 | **`generate_trellis_mesh`** · `process_mesh_glb` · `export_mesh_vrm` (Hunyuan `generate_hy3d_mesh` = KR 라이선스 패스) |
 | **BUNDLE** | 멀티샷 묶기·QA *(옵션)* | `story_init` · `assemble_video` · `shot_qa_*` |
 | **EDIT** | 컷·타이틀·믹스·룩·마스터 | **`edit_pack`** · `render_edit` · `comp_shot` · `edit_timeline` · `render_title` · `edit_qa_pack` |
 | **REVIEW** | 생성물 능동 평가 | **`review_media`** · `shot_qa_*` · `edit_qa_*` |

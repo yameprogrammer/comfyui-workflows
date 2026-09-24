@@ -26,9 +26,11 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 
 | 스크립트 | 역할 |
 |----------|------|
-| `generate_moody.py` | 실사 T2I (Lonecat) |
-| `generate_illustrious_standard.py` | 애니 XL / Illustrious |
-| `generate_krea.py` / `generate_krea_nsfw.py` | Krea2 스틸 (**nsfw=18+**) |
+| `generate_krea.py` / `generate_krea_nsfw.py` / `generate_krea_draft.py` | Krea2 스틸 (**기본 실사**, nsfw=18+) |
+| `generate_anima.py` | 2D 애니 (Anima) |
+| `generate_moody.py` | 실사 T2I 대안 (Lonecat / Z-Image) |
+| `generate_illustrious_standard.py` / `generate_illustrious_advanced.py` | 애니 XL / Illustrious |
+| `generate_flux.py` / `generate_flux2_klein.py` / `generate_sdxl.py` | 유휴 스틸 (Flux / Klein / SDXL) |
 | `generate_ideogram4.py` | 가벼운 타이틀·간판 |
 | `generate_boogu_typo.py` | 잡지·포스터 글자+인물 |
 
@@ -42,8 +44,10 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 | `generate_moody_i2i.py` | Lonecat I2I |
 | `generate_moody_i2i_lock.py` | I2I + identity cap |
 | `generate_moody_i2i_ipadapter.py` | IPA 경로 (실험·비권장 SOP) |
-| `generate_qwen_edit.py` | 문장 전역 편집 |
+| `generate_qwen_edit.py` | 문장 전역 편집 (기본 2511 Lightning · `--preset qwen_image_21_edit` = 2.1) |
 | `generate_qwen_inpaint.py` | 마스크 국소 인페 |
+| `generate_flux_fill.py` | Flux Fill 마스크 인페 |
+| `generate_krea2_style.py` / `generate_krea2_control.py` / `generate_krea2_identity_edit.py` | Krea2 스타일·컨트롤·아이덴티티 편집 |
 | `shot_keyframe_edit.py` | 에피 키프레임 국소 수정 *(BUNDLE와 겹침)* |
 | `shot_edit.py` | 샷 메타/파일 편집 헬퍼 |
 
@@ -52,6 +56,7 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 | 스크립트 | 역할 |
 |----------|------|
 | `generate_qwen_angle.py` | 멀티앵글 (앞/옆/뒤) |
+| `generate_openpose_pose.py` | OpenPose 맵 + 포즈 |
 | **`generate_viewpoint.py`** | 깊이·시점 과장 (하이/로우/버즈아이, Comfy Qwen) |
 | `generate_moody_controlnet.py` | Fun Union ControlNet |
 | `character_qwen_turns.py` | 캐릭 패키지 턴 배치 |
@@ -62,6 +67,9 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 | 스크립트 | 역할 |
 |----------|------|
 | **`generate_camera_move.py`** | 카메라 무빙 의도 I2V (`--preset push_in` 등) |
+| **`generate_previz.py`** | Blender 프리비즈 플레이트 → H3 `--ref-video` |
+| **`generate_minimax_h3.py`** | MiniMax H3 T2V/I2V/R2V/A2V |
+| **`generate_wan_animate2.py`** / `generate_wan22_animate.py` | 댄스 이식 (Animate-2 / ViTPose) |
 | **`generate_idle_loop.py`** | 아이들 모션 + 루프 (pingpong / roundtrip / idle) |
 | **`generate_dance_ref.py`** | 댄스/레퍼 모션 (V2V motion · i2v 스타일) |
 | `generate_i2v.py` | I2V 일반 · **`--motion-preset`** (동일 프리셋) |
@@ -80,6 +88,8 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 | 스크립트 | 역할 |
 |----------|------|
 | `generate_qwen3_tts.py` | TTS custom/design/clone |
+| **`generate_minimax_music.py`** | 완곡/보컬 |
+| **`generate_stable_audio.py`** | 악기/SFX |
 | `voice_register.py` | 보이스 샘플 등록 |
 | `generate_bgm.py` | BGM |
 | **`extract_music_skeleton.py`** | 화성 뼈대 JSON (코드 또는 로컬 음원) |
@@ -94,6 +104,11 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 |----------|------|
 | `upscale_image.py` | 스틸 업스케일 |
 | `upscale_video.py` | 영상 업스케일 |
+| `generate_rmbg.py` | 배경 제거 |
+| `generate_krea2_face_detail.py` / `generate_krea2_eyes_detail.py` / `generate_krea2_hand_detail.py` / `generate_krea2_anatomy_detail.py` / `generate_krea2_region_detail.py` | Krea2 국소 디테일 |
+| `generate_krea2_post.py` / `generate_krea2_color_match.py` | 포스트·컬러 |
+| `generate_illustrious_detailer.py` | Illustrious 디테일러 |
+| `generate_ltx_relight.py` | LTX 릴라이트 |
 | `generate_wan22_face_enhance.py` | 얼굴 향상 (실험) |
 | `generate_wan22_upscale.py` | Wan 업스케일 옵트인 |
 
@@ -111,10 +126,22 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 | `assets_list.py` | 자산 목록 |
 | `shot_with_character.py` | 캐릭 템플릿 샷 (헬퍼) |
 
+### MESH — 2D → 3D
+
+| 스크립트 | 역할 |
+|----------|------|
+| **`generate_trellis_mesh.py`** | 이미지 → GLB (TRELLIS 2, 에이전트 기본) |
+| `process_mesh_glb.py` | GLB 클린 / 라이트 auto-rig |
+| `export_mesh_vrm.py` | GLB → VRM 프로토타입 |
+| `generate_hy3d_mesh.py` | Hunyuan. KR 라이선스 패스. 사용자가 이름을 지정할 때만 |
+
+`generate_hunyuan3d_mesh.py` · `generate_hy3d_quality_pipeline.py` · `generate_brand_new_3d_model.py` · `generate_mecha_yame_v2_3d.py` 는 등록된 입구가 아니다. 쓰지 말 것.
+
 ### EDIT — 컷 · 타이틀 · 마스터
 
 | 스크립트 | 역할 |
 |----------|------|
+| **`edit_pack.py`** | 컷+타이틀+룩 → 납품 마스터 |
 | `edit_timeline.py` | timeline JSON init / from-clips / validate |
 | `render_title.py` | 한글 타이틀 PNG (부품 조립, `--list-parts`, `--list-fonts`) |
 | `setup_edit_fonts.py` | OFL 한글 디스플레이 폰트 (`--font yeonung`) |
@@ -140,6 +167,7 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 
 | 스크립트 | 역할 |
 |----------|------|
+| **`review_media.py`** | 생성 후 검수 pack/record |
 | **`tool_intent.py`** | **의도 → CLI 검색** (+ 관련 failure 프리플라이트) |
 | **`failure_note.py`** | **실수 방지** · `before` / search / add / list (Rule 7.4) |
 | `comfy_ensure.py` | Comfy 기동 확인/자동 기동 |

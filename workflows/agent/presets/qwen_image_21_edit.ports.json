@@ -1,0 +1,84 @@
+{
+  "preset": "qwen_image_21_edit",
+  "workflow_api": "presets/qwen_image_21_edit.api.json",
+  "description": "Official Qwen-Image 2.1 Low VRAM GGUF image edit workflow with TextEncodeQwenImage21 and QwenImage21Cache.",
+  "source_ui": "workflows/human/qwen_image_2.1_edit.json",
+  "family": "qwen_edit",
+  "ports": {
+    "input_image": {
+      "node": "470",
+      "key": "image",
+      "copy_to_input_dir": true
+    },
+    "positive": {
+      "node": "484",
+      "key": "prompt"
+    },
+    "negative": {
+      "node": "484",
+      "key": "negative_prompt",
+      "optional": true
+    },
+    "resolution": {
+      "node": "484",
+      "key": "resolution",
+      "optional": true
+    },
+    "seed": {
+      "node": "481",
+      "key": "seed"
+    },
+    "steps": {
+      "node": "481",
+      "key": "steps",
+      "optional": true
+    },
+    "cfg": {
+      "node": "481",
+      "key": "cfg",
+      "optional": true
+    },
+    "denoise": {
+      "node": "481",
+      "key": "denoise",
+      "optional": true
+    },
+    "gguf_name": {
+      "node": "485",
+      "key": "unet_name",
+      "optional": true
+    },
+    "clip_name": {
+      "node": "477",
+      "key": "clip_name",
+      "optional": true
+    },
+    "vae_name": {
+      "node": "478",
+      "key": "vae_name",
+      "optional": true
+    },
+    "filename_prefix": {
+      "node": "461",
+      "key": "filename_prefix",
+      "optional": true
+    }
+  },
+  "defaults": {
+    "denoise": 1.0,
+    "steps": 25,
+    "cfg": 1.0,
+    "resolution": 1024,
+    "filename_prefix": "Qwen_Image_2.1",
+    "gguf_name": "Qwen-Image-2.1-Q4.gguf",
+    "clip_name": "qwen3vl_8b_w4a8.safetensors",
+    "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+  },
+  "notes": [
+    "Uses UnetLoaderGGUF for low VRAM consumption (5.5GB Q4)",
+    "Uses TextEncodeQwenImage21 for direct 2K resolution and multi-image condition",
+    "Uses QwenImage21Cache to accelerate sampling speed",
+    "Agent API graph has LoadImage node 470 only. -i2/-i3 inject LoadImage at runtime onto node 484 inputs images.image_2 / images.image_3. Human UI node 475 is not in this API graph.",
+    "No Lightning / enable_turbo port. steps 25, cfg 1.0."
+  ]
+}

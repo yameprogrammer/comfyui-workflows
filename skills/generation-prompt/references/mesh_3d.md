@@ -1,7 +1,9 @@
-# 3D mesh prompts (Hunyuan3D / TRELLIS)
+# 3D mesh prompts (TRELLIS 2)
 
-**CLI:** `generate_hy3d_mesh` · related `process_mesh_glb`  
-Hy3D is **image-to-mesh**. The still is the prompt. Extra text is usually unused or weak.
+**CLI:** `generate_trellis_mesh` · related `process_mesh_glb`  
+**Not:** `generate_hy3d_mesh` (Hunyuan3D KR Community License blocked).
+
+TRELLIS 2 is **image-to-mesh**. The still is the prompt. Extra text is unused.
 
 ---
 
@@ -10,8 +12,9 @@ Hy3D is **image-to-mesh**. The still is the prompt. Extra text is usually unused
 | DO | DON'T |
 |----|--------|
 | Feed a **clean orthographic-ish hero still** (front, full subject, simple bg) | Expect a 140w Krea essay to fix a messy photo |
-| `--profile draft\|work\|hero` for quality, not for "more prompt" | Tag soup on the CLI  
+| `--profile draft\|work\|hero` for quality, not for "more prompt" | Tag soup on the CLI |
 | One subject, no heavy crop of feet/hands if you need them | Multi-character plates |
+| Call `generate_trellis_mesh` | Call Hunyuan unless the user named it |
 
 If a wrapper accepts `-p`, use **object nouns only**: `single mecha, complete limbs, no base`.
 
@@ -28,4 +31,5 @@ If a wrapper accepts `-p`, use **object nouns only**: `single mecha, complete li
 ## Gates
 
 - [ ] Input image is the real "prompt"  
-- [ ] Not treating Hy3D like T2I  
+- [ ] Not treating TRELLIS like T2I
+- [ ] Not calling Hunyuan unless the user named it  

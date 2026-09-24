@@ -1,3 +1,21 @@
+## 2026-09-24 — Agent index alignment (Qwen 2.1, README, skill equip)
+
+- `generate_qwen_edit --preset qwen_image_21_edit`: help/ports/guide match the API graph. `-i2` injects `images.image_2` (no node 475 port). Engine family `qwen_image_21`. `-o` required. No identity suffix, no Lightning.
+- `qwen_edit_2511` catalog status `ready`. Skill `qwen_edit.md` documents the 2.1 preset.
+- `scripts/README.md` shelves include MESH, H3, previz, Flux/Anima, review.
+- `tool_index_check` success line is ASCII. Previz help uses `1-15s` so cp949 capture does not drop stdout.
+- Equip: `python scripts/skill_equip.py install generation-prompt --target grok`
+
+## 2026-09-11 — TRELLIS 2 CLI draft smoke PASS
+- `generate_trellis_mesh --profile draft --seed 42` cannon.webp → `workspace/smoke_test/trellis2_cannon_draft.glb` (glTF2, 27.8s)
+- Pack bug: empty-module `next(self.parameters())` → StopIteration. Patch: `ComfyUI-TRELLIS2/nodes/stages.py` ctor `device=cpu` + `model.py` device guard. Restart Comfy to load.
+
+## 2026-09-10 — MESH default: TRELLIS 2 (Hunyuan KR license out)
+- Agent default: `generate_trellis_mesh` · `lib/trellis2_mesh_runner.py` · family `trellis2`
+- Hunyuan `generate_hy3d_mesh` status `license_blocked_kr` — only if the user names it
+- Intent: 이미지 3d / mesh / glb → trellis2_mesh; hunyuan3d → hy3d_mesh
+- Tests: `python -m unittest tests.test_trellis2_mesh tests.test_tool_intent -v`
+
 ## 2026-09-09 — camera-previz v1.2 (multi-shot, color contract, plate QA)
 - Skill v1.2 · `--camera` / `--save-blend` / `--list-cameras`
 - Plate QA fail-closed: hero orange only on Hero*, clip_start, camera-in-geo, leftover TRACK_TO

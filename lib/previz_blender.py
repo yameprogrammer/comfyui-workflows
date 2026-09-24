@@ -579,6 +579,8 @@ def _mux_pngs_to_mp4(tmp: Path, dst: Path) -> dict[str, Any] | None:
         ],
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     if ff.returncode != 0 or not dst.is_file() or dst.stat().st_size < 10_000:
         return {

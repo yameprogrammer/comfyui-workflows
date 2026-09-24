@@ -1,6 +1,6 @@
 {
   "id": "hy3d_mesh",
-  "status": "ready",
+  "status": "license_blocked_kr",
   "shelf": "MESH",
   "family": "hy3d",
   "runner": "lib/hy3d_mesh_runner.py",
@@ -19,7 +19,8 @@
   "profiles": ["draft", "work", "hero"],
   "outputs": ["glb", "vrm"],
   "notes": [
-    "work = default geometry + postprocess",
+    "NOT agent MESH default — KR Community License excludes Korea",
+    "use generate_trellis_mesh instead",
     "texture path is high VRAM opt-in",
     "auto-rig is prototype quality only"
   ]

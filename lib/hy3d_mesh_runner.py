@@ -10,7 +10,8 @@ Profiles:
   work  — default agent quality (geo + postprocess)
   hero  — higher octree / faces; optional --texture paint path (VRAM heavy)
 
-Not episode default. Opt-in 3D asset tool (shelf MESH).
+Not agent MESH default (KR Community License excludes Korea).
+Opt-in only when the user names Hunyuan / Hy3D. Default: generate_trellis_mesh.
 """
 
 from __future__ import annotations
