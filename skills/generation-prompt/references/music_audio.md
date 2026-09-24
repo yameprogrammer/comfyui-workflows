@@ -7,6 +7,8 @@
 
 ## MiniMax Music 3 (`--caption` + `--lyrics`)
 
+Production captions come from **`skills/music-caption-rewriter`**. Equip it, then follow that `SKILL.md`: genre router, one family index (a second only for an explicit fusion), then at most three templates. Do not scan the 1,000-template folder. The block below is the **output shape and CLI contract**. A one-line genre string still runs for a smoke test.
+
 Caption is **English**, three headings, in this order. Lyrics stay in `--lyrics`.
 
 ```text
@@ -71,5 +73,5 @@ Same as instrumental caption: style, mood, instruments, BPM. Short.
 - [ ] No photoreal still language  
 - [ ] Vocal vs instrumental vs SFX matches CLI/mode  
 - [ ] Lyrics not stuffed into caption  
-- [ ] Production Music 3 caption has the three headings  
+- [ ] Production Music 3 caption came from `music-caption-rewriter` and has the three headings  
 - [ ] `--duration` ≥ expected song length  

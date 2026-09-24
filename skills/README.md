@@ -25,6 +25,7 @@ Grok / Claude Code / Cursor / Codex 등 **어떤 에이전트든** 이 도구로
 | **2** | **generation-prompt** | `shot_compose` / `generate_*` / `episode_i2v|s2v` **직전** |
 | **3** | **output-review** | `generate_*` **직후**. 파일 열고 판정. exit 0 ≠ 완료 |
 | **4** | **video-edit** | 클립이 생긴 뒤 컷·타이틀·믹스·마스터. concat으로 납품 금지 |
+| **M** | **music-caption-rewriter** | `generate_minimax_music` **직전**. 장르 라우터로 캡션만 작성. 오디오는 CLI |
 
 ```bash
 python scripts/skill_equip.py list
@@ -60,6 +61,7 @@ python scripts/skill_equip.py install output-review
 | **generation-prompt** | [generation-prompt/](generation-prompt/) | SHOT → 모델별 방언 프롬프트 | ✅ v1.3 |
 | **video-edit** | [video-edit/](video-edit/) | 말→EDIT_PLAN→타임라인→마스터 QA | ✅ v1.5 |
 | **output-review** | [output-review/](output-review/) | generate_* 결과 능동 평가 · fail→레버 | ✅ v1.0 |
+| **music-caption-rewriter** | [music-caption-rewriter/](music-caption-rewriter/) | MiniMax Music 3 캡션. 라우터 → 패밀리 1개 → 템플릿 최대 3개. 1,000개를 전부 읽지 않음 | ✅ v1.0.0 (upstream 2026-08-14) |
 
 ---
 

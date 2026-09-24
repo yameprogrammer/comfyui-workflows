@@ -1,6 +1,6 @@
 ---
 name: generation-prompt
-version: 1.4.0
+version: 1.4.1
 description: >
   Translate shot design into high-quality IMAGE and VIDEO model prompts for agent_custom.
   Routes each factory CLI/backend to its researched dialect (Krea2 NL, Z-Image clauses,
@@ -88,7 +88,8 @@ G. Call scripts/generate_*.py with that string only
 | `generate_wan_animate2` / `wan22_animate` | Split look/bg/pose | `wan_animate.md` |
 | `generate_minimax_h3` | Shot + camera + ref tags | `minimax_h3.md` |
 | `generate_s2v` SI2V | Mouth + micro perf | `motion_video_prompts.md` |
-| `generate_minimax_music` / `stable_audio` / `bgm` | 3-part caption + tagged lyrics | `music_audio.md` |
+| `generate_minimax_music` | Router caption, then 3-part + tagged lyrics | `skills/music-caption-rewriter` then `music_audio.md` |
+| `generate_stable_audio` / `bgm` | Instrumental or SFX caption | `music_audio.md` |
 | `generate_trellis_mesh` | Image is the prompt | `mesh_3d.md` |
 
 Full matrix + DO/DON’T: **`references/model_prompt_matrix.md`**.
@@ -181,7 +182,7 @@ Shared hard rules: **`motion_video_prompts.md`**
 - Illustrious: quality + subject count — `illustrious_tags.md`  
 - Qwen: one change — `qwen_edit.md`  
 - Ideogram: literal text typed — `ideogram4_typography.md`  
-- Music 3: 3-part caption, lyrics in `--lyrics` — `music_audio.md`  
+- Music 3: equip `music-caption-rewriter`, then 3-part caption, lyrics in `--lyrics` — `music_audio.md`  
 
 **Gate fail ⇒ do not call generate CLI.**
 
@@ -231,7 +232,8 @@ backend=krea2|moody|ltx23|wan22|... | source=SHOT_DESIGN
 | Blender previz → H3 | `skills/camera-previz/SKILL.md` · `minimax_h3.md` V2V |
 | Wan Animate | `references/wan_animate.md` |
 | MiniMax H3 | `references/minimax_h3.md` |
-| Music / SFX | `references/music_audio.md` |
+| MiniMax Music 3 caption | `skills/music-caption-rewriter/SKILL.md` then `references/music_audio.md` |
+| Stable Audio / short BGM | `references/music_audio.md` |
 | Style / viewpoint / ID lock | `references/style_viewpoint.md` |
 | TRELLIS 2 mesh | `references/mesh_3d.md` |
 | Banned + cross-model traps | `references/banned_and_weak.md` |
@@ -247,6 +249,7 @@ backend=krea2|moody|ltx23|wan22|... | source=SHOT_DESIGN
 - [ ] tool_catalog / QUALITY_POLICY → CLI known  
 - [ ] **model_prompt_matrix / `prompt_dialect show` applied**  
 - [ ] dialect reference file applied  
+- [ ] Music 3: `music-caption-rewriter` equipped; caption from the router, not a one-line genre  
 - [ ] still and/or motion/edit string written  
 - [ ] gates pass  
 - [ ] I2V has no wardrobe essay  

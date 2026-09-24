@@ -45,7 +45,7 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         "shelf": "VOICE",
         "cli": "python scripts/generate_minimax_music.py",
         "script": "generate_minimax_music.py",
-        "summary": "MiniMax Music 3 고음질 완곡(보컬 노래) 및 사운드트랙/BGM 생성 (최대 5분)",
+        "summary": "MiniMax Music 3 고음질 완곡(보컬 노래) 및 사운드트랙/BGM 생성 (최대 5분). 캡션은 skills/music-caption-rewriter 탑재 후 작성",
         "when": "한국어/영어 보컬이 포함된 풀 코러스 노래(K-Pop, 발라드, 락, EDM 등) 또는 영상용 고품질 BGM 작곡",
         "when_not": "단순 짧은 대사 더빙/음성 합성 -> generate_qwen3_tts",
         "keywords": [

@@ -88,7 +88,7 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 | 스크립트 | 역할 |
 |----------|------|
 | `generate_qwen3_tts.py` | TTS custom/design/clone |
-| **`generate_minimax_music.py`** | 완곡/보컬 |
+| **`generate_minimax_music.py`** | 완곡/보컬. 캡션은 `music-caption-rewriter` |
 | **`generate_stable_audio.py`** | 악기/SFX |
 | `voice_register.py` | 보이스 샘플 등록 |
 | `generate_bgm.py` | BGM |

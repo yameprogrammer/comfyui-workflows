@@ -80,7 +80,7 @@ Picker: `python scripts/prompt_dialect.py pick "…"` · `show <id>` · `still_m
 
 | CLI | Dialect | Ref |
 |-----|---------|-----|
-| `generate_minimax_music` | 3-part caption (Global / Vocal / Arrangement); lyrics + section tags separate | `music_audio.md` |
+| `generate_minimax_music` | 3-part caption (Global / Vocal / Arrangement); lyrics + section tags separate. Write it with the caption skill first | `skills/music-caption-rewriter` then `music_audio.md` |
 | `generate_stable_audio` | Instrumental or SFX source+space | `music_audio.md` |
 | `generate_bgm` | Short instrumental caption | `music_audio.md` |
 | `generate_midi_*` | **No image/music NL prompt** (skeleton/arrange flags) | — |
@@ -102,7 +102,8 @@ Picker: `python scripts/prompt_dialect.py pick "…"` · `show <id>` · `still_m
 | **Wan / LTX I2V** | Motion + one camera | Face/wardrobe re-essay |
 | **Wan Animate** | Split look / bg / pose | Choreograph in `--look` |
 | **Camera-move** | Preset + extra | Second camera move |
-| **MiniMax Music / SA3** | 3-part caption; lyrics in `--lyrics` | Visual still language; lyrics inside caption |
+| **MiniMax Music** | Equip `music-caption-rewriter`; 3-part caption; lyrics in `--lyrics` | One-line genre as the production caption; lyrics inside the caption |
+| **Stable Audio** | Source + space caption | Visual still language |
 | **H3** | Shot + camera; `<Picture n>` + one job; contact sheet: P1 identity / P2 outfit | Untagged refs; outfit donor body; pose-photo bleed |
 | **TRELLIS 2** | Clean still | Treat as T2I; default to Hunyuan |
 

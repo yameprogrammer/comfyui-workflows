@@ -115,7 +115,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | **깊이·시점 과장** | `generate_viewpoint` | 하이/로우/버즈아이 (Comfy Qwen) |
 | **가벼운 ID 레퍼 팩** | `generate_ref_pack` | face+각도 (패키지 없이) |
 | **스타일 전이 / 레스타일** | `generate_style_transfer` | 애니·유화·무드보드 ref |
-| **완곡 작곡 / 보컬 노래 (최대 5분)** | **`generate_minimax_music`** | **MiniMax Music 3** (한국어/영어 보컬 완곡 & 고음질 BGM) |
+| **완곡 작곡 / 보컬 노래 (최대 5분)** | **`generate_minimax_music`** | **MiniMax Music 3**. 캡션은 먼저 `music-caption-rewriter` |
 | **악기 독주 / BGM / 효과음 SFX** | **`generate_stable_audio`** | **Stable Audio 3.0** (44.1kHz 고해상도 피아노/기타/SFX 폭발음) |
 | 대사 TTS | `generate_qwen3_tts` | custom / clone |
 | 스틸/영상 키우기 | **`upscale_recommend`** → `upscale_image` · `upscale_video` · `upscale_ltx_spatial` | 납품 해상도 · MiniMax→HD는 spatial |

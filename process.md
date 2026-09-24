@@ -1,3 +1,9 @@
+## 2026-09-24 — music-caption-rewriter (MiniMax Music 3 captions)
+
+- Vendored `skills/music-caption-rewriter` from MiniMax-AI/MiniMax-Music3 `945655064d59` (18 family indexes, 1,000 templates). Factory overlay: `FACTORY.md`.
+- Equip before `generate_minimax_music`. Router path only; the CLI renders audio.
+- `python scripts/skill_equip.py install music-caption-rewriter --target all`
+
 ## 2026-09-24 — Project AGENTS template (local video, H3)
 
 - Copy source: `templates/project/AGENTS.md` → `<project>/AGENTS.md`

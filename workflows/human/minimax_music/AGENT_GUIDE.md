@@ -18,7 +18,9 @@
 
 ## 2. Caption & Lyrics
 
-Dialect: `skills/generation-prompt/references/music_audio.md`.
+Production caption: equip `skills/music-caption-rewriter` and follow its `SKILL.md` (genre router, one family, at most three templates). Do not scan all 1,000 templates.
+
+CLI contract: `skills/generation-prompt/references/music_audio.md`.
 
 ### A. Caption — three headings (English)
 
