@@ -1,3 +1,8 @@
+## 2026-09-24 — Project AGENTS template (local video, H3)
+
+- Copy source: `templates/project/AGENTS.md` → `<project>/AGENTS.md`
+- Project override: video is MiniMax H3 (`--profile work`). Factory episode default stays LTX until a project says otherwise.
+
 ## 2026-09-24 — Agent index alignment (Qwen 2.1, README, skill equip)
 
 - `generate_qwen_edit --preset qwen_image_21_edit`: help/ports/guide match the API graph. `-i2` injects `images.image_2` (no node 475 port). Engine family `qwen_image_21`. `-o` required. No identity suffix, no Lightning.
