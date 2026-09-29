@@ -59,6 +59,7 @@ Picker: `python scripts/prompt_dialect.py pick "…"` · `show <id>` · `still_m
 
 | CLI | Family | Dialect | Ref |
 |-----|--------|---------|-----|
+| `generate_ltx25_aio` | LTX 2.5 AIO | Gemma 4 12B NL; 9 modes (T2V, TA2V, I2V, IA2V, FLF, FLFA, FML, FMLA, V2V); audio cues | `ltx25_video.md` |
 | `generate_i2v` (default LTX) | LTX 2.3 | Motion + time; image owns look | `ltx23_video.md` · `motion_video_prompts.md` |
 | `generate_i2v --backend wan` / `generate_yaw_wan22` | Wan 2.2 | Subject → motion → camera | `wan22_i2v.md` |
 | `generate_flf2v` | LTX FLF | Bridge A→B | `ltx23_video.md` §flf |
@@ -100,6 +101,7 @@ Picker: `python scripts/prompt_dialect.py pick "…"` · `show <id>` · `still_m
 | **Illustrious / Anima** | Quality tags + Danbooru-ish | Krea photoreal paragraph |
 | **Qwen / viewpoint / style** | Imperative keep-rest / preset | Multi-change mega edit |
 | **Wan / LTX I2V** | Motion + one camera | Face/wardrobe re-essay |
+| **LTX 2.5 AIO** | Gemma 4 NL prose, pre-flight soft reset, dialogue in quotes for audio modes | Tag-soup, multi-camera collision, VRAM model overlap |
 | **Wan Animate** | Split look / bg / pose | Choreograph in `--look` |
 | **Camera-move** | Preset + extra | Second camera move |
 | **MiniMax Music** | Equip `music-caption-rewriter`; 3-part caption; lyrics in `--lyrics` | One-line genre as the production caption; lyrics inside the caption |

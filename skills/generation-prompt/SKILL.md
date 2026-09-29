@@ -81,6 +81,7 @@ G. Call scripts/generate_*.py with that string only
 | `generate_qwen_edit` / inpaint / angle | Imperative keep-rest. 2.1 preset: no auto suffix | `qwen_edit.md` |
 | `generate_style_transfer` / viewpoint / character_consistent | Instruction / preset | `style_viewpoint.md` |
 | `generate_ideogram4` / `boogu_typo` | JSON / exactly reading | `ideogram4_typography.md` |
+| `generate_ltx25_aio` | LTX 2.5 AIO (Gemma 4 NL / 9 modes) | `ltx25_video.md` |
 | `generate_i2v` LTX | Motion chronological | `ltx23_video.md` + `motion_video_prompts.md` |
 | `generate_camera_move` / idle / dance_ref | Preset + extra only | `camera_move.md` |
 | **`generate_previz`** then H3 `--ref-video` | Plate owns camera; H3 V2V fields | `minimax_h3.md` § V2V + `skills/camera-previz` |
