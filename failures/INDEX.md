@@ -4,6 +4,9 @@ Do not edit by hand — `python scripts/failure_note.py add` regenerates.
 
 | id | sev | stage | tags | symptom |
 |----|-----|-------|------|---------|
+| `FN-20260924-003` | high | h3_i2v | h3, vae | Video decode stays at full GPU after the sampler finishes and never writes th... |
+| `FN-20260924-002` | high | h3_i2v | h3, rainbow | A colored spectrum band grows across the rooftop floor. |
+| `FN-20260924-001` | high | keyframe | s02, krea2_style, crop | 16:9 kneel crops the eyes or turns into a reach |
 | `FN-20260919-002` | high | clip | h3, r2v, camera_roll, composition, rejec | scene_07_h3_take01 exhibited severe 35-degree camera roll and diagonal horizo... |
 | `FN-20260919-001` | high | clip | h3, r2v, previz, proxy_leak | scene_02_h3_take01 exposed raw Blender proxy geometry (gray wall and orange c... |
 | `FN-20260909-001` | high | keyframe | krea2, rebalance, black | generate_krea --rebalance 2.0 writes 1920x1088 RGB all-zero PNG (~10KB). Same... |
@@ -38,4 +41,4 @@ Do not edit by hand — `python scripts/failure_note.py add` regenerates.
 | `FN-20260715-002` | high | keyframe | anatomy_feet, insert_failed, face_cu_spa | Shoe insert requested but result was face close-up with deformed raised leg/f... |
 | `FN-20260715-001` | critical | clip | freeze_pad, duration_mismatch, qa_skippe | All cuts freeze for last 30-50 percent of duration (e.g. S01 freezes 5s-8s). ... |
 
-_Updated: 2026-09-19T09:15:19+00:00 · count=33_
+_Updated: 2026-09-24T09:50:29+00:00 · count=36_

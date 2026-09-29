@@ -1,0 +1,21 @@
+{
+  "id": "FN-20260924-001",
+  "created_at": "2026-09-24T04:30:59+00:00",
+  "agent": "unknown",
+  "episode_id": null,
+  "shot_id": "S02",
+  "stage": "keyframe",
+  "tags": [
+    "s02",
+    "krea2_style",
+    "crop"
+  ],
+  "symptom": "16:9 kneel crops the eyes or turns into a reach",
+  "root_cause": "Style transfer from a portrait kneel keeps a tight vertical crop",
+  "fix": "Do not pass a head-cut frame. Need a 16:9 prompt that starts with full headroom.",
+  "prevention": "Keyframe must show both eyes before it is named S02.png",
+  "related_paths": [],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

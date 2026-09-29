@@ -1,0 +1,20 @@
+{
+  "id": "FN-20260924-003",
+  "created_at": "2026-09-24T09:50:29+00:00",
+  "agent": "unknown",
+  "episode_id": null,
+  "shot_id": "S14",
+  "stage": "h3_i2v",
+  "tags": [
+    "h3",
+    "vae"
+  ],
+  "symptom": "Video decode stays at full GPU after the sampler finishes and never writes the file.",
+  "root_cause": "MiniMax H3 video VAE step wedged twice on this shot, including after a clean ComfyUI restart.",
+  "fix": "Restart ComfyUI, then retry once with a new seed to a new filename. If decode stalls past two minutes, stop and use a side track from the still.",
+  "prevention": "If the H3 log stops on MiniMaxH3VideoVAE for over two minutes, restart ComfyUI before the next shot.",
+  "related_paths": [],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

@@ -1,0 +1,31 @@
+{
+  "id": "ltx25_aio",
+  "status": "ready_switch_select",
+  "role": "s2v_multi_mode",
+  "description": "LTX 2.5 All-in-One real UI workflow with S2V, T2V, I2V, FLF, V2V support driven by 2.5 int8 distilled transformer and Gemma 4 CLIP.",
+  "source_ui_workflow": "workflows/human/ltx25AllInOneWorkflowForRTX_custom.json",
+  "copies_also_in_agent": [
+    "workflows/agent/ltx25AllInOneWorkflowForRTX_custom.json"
+  ],
+  "agent_guide": "workflows/human/LTX25_AIO_AGENT_GUIDE.md",
+  "cli": "python scripts/generate_ltx25_aio.py --mode <mode> -p ...",
+  "models": {
+    "diffusion_model": "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+    "text_encoder": "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+    "video_vae": "ltx-2.5-video-vae-bf16.safetensors",
+    "audio_vae": "ltx-2.5-audio-vae-bf16.safetensors",
+    "latent_upscaler": "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors"
+  },
+  "modes": {
+    "t2v": { "table": "01 Text to Video", "inputs": ["-p prompt"] },
+    "t2v_audio": { "table": "01 Text to Video + Audio input", "inputs": ["-p prompt", "-a drive.wav"] },
+    "i2v": { "table": "02 Image to Video", "inputs": ["-i first.png", "-p prompt"] },
+    "i2v_audio": { "table": "02 Image to Video + Audio input", "inputs": ["-i first.png", "-a drive.wav", "-p prompt"] },
+    "flf": { "table": "02 Image to Video + Last Frame input", "inputs": ["-i first.png", "--last last.png"] },
+    "flf_audio": { "table": "02 Image to Video + Last Frame input + Audio input", "inputs": ["-i first.png", "--last last.png", "-a drive.wav"] },
+    "fml": { "table": "02 Image to Video + Last + Mid Frame input", "inputs": ["-i first.png", "--mid mid.png", "--last last.png"] },
+    "fml_audio": { "table": "02 Image to Video + Last + Mid Frame input + Audio input", "inputs": ["-i first.png", "--mid mid.png", "--last last.png", "-a drive.wav"] },
+    "v2v": { "table": "03 Video to Video", "inputs": ["-i first.png", "--video in.mp4"] },
+    "v2v_audio": { "table": "03 Video to Video + Audio input", "inputs": ["-i first.png", "--video in.mp4", "-a drive.wav"] }
+  }
+}

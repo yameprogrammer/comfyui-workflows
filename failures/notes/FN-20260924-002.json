@@ -1,0 +1,20 @@
+{
+  "id": "FN-20260924-002",
+  "created_at": "2026-09-24T09:24:31+00:00",
+  "agent": "unknown",
+  "episode_id": null,
+  "shot_id": "S14",
+  "stage": "h3_i2v",
+  "tags": [
+    "h3",
+    "rainbow"
+  ],
+  "symptom": "A colored spectrum band grows across the rooftop floor.",
+  "root_cause": "The prompt named rainbow in a negative sentence, and water plus sun still drew a graphic arc.",
+  "fix": "Retry without naming the arc. Ask only for colorless drops and empty air between the two people.",
+  "prevention": "Do not name a forbidden graphic in the H3 prompt. Describe the empty air and colorless drops instead.",
+  "related_paths": [],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

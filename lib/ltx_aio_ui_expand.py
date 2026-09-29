@@ -63,9 +63,18 @@ def _widgets_to_inputs(node: dict[str, Any]) -> dict[str, Any]:
                 inputs["type"] = wv[2]
             if len(wv) >= 4:
                 inputs["device"] = wv[3]
-        elif ct in ("UnetLoaderGGUF",):
+        elif ct in ("CLIPLoader",):
+            if len(wv) >= 1:
+                inputs["clip_name"] = wv[0]
+            if len(wv) >= 2:
+                inputs["type"] = wv[1]
+            if len(wv) >= 3:
+                inputs["device"] = wv[2]
+        elif ct in ("UnetLoaderGGUF", "UNETLoader"):
             if len(wv) >= 1:
                 inputs["unet_name"] = wv[0]
+            if len(wv) >= 2:
+                inputs["weight_dtype"] = wv[1]
         elif ct in ("GGUFLoaderKJ",):
             keys = [
                 "model_name",
