@@ -80,9 +80,9 @@ Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 | **GENERATE** | 빈 화면 → 그림 (**기본: Krea2**) | `generate_krea` · **`generate_krea_draft`** · `generate_krea_nsfw` · **`generate_anima` (2D 애니)** · `generate_moody` · `generate_illustrious_standard` · **`generate_illustrious_advanced`** · **`generate_flux`** · **`generate_flux2_klein`** · **`generate_sdxl`** |
 | **TRANSFORM** | 같은 인물·편집·스타일·인페인팅 | `generate_character_consistent` · `generate_style_transfer` · **`generate_krea2_style`** · `generate_qwen_edit` · `generate_qwen_inpaint` · **`generate_flux_fill`** · **`generate_anima --mode lineart/inpaint`** |
 | **CAMERA** | 각도·포즈·시점·프레이밍 | `generate_qwen_angle` · `generate_viewpoint` · **`generate_openpose_pose`** · **`generate_anima --mode pose/depth`** · **`generate_krea2_control`** · `generate_moody_controlnet` · `generate_reframe` |
-| **MOTION** | 영상 모션 · 품질 계획 · 카메라 · 댄스 · **MiniMax H3** | **`clip_quality`** · `generate_i2v` · `generate_s2v` · `generate_camera_move` · **`generate_previz`** · `generate_idle_loop` · **`generate_wan_animate2`** · **`generate_wan22_animate`** · **`generate_minimax_h3`** · `generate_flf2v` |
+| **MOTION** | 영상 모션 · 품질 계획 · 카메라 · 댄스 · **MiniMax H3 / LTX 2.5** | **`clip_quality`** · `generate_ltx25_aio` · `generate_minimax_h3` · `generate_i2v` · `generate_s2v` · `generate_camera_move` · **`generate_previz`** · `generate_idle_loop` · **`generate_wan_animate2`** · **`generate_wan22_animate`** · `generate_flf2v` |
 | **TRANSFORM+** | 가벼운 ID 팩 | `generate_ref_pack` · `generate_character_consistent` |
-| **VOICE** | 대사·노래·BGM·SFX·MIDI 반주 | `generate_qwen3_tts` · **`generate_minimax_music` (완곡/보컬, 캡션은 `music-caption-rewriter`)** · **`generate_stable_audio` (악기/SFX)** · **`generate_midi_cover_bed` (화성→새 MIDI 반주)** · `generate_bgm` |
+| **VOICE** | 대사·노래·BGM·SFX·MIDI 반주 | `generate_qwen3_tts` · **`generate_minimax_music` (완곡/보컬, 캡션은 `music-caption-rewriter`)** · **`generate_yue2_music` (ABC 악보/음악 커버)** · **`generate_stable_audio` (악기/SFX)** · **`generate_midi_cover_bed` (화성→새 MIDI 반주)** · `generate_bgm` |
 | **INGEST** | 유튜브 레퍼 이해 · 화성 뼈대 | `youtube_ingest` · `youtube_highlights` · **`extract_music_skeleton`** |
 | **FINISH** | 업스케일 · 디테일러 · 포스트 | `upscale_*` · **`generate_anima --mode hires`** · **`generate_illustrious_detailer`** · **`generate_krea2_face/eyes/hand_detail`** · **`generate_krea2_region_detail`** · **`generate_krea2_post`** · `generate_rmbg` · `ltx_relight` |
 | **ASSETS** | 캐릭/로케 패키지 *(옵션)* | `character_*` · `location_*` |
@@ -90,6 +90,10 @@ Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 | **BUNDLE** | 멀티샷 묶기·QA *(옵션)* | `story_init` · `assemble_video` · `shot_qa_*` |
 | **EDIT** | 컷·타이틀·믹스·룩·마스터 | **`edit_pack`** · `render_edit` · `comp_shot` · `edit_timeline` · `render_title` · `edit_qa_pack` |
 | **REVIEW** | 생성물 능동 평가 | **`review_media`** · `shot_qa_*` · `edit_qa_*` |
+
+> ⚠️ **영상 모델 단일 클립 최대 길이 가이드 (기준: 24fps @ 768p)**
+> - **MiniMax H3:** **최대 8초** (약 192프레임, 17k+5 그리드). 8초 초과 시 CLI 경고 발생. 롱테이크는 `--carry-from` 룸 체인이나 컷 분할 권장.
+> - **LTX 2.5:** **최대 10초** (240프레임). 10초 초과 시 CLI 경고 발생. 긴 시퀀스는 `flf` 브리지 또는 `last-frame` 체이닝 권장.
 
 전체 표·카드·조합 예: **tool_catalog §1–§3**.
 

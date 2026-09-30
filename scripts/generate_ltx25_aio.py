@@ -85,7 +85,7 @@ def main(argv=None) -> int:
     p.add_argument("--mid", default=None, help="Mid frame image (FML)")
     p.add_argument("--video", default=None, help="Input video (V2V)")
     p.add_argument("-o", "--output", default="ltx25_output.mp4", help="Output MP4 path")
-    p.add_argument("--clip-length", type=float, default=None, help="Clip length in seconds (default: 3.0)")
+    p.add_argument("--clip-length", type=float, default=None, help="Clip length in seconds (default: 3.0, recommended max: 10.0s @ 24fps 768p)")
     p.add_argument("--longer-edge", type=int, default=None, help="Longer edge in pixels (e.g. 768, 960, 1280)")
     p.add_argument("--seed", type=int, default=None, help="Random seed")
     p.add_argument("--fps", type=int, default=24, help="Frames per second (default: 24)")
@@ -106,6 +106,14 @@ def main(argv=None) -> int:
             args.clip_length = 3.0
         if args.longer_edge is None:
             args.longer_edge = 1280
+
+    MAX_RECOMMENDED_CLIP_SEC = 10.0
+    if args.clip_length > MAX_RECOMMENDED_CLIP_SEC:
+        print(
+            f"\n[WARNING] Requested clip_length ({args.clip_length}s) exceeds the recommended single-clip maximum of {MAX_RECOMMENDED_CLIP_SEC}s (24fps @ 768p)."
+            f"\n          Longer single clips may lead to temporal drift, motion blur, or VRAM pressure. Consider splitting into multiple shots or last-frame chaining.\n",
+            file=sys.stderr,
+        )
 
     print("=" * 60)
     print("[LTX 2.5 All-In-One Generator]")

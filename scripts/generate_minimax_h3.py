@@ -50,6 +50,14 @@ import argparse
 import os
 import sys
 
+# Safe utf-8 output on Windows
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 from lib.comfy_client import DEFAULT_SERVER
 from lib.minimax_h3_runner import (
     FAMILY_MINIMAX_H3,
@@ -127,7 +135,7 @@ def main(argv=None) -> int:
         help="polish only: rtx_rife (default) or rife-only",
     )
     p.add_argument("--seed", type=int, default=None)
-    p.add_argument("--duration", type=float, default=None, help="seconds (snapped to H3 grid)")
+    p.add_argument("--duration", type=float, default=None, help="seconds (snapped to H3 grid; recommended max: 8.0s @ 24fps 768p)")
     p.add_argument(
         "--megapixels",
         type=float,
@@ -294,9 +302,18 @@ def main(argv=None) -> int:
     if args.audio and task not in ("r2v", "a2v"):
         task = "a2v"
 
+    target_duration = float(args.duration or PROFILES[args.profile]["duration"])
+    MAX_RECOMMENDED_DURATION = 8.0
+    if target_duration > MAX_RECOMMENDED_DURATION:
+        print(
+            f"\n[WARNING] MiniMax H3 requested duration ({target_duration}s) exceeds the recommended single-clip maximum of {MAX_RECOMMENDED_DURATION}s (24fps @ 768p)."
+            f"\n          Longer single clips may lead to motion degradation or VRAM spikes. Consider multi-shot sequencing or last-frame chaining.\n",
+            file=sys.stderr,
+        )
+
     print(
         f"MiniMax H3 task={task} profile={args.profile} "
-        f"duration={args.duration or PROFILES[args.profile]['duration']}s "
+        f"duration={target_duration}s "
         f"mp={args.megapixels or PROFILES[args.profile]['megapixels']} "
         f"sage={args.sage_attention} out={out}"
     )

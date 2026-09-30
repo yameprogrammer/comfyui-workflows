@@ -2,8 +2,27 @@
   "version": 3,
   "description": "I2V backend + format SSOT. Deliver pixel tiers (deliver_1080/2160…) live in upscale_backends.json; format only picks aspect. See docs/video_delivery_and_backends.md",
   "default_backend": "ltx23_aio_i2v",
+  "single_clip_limits": {
+    "baseline": "24fps @ 768p",
+    "minimax_h3": {
+      "max_duration_sec": 8.0,
+      "max_frames": 192,
+      "grid": "17k+5",
+      "notes": "Max recommended single clip = 8.0s (192 frames @ 24fps 768p). Longer single clips emit warning; use multi-ref/carry or chaining for longer sequences."
+    },
+    "ltx25_aio": {
+      "max_duration_sec": 10.0,
+      "max_frames": 240,
+      "notes": "Max recommended single clip = 10.0s (240 frames @ 24fps 768p). Longer single clips emit warning; use last-frame chain for longer cuts."
+    },
+    "ltx23_legacy": {
+      "max_duration_sec": 4.0,
+      "max_frames": 97,
+      "notes": "Legacy LTX 2.3 hard cap at 97 frames (~4s @ 24fps)."
+    }
+  },
   "ltx_clip_hard_cap_frames": 97,
-  "ltx_clip_hard_cap_note": "Max single LTX generation = 97 frames @24fps. Extend via last-frame chain for longer cuts.",
+  "ltx_clip_hard_cap_note": "Legacy LTX 2.3 = 97 frames @24fps. LTX 2.5 extends single clip recommended max to 10.0s (240 frames @ 24fps 768p).",
   "default_backend_s2v": "ltx23_aio",
   "default_format": "cinematic_16x9",
   "default_work_preset": "work_16x9_720",
@@ -566,7 +585,39 @@
         "cinematic_anime"
       ],
       "quality_tier": "hero_opt_in",
+      "single_clip_limit": {
+        "max_duration_sec": 8.0,
+        "max_frames": 192,
+        "baseline": "24fps @ 768p",
+        "notes": "Max recommended single clip = 8.0s (192 frames @ 24fps 768p). Snaps to 17k+5 grid. Longer single clips emit warning."
+      },
       "notes": "NOT episode default I2V (default remains ltx23_aio_i2v). Use for quality hero shorts, T2V with baked-in audio, R2V identity, A2V lip-sync/MV (source audio mux), polish rtx_rife|rife. Models under F:\\model MinimaxH3 + qwen3vl_32b. ComfyUI ≥0.30. Bench 4090: work 0.4MP 5s ~113s; a2v/multiref smoke ~50–110s; polish ~25s (2026-08-12)."
+    },
+    "ltx25_aio": {
+      "status": "ready",
+      "kind": "t2v_ta2v_i2v_ia2v_flf_fml_v2v",
+      "family": "ltx25",
+      "engine": "LTX 2.5 22B Distilled Transformer + Gemma 4 12B",
+      "workflow": "scripts/generate_ltx25_aio.py",
+      "runner": "lib/ltx_aio_workflow_runner.py",
+      "cli": "scripts/generate_ltx25_aio.py",
+      "human_ui": "workflows/human/ltx25AllInOneWorkflowForRTX_custom.json",
+      "guide": "workflows/human/LTX25_AIO_AGENT_GUIDE.md",
+      "single_clip_limit": {
+        "max_duration_sec": 10.0,
+        "max_frames": 240,
+        "baseline": "24fps @ 768p",
+        "notes": "Max recommended single clip = 10.0s (240 frames @ 24fps 768p). Longer single clips emit warning; use last-frame chain for longer cuts."
+      },
+      "strengths": [
+        "gemma4_natural_language",
+        "22b_transformer",
+        "audio_synced_video",
+        "high_motion_stability",
+        "aio_9_modes"
+      ],
+      "quality_tier": "modern_flagship",
+      "notes": "Modernized LTX 2.5 upgrade with 9 generation modes. Gemma 4 text encoder + 22B DiT. Recommended max single clip = 10.0s @ 24fps 768p."
     }
   },
   "default_backend_flf": "ltx23_aio_flf",

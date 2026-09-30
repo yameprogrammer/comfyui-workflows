@@ -960,6 +960,14 @@ def generate_minimax_h3(
     except Exception as e:
         return fail_result(error="stage_image", message=str(e))
 
+    MAX_RECOMMENDED_DURATION = 8.0
+    if duration_v > MAX_RECOMMENDED_DURATION:
+        print(
+            f"\n[WARNING] MiniMax H3 requested duration ({duration_v:.2f}s) exceeds the recommended single-clip maximum of {MAX_RECOMMENDED_DURATION}s (24fps @ 768p)."
+            f"\n          Quality degradation, VRAM spikes, or motion artifacts may occur. Snapped grid duration: {h3_snapped_duration(duration_v):.2f}s.\n",
+            file=sys.stderr,
+        )
+
     try:
         api = build_api_prompt(
             task=task_v,

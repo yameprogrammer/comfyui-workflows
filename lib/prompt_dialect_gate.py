@@ -14,6 +14,7 @@ DIALECT_HINT = {
     "generate_i2v": "skills/generation-prompt/references/ltx23_video.md",
     "generate_camera_move": "skills/generation-prompt/references/camera_move.md",
     "generate_minimax_music": "skills/generation-prompt/references/music_audio.md",
+    "generate_yue2_music": "workflows/human/yue2_music/AGENT_GUIDE.md",
     "generate_krea": "skills/generation-prompt/references/krea2_still_prompts.md",
     "generate_flux": "skills/generation-prompt/references/flux_still.md",
     "generate_flux_fill": "skills/generation-prompt/references/flux_still.md",

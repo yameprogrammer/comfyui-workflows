@@ -105,6 +105,12 @@ python scripts/generate_minimax_h3.py -p "..." -o stock.mp4 --profile draft --sa
 
 H3 단변 목표 ≈ **768px**, 최대 그리드 32 배수. 세로 쇼츠: `--aspect 9:16`.
 
+**단일 클립 생성 길이 가이드 (하드 룰):**
+- **기준 규격:** 24fps 기준, 768P 해상도 기준
+- **권장 상한:** **최대 8초** (약 192프레임, 17k+5 그리드 스냅).
+- **경고 발생:** 8.0초를 초과하는 `--duration` 요청 시 CLI(`generate_minimax_h3.py`) 및 runner에서 `[WARNING]`이 출력됩니다.
+- **장편 연출:** 8초를 초과하는 롱테이크는 화질 저하, VRAM 급증, 모션 왜곡이 발생하기 쉬우므로 `--carry-from` 룸 유지 체인이나 멀티샷 컷 전환으로 나누어 제작하십시오.
+
 Attention: 기본 `--sage-attention auto` (`UNETLoader` → `PathchSageAttentionKJ` → guider). 끄려면 `--sage-attention disabled`. `--sol-attn`은 기본 꺼짐(4090에서 Sage+Sol이 130s/it로 역전). Speed x6 본선은 `native_fast`(Sage+15+5). SSOT: `decisions/2026-08-27-minimax-h3-speed-x6.md`.
 
 ---

@@ -100,8 +100,9 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | 포즈 맵에 맞추기 | **`generate_openpose_pose`** · `generate_moody_controlnet` · `cc --mode pose` | OpenPose → Fun Union CN (**not Qwen**) |
 | 타이틀·간판 글자 | `generate_ideogram4` | 가벼운 타이포 |
 | 잡지·포스터 글자+인물 | `generate_boogu_typo` | Boogu→Ideogram→Krea |
-| 스틸 → 짧은 모션 | `generate_i2v` | LTX I2V 기본 |
-| **시댄스급 T2V/I2V/R2V + 네이티브 오디오** | **`generate_minimax_h3`** | MiniMax H3 (에피 본선 아님 · 히어로/쇼츠) |
+| 스틸 → 짧은 모션 (기본) | `generate_i2v` | LTX 2.3 I2V 기본 (단일 클립 ~4s/97f) |
+| **LTX 2.5 플래그십 (9모드 T2V/I2V/S2V)** | **`generate_ltx25_aio`** | LTX 2.5 22B + Gemma 4 (단일 클립 권장 **최대 10초** @ 24fps 768p) |
+| **시댄스급 T2V/I2V/R2V + 네이티브 오디오** | **`generate_minimax_h3`** | MiniMax H3 (단일 클립 권장 **최대 8초** @ 24fps 768p · 히어로/쇼츠) |
 | **카메라 무빙 (의도 I2V)** | `generate_camera_move` | push_in / pan / idle … (Comfy I2V) |
 | **아이들·루프** | `generate_idle_loop` | 대기 모션 + pingpong/roundtrip 루프 |
 | **댄스/레퍼 모션 (빠른 초안)** | `generate_dance_ref` | 레퍼 영상→캐릭 모션 (V2V LTX) |
@@ -116,6 +117,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | **가벼운 ID 레퍼 팩** | `generate_ref_pack` | face+각도 (패키지 없이) |
 | **스타일 전이 / 레스타일** | `generate_style_transfer` | 애니·유화·무드보드 ref |
 | **완곡 작곡 / 보컬 노래 (최대 5분)** | **`generate_minimax_music`** | **MiniMax Music 3**. 캡션은 먼저 `music-caption-rewriter` |
+| **ABC 악보 작곡 / 음악 커버 (최대 6분)** | **`generate_yue2_music`** | **YuE2 3B**. ABC 기호 악보 계획 & SheetSage2 음원 채보 커버 |
 | **악기 독주 / BGM / 효과음 SFX** | **`generate_stable_audio`** | **Stable Audio 3.0** (44.1kHz 고해상도 피아노/기타/SFX 폭발음) |
 | 대사 TTS | `generate_qwen3_tts` | custom / clone |
 | 스틸/영상 키우기 | **`upscale_recommend`** → `upscale_image` · `upscale_video` · `upscale_ltx_spatial` | 납품 해상도 · MiniMax→HD는 spatial |
@@ -426,7 +428,8 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 | wan22 노브 | `--cfg` · `--lora-strength-high/low` · `--wan-boundary` · frames≥81→steps≥6 · `--wan-long-edge`+`--wan-short-edge` | CFG×LoRA 표: [wan22_workflow_map](wan22_workflow_map.md) §3 · LX 레시피 §5.1 [speed research](wan22_i2v_speed_research.md) |
 | `generate_i2v --backend wan22_flf` | Wan first+last 폴백 | 품질 FLF 본선 = LTX flf |
 | **`generate_yaw_wan22`** | Wan 2.2 MoE T2V/I2V 쉬운 실 UI | 립 → s2v · 에피 본선 대체 아님 |
-| **`generate_minimax_h3`** | **MiniMax H3** T2V/I2V/FL/R2V/**A2V** + **polish** + 네이티브 오디오 (시댄스급) | 에피 본선 I2V → LTX · 프로덕션 립 → s2v · 초고속 초안 → LTX draft. 프로필 `draft\|work\|native\|hero` · `--task a2v\|polish` |
+| **`generate_ltx25_aio`** | **LTX 2.5 AIO** 9모드 (T2V/I2V/IA2V/FLF/V2V) + Gemma 4 12B | 단일 클립 권장 **최대 10초** (240f @ 24fps 768p). 10s 초과 시 경고 발생. 긴 컷은 last frame 체인 |
+| **`generate_minimax_h3`** | **MiniMax H3** T2V/I2V/FL/R2V/**A2V** + **polish** + 네이티브 오디오 (시댄스급) | 단일 클립 권장 **최대 8초** (~192f @ 24fps 768p). 8s 초과 시 경고 발생. 에피 본선 I2V → LTX · 프로덕션 립 → s2v. 프로필 `draft\|work\|native\|hero` |
 | **`generate_flf2v`** | 첫·끝 프레임 연결 | 단일 키프레임 모션 → i2v |
 | **`generate_s2v`** | 이미지+오디오 연동 | 무음 순수 모션 → i2v |
 | `generate_s2v --backend infinitetalk` | 토킹 립 품질 (2026-07-30 스모크 OK) | 호출 전 `tool_health --backend infinitetalk` · 실패 시 **`ltx23_ia2v`** · VRAM·길이 계약 |

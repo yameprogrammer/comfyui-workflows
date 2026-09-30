@@ -65,6 +65,30 @@ INTENT_TOOLS: list[dict[str, Any]] = [
         ],
     },
     {
+        "id": "yue2_music",
+        "shelf": "VOICE",
+        "cli": "python scripts/generate_yue2_music.py",
+        "script": "generate_yue2_music.py",
+        "summary": "M·A·P YuE2 기반 ABC 기호 악보 계획 및 SheetSage2 음원 채보를 통한 완곡 작곡 & 음악 커버 생성 도구 (최대 6분)",
+        "when": "ABC 기호 악보(코드/멜로디) 기반 정교한 완곡 작곡(Text to Music), 또는 기존 음원의 멜로디를 추출해 새 장르로 리메이크 편곡하는 음악 커버(Cover)",
+        "when_not": "단순 짧은 대사 TTS -> generate_qwen3_tts / 빠른 SFX 효과음 -> generate_stable_audio",
+        "keywords": [
+            "yue2", "yue", "music cover", "sheetsage", "sheetsage2", "cover", "음악 커버",
+            "리메이크", "편곡", "abc notation", "abc 악보", "작곡", "완곡", "song", "music",
+            "보컬 노래", "generate_yue2_music"
+        ],
+        "examples": [
+            'python scripts/generate_yue2_music.py --style "female vocals, emotional pop ballad, grand piano, 75 bpm" --lyrics "[Intro]\\n...\\n[Verse]\\n...\\n[Chorus]\\n..." -o song.flac',
+            'python scripts/generate_yue2_music.py --mode cover -i original.mp3 --style "acoustic jazz lounge, saxophone, upright bass, 85 bpm" -o jazz_cover.flac',
+            'python scripts/generate_yue2_music.py --style-file style.txt --lyrics-file lyrics.txt --duration 180 -o full_song.flac',
+        ],
+        "alternatives": [
+            {"if": "MiniMax Music 3 기반 완곡/BGM", "use": "generate_minimax_music", "cli": "python scripts/generate_minimax_music.py --caption-file cap.txt --lyrics-file lyr.txt -o song.flac"},
+            {"if": "단순 캐릭터 대사 TTS", "use": "generate_qwen3_tts", "cli": "python scripts/generate_qwen3_tts.py -t \"...\" -o voice.wav"},
+            {"if": "고음질 단편 악기 연주/SFX", "use": "generate_stable_audio", "cli": "python scripts/generate_stable_audio.py --prompt \"...\" -o sfx.flac"}
+        ],
+    },
+    {
         "id": "anima_t2i",
         "shelf": "GENERATE",
         "cli": "python scripts/generate_anima.py",
