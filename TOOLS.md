@@ -60,6 +60,12 @@ python scripts/failure_note.py add --stage keyframe --tags ... --symptom "..." .
 
 Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 
+
+## MiniMax H3 이미지 참조 R2V — 7+1 우선
+
+이미지 레퍼런스로 H3 영상을 만들 때는 `scripts/generate_minimax_h3_7plus1.py`를 우선 사용한다. `work`, `dense`, 5초가 기본이며 `--profile 1080`은 1920×1088 출력이다. 가이드: [H3_7PLUS1_GUIDE](workflows/human/minimax_h3/H3_7PLUS1_GUIDE.md). 시작 프레임 고정 I2V/T2V/FLF/참조 영상/카메라 잠금은 기존 `generate_minimax_h3`를 사용한다. 검증은 한 장의 애니 인물·5초이며 복잡한 동작과 정확한 립싱크는 별도 검수한다. 생성물과 리뷰는 호출하는 프로젝트에 저장한다.
+
+
 ---
 
 ## 무엇을 읽나

@@ -247,7 +247,11 @@
       ],
       "notes": "Fallback I2V only. Map: docs/wan22_workflow_map.md. A/B 2026-07-17: LTX preferred for motion/film. Default I2V = ltx23_aio_i2v.",
       "quality_tier": "fallback",
-      "speed_profiles": ["preview", "deliver", "quality"]
+      "speed_profiles": [
+        "preview",
+        "deliver",
+        "quality"
+      ]
     },
     "wan22_flf": {
       "status": "ready",
@@ -571,8 +575,20 @@
       "human_ui": "workflows/human/minimax_h3/",
       "guide": "workflows/human/minimax_h3/AGENT_GUIDE.md",
       "default_profile": "work",
-      "profiles": ["draft", "work", "native", "hero"],
-      "tasks": ["t2v", "i2v", "flf", "r2v", "a2v", "polish"],
+      "profiles": [
+        "draft",
+        "work",
+        "native",
+        "hero"
+      ],
+      "tasks": [
+        "t2v",
+        "i2v",
+        "flf",
+        "r2v",
+        "a2v",
+        "polish"
+      ],
       "strengths": [
         "seedance_class_quality",
         "native_stereo_audio",
@@ -591,7 +607,8 @@
         "baseline": "24fps @ 768p",
         "notes": "Max recommended single clip = 8.0s (192 frames @ 24fps 768p). Snaps to 17k+5 grid. Longer single clips emit warning."
       },
-      "notes": "NOT episode default I2V (default remains ltx23_aio_i2v). Use for quality hero shorts, T2V with baked-in audio, R2V identity, A2V lip-sync/MV (source audio mux), polish rtx_rife|rife. Models under F:\\model MinimaxH3 + qwen3vl_32b. ComfyUI ≥0.30. Bench 4090: work 0.4MP 5s ~113s; a2v/multiref smoke ~50–110s; polish ~25s (2026-08-12)."
+      "notes": "NOT episode default I2V (default remains ltx23_aio_i2v). Use for quality hero shorts, T2V with baked-in audio, R2V identity, A2V lip-sync/MV (source audio mux), polish rtx_rife|rife. Models under F:\\model MinimaxH3 + qwen3vl_32b. ComfyUI ≥0.30. Bench 4090: work 0.4MP 5s ~113s; a2v/multiref smoke ~50–110s; polish ~25s (2026-08-12).",
+      "preferred_image_r2v": "minimax_h3_7plus1"
     },
     "ltx25_aio": {
       "status": "ready",
@@ -618,6 +635,24 @@
       ],
       "quality_tier": "modern_flagship",
       "notes": "Modernized LTX 2.5 upgrade with 9 generation modes. Gemma 4 text encoder + 22B DiT. Recommended max single clip = 10.0s @ 24fps 768p."
+    },
+    "minimax_h3_7plus1": {
+      "status": "ready",
+      "kind": "r2v_native_audio",
+      "family": "minimax_h3",
+      "cli": "scripts/generate_minimax_h3_7plus1.py",
+      "runner": "lib/minimax_h3_7plus1_runner.py",
+      "workflow": "minimax_h3_7plus1",
+      "human_ui": "workflows/human/minimax_h3/MiniMax_H3_R2V_7plus1_Dense_1MP.json",
+      "guide": "workflows/human/minimax_h3/H3_7PLUS1_GUIDE.md",
+      "default_profile": "work",
+      "profiles": [
+        "work",
+        "1080"
+      ],
+      "default_attention": "dense",
+      "validated_duration_sec": 5,
+      "notes": "Preferred for image-reference H3 R2V. Exact first-frame I2V, T2V, FLF and video references use the existing H3 tool. Sol optional only on final refine step. See benchmark and validation limits in guide."
     }
   },
   "default_backend_flf": "ltx23_aio_flf",
@@ -713,7 +748,7 @@
         "upscale_ic_strength": 0.4,
         "omni_strength": 0.4,
         "max_frames_single_clip": 97,
-        "max_frames_note": "Hard cap at 97 frames (\u22484s@24fps). Use chain_si2v_last_frame for longer cuts."
+        "max_frames_note": "Hard cap at 97 frames (≈4s@24fps). Use chain_si2v_last_frame for longer cuts."
       },
       "work": {
         "summary": "에이전트 실무 기본 = 720p 생성",
@@ -733,7 +768,7 @@
         "upscale_ic_strength": 0.45,
         "omni_strength": 0.45,
         "max_frames_single_clip": 97,
-        "max_frames_note": "Hard cap at 97 frames (\u22484s@24fps). Use chain_si2v_last_frame for longer cuts."
+        "max_frames_note": "Hard cap at 97 frames (≈4s@24fps). Use chain_si2v_last_frame for longer cuts."
       },
       "hero": {
         "summary": "히어로 ~1080 work 급 · 2-stage IC 0.55 (느림 · 소수 컷)",
@@ -753,7 +788,7 @@
         "upscale_ic_strength": 0.55,
         "omni_strength": 0.5,
         "max_frames_single_clip": 97,
-        "max_frames_note": "Hard cap at 97 frames (\u22484s@24fps). Use chain_si2v_last_frame for longer cuts."
+        "max_frames_note": "Hard cap at 97 frames (≈4s@24fps). Use chain_si2v_last_frame for longer cuts."
       }
     }
   }

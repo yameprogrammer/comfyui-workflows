@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "ports": {
+    "positive": {
+      "node": "186",
+      "key": "text"
+    },
+    "reference_images": {
+      "node": "142",
+      "key": "image_paths"
+    },
+    "width": {
+      "node": "145",
+      "key": "width"
+    },
+    "height": {
+      "node": "145",
+      "key": "height"
+    },
+    "duration": {
+      "node": "132",
+      "key": "value"
+    },
+    "seed": {
+      "node": "129",
+      "key": "noise_seed"
+    },
+    "ref_image_size": {
+      "node": "141",
+      "key": "ref_image_size"
+    },
+    "filename_prefix": {
+      "node": "144",
+      "key": "filename_prefix"
+    }
+  }
+}

@@ -1,5 +1,8 @@
 # docs/ — 설계·스펙 · 도구 문서
 
+**H3 이미지 참조 R2V 우선 도구:** [7+1 가이드](../workflows/human/minimax_h3/H3_7PLUS1_GUIDE.md) — `generate_minimax_h3_7plus1`, 검증된 work/1080 프로필.
+
+
 `agent_custom` = ComfyUI **미디어 공구함** (의도별 도구를 골라 조합).  
 고정 양산 공정 문서 모음이 **아님**.  
 실행 규칙·이력: 루트 `README.md` · `AGENTS.md` · `agent_rules.md` · `process.md`.

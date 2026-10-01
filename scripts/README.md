@@ -1,5 +1,8 @@
 # scripts/ — 에이전트 CLI 도구
 
+**H3 이미지 참조 R2V:** `generate_minimax_h3_7plus1.py` 우선. [7+1 가이드](../workflows/human/minimax_h3/H3_7PLUS1_GUIDE.md). 기존 H3 도구는 T2V/I2V/FLF/참조 영상과 비교 후보로 유지.
+
+
 이 저장소의 **실행 진입점** (ComfyUI API 배치).  
 **무엇을 고를지:** [docs/tool_catalog.md](../docs/tool_catalog.md) — 의도 선반. 고정 공정 강제 아님.
 

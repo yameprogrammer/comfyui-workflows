@@ -1,3 +1,10 @@
+## 2026-10-02 — Codex: H3 R2V Singularity 7+1 tool registration
+
+- Added independent static API/ports presets and `generate_minimax_h3_7plus1` CLI; work 672×384→1344×768, 1080 960×544→1920×1088, 7+1 Euler/simple, shift 12/3, Turbo strength 1.0, native audio. Dense default; Sol only on final step.
+- Registered intent/catalog/video backend/entry routes and saved human UI copies and measured benchmark evidence. Existing H3 modes remain available. Outputs/API/meta stay in caller project; after-generation review required.
+- RTX 4090 measured whole-graph cache-free runs: baseline 113.9s; Dense 56.6s; Sol 54.3s; 1080 Dense 120.5s. Validation limited to one anime portrait/5s.
+- Verified registered CLI help/dry-run and actual 5s work generation (57.48s, 1344×768); checked Dense/Sol preset equivalence to measured graphs, 1080 port patching, ordered references, UI copies, project output guard and invalid-duration rejection. tool_index_check: zero errors; one pre-existing Yue2 catalog warning. Visual contact-sheet review and encoded audio/video probe retained in F:/ComfyUI_windows_portable/h3_71_registration_smoke.
+
 ## 2026-09-24 — music-caption-rewriter (MiniMax Music 3 captions)
 
 - Vendored `skills/music-caption-rewriter` from MiniMax-AI/MiniMax-Music3 `945655064d59` (18 family indexes, 1,000 templates). Factory overlay: `FACTORY.md`.

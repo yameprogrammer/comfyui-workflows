@@ -408,6 +408,19 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 
 ### 2.4 MOTION — 스틸 → 영상
 
+#### MiniMax H3 이미지 참조 R2V — 7+1 우선
+
+| 언제 | CLI | 언제 말고 |
+|---|---|---|
+| 이미지 참조 H3 반복 제작, 1MP/1080p급 | `generate_minimax_h3_7plus1` (`work`, `dense`, 5초 기본) | 정확한 첫 프레임·T2V·FLF·참조 영상은 기존 `generate_minimax_h3` |
+
+```bat
+python scripts/generate_minimax_h3_7plus1.py -i F:/my_project/stills/hero.png --prompt-file F:/my_project/prompts/S01.txt -o F:/my_project/clips/S01.mp4 --seed 42
+```
+
+가이드: [7+1 사용·대안·검수·실증 범위](../workflows/human/minimax_h3/H3_7PLUS1_GUIDE.md). 4090 한 장면 전체 실행: 15+5 113.9초 → 7+1 Dense 56.6초. Sol은 마지막 단계에만 opt-in. 모든 장면에 2배 속도나 큰 VRAM 절감을 보장하지 않는다.
+
+
 | CLI | 언제 | 말고 / 메모 |
 |-----|------|-------------|
 | **`generate_camera_move`** | 카메라 무빙 의도 한 방 (push_in, pan, idle…) | 스틸 시점만 → `generate_viewpoint` · 립 → s2v · **경로 잠금** → `generate_previz` |

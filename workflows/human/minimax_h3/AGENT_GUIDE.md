@@ -1,5 +1,8 @@
 # MiniMax H3 — Agent 가이드
 
+**2026-10-02 이미지 참조 R2V 기본 선택:** `generate_minimax_h3_7plus1.py`. [7+1 가이드](H3_7PLUS1_GUIDE.md)에서 프로필·검수·기존 방식 전환 기준을 먼저 읽는다. 이 가이드의 기존 도구는 다른 task와 비교 후보로 유지한다.
+
+
 > **Toolbox shelf:** MOTION (Seedance-class local T2V / I2V / R2V + polish + **native stereo audio**)  
 > **CLI:** `python scripts/generate_minimax_h3.py`  
 > **Alternatives:** episode I2V default → `generate_i2v` (LTX) · Wan easy T2V → `generate_yaw_wan22` · **클론 VO 파형 립** → `generate_s2v` (IT)  

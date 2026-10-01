@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-02",
+  "gpu": "RTX 4090 24GB",
+  "ram_gib": 63.7,
+  "comfyui": "0.37.0",
+  "prompt_file": "prompt.txt",
+  "seed": 20261002,
+  "reference_sha256": "bf238cb17ca0bc63de39d887af1f05522faeff64208c3b3d85a520e4ebb7d8a0",
+  "conditions": "Same reference, prompt, seed; R2V; 124 frames at 24fps; clear execution cache and unloaded models for fresh runs. Baseline initial run also had no execution cache. OS disk cache and background processes not controlled. Composite pipeline comparison, not isolated model or LoRA ablation. One full run per listed setting.",
+  "results": [
+    {
+      "name": "baseline",
+      "seconds": 113.94539856910706,
+      "peak_gpu_used_gib": 23.625316619873047,
+      "peak_system_ram_used_gib": 38.15279769897461,
+      "width": 1344,
+      "height": 768,
+      "frames": 124,
+      "fps": 24.0,
+      "cached_nodes": [
+        []
+      ],
+      "prompt_id": "4308ad42-9d67-4af0-afb7-e960c1efe793"
+    },
+    {
+      "name": "new_sol_fresh",
+      "seconds": 54.34868288040161,
+      "peak_gpu_used_gib": 23.47964859008789,
+      "peak_system_ram_used_gib": 39.69062423706055,
+      "width": 1344,
+      "height": 768,
+      "frames": 124,
+      "fps": 24.0,
+      "cached_nodes": [
+        []
+      ],
+      "prompt_id": "91d433d6-f474-45fa-8288-efa45811f003"
+    },
+    {
+      "name": "new_dense_fresh",
+      "seconds": 56.58356785774231,
+      "peak_gpu_used_gib": 23.48294448852539,
+      "peak_system_ram_used_gib": 38.470157623291016,
+      "width": 1344,
+      "height": 768,
+      "frames": 124,
+      "fps": 24.0,
+      "cached_nodes": [
+        []
+      ],
+      "prompt_id": "8a61b14b-8778-4007-b5e6-0b4b6c3cabd1"
+    },
+    {
+      "name": "new_1080_dense_fresh",
+      "seconds": 120.49987506866455,
+      "peak_gpu_used_gib": 23.612964630126953,
+      "peak_system_ram_used_gib": 40.292240142822266,
+      "width": 1920,
+      "height": 1088,
+      "frames": 124,
+      "fps": 24.0,
+      "cached_nodes": [
+        []
+      ],
+      "prompt_id": "e65251c0-9edd-4f68-abb2-2c8c73e6c908"
+    }
+  ],
+  "limits": [
+    "Single anime portrait reference and modest motion only",
+    "No visible hands; hands and complex actions untested",
+    "5.167 second clips only; maximum duration not established",
+    "Audio present/non-silent/clipping checked; wording and precise lip synchronization not verified"
+  ],
+  "model_downloads": [
+    {
+      "repo": "WarmBloodAban/Minimax-h3_Singularity",
+      "filename": "Minimax-h3_Singularity_ref2va_Pruned_v1.3_int8.safetensors",
+      "path": "F:\\model\\diffusion_models\\MinimaxH3\\Minimax-h3_Singularity_ref2va_Pruned_v1.3_int8.safetensors",
+      "bytes": 20967647456,
+      "sha256": "412a7b126595a958964193f3b42513d7cf2df4196ef04223a0f05e3622949cce",
+      "elapsed_seconds": 93.09396481513977
+    },
+    {
+      "repo": "drbaph/MiniMax-H3-Turbo-Lora-ComfyUI",
+      "filename": "experimental/minimax_h3_dmd_ref2va_8step_turbo_pruned.safetensors",
+      "path": "F:\\model\\loras\\H3_71_validation\\experimental\\minimax_h3_dmd_ref2va_8step_turbo_pruned.safetensors",
+      "bytes": 2285989092,
+      "sha256": "693f41129785f31a820d32100b698cdcc42182c27c291f37f47d1ca5f38f5c20",
+      "elapsed_seconds": 33.56819987297058
+    }
+  ]
+}

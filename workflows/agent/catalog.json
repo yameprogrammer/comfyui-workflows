@@ -173,7 +173,8 @@
       ],
       "hf": "https://huggingface.co/Comfy-Org/MiniMax-H3",
       "docs": "https://docs.comfy.org/tutorials/video/minimax/minimax-h3",
-      "notes": "Not episode default I2V (still LTX). Quality+audio tool. A2V muxes source audio. Polish: rtx_rife|rife. Bench 4090: work 5s~113s; a2v/multiref smoke 0.2MP ~50–110s; polish ~25s (2026-08-12). Engine family minimax_h3."
+      "notes": "Not episode default I2V (still LTX). Quality+audio tool. A2V muxes source audio. Polish: rtx_rife|rife. Bench 4090: work 5s~113s; a2v/multiref smoke 0.2MP ~50–110s; polish ~25s (2026-08-12). Engine family minimax_h3.",
+      "preferred_image_r2v": "minimax_h3_7plus1"
     },
     "wan22_face_enhance": {
       "file": "presets/wan22_face_enhance.api.json",
@@ -1604,6 +1605,64 @@
         "clip": "qwen3vl_8b_w4a8.safetensors",
         "vae": "qwen_image_2.1_vae_bf16.safetensors"
       }
+    },
+    "minimax_h3_7plus1": {
+      "file": "presets/minimax_h3_7plus1.api.json",
+      "ports": "presets/minimax_h3_7plus1.ports.json",
+      "format": "api",
+      "role": "reference_images_to_video_native_audio",
+      "family": "minimax_h3",
+      "status": "ready",
+      "description": "Verified Singularity ref2va v1.3 INT8 + DMD 8-step Turbo, 7+1 latent x2 R2V",
+      "scripts": [
+        "scripts/generate_minimax_h3_7plus1.py"
+      ],
+      "runner": "lib/minimax_h3_7plus1_runner.py",
+      "guide": "workflows/human/minimax_h3/H3_7PLUS1_GUIDE.md",
+      "source_ui": "workflows/human/minimax_h3/MiniMax_H3_R2V_7plus1_Dense_1MP.json",
+      "default_profile": "work",
+      "profiles": [
+        "work",
+        "1080"
+      ],
+      "tasks": [
+        "r2v"
+      ],
+      "validated_duration_sec": 5,
+      "native_audio": true,
+      "reference_inputs": [
+        "images"
+      ],
+      "benchmarks": "workflows/human/minimax_h3/H3_7PLUS1_BENCHMARK.json"
+    },
+    "minimax_h3_7plus1_sol": {
+      "file": "presets/minimax_h3_7plus1_sol.api.json",
+      "ports": "presets/minimax_h3_7plus1_sol.ports.json",
+      "format": "api",
+      "role": "reference_images_to_video_native_audio",
+      "family": "minimax_h3",
+      "status": "ready_experimental",
+      "description": "Verified Singularity ref2va v1.3 INT8 + DMD 8-step Turbo, 7+1 latent x2 R2V",
+      "scripts": [
+        "scripts/generate_minimax_h3_7plus1.py"
+      ],
+      "runner": "lib/minimax_h3_7plus1_runner.py",
+      "guide": "workflows/human/minimax_h3/H3_7PLUS1_GUIDE.md",
+      "source_ui": "workflows/human/minimax_h3/MiniMax_H3_R2V_Singularity_7plus1_Validation.json",
+      "default_profile": "work",
+      "profiles": [
+        "work",
+        "1080"
+      ],
+      "tasks": [
+        "r2v"
+      ],
+      "validated_duration_sec": 5,
+      "native_audio": true,
+      "reference_inputs": [
+        "images"
+      ],
+      "benchmarks": "workflows/human/minimax_h3/H3_7PLUS1_BENCHMARK.json"
     }
   }
 }
