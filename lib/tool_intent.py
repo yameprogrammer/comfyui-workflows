@@ -17,6 +17,31 @@ from typing import Any
 # Card fields: id, shelf, cli, script, summary, when, when_not,
 # keywords, examples, alternatives[{if, use, cli}]
 INTENT_TOOLS: list[dict[str, Any]] = [
+    {'id': 'cover_music',
+     'shelf': 'VOICE',
+     'cli': 'python scripts/cover_music.py',
+     'script': 'cover_music.py',
+     'summary': 'YuE2 staged cover smoke with generated voice and optional Seed-VC reference singing',
+     'when': '짧은 커버곡 스모크, 원곡 멜로디 채보, 창작 보컬 또는 요청한 레퍼런스 가창 음색',
+     'when_not': '새 곡 작곡은 generate_yue2_music; 대사 TTS와 전곡 자동 배치에는 사용하지 않음',
+     'keywords': ['yue2 cover',
+                  '커버곡',
+                  '커버 스모크',
+                  '창작 보컬',
+                  '참조 목소리',
+                  'singing voice',
+                  'seed-vc',
+                  'cover_music'],
+     'examples': ['python scripts/cover_music.py doctor',
+                  'python scripts/cover_music.py prepare --audio song.wav --start 19 --seconds 31 '
+                  '--run D:/my_music/runs/take01'],
+     'alternatives': [{'if': '가사와 스타일로 새 곡',
+                       'use': 'generate_yue2_music',
+                       'cli': 'python scripts/generate_yue2_music.py --style-file style.txt '
+                              '--lyrics-file lyrics.txt -o D:/my_music/song.flac'},
+                      {'if': '대사 TTS',
+                       'use': 'generate_qwen3_tts',
+                       'cli': 'python scripts/generate_qwen3_tts.py --help'}]},
     {
         "id": "stable_audio_3",
         "shelf": "VOICE",

@@ -192,3 +192,7 @@ python scripts/export_episode_to_workspace.py -e EP --dest "$AGENT_WORKSPACE/epi
 ```
 
 **Rule:** never jump to final assemble to judge middle cuts. Approve each work clip first. Assemble rejects unapproved clips (exit 22) unless `--force-clip-gate` (debug only). `assemble_video` is debug concat. Delivery master is `edit_pack`.
+
+## Short music covers
+
+For YuE2 커버곡 / generated singing / reference singing: read `skills/yue2-cover/SKILL.md`, then use `python scripts/cover_music.py doctor`. Follow `workflows/human/cover_music/AGENT_GUIDE.md`. Generated voice is the default; reference voice conversion is optional when requested. This audio-only workflow does not need video direction or camera skills.

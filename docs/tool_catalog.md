@@ -788,3 +788,11 @@ python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" -o "%
 | [docs/README.md](README.md) | docs 전체 지도 |
 | [failure_notes_system.md](failure_notes_system.md) | 실패 공유 |
 | [agent_native_capability_autonomy.md](agent_native_capability_autonomy.md) | 자체 툴 병행 Rule 8 |
+
+## Staged YuE2 cover smoke
+
+| Tool | When | When not | Entry |
+|---|---|---|---|
+| `cover_music` | Short recording → melody score → generated vocal cover; optional requested voice reference | New composition, spoken TTS, unreviewed full-song batch | `python scripts/cover_music.py doctor` |
+
+[Working guide](../workflows/human/cover_music/AGENT_GUIDE.md) · [Skill](../skills/yue2-cover/SKILL.md). Keeps job IDs for recovery, base audio for voice variants, project-owned inputs/outputs and pending listening review.

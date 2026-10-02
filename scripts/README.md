@@ -185,3 +185,7 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 - Comfy: `127.0.0.1:8188` · 런처 SSOT `run_nvidia_gpu.bat` (`F:\ComfyUI_data` input/output)
 - 상세 when/when-not: **tool_catalog** · 도구별 `workflows/human/**/AGENT_GUIDE.md`
 - `_archive/` · `__pycache__` 는 프로덕션 입구 아님
+
+## Cover smoke
+
+`python scripts/cover_music.py doctor` — staged YuE2/SheetSage2 cover CLI. Read [guide](../workflows/human/cover_music/AGENT_GUIDE.md); generated voice default, Seed-VC SVC optional. `cover_music_voice.py` is a worker for the audio Python, called by the parent CLI.

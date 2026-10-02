@@ -1663,6 +1663,15 @@
         "images"
       ],
       "benchmarks": "workflows/human/minimax_h3/H3_7PLUS1_BENCHMARK.json"
+    },
+    "cover_music": {
+      "status": "ready_experimental",
+      "scripts": [
+        "scripts/cover_music.py",
+        "scripts/cover_music_voice.py"
+      ],
+      "guide": "workflows/human/cover_music/AGENT_GUIDE.md",
+      "description": "Staged short YuE2 music cover, generated voice default; optional reference SVC; review required"
     }
   }
 }

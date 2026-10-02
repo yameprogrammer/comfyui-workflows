@@ -128,3 +128,7 @@ python scripts/<도구>.py ... -o <원하는_경로>
 | 워크플로 · CLI · 카탈로그 | 목표에 맞는 도구 **선택·조합** |
 | 스모크 · 가이드 유지 | 호출 · 검수 · **자기 프로젝트에 반영** |
 | catalog 갱신 | 스토리·파이프라인·납품은 **프로젝트 쪽** |
+
+## YuE2 커버곡 스모크
+
+`python scripts/cover_music.py doctor` → [yue2-cover 스킬](skills/yue2-cover/SKILL.md) → [작업 가이드](workflows/human/cover_music/AGENT_GUIDE.md). 창작 보컬 기본, 레퍼런스 음색은 선택. 다운로드·채보·생성·결과 회수·내보내기.

@@ -81,3 +81,7 @@ CREATIVE + SHOT_DESIGN → still/i2v/si2v strings  →  generate_*         →  
 스킬 변경 시 `process.md` + 해당 `SKILL.md` version.  
 `python scripts/skill_equip.py install <id>` 로 에이전트 경로 동기화.  
 허브 복사: `python scripts/skill_equip.py install <id> --target hub` → `F:\AI_Skills\skills\<id>` + `SKILLS_INDEX.md` 색인 갱신.
+
+## Music cover skill
+
+[yue2-cover](yue2-cover/SKILL.md) v1.0.0 — local reference melody covers, generated voice default, optional reference SVC. Independent of the video direction rail. `python scripts/skill_equip.py install yue2-cover --target all`.

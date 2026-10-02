@@ -1,3 +1,9 @@
+## 2026-10-03 — Staged YuE2 cover smoke and shared agent skill
+
+- Added cover_music CLI, optional Seed-VC SVC worker, project-owned manifests/job recovery, no-overwrite export and pending listening review. Existing YuE2 builder reused; pre-existing edits preserved.
+- Added yue2-cover skill, guide, project AGENTS, intent/catalog discovery, shared runtime copies under F:/model/tools. Generated voice default; reference only when requested.
+- Validation: 9 unit tests, skill validator, download/captions, fresh 30s base render, shared-runtime SVC and both exports passed. Index: 0 errors, one pre-existing generic YuE2 warning. Evidence in D:/cover-music/experiments/cover_tooling_validation_2026-10-03.json; one short Japanese smoke is not a full-song or language-quality benchmark.
+
 ## 2026-10-02 — Codex: H3 R2V Singularity 7+1 tool registration
 
 - Added independent static API/ports presets and `generate_minimax_h3_7plus1` CLI; work 672×384→1344×768, 1080 960×544→1920×1088, 7+1 Euler/simple, shift 12/3, Turbo strength 1.0, native audio. Dense default; Sol only on final step.
