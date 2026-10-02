@@ -1,3 +1,9 @@
+## 2026-10-03 — Commit YuE2 score pipeline dependencies
+
+- Include existing ABC plan-only/supplied-score rendering, PreviewAny extraction, CFG/duration controls and vocal-staff helpers with the staged cover tool.
+- Validation: 9 cover tests and supplied-ABC/empty-lyrics/preview smoke assertions passed; prior GPU cover/SVC evidence retained in D:/cover-music/experiments.
+- Project cache duplicates were SHA-256 verified against F:/model/tools before cleanup; delivered covers and score/QA records retained.
+
 ## 2026-10-03 — Staged YuE2 cover smoke and shared agent skill
 
 - Added cover_music CLI, optional Seed-VC SVC worker, project-owned manifests/job recovery, no-overwrite export and pending listening review. Existing YuE2 builder reused; pre-existing edits preserved.

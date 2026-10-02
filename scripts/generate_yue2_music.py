@@ -49,6 +49,7 @@ from lib.yue2_music_runner import (
     DEFAULT_SCHEDULER,
     DEFAULT_STEPS,
     generate_yue2_music,
+    generate_yue2_plan,
 )
 
 
@@ -99,6 +100,12 @@ def main(argv=None) -> int:
         help="Duration ceiling in seconds (4 ~ 360, default: 120.0). Output may finish earlier.",
     )
     p.add_argument(
+        "--min-duration",
+        type=float,
+        default=0.0,
+        help="Block the end token until this many seconds. 0 lets the song finish early.",
+    )
+    p.add_argument(
         "--abc-planning",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -109,6 +116,16 @@ def main(argv=None) -> int:
         choices=["full", "melody"],
         default="full",
         help="ABC notation mode: 'full' (melody + chords) or 'melody' (melody only, recommended for covers)",
+    )
+    p.add_argument(
+        "--plan-only",
+        action="store_true",
+        help="Write a YuE2 ABC score and stop. Does not render audio.",
+    )
+    p.add_argument(
+        "--abc-file",
+        default=None,
+        help="Render audio from this ABC score. Skips YuE2GenerateABC.",
     )
     p.add_argument(
         "--output",
@@ -123,6 +140,18 @@ def main(argv=None) -> int:
     p.add_argument("--ckpt", default=DEFAULT_CKPT, help=f"Checkpoint file name (default: {DEFAULT_CKPT})")
     p.add_argument("--audio-encoder", default=DEFAULT_AUDIO_ENCODER, help=f"Audio encoder file name for cover mode (default: {DEFAULT_AUDIO_ENCODER})")
     p.add_argument("--seed", type=int, default=None, help="Random seed")
+    p.add_argument(
+        "--music-cfg",
+        type=float,
+        default=None,
+        help="YuE2GenerateMusic cfg_scale. Omit for 1.0 with ABC planning and 1.01 without.",
+    )
+    p.add_argument(
+        "--timeout",
+        type=float,
+        default=900.0,
+        help="Seconds to wait for ComfyUI history (default: 900)",
+    )
     p.add_argument("--server", default=DEFAULT_SERVER, help=f"ComfyUI server URL (default: {DEFAULT_SERVER})")
     p.add_argument("--json", action="store_true", help="Output machine-readable JSON result")
 
@@ -143,26 +172,65 @@ def main(argv=None) -> int:
     if args.mode == "cover" and not args.audio:
         sys.stderr.write("[ERROR] --mode cover requires an input audio path via --audio / -i\n")
         return 1
+    if args.abc_file and args.mode == "cover":
+        sys.stderr.write("[ERROR] --abc-file is for text2music. Cover mode transcribes its own score.\n")
+        return 1
+    if args.plan_only and args.abc_file:
+        sys.stderr.write("[ERROR] --plan-only and --abc-file cannot be used together\n")
+        return 1
+    if args.plan_only and not args.output:
+        sys.stderr.write("[ERROR] --plan-only requires --output / -o for the .abc file\n")
+        return 1
+    if not style_text:
+        sys.stderr.write("[ERROR] a style string or --style-file is required\n")
+        return 1
+
+    abc_text = None
+    if args.abc_file:
+        abc_path = Path(args.abc_file)
+        if not abc_path.is_file():
+            sys.stderr.write(f"[ERROR] ABC file not found: {args.abc_file}\n")
+            return 1
+        abc_text = abc_path.read_text(encoding="utf-8").lstrip("\ufeff")
+        if not abc_text.strip():
+            sys.stderr.write("[ERROR] ABC file is empty\n")
+            return 1
 
     try:
-        res = generate_yue2_music(
-            style=style_text,
-            lyrics=lyrics_text,
-            audio_path=args.audio,
-            output_path=args.output,
-            mode=args.mode,
-            duration=args.duration,
-            seed=args.seed,
-            abc_planning=args.abc_planning,
-            abc_mode="melody" if args.mode == "cover" and args.abc_mode == "full" else args.abc_mode,
-            steps=args.steps,
-            cfg=args.cfg,
-            sampler=args.sampler,
-            scheduler=args.scheduler,
-            ckpt_name=args.ckpt,
-            audio_encoder_name=args.audio_encoder,
-            server_url=args.server,
-        )
+        if args.plan_only:
+            res = generate_yue2_plan(
+                style=style_text,
+                lyrics="" if lyrics_text is None else lyrics_text,
+                output_path=args.output,
+                seed=args.seed,
+                abc_mode=args.abc_mode,
+                ckpt_name=args.ckpt,
+                server_url=args.server,
+                timeout_sec=args.timeout,
+            )
+        else:
+            res = generate_yue2_music(
+                style=style_text,
+                lyrics=lyrics_text,
+                audio_path=args.audio,
+                output_path=args.output,
+                mode=args.mode,
+                duration=args.duration,
+                seed=args.seed,
+                abc_planning=args.abc_planning,
+                abc_mode="melody" if args.mode == "cover" and args.abc_mode == "full" else args.abc_mode,
+                steps=args.steps,
+                cfg=args.cfg,
+                sampler=args.sampler,
+                scheduler=args.scheduler,
+                ckpt_name=args.ckpt,
+                audio_encoder_name=args.audio_encoder,
+                server_url=args.server,
+                music_cfg=args.music_cfg,
+                timeout_sec=args.timeout,
+                abc_text=abc_text,
+                min_duration=args.min_duration,
+            )
 
         if args.json:
             print(json.dumps(res, indent=2, ensure_ascii=False))

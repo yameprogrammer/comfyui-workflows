@@ -112,7 +112,26 @@ python scripts/generate_yue2_music.py \
   -o workspace/jazz_cover.flac
 ```
 
-### 3) 권장 샘플링 파라미터 (Knobs)
+### 3) 무보컬 — 악보를 고친 뒤 렌더 (2026-10-02)
+
+가사 빈 문자열은 보컬을 끄지 않는다. 악보와 곡을 한 호출로 만들지 않는다. 상세는 볼트 `decisions/yue2_instrumental_pipeline.md`.
+
+```bash
+python scripts/generate_yue2_music.py --plan-only \
+  --style-file style.txt --lyrics-file sections.txt \
+  --seed 20261074 -o score.abc
+
+python scripts/generate_yue2_music.py \
+  --abc-file score_muted.abc \
+  --style-file style.txt --lyrics-file sections.txt \
+  --duration 200 --seed 20261074 -o track.flac
+```
+
+스타일에 언어·가수·`no vocals`를 넣지 않는다. 가사 파일은 `[intro]` `[verse]` `[chorus]` `[bridge]` `[chorus]` `[outro]`만, 태그 사이는 빈 줄. 노래 성부를 쉼표로 바꾸는 일은 에이전트가 `score.abc`를 본 뒤에 한다. 천장은 3분보다 위(약 200초). 출력 길이가 천장과 같으면 잘린 엔딩이다.
+
+개인 창작자의 생성물 수익화는 `MODEL_LICENSE` 2026-09-16 추가 허가에 포함된다. 제3자 인스트루멘탈 LoRA는 수익용 곡에 쓰지 않는다. 스템 분리로 보컬을 지우지 않는다.
+
+### 4) 권장 샘플링 파라미터 (Knobs)
 - `--steps`: **32** (공식 템플릿 표준)
 - `--cfg`: **1.0** (YuE2의 CFG는 토큰 오토리그레시브 단계에서 처리되므로 확산 KSampler CFG는 1.0 유지)
 - `--sampler`: **`dpm_2`**

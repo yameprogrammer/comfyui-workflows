@@ -1188,6 +1188,25 @@ def extract_first_image(history_entry: dict) -> tuple[str, str, str]:
     raise FileNotFoundError("Output image not found in ComfyUI history")
 
 
+def extract_preview_text(history_entry: dict) -> str:
+    """Return the first PreviewAny / show-text string stored on a history entry."""
+    outputs = history_entry.get("outputs", {})
+    for node_output in outputs.values():
+        if not isinstance(node_output, dict):
+            continue
+        for key in ("text", "string", "strings"):
+            raw = node_output.get(key)
+            if raw is None:
+                continue
+            if isinstance(raw, str) and raw.strip():
+                return raw
+            if isinstance(raw, (list, tuple)):
+                parts = [str(item) for item in raw if str(item).strip()]
+                if parts:
+                    return "\n".join(parts)
+    raise FileNotFoundError("Preview text not found in ComfyUI history")
+
+
 def extract_first_audio(history_entry: dict) -> tuple[str, str, str]:
     """Return (filename, subfolder, type) for first audio artifact in history."""
     outputs = history_entry.get("outputs", {})
