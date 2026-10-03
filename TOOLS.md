@@ -61,12 +61,11 @@ python scripts/failure_note.py add --stage keyframe --tags ... --symptom "..." .
 Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 
 
-## MiniMax H3 이미지 참조 R2V — 7+1 우선
+## MiniMax H3 — 개선 워크플로우 도구 우선
 
-이미지 레퍼런스로 H3 영상을 만들 때는 `scripts/generate_minimax_h3_7plus1.py`를 우선 사용한다. `work`, `dense`, 5초가 기본이며 `--profile 1080`은 1920×1088 출력이다. 가이드: [H3_7PLUS1_GUIDE](workflows/human/minimax_h3/H3_7PLUS1_GUIDE.md). 시작 프레임 고정 I2V/T2V/FLF/참조 영상/카메라 잠금은 기존 `generate_minimax_h3`를 사용한다. 검증은 한 장의 애니 인물·5초이며 복잡한 동작과 정확한 립싱크는 별도 검수한다. 생성물과 리뷰는 호출하는 프로젝트에 저장한다.
+MiniMax H3의 T2V/I2V/시작·끝 프레임/R2V/V2V/AI2V 생성은 **`scripts/generate_minimax_h3_optimized.py`를 우선 사용**한다. `--task t2v|i2v|flf|r2v|v2v|ai2v`, 기본 `work`, `dense`, 5초다. 숏츠는 `--aspect 9:16`으로 지정하며 가로 프리셋만 있다는 이유로 구형 도구로 돌아가지 않는다. 폭·높이 직접 지정도 가능하다. R2V는 기존 검증된 7+1 프리셋을 재사용하고, V2V·AI2V는 7+1, T2V·I2V·FLF는 모델에 맞는 15+5와 메모리 최적화를 사용한다.
 
-
----
+가이드: [H3_OPTIMIZED_GUIDE](workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md). V2V는 영상 참조 생성, AI2V는 오디오+이미지 참조 생성이며 H3 생성 오디오를 저장한다. 원본 WAV를 그대로 입히거나 정확한 립싱크를 보장하지 않는다. `polish`, `carry-from`, 여러 영상·오디오의 혼합 참조 등 새 CLI가 노출하지 않는 기능이 필요한 경우에만 사유를 기록하고 기존 `generate_minimax_h3`를 사용한다. 잠긴 카메라는 먼저 `camera-previz`를 따르고, 필요한 이미지+참조 영상 입력을 지원하는 기존 경로를 유지한다. `generate_minimax_h3_7plus1`은 기존 R2V 호환 도구로 유지한다. 생성물과 리뷰는 호출하는 프로젝트에 저장하며 failure_note / generation-prompt / output-review 절차를 유지한다.
 
 ## 무엇을 읽나
 
@@ -86,7 +85,7 @@ Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 | **GENERATE** | 빈 화면 → 그림 (**기본: Krea2**) | `generate_krea` · **`generate_krea_draft`** · `generate_krea_nsfw` · **`generate_anima` (2D 애니)** · `generate_moody` · `generate_illustrious_standard` · **`generate_illustrious_advanced`** · **`generate_flux`** · **`generate_flux2_klein`** · **`generate_sdxl`** |
 | **TRANSFORM** | 같은 인물·편집·스타일·인페인팅 | `generate_character_consistent` · `generate_style_transfer` · **`generate_krea2_style`** · `generate_qwen_edit` · `generate_qwen_inpaint` · **`generate_flux_fill`** · **`generate_anima --mode lineart/inpaint`** |
 | **CAMERA** | 각도·포즈·시점·프레이밍 | `generate_qwen_angle` · `generate_viewpoint` · **`generate_openpose_pose`** · **`generate_anima --mode pose/depth`** · **`generate_krea2_control`** · `generate_moody_controlnet` · `generate_reframe` |
-| **MOTION** | 영상 모션 · 품질 계획 · 카메라 · 댄스 · **MiniMax H3 / LTX 2.5** | **`clip_quality`** · `generate_ltx25_aio` · `generate_minimax_h3` · `generate_i2v` · `generate_s2v` · `generate_camera_move` · **`generate_previz`** · `generate_idle_loop` · **`generate_wan_animate2`** · **`generate_wan22_animate`** · `generate_flf2v` |
+| **MOTION** | 영상 모션 · 품질 계획 · 카메라 · 댄스 · **MiniMax H3 / LTX 2.5** | **`clip_quality`** · `generate_ltx25_aio` · `generate_minimax_h3_optimized` · `generate_i2v` · `generate_s2v` · `generate_camera_move` · **`generate_previz`** · `generate_idle_loop` · **`generate_wan_animate2`** · **`generate_wan22_animate`** · `generate_flf2v` |
 | **TRANSFORM+** | 가벼운 ID 팩 | `generate_ref_pack` · `generate_character_consistent` |
 | **VOICE** | 대사·노래·BGM·SFX·MIDI 반주 | `generate_qwen3_tts` · **`generate_minimax_music` (완곡/보컬, 캡션은 `music-caption-rewriter`)** · **`generate_yue2_music` (ABC 악보/음악 커버)** · **`generate_stable_audio` (악기/SFX)** · **`generate_midi_cover_bed` (화성→새 MIDI 반주)** · `generate_bgm` |
 | **INGEST** | 유튜브 레퍼 이해 · 화성 뼈대 | `youtube_ingest` · `youtube_highlights` · **`extract_music_skeleton`** |

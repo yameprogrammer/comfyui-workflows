@@ -1,0 +1,425 @@
+{
+  "T2V": {
+    "prompt_id": "b1a57e02-d5b4-4c8c-b58b-da21a649cfe3",
+    "elapsed_sec": 21.06,
+    "status": {
+      "status_str": "success",
+      "completed": true,
+      "messages": [
+        [
+          "execution_start",
+          {
+            "prompt_id": "b1a57e02-d5b4-4c8c-b58b-da21a649cfe3",
+            "timestamp": 1791037337493
+          }
+        ],
+        [
+          "execution_cached",
+          {
+            "nodes": [
+              "119",
+              "120",
+              "128"
+            ],
+            "prompt_id": "b1a57e02-d5b4-4c8c-b58b-da21a649cfe3",
+            "timestamp": 1791037337498
+          }
+        ],
+        [
+          "execution_success",
+          {
+            "prompt_id": "b1a57e02-d5b4-4c8c-b58b-da21a649cfe3",
+            "timestamp": 1791037357904
+          }
+        ]
+      ]
+    },
+    "outputs": {
+      "190": {
+        "text": [
+          "Attention: comfy_kitchen_int8\nQKV: ConvRot-256 INT8 weights -> 2048-row BF16 chunks -> Kitchen INT8 carrier; output streamed; two-pass V\nMLP: convrot_int8_two_slice - checkpoint-native ConvRot-256 TensorWise INT8 MLP uses token chunks and two feature slices without requantization (2048-row chunks)\nFinalLayer: chunked (2048-row chunks)\nEmbedding memory: released before block 0\nComposition: preserved explicit external attention."
+        ]
+      },
+      "201": {
+        "text": [
+          "Attention: comfy_kitchen_int8\nQKV: ConvRot-256 INT8 weights -> 2048-row BF16 chunks -> Kitchen INT8 carrier; output streamed; two-pass V\nMLP: convrot_int8_two_slice - checkpoint-native ConvRot-256 TensorWise INT8 MLP uses token chunks and two feature slices without requantization (2048-row chunks)\nFinalLayer: chunked (2048-row chunks)\nEmbedding memory: released before block 0\nComposition: preserved explicit external attention."
+        ]
+      },
+      "204": {
+        "text": [
+          "1,270,346,768x22,667,493,371"
+        ]
+      },
+      "144": {
+        "gifs": [
+          {
+            "filename": "T2V_00001-audio.mp4",
+            "subfolder": "video\\H3_Optimized_Modes\\validation",
+            "type": "output",
+            "format": "video/h264-mp4",
+            "frame_rate": 24.0,
+            "workflow": "T2V_00001.png",
+            "fullpath": "F:\\ComfyUI_data\\output\\video\\H3_Optimized_Modes\\validation\\T2V_00001-audio.mp4"
+          }
+        ]
+      }
+    },
+    "requested_seconds": 0.9,
+    "start_size": [
+      288,
+      512
+    ],
+    "output_size": [
+      576,
+      1024
+    ],
+    "media_check": {
+      "path": "F:\\ComfyUI_data\\output\\video\\H3_Optimized_Modes\\validation\\T2V_00001-audio.mp4",
+      "width": 576,
+      "height": 1024,
+      "frames": 22,
+      "duration": 0.9166666666666666,
+      "audio": true,
+      "first_frame_decoded": true
+    }
+  },
+  "I2V": {
+    "prompt_id": "be0527b8-5c79-4485-8342-59c941178212",
+    "elapsed_sec": 30.23,
+    "status": {
+      "status_str": "success",
+      "completed": true,
+      "messages": [
+        [
+          "execution_start",
+          {
+            "prompt_id": "be0527b8-5c79-4485-8342-59c941178212",
+            "timestamp": 1791037656622
+          }
+        ],
+        [
+          "execution_cached",
+          {
+            "nodes": [
+              "119",
+              "120",
+              "128"
+            ],
+            "prompt_id": "be0527b8-5c79-4485-8342-59c941178212",
+            "timestamp": 1791037656666
+          }
+        ],
+        [
+          "execution_success",
+          {
+            "prompt_id": "be0527b8-5c79-4485-8342-59c941178212",
+            "timestamp": 1791037686387
+          }
+        ]
+      ]
+    },
+    "outputs": {
+      "190": {
+        "text": [
+          "Attention: comfy_kitchen_int8\nQKV: ConvRot-256 INT8 weights -> 2048-row BF16 chunks -> Kitchen INT8 carrier; output streamed; two-pass V\nMLP: convrot_int8_two_slice - checkpoint-native ConvRot-256 TensorWise INT8 MLP uses token chunks and two feature slices without requantization (2048-row chunks)\nFinalLayer: chunked (2048-row chunks)\nEmbedding memory: released before block 0\nComposition: preserved explicit external attention."
+        ]
+      },
+      "201": {
+        "text": [
+          "Attention: comfy_kitchen_int8\nQKV: ConvRot-256 INT8 weights -> 2048-row BF16 chunks -> Kitchen INT8 carrier; output streamed; two-pass V\nMLP: convrot_int8_two_slice - checkpoint-native ConvRot-256 TensorWise INT8 MLP uses token chunks and two feature slices without requantization (2048-row chunks)\nFinalLayer: chunked (2048-row chunks)\nEmbedding memory: released before block 0\nComposition: preserved explicit external attention."
+        ]
+      },
+      "204": {
+        "text": [
+          "1,641,780,240x22,667,493,371"
+        ]
+      },
+      "144": {
+        "gifs": [
+          {
+            "filename": "I2V_00001-audio.mp4",
+            "subfolder": "video\\H3_Optimized_Modes\\validation",
+            "type": "output",
+            "format": "video/h264-mp4",
+            "frame_rate": 24.0,
+            "workflow": "I2V_00001.png",
+            "fullpath": "F:\\ComfyUI_data\\output\\video\\H3_Optimized_Modes\\validation\\I2V_00001-audio.mp4"
+          }
+        ]
+      }
+    },
+    "requested_seconds": 0.9,
+    "start_size": [
+      288,
+      512
+    ],
+    "output_size": [
+      576,
+      1024
+    ],
+    "media_check": {
+      "path": "F:\\ComfyUI_data\\output\\video\\H3_Optimized_Modes\\validation\\I2V_00001-audio.mp4",
+      "width": 576,
+      "height": 1024,
+      "frames": 22,
+      "duration": 0.9166666666666666,
+      "audio": true,
+      "first_frame_decoded": true
+    }
+  },
+  "FirstLast": {
+    "prompt_id": "0b4e1fe9-e062-4c70-bdf1-0b8dc5e6363a",
+    "elapsed_sec": 36.64,
+    "status": {
+      "status_str": "success",
+      "completed": true,
+      "messages": [
+        [
+          "execution_start",
+          {
+            "prompt_id": "0b4e1fe9-e062-4c70-bdf1-0b8dc5e6363a",
+            "timestamp": 1791037801754
+          }
+        ],
+        [
+          "execution_cached",
+          {
+            "nodes": [
+              "119",
+              "120",
+              "128"
+            ],
+            "prompt_id": "0b4e1fe9-e062-4c70-bdf1-0b8dc5e6363a",
+            "timestamp": 1791037801869
+          }
+        ],
+        [
+          "execution_success",
+          {
+            "prompt_id": "0b4e1fe9-e062-4c70-bdf1-0b8dc5e6363a",
+            "timestamp": 1791037835609
+          }
+        ]
+      ]
+    },
+    "outputs": {
+      "190": {
+        "text": [
+          "Attention: comfy_kitchen_int8\nQKV: ConvRot-256 INT8 weights -> 2048-row BF16 chunks -> Kitchen INT8 carrier; output streamed; two-pass V\nMLP: convrot_int8_two_slice - checkpoint-native ConvRot-256 TensorWise INT8 MLP uses token chunks and two feature slices without requantization (2048-row chunks)\nFinalLayer: chunked (2048-row chunks)\nEmbedding memory: released before block 0\nComposition: preserved explicit external attention."
+        ]
+      },
+      "201": {
+        "text": [
+          "Attention: comfy_kitchen_int8\nQKV: ConvRot-256 INT8 weights -> 2048-row BF16 chunks -> Kitchen INT8 carrier; output streamed; two-pass V\nMLP: convrot_int8_two_slice - checkpoint-native ConvRot-256 TensorWise INT8 MLP uses token chunks and two feature slices without requantization (2048-row chunks)\nFinalLayer: chunked (2048-row chunks)\nEmbedding memory: released before block 0\nComposition: preserved explicit external attention."
+        ]
+      },
+      "204": {
+        "text": [
+          "1,467,225,104x22,667,493,371"
+        ]
+      },
+      "144": {
+        "gifs": [
+          {
+            "filename": "FirstLast_00001-audio.mp4",
+            "subfolder": "video\\H3_Optimized_Modes\\validation",
+            "type": "output",
+            "format": "video/h264-mp4",
+            "frame_rate": 24.0,
+            "workflow": "FirstLast_00001.png",
+            "fullpath": "F:\\ComfyUI_data\\output\\video\\H3_Optimized_Modes\\validation\\FirstLast_00001-audio.mp4"
+          }
+        ]
+      }
+    },
+    "requested_seconds": 0.9,
+    "start_size": [
+      288,
+      512
+    ],
+    "output_size": [
+      576,
+      1024
+    ],
+    "media_check": {
+      "path": "F:\\ComfyUI_data\\output\\video\\H3_Optimized_Modes\\validation\\FirstLast_00001-audio.mp4",
+      "width": 576,
+      "height": 1024,
+      "frames": 22,
+      "duration": 0.9166666666666666,
+      "audio": true,
+      "first_frame_decoded": true
+    }
+  },
+  "V2V": {
+    "prompt_id": "5a7388f8-1560-49db-98a1-812701706c17",
+    "elapsed_sec": 24.16,
+    "status": {
+      "status_str": "success",
+      "completed": true,
+      "messages": [
+        [
+          "execution_start",
+          {
+            "prompt_id": "5a7388f8-1560-49db-98a1-812701706c17",
+            "timestamp": 1791037838307
+          }
+        ],
+        [
+          "execution_cached",
+          {
+            "nodes": [
+              "119",
+              "120",
+              "129",
+              "128",
+              "131",
+              "145",
+              "132"
+            ],
+            "prompt_id": "5a7388f8-1560-49db-98a1-812701706c17",
+            "timestamp": 1791037838390
+          }
+        ],
+        [
+          "execution_success",
+          {
+            "prompt_id": "5a7388f8-1560-49db-98a1-812701706c17",
+            "timestamp": 1791037861722
+          }
+        ]
+      ]
+    },
+    "outputs": {
+      "201": {
+        "text": [
+          "Attention: comfy_kitchen_int8\nQKV: ConvRot-256 INT8 weights -> 2048-row BF16 chunks -> Kitchen INT8 carrier; output streamed; two-pass V\nMLP: convrot_int8_two_slice - checkpoint-native ConvRot-256 TensorWise INT8 MLP uses token chunks and two feature slices without requantization (2048-row chunks)\nFinalLayer: chunked (2048-row chunks)\nEmbedding memory: released before block 0"
+        ]
+      },
+      "204": {
+        "text": [
+          "2,215,502,960x22,665,388,219"
+        ]
+      },
+      "144": {
+        "gifs": [
+          {
+            "filename": "V2V_00001-audio.mp4",
+            "subfolder": "video\\H3_Optimized_Modes\\validation",
+            "type": "output",
+            "format": "video/h264-mp4",
+            "frame_rate": 24.0,
+            "workflow": "V2V_00001.png",
+            "fullpath": "F:\\ComfyUI_data\\output\\video\\H3_Optimized_Modes\\validation\\V2V_00001-audio.mp4"
+          }
+        ]
+      }
+    },
+    "requested_seconds": 0.9,
+    "start_size": [
+      288,
+      512
+    ],
+    "output_size": [
+      576,
+      1024
+    ],
+    "media_check": {
+      "path": "F:\\ComfyUI_data\\output\\video\\H3_Optimized_Modes\\validation\\V2V_00001-audio.mp4",
+      "width": 576,
+      "height": 1024,
+      "frames": 22,
+      "duration": 0.9166666666666666,
+      "audio": true,
+      "first_frame_decoded": true
+    }
+  },
+  "AI2V": {
+    "prompt_id": "2862e872-5784-4b26-b223-ccd30a7b4c01",
+    "elapsed_sec": 24.26,
+    "status": {
+      "status_str": "success",
+      "completed": true,
+      "messages": [
+        [
+          "execution_start",
+          {
+            "prompt_id": "2862e872-5784-4b26-b223-ccd30a7b4c01",
+            "timestamp": 1791037862397
+          }
+        ],
+        [
+          "execution_cached",
+          {
+            "nodes": [
+              "119",
+              "120",
+              "129",
+              "128",
+              "131",
+              "127",
+              "200",
+              "193",
+              "192",
+              "191",
+              "184",
+              "199",
+              "201",
+              "185",
+              "194",
+              "145",
+              "132"
+            ],
+            "prompt_id": "2862e872-5784-4b26-b223-ccd30a7b4c01",
+            "timestamp": 1791037862434
+          }
+        ],
+        [
+          "execution_success",
+          {
+            "prompt_id": "2862e872-5784-4b26-b223-ccd30a7b4c01",
+            "timestamp": 1791037883678
+          }
+        ]
+      ]
+    },
+    "outputs": {
+      "204": {
+        "text": [
+          "2,160,251,920x22,665,392,219"
+        ]
+      },
+      "144": {
+        "gifs": [
+          {
+            "filename": "AI2V_00001-audio.mp4",
+            "subfolder": "video\\H3_Optimized_Modes\\validation",
+            "type": "output",
+            "format": "video/h264-mp4",
+            "frame_rate": 24.0,
+            "workflow": "AI2V_00001.png",
+            "fullpath": "F:\\ComfyUI_data\\output\\video\\H3_Optimized_Modes\\validation\\AI2V_00001-audio.mp4"
+          }
+        ]
+      }
+    },
+    "requested_seconds": 0.9,
+    "start_size": [
+      288,
+      512
+    ],
+    "output_size": [
+      576,
+      1024
+    ],
+    "media_check": {
+      "path": "F:\\ComfyUI_data\\output\\video\\H3_Optimized_Modes\\validation\\AI2V_00001-audio.mp4",
+      "width": 576,
+      "height": 1024,
+      "frames": 22,
+      "duration": 0.9166666666666666,
+      "audio": true,
+      "first_frame_decoded": true
+    }
+  }
+}

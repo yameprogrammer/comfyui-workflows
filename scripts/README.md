@@ -71,7 +71,8 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 |----------|------|
 | **`generate_camera_move.py`** | 카메라 무빙 의도 I2V (`--preset push_in` 등) |
 | **`generate_previz.py`** | Blender 프리비즈 플레이트 → H3 `--ref-video` |
-| **`generate_minimax_h3.py`** | MiniMax H3 T2V/I2V/R2V/A2V |
+| **`generate_minimax_h3_optimized.py`** | **H3 우선**: T2V/I2V/FLF/R2V/V2V/AI2V, 세로·가로, 메모리 최적화 |
+| `generate_minimax_h3.py` | 기존 특수 기능·polish·carry 호환 |
 | **`generate_wan_animate2.py`** / `generate_wan22_animate.py` | 댄스 이식 (Animate-2 / ViTPose) |
 | **`generate_idle_loop.py`** | 아이들 모션 + 루프 (pingpong / roundtrip / idle) |
 | **`generate_dance_ref.py`** | 댄스/레퍼 모션 (V2V motion · i2v 스타일) |

@@ -102,7 +102,7 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | 잡지·포스터 글자+인물 | `generate_boogu_typo` | Boogu→Ideogram→Krea |
 | 스틸 → 짧은 모션 (기본) | `generate_i2v` | LTX 2.3 I2V 기본 (단일 클립 ~4s/97f) |
 | **LTX 2.5 플래그십 (9모드 T2V/I2V/S2V)** | **`generate_ltx25_aio`** | LTX 2.5 22B + Gemma 4 (단일 클립 권장 **최대 10초** @ 24fps 768p) |
-| **시댄스급 T2V/I2V/R2V + 네이티브 오디오** | **`generate_minimax_h3`** | MiniMax H3 (단일 클립 권장 **최대 8초** @ 24fps 768p · 히어로/쇼츠) |
+| **시댄스급 T2V/I2V/R2V + 네이티브 오디오** | **`generate_minimax_h3_optimized`** | MiniMax H3 (단일 클립 권장 **최대 8초** @ 24fps 768p · 히어로/쇼츠) |
 | **카메라 무빙 (의도 I2V)** | `generate_camera_move` | push_in / pan / idle … (Comfy I2V) |
 | **아이들·루프** | `generate_idle_loop` | 대기 모션 + pingpong/roundtrip 루프 |
 | **댄스/레퍼 모션 (빠른 초안)** | `generate_dance_ref` | 레퍼 영상→캐릭 모션 (V2V LTX) |
@@ -408,11 +408,23 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 
 ### 2.4 MOTION — 스틸 → 영상
 
-#### MiniMax H3 이미지 참조 R2V — 7+1 우선
+#### MiniMax H3 — 개선 도구 우선
+
+| when | CLI | when not / 대안 |
+|---|---|---|
+| H3 T2V/I2V/FLF/R2V/V2V/AI2V, 숏츠·가로·세로 생성 | **`generate_minimax_h3_optimized`** | polish/carry/지원하지 않는 혼합 참조는 기존 H3; 정확한 WAV 립싱크는 s2v |
+
+```bash
+python scripts/generate_minimax_h3_optimized.py --task r2v -i F:/my_project/stills/hero.png --aspect 9:16 --prompt-file F:/my_project/prompts/S01.txt -o F:/my_project/clips/S01.mp4 --seed 42
+```
+
+기본 work/dense/5초. R2V는 기존 7+1 재사용, V2V·AI2V는 7+1, T2V·I2V·FLF는 모델에 맞는 15+5 + 메모리 최적화. 모두 샘플링 후 전체 모델 언로드 → VAE 디코딩. 세로는 `--aspect 9:16`; 가로 프리셋 제한을 이유로 기존 단일 패스에 복귀하지 않는다. [작업별 CLI·해상도·검증 범위](../workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md).
+
+#### MiniMax H3 기존 이미지 참조 R2V — 호환 도구
 
 | 언제 | CLI | 언제 말고 |
 |---|---|---|
-| 이미지 참조 H3 반복 제작, 1MP/1080p급 | `generate_minimax_h3_7plus1` (`work`, `dense`, 5초 기본) | 정확한 첫 프레임·T2V·FLF·참조 영상은 기존 `generate_minimax_h3` |
+| 이미지 참조 H3 반복 제작, 1MP/1080p급 | `generate_minimax_h3_7plus1` (`work`, `dense`, 5초 기본) | 일반 생성은 `generate_minimax_h3_optimized`; 미지원 특수 기능만 기존 도구 |
 
 ```bat
 python scripts/generate_minimax_h3_7plus1.py -i F:/my_project/stills/hero.png --prompt-file F:/my_project/prompts/S01.txt -o F:/my_project/clips/S01.mp4 --seed 42

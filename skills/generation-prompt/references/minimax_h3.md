@@ -1,11 +1,12 @@
 # MiniMax H3 video+audio prompts
 
-**CLI:** `generate_minimax_h3` (`--task t2v|i2v|r2v|flf|a2v|polish`)  
+**우선 CLI:** `generate_minimax_h3_optimized` (`--task t2v|i2v|flf|r2v|v2v|ai2v`, 숏츠 `--aspect 9:16`). 기존 `generate_minimax_h3`는 polish/carry/미지원 특수 입력에만 사용.
+가이드: `F:/Agent_media_tools/workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md`.
 **Not:** LTX/Wan I2V dialect, Krea still paragraphs, or a one-line tag soup.
 
 H3 was trained on a **labeled three-field prompt**. Local open weights do **not** run MiniMax Context-IR, so the agent writes this shape. A/B 2026-08-30 (elf checkout I2VA, same seed): official fields beat the short line on blocking, SFX count, and speaker eyeline. Dialogue text tied.
 
-Do **not** load the Omni Prompt-Rewriter LoRA in the H3 graph on the 4090 (evicts DiT; invents BGM/cuts). Rewrite in this file, then `generate_minimax_h3`.
+Do **not** load the Omni Prompt-Rewriter LoRA in the H3 graph on the 4090 (evicts DiT; invents BGM/cuts). Rewrite in this file, then `generate_minimax_h3_optimized`.
 
 ---
 

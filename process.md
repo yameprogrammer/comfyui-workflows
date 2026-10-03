@@ -1,3 +1,9 @@
+## 2026-10-03 — Codex: MiniMax H3 optimized agent tooling
+
+- Added preferred generate_minimax_h3_optimized CLI for T2V/I2V/FLF/R2V/V2V/AI2V, landscape/portrait and project-owned outputs. R2V reuses existing 7+1; FL2VA keeps 15+5 and rebuilds high-resolution frame conditioning.
+- Registered five tested API/UI workflows, pre-decode model unload, discovery/catalog/backend routing, and shared agent prompt guidance. Existing specialized H3 and R2V compatibility tools retained.
+- Validation: original five-mode 22-frame render/save evidence retained; six-mode dry-run, five focused runner tests, CLI --help and preferred-tool discovery passed; tool_index_check reported 0 errors (one pre-existing generic YuE2 warning).
+
 ## 2026-10-03 — Commit YuE2 score pipeline dependencies
 
 - Include existing ABC plan-only/supplied-score rendering, PreviewAny extraction, CFG/duration controls and vocal-staff helpers with the staged cover tool.

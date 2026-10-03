@@ -1,5 +1,7 @@
 # MiniMax H3 — Agent 가이드
 
+일반 MiniMax H3 생성은 **`generate_minimax_h3_optimized` 우선**. [개선 도구 사용법](H3_OPTIMIZED_GUIDE.md). 이 문서의 기존 도구 예시는 개선 CLI가 지원하지 않는 특수 기능·polish·carry 경로에 사용한다.
+
 **2026-10-02 이미지 참조 R2V 기본 선택:** `generate_minimax_h3_7plus1.py`. [7+1 가이드](H3_7PLUS1_GUIDE.md)에서 프로필·검수·기존 방식 전환 기준을 먼저 읽는다. 이 가이드의 기존 도구는 다른 task와 비교 후보로 유지한다.
 
 

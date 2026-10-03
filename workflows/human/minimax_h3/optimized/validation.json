@@ -1,0 +1,62 @@
+{
+  "AI2V": {
+    "backend_valid": true,
+    "error": null,
+    "node_errors": {},
+    "ui_api_consistency_errors": [],
+    "render_test": "passed_short_execution_and_save",
+    "validation_inputs": {
+      "image": "mmh3_02_video_ref_bust_v01_5068747.png",
+      "video": null,
+      "audio": "cover_09d728686abc91237394.wav"
+    }
+  },
+  "FirstLast": {
+    "backend_valid": true,
+    "error": null,
+    "node_errors": {},
+    "ui_api_consistency_errors": [],
+    "render_test": "passed_short_execution_and_save",
+    "validation_inputs": {
+      "image": "mmh3_02_video_ref_bust_v01_5068747.png",
+      "video": null,
+      "audio": null
+    }
+  },
+  "I2V": {
+    "backend_valid": true,
+    "error": null,
+    "node_errors": {},
+    "ui_api_consistency_errors": [],
+    "render_test": "passed_short_execution_and_save",
+    "validation_inputs": {
+      "image": "mmh3_02_video_ref_bust_v01_5068747.png",
+      "video": null,
+      "audio": null
+    }
+  },
+  "T2V": {
+    "backend_valid": true,
+    "error": null,
+    "node_errors": {},
+    "ui_api_consistency_errors": [],
+    "render_test": "passed_short_execution_and_save",
+    "validation_inputs": {
+      "image": "mmh3_02_video_ref_bust_v01_5068747.png",
+      "video": null,
+      "audio": null
+    }
+  },
+  "V2V": {
+    "backend_valid": true,
+    "error": null,
+    "node_errors": {},
+    "ui_api_consistency_errors": [],
+    "render_test": "passed_short_execution_and_save",
+    "validation_inputs": {
+      "image": "mmh3_02_video_ref_bust_v01_5068747.png",
+      "video": "ltx_spup_S02_3166512.mp4",
+      "audio": null
+    }
+  }
+}

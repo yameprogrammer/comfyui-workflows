@@ -1,5 +1,7 @@
 # MiniMax H3 R2V 7+1 — 에이전트 사용 가이드
 
+현재 일반 H3 생성의 우선 도구는 **`generate_minimax_h3_optimized`**다. 이 문서의 R2V 7+1 프리셋을 그대로 재사용하며 `--aspect 9:16`을 지원한다. T2V/I2V/FLF/V2V/AI2V도 [개선 도구 가이드](H3_OPTIMIZED_GUIDE.md)를 따른다. 아래 기존 CLI는 호환 경로다.
+
 이미지 레퍼런스로 인물과 스타일을 유지하는 H3 R2V 작업은 `generate_minimax_h3_7plus1`을 우선 선택한다. 기본은 `work`, `dense`, 5초다. 이 도구는 첫 프레임을 고정하는 I2V와 다르다.
 
 | 항목 | 구성 |

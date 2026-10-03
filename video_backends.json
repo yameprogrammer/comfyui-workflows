@@ -607,8 +607,9 @@
         "baseline": "24fps @ 768p",
         "notes": "Max recommended single clip = 8.0s (192 frames @ 24fps 768p). Snaps to 17k+5 grid. Longer single clips emit warning."
       },
-      "notes": "NOT episode default I2V (default remains ltx23_aio_i2v). Use for quality hero shorts, T2V with baked-in audio, R2V identity, A2V lip-sync/MV (source audio mux), polish rtx_rife|rife. Models under F:\\model MinimaxH3 + qwen3vl_32b. ComfyUI ≥0.30. Bench 4090: work 0.4MP 5s ~113s; a2v/multiref smoke ~50–110s; polish ~25s (2026-08-12).",
-      "preferred_image_r2v": "minimax_h3_7plus1"
+      "notes": "For ordinary H3 generation prefer generate_minimax_h3_optimized; retain this tool for unsupported specialized inputs/polish/carry. NOT episode default I2V (default remains ltx23_aio_i2v). Use for quality hero shorts, T2V with baked-in audio, R2V identity, A2V lip-sync/MV (source audio mux), polish rtx_rife|rife. Models under F:\\model MinimaxH3 + qwen3vl_32b. ComfyUI ≥0.30. Bench 4090: work 0.4MP 5s ~113s; a2v/multiref smoke ~50–110s; polish ~25s (2026-08-12).",
+      "preferred_image_r2v": "minimax_h3_7plus1",
+      "preferred_generator": "minimax_h3_optimized"
     },
     "ltx25_aio": {
       "status": "ready",
@@ -652,7 +653,37 @@
       ],
       "default_attention": "dense",
       "validated_duration_sec": 5,
-      "notes": "Preferred for image-reference H3 R2V. Exact first-frame I2V, T2V, FLF and video references use the existing H3 tool. Sol optional only on final refine step. See benchmark and validation limits in guide."
+      "notes": "Existing verified R2V preset reused by generate_minimax_h3_optimized, which adds portrait sizing. Prefer the optimized tool for ordinary H3 generation. Dense default; Sol only final R2V step."
+    },
+    "minimax_h3_optimized": {
+      "status": "ready",
+      "family": "minimax_h3",
+      "kind": "memory_managed_video_native_audio",
+      "format": "native_api_graph",
+      "file": null,
+      "cli": "scripts/generate_minimax_h3_optimized.py",
+      "scripts": [
+        "scripts/generate_minimax_h3_optimized.py"
+      ],
+      "runner": "lib/minimax_h3_optimized_runner.py",
+      "guide": "workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md",
+      "human_ui": "workflows/human/minimax_h3/optimized/",
+      "tasks": [
+        "t2v",
+        "i2v",
+        "flf",
+        "r2v",
+        "v2v",
+        "ai2v"
+      ],
+      "profiles": [
+        "draft",
+        "work",
+        "1080"
+      ],
+      "default_profile": "work",
+      "description": "Preferred MiniMax H3 generator: memory optimization and explicit pre-decode model unload, landscape/portrait. R2V reuses verified 7+1; T2V/I2V/FLF use matching 15+5.",
+      "notes": "Five new modes passed short 22-frame generation/save tests; full production quality requires review. V2V/AI2V are references, not exact motion or lip-sync guarantees."
     }
   },
   "default_backend_flf": "ltx23_aio_flf",

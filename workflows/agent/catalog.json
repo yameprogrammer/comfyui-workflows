@@ -173,8 +173,9 @@
       ],
       "hf": "https://huggingface.co/Comfy-Org/MiniMax-H3",
       "docs": "https://docs.comfy.org/tutorials/video/minimax/minimax-h3",
-      "notes": "Not episode default I2V (still LTX). Quality+audio tool. A2V muxes source audio. Polish: rtx_rife|rife. Bench 4090: work 5s~113s; a2v/multiref smoke 0.2MP ~50–110s; polish ~25s (2026-08-12). Engine family minimax_h3.",
-      "preferred_image_r2v": "minimax_h3_7plus1"
+      "notes": "For ordinary H3 generation prefer generate_minimax_h3_optimized; retain this tool for unsupported specialized inputs/polish/carry. Not episode default I2V (still LTX). Quality+audio tool. A2V muxes source audio. Polish: rtx_rife|rife. Bench 4090: work 5s~113s; a2v/multiref smoke 0.2MP ~50–110s; polish ~25s (2026-08-12). Engine family minimax_h3.",
+      "preferred_image_r2v": "minimax_h3_7plus1",
+      "preferred_generator": "minimax_h3_optimized"
     },
     "wan22_face_enhance": {
       "file": "presets/wan22_face_enhance.api.json",
@@ -1633,7 +1634,8 @@
       "reference_inputs": [
         "images"
       ],
-      "benchmarks": "workflows/human/minimax_h3/H3_7PLUS1_BENCHMARK.json"
+      "benchmarks": "workflows/human/minimax_h3/H3_7PLUS1_BENCHMARK.json",
+      "notes": "Existing verified R2V preset reused by generate_minimax_h3_optimized, which adds portrait sizing. Prefer the optimized tool for ordinary H3 generation. Dense default; Sol only final R2V step."
     },
     "minimax_h3_7plus1_sol": {
       "file": "presets/minimax_h3_7plus1_sol.api.json",
@@ -1672,6 +1674,96 @@
       ],
       "guide": "workflows/human/cover_music/AGENT_GUIDE.md",
       "description": "Staged short YuE2 music cover, generated voice default; optional reference SVC; review required"
+    },
+    "minimax_h3_optimized": {
+      "status": "ready",
+      "family": "minimax_h3",
+      "kind": "memory_managed_video_native_audio",
+      "format": "native_api_graph",
+      "file": null,
+      "cli": "scripts/generate_minimax_h3_optimized.py",
+      "scripts": [
+        "scripts/generate_minimax_h3_optimized.py"
+      ],
+      "runner": "lib/minimax_h3_optimized_runner.py",
+      "guide": "workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md",
+      "human_ui": "workflows/human/minimax_h3/optimized/",
+      "tasks": [
+        "t2v",
+        "i2v",
+        "flf",
+        "r2v",
+        "v2v",
+        "ai2v"
+      ],
+      "profiles": [
+        "draft",
+        "work",
+        "1080"
+      ],
+      "default_profile": "work",
+      "description": "Preferred MiniMax H3 generator: memory optimization and explicit pre-decode model unload, landscape/portrait. R2V reuses verified 7+1; T2V/I2V/FLF use matching 15+5.",
+      "notes": "Five new modes passed short 22-frame generation/save tests; full production quality requires review. V2V/AI2V are references, not exact motion or lip-sync guarantees."
+    },
+    "minimax_h3_optimized_t2v": {
+      "file": "presets/minimax_h3_optimized_t2v.api.json",
+      "ports": "presets/minimax_h3_optimized_t2v.ports.json",
+      "format": "api",
+      "family": "minimax_h3",
+      "status": "ready",
+      "role": "t2v",
+      "scripts": [
+        "scripts/generate_minimax_h3_optimized.py"
+      ],
+      "guide": "workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md"
+    },
+    "minimax_h3_optimized_i2v": {
+      "file": "presets/minimax_h3_optimized_i2v.api.json",
+      "ports": "presets/minimax_h3_optimized_i2v.ports.json",
+      "format": "api",
+      "family": "minimax_h3",
+      "status": "ready",
+      "role": "i2v",
+      "scripts": [
+        "scripts/generate_minimax_h3_optimized.py"
+      ],
+      "guide": "workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md"
+    },
+    "minimax_h3_optimized_flf": {
+      "file": "presets/minimax_h3_optimized_flf.api.json",
+      "ports": "presets/minimax_h3_optimized_flf.ports.json",
+      "format": "api",
+      "family": "minimax_h3",
+      "status": "ready",
+      "role": "flf",
+      "scripts": [
+        "scripts/generate_minimax_h3_optimized.py"
+      ],
+      "guide": "workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md"
+    },
+    "minimax_h3_optimized_v2v": {
+      "file": "presets/minimax_h3_optimized_v2v.api.json",
+      "ports": "presets/minimax_h3_optimized_v2v.ports.json",
+      "format": "api",
+      "family": "minimax_h3",
+      "status": "ready",
+      "role": "v2v",
+      "scripts": [
+        "scripts/generate_minimax_h3_optimized.py"
+      ],
+      "guide": "workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md"
+    },
+    "minimax_h3_optimized_ai2v": {
+      "file": "presets/minimax_h3_optimized_ai2v.api.json",
+      "ports": "presets/minimax_h3_optimized_ai2v.ports.json",
+      "format": "api",
+      "family": "minimax_h3",
+      "status": "ready",
+      "role": "ai2v",
+      "scripts": [
+        "scripts/generate_minimax_h3_optimized.py"
+      ],
+      "guide": "workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md"
     }
   }
 }

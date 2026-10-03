@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-03",
+  "tool": "generate_minimax_h3_optimized",
+  "tasks": [
+    "t2v",
+    "i2v",
+    "flf",
+    "r2v",
+    "v2v",
+    "ai2v"
+  ],
+  "checks": {
+    "runner_tests": 5,
+    "six_mode_dry_run": "passed",
+    "cli_help": "passed",
+    "tool_index_errors": 0,
+    "discovery_preferred_cli": "generate_minimax_h3_optimized.py"
+  },
+  "workflow_render_evidence": "workflows/human/minimax_h3/optimized/render_validation.json",
+  "limits": "Runtime evidence is short workflow execution/save; new CLI adapter tested without queueing production jobs."
+}

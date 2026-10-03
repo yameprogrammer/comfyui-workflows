@@ -49,10 +49,10 @@ Seedance, Kling, Gemini 영상, HeyGen, 그 밖의 클라우드 영상 API는 �
 
 ## 영상 (H3)
 
-이미지 참조 R2V는 `generate_minimax_h3_7plus1.py`를 우선 사용한다 (`work`, `dense`, 5초). `--profile 1080`은 1920×1088. 가이드: `workflows/human/minimax_h3/H3_7PLUS1_GUIDE.md`. 첫 프레임 고정 I2V/T2V/FLF와 카메라 참조 영상은 아래 기존 H3 CLI를 사용한다.
+H3 일반 생성은 `generate_minimax_h3_optimized.py`를 우선 사용한다 (`--task t2v|i2v|flf|r2v|v2v|ai2v`, work/dense/5초). 숏츠는 `--aspect 9:16`. R2V는 기존 7+1 프리셋 재사용. 가이드: `workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md`. 아래 기존 CLI는 polish/carry/미지원 특수 입력이 필요한 경우에만 사유를 기록하고 사용한다.
 
 ```bat
-python scripts/generate_minimax_h3_7plus1.py -i F:/my_project/stills/hero.png --prompt-file F:/my_project/prompts/S01.txt -o F:/my_project/clips/S01.mp4 --seed 42
+python scripts/generate_minimax_h3_optimized.py --task r2v --aspect 9:16 -i F:/my_project/stills/hero.png --prompt-file F:/my_project/prompts/S01.txt -o F:/my_project/clips/S01.mp4 --seed 42
 ```
 
 프로필 기본은 `work`다. 출력은 이 폴더 아래 `clips\`.
