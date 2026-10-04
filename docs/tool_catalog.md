@@ -184,11 +184,14 @@ python scripts/tool_intent.py "유튜브 자막"
 |--|--|
 | **언제** | **시네·인물·무드 키프레임 기본** · 패션·바디·실사 전반 · 성인 18+ 포함 |
 | **언제 말고** | 강한 캐릭터 태그 일관성 → Illustrious · 애니 태그 → Illustrious |
-| **CLI** | `generate_krea` · **`generate_krea_nsfw`** (**18+**) · 기능 맵 `krea2_features` |
+| **CLI** | `generate_krea` · **`generate_krea_nsfw`** (**18+**) · 기능 맵 `krea2_features` · LoRA 용도 `krea2_lora_status` |
 | **가이드** | [Krea2 v10 AGENT_GUIDE](../workflows/human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md) · **[Lonecat Krea2 v7.0 맵](../workflows/human/lonecat_krea2_v70/AGENT_GUIDE.md)** |
 
 ```bash
+python scripts/krea2_lora_status.py
+python scripts/krea2_lora_status.py recommend "붓터치 회화"
 python scripts/generate_krea.py -p "cinematic portrait..." -o out.png --seed 42
+python scripts/generate_krea.py --list-loras
 python scripts/generate_krea.py --list-profiles
 python scripts/generate_krea.py --profile animosity -p "..." -o out.png
 # Lonecat v7 feature inventory
@@ -213,6 +216,8 @@ python scripts/generate_krea2_region_detail.py -i nsfw.png -o out.png --region b
 ```
 
 > **v7 vs v10:** 기본 T2I = slim **v10**. Lonecat **v7** 슬라이스 ready: 스타일·Control·Img-prompt·Face/Eyes/Hand/Spare·Moodboard·RMBG·Post·Draft·NSFW region detailers(18+).
+
+> **LoRA:** `F:\model\loras\Krea2`에 넣고 `<이름>.purpose.json`의 `purpose`·`when`을 채운다. 비어 있으면 생성에 붙이지 않는다. `t2i`만 `generate_krea --lora`. identity / depth는 전용 CLI. 깨끗한 실사는 LoRA 없음. [krea2_loras_agent](krea2_loras_agent.md)
 
 #### Lonecat Z-Image (I2I 대안)
 

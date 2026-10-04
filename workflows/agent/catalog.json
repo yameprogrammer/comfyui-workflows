@@ -1576,6 +1576,15 @@
         "scripts/ltx_lora_status.py"
       ]
     },
+    "krea2_lora_status": {
+      "file": null,
+      "role": "krea2_lora_status",
+      "status": "ready",
+      "shelf": "META",
+      "scripts": [
+        "scripts/krea2_lora_status.py"
+      ]
+    },
     "output_review": {
       "file": null,
       "role": "review",

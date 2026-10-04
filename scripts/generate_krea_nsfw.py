@@ -56,6 +56,12 @@ def main(argv=None) -> int:
         default=None,
         help="Optional UNET override (default from ports: Krea2Turbo/krea2_turbo_fp8_scaled)",
     )
+    p.add_argument(
+        "--lora",
+        default=None,
+        help="Power Lora filename under models/loras, from krea2_lora_status",
+    )
+    p.add_argument("--lora-strength", type=float, default=1.0)
     args = p.parse_args(argv)
 
     if args.prompt_file:
@@ -114,6 +120,8 @@ def main(argv=None) -> int:
         preset=args.preset,
         unet_name=args.unet_name,
         profile=args.profile,
+        lora_name=args.lora,
+        lora_strength=float(args.lora_strength),
         return_dict=True,
     )
     if isinstance(r, dict) and r.get("ok"):

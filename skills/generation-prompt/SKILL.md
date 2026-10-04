@@ -1,6 +1,6 @@
 ---
 name: generation-prompt
-version: 1.4.1
+version: 1.4.2
 description: >
   Translate shot design into high-quality IMAGE and VIDEO model prompts for agent_custom.
   Routes each factory CLI/backend to its researched dialect (Krea2 NL, Z-Image clauses,
@@ -27,6 +27,9 @@ You are not a lyric poet and not a one-size-fits-all tag dump.
 # from factory root — stills
 python scripts/prompt_dialect.py pick "시네 인물"
 python scripts/prompt_dialect.py show krea
+# Krea stills — pick a LoRA only when a ready card matches the shot
+python scripts/krea2_lora_status.py
+python scripts/krea2_lora_status.py recommend "붓터치 회화"
 # then generate_* with THAT dialect only
 ```
 
@@ -34,7 +37,8 @@ python scripts/prompt_dialect.py show krea
 2. **CLI chosen** (`tool_intent` or QUALITY_POLICY)  
 3. **`python scripts/prompt_dialect.py show <family>`** (or open that `ref`)  
 4. Write still/motion/edit string in **that** official form  
-5. Gates → `generate_*` with that string only  
+5. **Krea still:** `krea2_lora_status.py` (or `recommend "<look>"`). Attach one ready LoRA only when its `when` matches. `t2i` → `generate_krea --lora`. identity / depth → their own CLI. Unclassified and clean photoreal stay off.  
+6. Gates → `generate_*` with that string only  
 
 ---
 
@@ -249,6 +253,7 @@ backend=krea2|moody|ltx23|wan22|... | source=SHOT_DESIGN
 - [ ] generation-prompt equipped  
 - [ ] tool_catalog / QUALITY_POLICY → CLI known  
 - [ ] **model_prompt_matrix / `prompt_dialect show` applied**  
+- [ ] Krea still: `krea2_lora_status` checked; LoRA only if a ready `when` matches  
 - [ ] dialect reference file applied  
 - [ ] Music 3: `music-caption-rewriter` equipped; caption from the router, not a one-line genre  
 - [ ] still and/or motion/edit string written  

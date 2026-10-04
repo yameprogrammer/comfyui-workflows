@@ -5,6 +5,8 @@
 **Episode SSOT example:** `01_기획/PROMPT_PACK_KREA.md` + `KREA2_PROMPT_RESEARCH.md`  
 **Related:** [docs/krea2_prompt_guide.md](../../docs/krea2_prompt_guide.md) · [Krea2_SFW_NSFW_v10_AGENT_GUIDE.md](../../workflows/human/Krea2_SFW_NSFW_v10_AGENT_GUIDE.md)
 
+**LoRA:** before `generate_krea`, run `python scripts/krea2_lora_status.py`. Use `--lora` only when a ready card's `when` matches the shot. New weights go in `F:\model\loras\Krea2` with a filled `<stem>.purpose.json`. See [krea2_loras_agent.md](../../docs/krea2_loras_agent.md).
+
 ---
 
 ## 1. Architecture Awareness — Why Krea2 Behaves Differently

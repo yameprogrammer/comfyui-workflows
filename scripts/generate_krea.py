@@ -607,6 +607,11 @@ if __name__ == "__main__":
         help="Krea2 / Lonecat v7 feature inventory (same as krea2_features.py list)",
     )
     parser.add_argument(
+        "--list-loras",
+        action="store_true",
+        help="Krea2 LoRA purpose catalog (same as krea2_lora_status.py list)",
+    )
+    parser.add_argument(
         "--legacy-mini",
         action="store_true",
         help="Old T2I-krea mini graph (emergency only)",
@@ -615,6 +620,13 @@ if __name__ == "__main__":
 
     if args.list_profiles:
         print(format_profile_table("krea"))
+        sys.exit(0)
+
+    if args.list_loras:
+        from lib.krea2_lora_catalog import format_table
+
+        print(format_table())
+        print("Pick: python scripts/krea2_lora_status.py recommend \"<look>\"")
         sys.exit(0)
 
     if args.list_features:

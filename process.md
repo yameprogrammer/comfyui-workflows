@@ -1,3 +1,9 @@
+## 2026-10-04 — Krea2 LoRA purpose catalog
+
+- Agents can list LoRAs dropped in `F:\model\loras\Krea2` and apply one only when its purpose card `when` matches. Empty cards stay off. `t2i` uses `generate_krea --lora`; identity and depth stay on their own CLIs.
+- CLI: `scripts/krea2_lora_status.py` list/show/recommend/draft. Wired into tool_intent, tool_catalog, catalog.json, and generation-prompt equip.
+- Validation: `python -m unittest tests.test_krea2_lora_catalog tests.test_tool_intent -v` and `python scripts/tool_index_check.py`.
+
 ## 2026-10-03 — Codex: MiniMax H3 optimized agent tooling
 
 - Added preferred generate_minimax_h3_optimized CLI for T2V/I2V/FLF/R2V/V2V/AI2V, landscape/portrait and project-owned outputs. R2V reuses existing 7+1; FL2VA keeps 15+5 and rebuilds high-resolution frame conditioning.

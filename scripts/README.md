@@ -177,6 +177,7 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 | `comfy_ensure.py` | Comfy 기동 확인/자동 기동 |
 | `run_workflow_api.py` | API 프리셋 직접 실행 |
 | `skill_equip.py` | 스킬 장착 (연출 등) |
+| **`krea2_lora_status.py`** | Krea2 LoRA 용도 조회 · `recommend` · `draft` |
 | `factory_cleanup.py` | 스테이징 정리 |
 
 ---
