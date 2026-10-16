@@ -657,6 +657,18 @@ def build_api_prompt(
             "inputs": cond,
         }
 
+    # Encoding must finish before its TE/VAE weights are released for sampling.
+    api["145"] = {
+        "class_type": "VRAM_Debug",
+        "inputs": {
+            "any_input": ["131", 1],
+            "empty_cache": True,
+            "gc_collect": True,
+            "unload_all_models": True,
+        },
+    }
+    api["125"]["inputs"]["latent_image"] = ["145", 0]
+
     scale = float(latent_upscale or 1.0)
     two_pass = scale > 1.0001
     if two_pass:
@@ -706,6 +718,20 @@ def build_api_prompt(
         }
         api["121"]["inputs"]["samples"] = ["138", 0]
         api["122"]["inputs"]["samples"] = ["138", 0]
+
+    # Both decoders must wait for diffusion to leave VRAM, including dynamic
+    # loading mode. Use the final sampler output for either sampling layout.
+    api["144"] = {
+        "class_type": "VRAM_Debug",
+        "inputs": {
+            "any_input": ["138" if two_pass else "125", 0],
+            "empty_cache": True,
+            "gc_collect": True,
+            "unload_all_models": True,
+        },
+    }
+    api["121"]["inputs"]["samples"] = ["144", 0]
+    api["122"]["inputs"]["samples"] = ["144", 0]
 
     # CreateVideo after audio source is known
     api["130"] = {

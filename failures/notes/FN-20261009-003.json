@@ -1,0 +1,27 @@
+{
+  "id": "FN-20261009-003",
+  "created_at": "2026-10-09T13:11:23+00:00",
+  "agent": "unknown",
+  "episode_id": "short001-channel-welcome",
+  "shot_id": "S03,S05",
+  "stage": "composite.qa",
+  "tags": [
+    "head",
+    "neck",
+    "torso",
+    "warp",
+    "temporal_QC"
+  ],
+  "symptom": "User rejected welcome v004: excessive head movement and detached head versus torso around9s despite prior QC pass",
+  "root_cause": "Separate head affine and torso texture remap composited across neck/headphone/chest without joint-continuity constraints; static crop/ROI QC missed real-time coherence",
+  "fix": "WITHDRAWN only: v004 failed/unselected, preserve video and old QA, CPU continuous749-frame review plus7-12s original/generated/composite loop. No corrected master created.",
+  "prevention": "No independent head/body warp for calm talking; obtain calm native generation, test3-5s first, require human real-time playback. Decode/hash and eye-roll reductions cannot pass motion QC.",
+  "related_paths": [
+    "D:/yame-film/content/projects/short001-channel-welcome/09-v004-rejection-diagnosis"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": [
+    "FN-20261009-002"
+  ]
+}

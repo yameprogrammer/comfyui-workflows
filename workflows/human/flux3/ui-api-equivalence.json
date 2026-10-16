@@ -1,0 +1,44 @@
+[
+  {
+    "mode": "box_layout",
+    "ui_api_model_parameters_links_equal": true,
+    "all_node_classes_registered": true,
+    "required_models_visible": true,
+    "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+  },
+  {
+    "mode": "character_consistency",
+    "ui_api_model_parameters_links_equal": true,
+    "all_node_classes_registered": true,
+    "required_models_visible": true,
+    "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+  },
+  {
+    "mode": "multi_reference",
+    "ui_api_model_parameters_links_equal": true,
+    "all_node_classes_registered": true,
+    "required_models_visible": true,
+    "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+  },
+  {
+    "mode": "single_edit",
+    "ui_api_model_parameters_links_equal": true,
+    "all_node_classes_registered": true,
+    "required_models_visible": true,
+    "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+  },
+  {
+    "mode": "style_consistency",
+    "ui_api_model_parameters_links_equal": true,
+    "all_node_classes_registered": true,
+    "required_models_visible": true,
+    "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+  },
+  {
+    "mode": "t2i",
+    "ui_api_model_parameters_links_equal": true,
+    "all_node_classes_registered": true,
+    "required_models_visible": true,
+    "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+  }
+]

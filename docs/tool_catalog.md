@@ -1,4 +1,16 @@
+<!-- LTX25-CURRENT-START -->
+> **LTX-2.5 현재 상태 (2026-10-16T15:46:24.123116+00:00): ready_experimental.** T2V/I2V/FLF/T2A/A2V 짧은 실행 확인; Ingredients는 소품/장소 참조 시각 PASS, 정확 얼굴·청취는 pending. 이전 실패/접근 차단 문장은 당시 이력이다. [현재 사용 가이드](F:/Agent_media_tools/workflows/human/ltx25_official/AGENT_GUIDE.md)에서 시트 규칙·실패 양상·검증 입력/출력·정확 재현 명령·미검증 목록을 확인한다. [복구 진단](C:/Users/parkp/Documents/Codex/2026-10-16/task-8/INGREDIENTS_DIAGNOSIS.md).
+<!-- LTX25-CURRENT-END -->
+
 # 도구 카탈로그 — **의도 중심 공구함**
+
+## Higgs TTS 3 — original 8188 / ready_experimental
+
+Short Korean/English speech with official emotion tags and local-reference conditioning. Original Transformers 4.57.3 is preserved; a private Transformers 5 subprocess performs inference. Listening emotion/timbre QC and browser UI execution remain unverified. Creator content requires prominent Boson AI's Higgs Audio credit.
+
+`python scripts/generate_higgs3_tts.py -t "안녕하세요. 반갑습니다." --emotion elation -o F:/my_project/voice.wav`
+
+Guide: [Higgs TTS 3](../workflows/human/higgs3_tts/AGENT_GUIDE.md); measured matrix: `F:/Agent_media_sandboxes/higgs3/validation`. Existing locked VoiceDesign: use `generate_qwen3_tts.py`; singing: `generate_yue2_music.py`.
 
 `agent_custom` = ComfyUI 미디어 **도구 모음**.  
 에이전트는 **만들고 싶은 영상/컷에 맞게** 도구를 골라 조합한다.
@@ -101,8 +113,8 @@ Docs: [failure_notes_system.md](failure_notes_system.md) · Rule 7.4
 | 타이틀·간판 글자 | `generate_ideogram4` | 가벼운 타이포 |
 | 잡지·포스터 글자+인물 | `generate_boogu_typo` | Boogu→Ideogram→Krea |
 | 스틸 → 짧은 모션 (기본) | `generate_i2v` | LTX 2.3 I2V 기본 (단일 클립 ~4s/97f) |
-| **LTX 2.5 플래그십 (9모드 T2V/I2V/S2V)** | **`generate_ltx25_aio`** | LTX 2.5 22B + Gemma 4 (단일 클립 권장 **최대 10초** @ 24fps 768p) |
-| **시댄스급 T2V/I2V/R2V + 네이티브 오디오** | **`generate_minimax_h3_optimized`** | MiniMax H3 (단일 클립 권장 **최대 8초** @ 24fps 768p · 히어로/쇼츠) |
+| **LTX 2.5 명시 경로 (10모드 선언·실행 미검증)** | **`generate_ltx25_aio`** | LTX 2.5 22B + Gemma 4; 약10초 제작 권고, GPU/QC 미검증 |
+| **시댄스급 T2V/I2V/R2V + 네이티브 오디오** | **FL2VA: `generate_minimax_h3`; Ref2VA: `generate_minimax_h3_optimized`** | MiniMax H3 (단일 클립 권장 **최대 8초** @ 24fps 768p · 히어로/쇼츠) |
 | **카메라 무빙 (의도 I2V)** | `generate_camera_move` | push_in / pan / idle … (Comfy I2V) |
 | **아이들·루프** | `generate_idle_loop` | 대기 모션 + pingpong/roundtrip 루프 |
 | **댄스/레퍼 모션 (빠른 초안)** | `generate_dance_ref` | 레퍼 영상→캐릭 모션 (V2V LTX) |
@@ -413,23 +425,26 @@ python scripts/generate_ref_pack.py -i face.png -o dumps/my_ref_pack --profile d
 
 ### 2.4 MOTION — 스틸 → 영상
 
-#### MiniMax H3 — 개선 도구 우선
+#### MiniMax H3 — FL2VA 기본형 / Ref2VA 개선형
+
+운영 기준: [H3 반복 안정화 가이드](comfyui_h3_stability.md). 업데이트 후 로컬 KJNodes 보완과 실제 서버 옵션을 확인한다.
 
 | when | CLI | when not / 대안 |
 |---|---|---|
-| H3 T2V/I2V/FLF/R2V/V2V/AI2V, 숏츠·가로·세로 생성 | **`generate_minimax_h3_optimized`** | polish/carry/지원하지 않는 혼합 참조는 기존 H3; 정확한 WAV 립싱크는 s2v |
+| H3 T2V/I2V/FLF (FL2VA) | **`generate_minimax_h3`** (`work`/`native`, 단일 샘플링) | 15+5는 실험용 |
+| H3 R2V/V2V/AI2V (Ref2VA) | **`generate_minimax_h3_optimized`** | 7+1 유지; 정확한 WAV 립싱크는 s2v |
 
 ```bash
 python scripts/generate_minimax_h3_optimized.py --task r2v -i F:/my_project/stills/hero.png --aspect 9:16 --prompt-file F:/my_project/prompts/S01.txt -o F:/my_project/clips/S01.mp4 --seed 42
 ```
 
-기본 work/dense/5초. R2V는 기존 7+1 재사용, V2V·AI2V는 7+1, T2V·I2V·FLF는 모델에 맞는 15+5 + 메모리 최적화. 모두 샘플링 후 전체 모델 언로드 → VAE 디코딩. 세로는 `--aspect 9:16`; 가로 프리셋 제한을 이유로 기존 단일 패스에 복귀하지 않는다. [작업별 CLI·해상도·검증 범위](../workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md).
+FL2VA 계열 **T2V/I2V/FLF는 `scripts/generate_minimax_h3.py` 기본 단일 샘플링을 우선 사용**한다. `--profile work` 또는 `native`, 숏츠는 `--aspect 9:16`. `native_fast`, `--latent-upscale 2` 및 개선형 FL2VA 15+5는 현재 제작 기본값에서 제외하고 원인 분리 실험에만 사용한다. **R2V/V2V/AI2V는 `scripts/generate_minimax_h3_optimized.py` 우선**을 유지한다. FLF는 기본형의 VAE 전 모델 해제 보완 후 8초·576×1024 저장 성공을 확인했고, 네이티브 해상도 성공은 사용자가 보고했다. 2026-10-05 기본 I2V는 8초·576×1024 두 번과 직후 짧은 실행을 서버 재시작 없이 검증했다. T2V 및 native 고해상도 전체의 장시간 안정성 검증을 뜻하지 않는다.
 
 #### MiniMax H3 기존 이미지 참조 R2V — 호환 도구
 
 | 언제 | CLI | 언제 말고 |
 |---|---|---|
-| 이미지 참조 H3 반복 제작, 1MP/1080p급 | `generate_minimax_h3_7plus1` (`work`, `dense`, 5초 기본) | 일반 생성은 `generate_minimax_h3_optimized`; 미지원 특수 기능만 기존 도구 |
+| 이미지 참조 H3 반복 제작, 1MP/1080p급 | `generate_minimax_h3_7plus1` (`work`, `dense`, 5초 기본) | R2V/V2V/AI2V는 개선형; FL2VA는 기본형 단일 샘플링 |
 
 ```bat
 python scripts/generate_minimax_h3_7plus1.py -i F:/my_project/stills/hero.png --prompt-file F:/my_project/prompts/S01.txt -o F:/my_project/clips/S01.mp4 --seed 42
@@ -458,7 +473,7 @@ python scripts/generate_minimax_h3_7plus1.py -i F:/my_project/stills/hero.png --
 | wan22 노브 | `--cfg` · `--lora-strength-high/low` · `--wan-boundary` · frames≥81→steps≥6 · `--wan-long-edge`+`--wan-short-edge` | CFG×LoRA 표: [wan22_workflow_map](wan22_workflow_map.md) §3 · LX 레시피 §5.1 [speed research](wan22_i2v_speed_research.md) |
 | `generate_i2v --backend wan22_flf` | Wan first+last 폴백 | 품질 FLF 본선 = LTX flf |
 | **`generate_yaw_wan22`** | Wan 2.2 MoE T2V/I2V 쉬운 실 UI | 립 → s2v · 에피 본선 대체 아님 |
-| **`generate_ltx25_aio`** | **LTX 2.5 AIO** 9모드 (T2V/I2V/IA2V/FLF/V2V) + Gemma 4 12B | 단일 클립 권장 **최대 10초** (240f @ 24fps 768p). 10s 초과 시 경고 발생. 긴 컷은 last frame 체인 |
+| **`generate_ltx25_aio`** | **LTX 2.5 AIO** 10모드 선언 (T2V/I2V/IA2V/FLF/V2V) + Gemma 4 12B | 제작 권장 약10초·프레임 8n+1. GPU/QC 미검증. [버전 가이드](../workflows/human/LTX25_AIO_AGENT_GUIDE.md) |
 | **`generate_minimax_h3`** | **MiniMax H3** T2V/I2V/FL/R2V/**A2V** + **polish** + 네이티브 오디오 (시댄스급) | 단일 클립 권장 **최대 8초** (~192f @ 24fps 768p). 8s 초과 시 경고 발생. 에피 본선 I2V → LTX · 프로덕션 립 → s2v. 프로필 `draft\|work\|native\|hero` |
 | **`generate_flf2v`** | 첫·끝 프레임 연결 | 단일 키프레임 모션 → i2v |
 | **`generate_s2v`** | 이미지+오디오 연동 | 무음 순수 모션 → i2v |
@@ -813,3 +828,33 @@ python scripts/edit_qa_pack.py -i "%AGENT_WORKSPACE%/edits/s01/master.mp4" -o "%
 | `cover_music` | Short recording → melody score → generated vocal cover; optional requested voice reference | New composition, spoken TTS, unreviewed full-song batch | `python scripts/cover_music.py doctor` |
 
 [Working guide](../workflows/human/cover_music/AGENT_GUIDE.md) · [Skill](../skills/yue2-cover/SKILL.md). Keeps job IDs for recovery, base audio for voice variants, project-owned inputs/outputs and pending listening review.
+
+
+## FLUX3 Klein (original portable profile, 2026-10-16)
+
+`python scripts/generate_flux3.py --mode t2i --prompt-file workflows/human/flux3/prompts/t2i.txt -o F:/my_project/flux3.png`
+
+Original portable ComfyUI v0.41.1 at http://127.0.0.1:8188. Six API modes executed; T2I/edit/multi-reference/character/box final samples passed visual QC. Strict style transfer remains experimental after failed repairs. UI/API static equivalence passed; browser UI import/Queue untested. [Guide](../workflows/human/flux3/AGENT_GUIDE.md), [test matrix](../workflows/human/flux3/TEST_MATRIX.md). Original environment was backed up, core upgraded with local patches preserved, and8required packages changed while Torch/transformers retained.
+
+## LTX-2.5 version-isolated opt-in (2026-10-16)
+
+- Status: `ready_experimental`; files and nodes exist, GPU generation and visual/audio QA are not yet verified.
+- When: explicitly requested LTX-2.5 T2V/I2V/FLF/A2V inputs. `python scripts/generate_ltx25_aio.py --mode i2v -i first.png -p "The subject turns slowly; the camera remains static." -o D:/my_project/clip.mp4`
+- When not: generic legacy I2V/S2V still selects 2.3; keep that validated route. T2A and Ingredients require their dedicated official graphs.
+- Output success requires successful completed server history plus an existing nonempty output file. `.run.json` records render completion separately from QA.
+- Ten-second recommendation is a production choice; the official valid frame grid is `8n+1`. Negative-prompt influence is not guaranteed on CFG=1 distilled sampling.
+- Guide: [LTX25_AIO_AGENT_GUIDE](../workflows/human/LTX25_AIO_AGENT_GUIDE.md). Prompt input / Gemma4 enhancer / conservative production rules: [ltx25_video](../skills/generation-prompt/references/ltx25_video.md).
+
+
+## Latest LTX-2.5 validation (2026-10-16T15:25:12.160419+00:00)
+
+Eight short GPU runs completed on original8188: T2V quality/none, I2V, FLF, T2A, A2V, Ingredients twice. Basic visual motion checks and technical audio checks passed; full playback/listening and production identity remain pending. **Historical initial trials: both failed; subsequent repaired prop case visually PASSED**, despite successful exact 2.5 adapter loading/execution. See [official-derived task guide](../workflows/human/ltx25_official/AGENT_GUIDE.md) for commands, provenance and failures. Existing AIO quality LoRA policy and generic 2.3 defaults remain. No package/node updates or restart. Evidence: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/runtime-validation.json`. Earlier pending-stage entries below are historical and superseded by this entry.
+
+
+## Ingredients recovery update — 2026-10-16T15:42:42.646004+00:00
+
+Earlier two visual failures remain in history, but they are no longer the final result. A controlled untiled-only ablation failed; rebuilding the reference as one distinct prop panel plus a separate empty location and matching the positional inventory prompt removed the panel layout/dark occluder at the same seed4747, strength1, official768×448/121/24 bucket. This bounded prop/motion case visually PASSED. Black background is part of the official sheet contract and remains in the successful input; removing it is not the general fix. The individual contribution of image design versus wording is not isolated.
+
+The same INT8+new2.5 Ingredients stack also combined a published character/guitar/stage sheet into one scene; exact face/hair fidelity and listening remain pending. No general production identity guarantee. Detailed hypotheses, official/community confidence, actual API and contacts: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/INGREDIENTS_DIAGNOSIS.md`; latest records: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/ingredients-repair-status.json`.
+
+CLI Ingredients defaults are now5sec/768×448 with untiled reference encoding, strength1 and Euler ancestral. Community comparison controls are explicit `--adapter-strength 1.4 --sampler euler_ancestral_cfg_pp`; they do not replace the official default or original AIO quality policy. All prior T2A/A2V graphs and other successful paths are preserved. No new models/nodes/packages, no restart. Model remains only at `F:/model/loras/LTX2.5/ltx-2.5-22b-ic-lora-ingredients-0.9.safetensors`; Downloads duplicate absent and full SHA reverified.

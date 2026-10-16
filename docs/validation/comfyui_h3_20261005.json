@@ -1,0 +1,78 @@
+{
+  "runtime": "dynamic VRAM on; async offload 2 streams; reserve-vram 3; vram-headroom 2",
+  "server_pid": 36784,
+  "queue": "idle after three consecutive final-profile successes",
+  "memory_cleanup": "models unloaded after verification",
+  "final_runs": [
+    {
+      "test": "headroom2_short_after_long",
+      "seconds": 22.27,
+      "file": "F:\\ComfyUI_data\\output\\diagnostics\\20261005\\headroom2_short_after_long_00001_.mp4",
+      "decoded_frames": 22,
+      "size": [
+        480,
+        864
+      ],
+      "streams": [
+        {
+          "type": "video",
+          "duration_s": 0.9166666666666666
+        },
+        {
+          "type": "audio",
+          "duration_s": 0.917
+        }
+      ],
+      "decoded_audio_samples": 29696,
+      "contact_sheet": "F:\\ComfyUI_windows_portable\\tmp\\comfy_diag_20261005\\headroom2_short_after_long.frames.jpg"
+    },
+    {
+      "test": "headroom2_work_8s_1",
+      "seconds": 203.3,
+      "file": "F:\\ComfyUI_data\\output\\diagnostics\\20261005\\headroom2_work_8s_1_00001_.mp4",
+      "decoded_frames": 192,
+      "size": [
+        576,
+        1024
+      ],
+      "streams": [
+        {
+          "type": "video",
+          "duration_s": 8.0
+        },
+        {
+          "type": "audio",
+          "duration_s": 8.0
+        }
+      ],
+      "decoded_audio_samples": 256000,
+      "contact_sheet": "F:\\ComfyUI_windows_portable\\tmp\\comfy_diag_20261005\\headroom2_work_8s_1.frames.jpg"
+    },
+    {
+      "test": "headroom2_work_8s_2",
+      "seconds": 196.16,
+      "file": "F:\\ComfyUI_data\\output\\diagnostics\\20261005\\headroom2_work_8s_2_00001_.mp4",
+      "decoded_frames": 192,
+      "size": [
+        576,
+        1024
+      ],
+      "streams": [
+        {
+          "type": "video",
+          "duration_s": 8.0
+        },
+        {
+          "type": "audio",
+          "duration_s": 8.0
+        }
+      ],
+      "decoded_audio_samples": 256000,
+      "contact_sheet": "F:\\ComfyUI_windows_portable\\tmp\\comfy_diag_20261005\\headroom2_work_8s_2.frames.jpg"
+    }
+  ],
+  "validation": "2 graph/decode tests + 6 optimized runner tests passed; live repeated execution confirms cleanup is not cached",
+  "scope": "Base H3 I2V, 8s 576x1024 twice plus 0.9s 480x864; no universal stability claim",
+  "recorded_date": "2026-10-05",
+  "status_is_historical": true
+}

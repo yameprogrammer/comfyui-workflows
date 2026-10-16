@@ -122,3 +122,5 @@ scripts/             CLI
 lib/                 공유 코드
 characters|looks|locations|stories/
 ```
+
+**FLUX3 Klein / original portable8188:** [guide](../workflows/human/flux3/AGENT_GUIDE.md) / [test matrix](../workflows/human/flux3/TEST_MATRIX.md). API6 executed; strict style QC remains experimental; browser UI Queue untested.

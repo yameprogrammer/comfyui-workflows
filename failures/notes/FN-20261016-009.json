@@ -1,0 +1,30 @@
+{
+  "id": "FN-20261016-009",
+  "created_at": "2026-10-16T23:00:31+00:00",
+  "agent": "Codex",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "advanced_motion_quality",
+  "tags": [
+    "ltx25",
+    "retake",
+    "extension",
+    "union",
+    "control",
+    "qa"
+  ],
+  "symptom": "Temporal mask Retake runs but requested blue-ball rewrite fails; Union canny follows approximate ball path but tabletop geometry differs even after threshold repair.",
+  "root_cause": "Retake target adherence is not isolated. Noise-mask localization works relative to VAE roundtrip. Union control image omits weak wall/table boundary; lower thresholds do not recover a sufficient structural signal. No evidence of base-model/adapter version mismatch; exact2.3Union adapter is specified by official2.5example.",
+  "fix": "Keep runtime success separate from quality fail. Preserve source/control/output and codec-matched VAE baseline. Extension49to97works only as bounded video continuation; do not claim source-audio continuity or locked camera path. Do not install missing DFR/MotionTrack/In-Outpainting automatically.",
+  "prevention": "Check actual control signal before treating a failed structural output as incompatibility. Require source/roundtrip/probe evidence, target edit success and listening separately. Record exact missing model names/sizes/license/gates before any future install.",
+  "related_paths": [
+    "C:\\Users\\parkp\\Documents\\Codex\\2026-10-16\\task-8\\quality_validation_20261016_2208\\ADVANCED_REPORT.md",
+    "C:\\Users\\parkp\\Documents\\Codex\\2026-10-16\\task-8\\quality_validation_20261016_2208\\ADVANCED_RESULTS.json"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": [
+    "https://github.com/Lightricks/LTX-2/blob/main/packages/ltx-pipelines/docs/pipelines.md",
+    "https://docs.ltx.io/open-source-model/integration-tools/ic-lo-ra-adapters"
+  ]
+}

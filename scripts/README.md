@@ -71,8 +71,8 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 |----------|------|
 | **`generate_camera_move.py`** | 카메라 무빙 의도 I2V (`--preset push_in` 등) |
 | **`generate_previz.py`** | Blender 프리비즈 플레이트 → H3 `--ref-video` |
-| **`generate_minimax_h3_optimized.py`** | **H3 우선**: T2V/I2V/FLF/R2V/V2V/AI2V, 세로·가로, 메모리 최적화 |
-| `generate_minimax_h3.py` | 기존 특수 기능·polish·carry 호환 |
+| **`generate_minimax_h3_optimized.py`** | **R2V/V2V/AI2V 우선**. FL2VA(T2V/I2V/FLF)는 `generate_minimax_h3.py` 기본형 우선; 개선형 15+5는 실험용 |
+| `generate_minimax_h3.py` | **FL2VA T2V/I2V/FLF 기본 단일 샘플링** 및 polish·carry. [반복 안정화 운영 가이드](../docs/comfyui_h3_stability.md) |
 | **`generate_wan_animate2.py`** / `generate_wan22_animate.py` | 댄스 이식 (Animate-2 / ViTPose) |
 | **`generate_idle_loop.py`** | 아이들 모션 + 루프 (pingpong / roundtrip / idle) |
 | **`generate_dance_ref.py`** | 댄스/레퍼 모션 (V2V motion · i2v 스타일) |
@@ -191,3 +191,10 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 ## Cover smoke
 
 `python scripts/cover_music.py doctor` — staged YuE2/SheetSage2 cover CLI. Read [guide](../workflows/human/cover_music/AGENT_GUIDE.md); generated voice default, Seed-VC SVC optional. `cover_music_voice.py` is a worker for the audio Python, called by the parent CLI.
+
+
+## FLUX3 Klein (original portable profile, 2026-10-16)
+
+`python scripts/generate_flux3.py --mode t2i --prompt-file workflows/human/flux3/prompts/t2i.txt -o F:/my_project/flux3.png`
+
+Original portable ComfyUI v0.41.1 at http://127.0.0.1:8188. Six API modes executed; T2I/edit/multi-reference/character/box final samples passed visual QC. Strict style transfer remains experimental after failed repairs. UI/API static equivalence passed; browser UI import/Queue untested. [Guide](../workflows/human/flux3/AGENT_GUIDE.md), [test matrix](../workflows/human/flux3/TEST_MATRIX.md). Original environment was backed up, core upgraded with local patches preserved, and8required packages changed while Torch/transformers retained.

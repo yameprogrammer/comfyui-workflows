@@ -1,0 +1,27 @@
+{
+  "id": "FN-20261005-004",
+  "created_at": "2026-10-05T07:37:43+00:00",
+  "agent": "codex",
+  "episode_id": "mv001-invisible-cape",
+  "shot_id": null,
+  "stage": "motion",
+  "tags": [
+    "minimax_h3",
+    "reflection",
+    "lip_motion",
+    "hands",
+    "temporal_qa"
+  ],
+  "symptom": "MV rebuild R018 reflection blinked and turned independently; R022/R029 produced unintended speech; R027 laces formed an unsupported knot.",
+  "root_cause": "Observed temporal inconsistencies in generated motion. Exact model internals unknown. Repeating R018 motion with the same reflective still did not resolve the defect.",
+  "fix": "Removed narratively unnecessary reflection in a localized still edit, then adopted R018 v003. Simplified silent face and lace actions and adopted R022/R027/R029 v002 after dense region review.",
+  "prevention": "Inspect sparse full-clip samples first, then every frame of suspect face/reflection/contact regions. If repeated failures arise from an optional input structure, repair that input before retrying. Do not remove narratively required reflections by default.",
+  "related_paths": [
+    "D:/yame-film/docs/operations/mv-production-lessons-2026-10-05.md"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": [
+    "FN-20261005-001"
+  ]
+}

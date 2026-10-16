@@ -1,0 +1,21 @@
+{
+  "id": "FN-20261003-002",
+  "created_at": "2026-10-03T01:21:55+00:00",
+  "agent": "codex",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "clip",
+  "tags": [
+    "minimax_h3"
+  ],
+  "symptom": "Carry-from generation returned the 22-frame silent input preview instead of the completed 192-frame SaveVideo output.",
+  "root_cause": "extract_first_video selected node 220 LoadVideo UI input asset before node 92 SaveVideo output.",
+  "fix": "Recovered generated output from the same prompt history; project wrapper selects only a unique MP4 of type output. No repeated generation.",
+  "prevention": "Require type output and verify frame count plus audio stream when using video references.",
+  "related_paths": [
+    "D:/code-and-melody/ContentDocs/20261003-0925_CodeGirl-Hello/run_h3.py"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

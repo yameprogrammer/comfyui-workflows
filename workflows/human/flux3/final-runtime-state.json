@@ -1,0 +1,27 @@
+{
+  "utc": "2026-10-16T14:09:23.8421924Z",
+  "server": "http://127.0.0.1:8188",
+  "version": "0.41.1",
+  "python": "3.13.12 (tags/v3.13.12:1cbe481, Feb  3 2026, 18:22:25) [MSC v.1944 64 bit (AMD64)]",
+  "torch": "2.13.0+cu130",
+  "queue_idle": true,
+  "gpu_used_mib_and_util": "2327, 20",
+  "job_lock_present": false,
+  "isolated_server_listener": 0,
+  "argv": [
+    "ComfyUI\\main.py",
+    "--windows-standalone-build",
+    "--async-offload",
+    "2",
+    "--reserve-vram",
+    "3",
+    "--vram-headroom",
+    "2",
+    "--output-directory",
+    "F:\\ComfyUI_data\\output",
+    "--input-directory",
+    "F:\\ComfyUI_data\\input",
+    "--temp-directory",
+    "F:\\ComfyUI_data\\temp"
+  ]
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "mode": "t2i",
+    "references": 0,
+    "status": "See TEST_MATRIX.md for actual API/QC status; UI browser execution not tested",
+    "caption": "Studio photograph of a matte cobalt-blue ceramic teapot on a pale oak table. The teapot occupies the middle of a square frame, its curved spout pointing left and its round handle on the right. A small white cup rests in front of the teapot near frame-left. A broad window to the left casts soft daylight and a single diffuse shadow to the right. The background is a plain warm-gray plaster wall with subtle uneven texture. The tabletop has a few visible wood grain lines and the glaze has a tiny natural variation near the lid. The view is at tabletop height with both objects fully inside the frame, their bases resting on the same surface."
+  },
+  {
+    "mode": "single_edit",
+    "references": 1,
+    "status": "See TEST_MATRIX.md for actual API/QC status; UI browser execution not tested",
+    "caption": "Studio photograph preserving the teapot, white cup, table, framing, object positions, and soft left-hand daylight of <ref_image_0>. The same ceramic teapot now has a matte terracotta-red glaze, including the lid, curved spout and round handle. The cup remains white. The pale oak grain, warm-gray wall, and diffuse rightward shadows remain visible. The teapot retains its shape and scale, with lighting and reflections consistent with its new glaze."
+  },
+  {
+    "mode": "multi_reference",
+    "references": 2,
+    "status": "See TEST_MATRIX.md for actual API/QC status; UI browser execution not tested",
+    "caption": "Wide studio photograph of two separate ceramic teapots at equal scale on a pale oak table, viewed straight on from tabletop height. At frame-left, the complete cobalt-blue teapot <blue_pot> is taken from <ref_image_0>, including its domed lid, curved spout and round handle. At frame-right, the complete terracotta-red teapot <red_pot> is taken from <ref_image_1>, including its domed lid, curved spout and round handle. The two teapots are the same height and stand on the same depth plane. A wide strip of empty tabletop clearly separates their silhouettes; neither teapot overlaps or hides any part of the other. Every spout tip and handle is entirely inside the frame. The cups are removed, leaving exactly two teapots as the only objects on the table. The camera is pulled back enough to fit both complete objects and the gap between them. Soft daylight from the left casts consistent rightward shadows. The background is a warm-gray wall. [{\"id\":\"blue_pot\",\"bbox\":[300,30,850,440],\"desc\":\"Complete cobalt-blue teapot, same height as red teapot, fully visible including spout and handle\"},{\"id\":\"red_pot\",\"bbox\":[300,560,850,970],\"desc\":\"Complete terracotta-red teapot, same height as blue teapot, fully visible including spout and handle\"}]"
+  },
+  {
+    "mode": "character_consistency",
+    "references": 1,
+    "status": "See TEST_MATRIX.md for actual API/QC status; UI browser execution not tested",
+    "caption": "Full-color outdoor portrait photograph of the same adult woman from <ref_image_0>, now standing in the middle of an open garden. Preserve her recognizable face, jaw-length black bob, round black eyeglasses, nose freckles, silver stud earrings and teal crew-neck cotton shirt. Her entire head, both shoulders and upper torso are visible, facing the camera with a relaxed closed-mouth expression. Behind her, the entire background from the left edge to the right edge is outdoor green foliage and a winding pale gravel path. A low rough stone garden wall runs horizontally behind her at waist height. Open garden space surrounds her on both sides, with leaves and the path clearly visible between her shoulders and the frame edges. Soft overcast daylight lights her face evenly and matches the outdoor background. Replace the original indoor plaster wall, window and potted-plant setting completely with this open-air garden scene."
+  },
+  {
+    "mode": "style_consistency",
+    "references": 2,
+    "status": "See TEST_MATRIX.md for actual API/QC status; UI browser execution not tested",
+    "caption": "Convert the entire scene of <ref_image_0> into a loose hand-painted ink-and-watercolor illustration matching the painting technique of <ref_image_1>. Use the first image only for the arrangement and recognizable silhouettes of the blue teapot, white cup, table and left window. Use the second image for the visual medium across every surface. The teapot body is painted as broad transparent ultramarine pigment pools with irregular wet edges and cream-paper gaps; thin broken black ink strokes trace its cylindrical outline, lid, spout and handle. The cup is a simplified white paper shape with a few diluted gray brush marks. The tabletop consists of broad ochre brush strokes rather than detailed wood grain. The window and wall become loose pale green and gray washes. Rough cream watercolor paper grain is visible through the subjects and the background, and soft violet paint forms the shadows. The whole frame reads as a drawing on paper with visibly simplified painted forms."
+  },
+  {
+    "mode": "box_layout",
+    "references": 0,
+    "status": "See TEST_MATRIX.md for actual API/QC status; UI browser execution not tested",
+    "caption": "Studio photograph on a pale oak table with a cobalt-blue ceramic teapot <teapot> on the right and a white ceramic cup <cup> on the left. Both objects are fully inside the frame and rest on the same surface. Diffuse daylight enters from frame-left and casts soft shadows to the right. The backdrop is a plain warm-gray plaster wall. [{\"id\":\"cup\",\"bbox\":[480,100,800,350],\"desc\":\"A small white ceramic cup on the left\"},{\"id\":\"teapot\",\"bbox\":[200,520,800,920],\"desc\":\"A cobalt-blue teapot on the right, spout pointing left\"}]"
+  }
+]

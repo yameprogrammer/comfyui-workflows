@@ -17,6 +17,46 @@ from typing import Any
 # Card fields: id, shelf, cli, script, summary, when, when_not,
 # keywords, examples, alternatives[{if, use, cli}]
 INTENT_TOOLS: list[dict[str, Any]] = [
+    {'id': 'ltx25_official', 'shelf': 'MOTION', 'cli': 'python scripts/generate_ltx25_official.py', 'script': 'generate_ltx25_official.py', 'summary': 'LTX-2.5 T2A / A2V / Ingredients; bounded prop visual PASS, human identity/audio QA pending', 'when': 'Explicit LTX2.5 text-to-audio, audio-driven video, reference Ingredients experiment', 'when_not': 'Production-approved Ingredients identity; generic 2.3 route; unverified speech/lip-sync', 'keywords': ['ltx25 t2a', 'ltx25 a2v', 'ltx 2.5 audio', 'ltx25 ingredients', 'ingredients', 'generate_ltx25_official'], 'examples': ['python scripts/generate_ltx25_official.py --task a2v -a F:/my_project/source.wav -p "A forest stream flows; static camera." --seconds 2 -o F:/my_project/stream.mp4'], 'alternatives': [{'if': 'Basic T2V / I2V / FLF', 'use': 'ltx25_aio', 'cli': 'python scripts/generate_ltx25_aio.py --help'}]},
+    {
+        "id": "higgs3_tts",
+        "shelf": "VOICE",
+        "cli": "python scripts/generate_higgs3_tts.py",
+        "script": "generate_higgs3_tts.py",
+        "summary": "Local Higgs TTS 3 multilingual/emotion/reference speech through original ComfyUI; isolated Transformers 5 worker",
+        "when": "짧은 한국어·영어 대사, 감정 태그, 로컬 캐릭터 음성 참조; 새 음성은 매번 검수",
+        "when_not": "기존 Park Soft VoiceDesign 잠금은 Qwen3 유지; 장문·스트리밍·청감 품질은 미검증",
+        "keywords": [
+            "higgs",
+            "higgs3",
+            "higgs tts 3",
+            "tts",
+            "speech",
+            "감정",
+            "기쁨",
+            "슬픔",
+            "분노",
+            "음성",
+            "캐릭터 목소리"
+        ],
+        "examples": [
+            "python scripts/generate_higgs3_tts.py -t \"안녕하세요. 반갑습니다.\" --emotion elation -o F:/my_project/voice.wav",
+            "python scripts/generate_higgs3_tts.py --text-file F:/my_project/line.txt --ref-audio F:/my_project/ref.wav --ref-text-file F:/my_project/ref.txt -o F:/my_project/voice.wav"
+        ],
+        "alternatives": [
+            {
+                "if": "Locked production VoiceDesign",
+                "use": "qwen3_tts",
+                "cli": "python scripts/generate_qwen3_tts.py --help"
+            },
+            {
+                "if": "Singing/music rather than spoken dialogue",
+                "use": "generate_yue2_music",
+                "cli": "python scripts/generate_yue2_music.py --help"
+            }
+        ]
+    },
+    {'id': 'ltx25_aio', 'shelf': 'MOTION', 'cli': 'python scripts/generate_ltx25_aio.py', 'script': 'generate_ltx25_aio.py', 'summary': 'Explicit LTX-2.5 INT8 AIO; short T2V/I2V/FLF executed, broader QA pending', 'when': 'LTX2.5를 명시한 T2V/I2V/FLF 또는 입력 오디오 조건 영상; 레거시 2.3과 분리', 'when_not': '검증된 2.3 작업을 자동 이전하지 않음; T2A는 별도 공식 오디오 그래프; Ingredients는 전용 IC-LoRA 필요', 'keywords': ['ltx25', 'ltx2.5', 'ltx 2.5', 'generate_ltx25_aio', 'gemma4 video'], 'examples': ['python scripts/generate_ltx25_aio.py --mode i2v -i first.png -p "The subject turns slowly; the camera remains static." -o D:/my_project/clip.mp4'], 'alternatives': [{'if': '기존 2.3 I2V 경로 유지', 'use': 'generate_i2v', 'cli': 'python scripts/generate_i2v.py -i first.png -o D:/my_project/legacy.mp4'}, {'if': '2.5 실행/모델 요구사항과 검증 상태 확인', 'use': 'ltx25 guide', 'cli': 'python scripts/generate_ltx25_aio.py --help'}]},
     {'id': 'cover_music',
      'shelf': 'VOICE',
      'cli': 'python scripts/cover_music.py',
@@ -687,6 +727,7 @@ INTENT_TOOLS: list[dict[str, Any]] = [
             {"if": "애니 마스크", "use": "anima inpaint", "cli": "python scripts/generate_anima.py --mode inpaint -i c.png -m m.png -p \"...\" -o out.png"},
         ],
     },
+    {'id': 'still_flux3_klein', 'shelf': 'GENERATE', 'cli': 'python scripts/generate_flux3.py', 'script': 'generate_flux3.py', 'summary': 'FLUX3 distilled INT8 T2I / reference edit / multi-reference / boxes; original portable8188', 'when': 'FLUX3 generation, single edits, character reference and soft box layout on RTX4090', 'when_not': 'Strict style/content fidelity is experimental; no verified ControlNet, mask fill or LoRA workflow', 'keywords': ['flux3', 'flux 3', 'flux.3', '플럭스3', 'klein sd', 'multi reference', 'generate_flux3', 'flux3-isolated'], 'examples': ['python scripts/generate_flux3.py --mode t2i --prompt-file workflows/human/flux3/prompts/t2i.txt -o F:/my_project/still.png'], 'alternatives': []},
     {
         "id": "still_flux2_klein",
         "shelf": "GENERATE",
@@ -1586,11 +1627,11 @@ INTENT_TOOLS: list[dict[str, Any]] = [
                               'plate.mp4 --prompt-file prompt.txt -o F:/my_project/clips/plate.mp4'}]},
     {'id': 'minimax_h3',
      'shelf': 'MOTION',
-     'cli': 'python scripts/generate_minimax_h3_optimized.py',
-     'script': 'generate_minimax_h3_optimized.py',
-     'summary': 'MiniMax H3 개선 워크플로우 우선: T2V/I2V/FLF/R2V/V2V/AI2V + 네이티브 오디오',
-     'when': 'MiniMax H3 일반 생성·숏츠·세로·가로·시작 끝 프레임·이미지 영상 오디오 참조; 메모리 정리 후 VAE 디코딩',
-     'when_not': '정확한 원본 WAV 립싱크는 s2v; polish/carry/새 CLI가 지원하지 않는 혼합 참조는 사유를 기록하고 기존 H3',
+     'cli': 'python scripts/generate_minimax_h3.py',
+     'script': 'generate_minimax_h3.py',
+     'summary': 'MiniMax H3: FL2VA(T2V/I2V/FLF)는 기본 단일 샘플링 우선; R2V/V2V/AI2V는 optimized 우선',
+     'when': 'MiniMax H3 일반 생성·숏츠·이미지 영상 오디오 참조; VRAM 정체/반복 실행은 docs/comfyui_h3_stability.md 확인 (async 2, reserve 3, headroom 2 + 캐시 방지)',
+     'when_not': 'FL2VA native_fast/15+5는 실험용; 정확한 원본 WAV 립싱크는 s2v; polish/carry/새 CLI가 지원하지 않는 혼합 참조는 사유를 기록하고 기존 H3',
      'keywords': ['minimax',
                   'minimax h3',
                   'h3',
@@ -1613,14 +1654,14 @@ INTENT_TOOLS: list[dict[str, Any]] = [
                   'audio image to video',
                   'native audio',
                   'ref2va',
-                  'fl2va'],
+                  'fl2va', 'vram', 'hang', '정체', '반복 실행'],
      'examples': ['python scripts/generate_minimax_h3_optimized.py --task r2v -i hero.png --aspect 9:16 '
                   '--prompt-file prompt.txt -o F:/my_project/clip.mp4',
-                  'python scripts/generate_minimax_h3_optimized.py --task t2v -p "A quiet studio, natural '
+                  'python scripts/generate_minimax_h3.py --task t2v --profile work -p "A quiet studio, natural '
                   'movement" -o F:/my_project/clip.mp4',
-                  'python scripts/generate_minimax_h3_optimized.py --task i2v -i start.png -p "A small '
+                  'python scripts/generate_minimax_h3.py --task i2v --profile work -i start.png -p "A small '
                   'greeting gesture" -o F:/my_project/clip.mp4',
-                  'python scripts/generate_minimax_h3_optimized.py --task flf -i start.png --last end.png '
+                  'python scripts/generate_minimax_h3.py --task flf --profile work -i start.png --last end.png '
                   '-p "Continuous movement" -o F:/my_project/clip.mp4',
                   'python scripts/generate_minimax_h3_optimized.py --task v2v --ref-video plate.mp4 -p "Use '
                   '<Video 1> as the reference" -o F:/my_project/clip.mp4',

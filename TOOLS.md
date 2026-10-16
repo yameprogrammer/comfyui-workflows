@@ -1,4 +1,16 @@
+<!-- LTX25-CURRENT-START -->
+> **LTX-2.5 현재 상태 (2026-10-16T15:46:24.123116+00:00): ready_experimental.** T2V/I2V/FLF/T2A/A2V 짧은 실행 확인; Ingredients는 소품/장소 참조 시각 PASS, 정확 얼굴·청취는 pending. 이전 실패/접근 차단 문장은 당시 이력이다. [현재 사용 가이드](F:/Agent_media_tools/workflows/human/ltx25_official/AGENT_GUIDE.md)에서 시트 규칙·실패 양상·검증 입력/출력·정확 재현 명령·미검증 목록을 확인한다. [복구 진단](C:/Users/parkp/Documents/Codex/2026-10-16/task-8/INGREDIENTS_DIAGNOSIS.md).
+<!-- LTX25-CURRENT-END -->
+
 # TOOLS — 프로젝트 에이전트 입구
+
+## Higgs TTS 3 — original 8188 / ready_experimental
+
+Short Korean/English speech with official emotion tags and local-reference conditioning. Original Transformers 4.57.3 is preserved; a private Transformers 5 subprocess performs inference. Listening emotion/timbre QC and browser UI execution remain unverified. Creator content requires prominent Boson AI's Higgs Audio credit.
+
+`python scripts/generate_higgs3_tts.py -t "안녕하세요. 반갑습니다." --emotion elation -o F:/my_project/voice.wav`
+
+Guide: [Higgs TTS 3](workflows/human/higgs3_tts/AGENT_GUIDE.md); measured matrix: `F:/Agent_media_sandboxes/higgs3/validation`. Existing locked VoiceDesign: use `generate_qwen3_tts.py`; singing: `generate_yue2_music.py`.
 
 이 레포는 **ComfyUI 미디어 공구함**입니다.  
 정형 영상 양산 공정이 **아닙니다.** **결과물 창고도 아닙니다.**
@@ -61,11 +73,13 @@ python scripts/failure_note.py add --stage keyframe --tags ... --symptom "..." .
 Docs: [docs/failure_notes_system.md](docs/failure_notes_system.md) · Rule 7.4
 
 
-## MiniMax H3 — 개선 워크플로우 도구 우선
+## MiniMax H3 — 모델 계열별 기본 도구
 
-MiniMax H3의 T2V/I2V/시작·끝 프레임/R2V/V2V/AI2V 생성은 **`scripts/generate_minimax_h3_optimized.py`를 우선 사용**한다. `--task t2v|i2v|flf|r2v|v2v|ai2v`, 기본 `work`, `dense`, 5초다. 숏츠는 `--aspect 9:16`으로 지정하며 가로 프리셋만 있다는 이유로 구형 도구로 돌아가지 않는다. 폭·높이 직접 지정도 가능하다. R2V는 기존 검증된 7+1 프리셋을 재사용하고, V2V·AI2V는 7+1, T2V·I2V·FLF는 모델에 맞는 15+5와 메모리 최적화를 사용한다.
+실행 전 [H3 반복 안정화 가이드](docs/comfyui_h3_stability.md)를 따른다. 서버 설정·러너 정리 노드·로컬 KJNodes 캐시 방지를 함께 확인한다.
 
-가이드: [H3_OPTIMIZED_GUIDE](workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md). V2V는 영상 참조 생성, AI2V는 오디오+이미지 참조 생성이며 H3 생성 오디오를 저장한다. 원본 WAV를 그대로 입히거나 정확한 립싱크를 보장하지 않는다. `polish`, `carry-from`, 여러 영상·오디오의 혼합 참조 등 새 CLI가 노출하지 않는 기능이 필요한 경우에만 사유를 기록하고 기존 `generate_minimax_h3`를 사용한다. 잠긴 카메라는 먼저 `camera-previz`를 따르고, 필요한 이미지+참조 영상 입력을 지원하는 기존 경로를 유지한다. `generate_minimax_h3_7plus1`은 기존 R2V 호환 도구로 유지한다. 생성물과 리뷰는 호출하는 프로젝트에 저장하며 failure_note / generation-prompt / output-review 절차를 유지한다.
+FL2VA 계열 **T2V/I2V/FLF는 `scripts/generate_minimax_h3.py` 기본 단일 샘플링을 우선 사용**한다. `--profile work` 또는 `native`, 숏츠는 `--aspect 9:16`. `native_fast`, `--latent-upscale 2` 및 개선형 FL2VA 15+5는 현재 제작 기본값에서 제외하고 원인 분리 실험에만 사용한다. **R2V/V2V/AI2V는 `scripts/generate_minimax_h3_optimized.py` 우선**을 유지한다. FLF는 기본형의 VAE 전 모델 해제 보완 후 8초·576×1024 저장 성공을 확인했고, 네이티브 해상도 성공은 사용자가 보고했다. 2026-10-05 기본 I2V는 8초·576×1024 두 번과 직후 짧은 실행을 서버 재시작 없이 검증했다. T2V 및 native 고해상도 전체의 장시간 안정성 검증을 뜻하지 않는다.
+
+가이드: [H3_OPTIMIZED_GUIDE](workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md). V2V는 영상 참조 생성, AI2V는 오디오+이미지 참조 생성이며 H3 생성 오디오를 저장한다. 원본 WAV를 그대로 입히거나 정확한 립싱크를 보장하지 않는다. `generate_minimax_h3`는 FL2VA 기본 생성과 polish/carry/특수 혼합 참조에 사용한다. 잠긴 카메라는 먼저 `camera-previz`를 따르고, 필요한 이미지+참조 영상 입력을 지원하는 기존 경로를 유지한다. `generate_minimax_h3_7plus1`은 기존 R2V 호환 도구로 유지한다. 생성물과 리뷰는 호출하는 프로젝트에 저장하며 failure_note / generation-prompt / output-review 절차를 유지한다.
 
 ## 무엇을 읽나
 
@@ -98,7 +112,7 @@ MiniMax H3의 T2V/I2V/시작·끝 프레임/R2V/V2V/AI2V 생성은 **`scripts/ge
 
 > ⚠️ **영상 모델 단일 클립 최대 길이 가이드 (기준: 24fps @ 768p)**
 > - **MiniMax H3:** **최대 8초** (약 192프레임, 17k+5 그리드). 8초 초과 시 CLI 경고 발생. 롱테이크는 `--carry-from` 룸 체인이나 컷 분할 권장.
-> - **LTX 2.5:** **최대 10초** (240프레임). 10초 초과 시 CLI 경고 발생. 긴 시퀀스는 `flf` 브리지 또는 `last-frame` 체이닝 권장.
+> - **LTX 2.5:** 제작상 권장 약 10초이며 공식 하드 한도가 아님. 유효 프레임은 `8n+1`. 명시적 `generate_ltx25_aio`는 10모드 선언, GPU/QC 미검증(`ready_experimental`). 일반 I2V/S2V 기본은 기존 2.3 유지. [버전·검증 가이드](workflows/human/LTX25_AIO_AGENT_GUIDE.md).
 
 전체 표·카드·조합 예: **tool_catalog §1–§3**.
 
@@ -131,3 +145,17 @@ python scripts/<도구>.py ... -o <원하는_경로>
 ## YuE2 커버곡 스모크
 
 `python scripts/cover_music.py doctor` → [yue2-cover 스킬](skills/yue2-cover/SKILL.md) → [작업 가이드](workflows/human/cover_music/AGENT_GUIDE.md). 창작 보컬 기본, 레퍼런스 음색은 선택. 다운로드·채보·생성·결과 회수·내보내기.
+
+
+## Latest LTX-2.5 validation (2026-10-16T15:25:12.160419+00:00)
+
+Eight short GPU runs completed on original8188: T2V quality/none, I2V, FLF, T2A, A2V, Ingredients twice. Basic visual motion checks and technical audio checks passed; full playback/listening and production identity remain pending. **Historical initial trials: both failed; subsequent repaired prop case visually PASSED**, despite successful exact 2.5 adapter loading/execution. See [official-derived task guide](workflows/human/ltx25_official/AGENT_GUIDE.md) for commands, provenance and failures. Existing AIO quality LoRA policy and generic 2.3 defaults remain. No package/node updates or restart. Evidence: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/runtime-validation.json`. Earlier pending-stage entries below are historical and superseded by this entry.
+
+
+## Ingredients recovery update — 2026-10-16T15:42:42.646004+00:00
+
+Earlier two visual failures remain in history, but they are no longer the final result. A controlled untiled-only ablation failed; rebuilding the reference as one distinct prop panel plus a separate empty location and matching the positional inventory prompt removed the panel layout/dark occluder at the same seed4747, strength1, official768×448/121/24 bucket. This bounded prop/motion case visually PASSED. Black background is part of the official sheet contract and remains in the successful input; removing it is not the general fix. The individual contribution of image design versus wording is not isolated.
+
+The same INT8+new2.5 Ingredients stack also combined a published character/guitar/stage sheet into one scene; exact face/hair fidelity and listening remain pending. No general production identity guarantee. Detailed hypotheses, official/community confidence, actual API and contacts: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/INGREDIENTS_DIAGNOSIS.md`; latest records: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/ingredients-repair-status.json`.
+
+CLI Ingredients defaults are now5sec/768×448 with untiled reference encoding, strength1 and Euler ancestral. Community comparison controls are explicit `--adapter-strength 1.4 --sampler euler_ancestral_cfg_pp`; they do not replace the official default or original AIO quality policy. All prior T2A/A2V graphs and other successful paths are preserved. No new models/nodes/packages, no restart. Model remains only at `F:/model/loras/LTX2.5/ltx-2.5-22b-ic-lora-ingredients-0.9.safetensors`; Downloads duplicate absent and full SHA reverified.

@@ -1,4 +1,4 @@
-"""Preferred memory-managed H3 T2V/I2V/FLF/R2V/V2V/AI2V tool.
+"""Preferred H3 R2V/V2V/AI2V tool. T2V/I2V/FLF 15+5 is experimental; use generate_minimax_h3.py with work/native for FL2VA production.
 
   python scripts/generate_minimax_h3_optimized.py --task r2v -i hero.png --aspect 9:16 --prompt-file prompt.txt -o F:/my_project/clip.mp4
   python scripts/generate_minimax_h3_optimized.py --task v2v --ref-video plate.mp4 -p "Use <Video 1> as the reference" -o F:/my_project/clip.mp4

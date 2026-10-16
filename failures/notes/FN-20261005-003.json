@@ -1,0 +1,23 @@
+{
+  "id": "FN-20261005-003",
+  "created_at": "2026-10-05T07:36:49+00:00",
+  "agent": "codex",
+  "episode_id": "mv001-invisible-cape",
+  "shot_id": null,
+  "stage": "thumbnail",
+  "tags": [
+    "style_mismatch",
+    "viewer_expectation",
+    "reference_qa"
+  ],
+  "symptom": "Dedicated MV thumbnail v001 looked much more detailed than the actual animation; user said viewers could feel misled.",
+  "root_cause": "Cover composition and standalone image quality were reviewed without sufficiently enforcing the finished MV rendering style as the quality reference.",
+  "fix": "Keep dedicated cover composition but edit using actual MV frames and character keyframe as references; simplify linework, cel shading and texture, match baby clothing; user approved v002.",
+  "prevention": "Review cover beside actual final MV at full and mobile size. Match identity, clothes, line density, shading and texture while improving composition and title readability. Dedicated illustration must represent the actual work.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv001-invisible-cape/10-thumbnail_v002/QUALITY_REVIEW_v002.md"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

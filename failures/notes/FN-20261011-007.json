@@ -1,0 +1,26 @@
+{
+  "id": "FN-20261011-007",
+  "created_at": "2026-10-11T12:56:56+00:00",
+  "agent": "codex",
+  "episode_id": "mv006-crooked-yellow",
+  "shot_id": "S15",
+  "stage": "still",
+  "tags": [
+    "krea2",
+    "framing",
+    "paper",
+    "contact"
+  ],
+  "symptom": "MV006 watercolor look v001 cropped legs and invented memo touch; v002 still cropped legs and drew a tall lined memo at adult height.",
+  "root_cause": "Observed Krea2 semantic bias: wide and blank memo alone did not constrain subject scale or paper geometry. Model internal cause unverified.",
+  "fix": "v003 explicit small figures entire bodies shoes floor, arms beside hips, lower fridge yellow square uninterrupted surface. Actual image opened: full bodies and plain square achieved; paper still oversized for final S15.",
+  "prevention": "Specify visible frame edges, figure scale, arm pose and paper shape/surface/height positively; inspect native image. Keep style pass separate from final prop dimensions.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv006-crooked-yellow/03-design/krea2-look_v001/review_v003"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": [
+    "FN-20261011-001"
+  ]
+}

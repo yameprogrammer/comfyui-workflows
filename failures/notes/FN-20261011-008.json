@@ -1,0 +1,23 @@
+{
+  "id": "FN-20261011-008",
+  "created_at": "2026-10-11T13:02:56+00:00",
+  "agent": "codex",
+  "episode_id": "mv006-crooked-yellow",
+  "shot_id": "STYLE_B",
+  "stage": "keyframe",
+  "tags": [
+    "krea2",
+    "style",
+    "prompt_adherence"
+  ],
+  "symptom": "MV006 modern anime sample B rendered as simplified storybook illustration instead of polished contemporary animation",
+  "root_cause": "Observed style mismatch; exact model cause unknown. Softly graduated shading and background painting wording may favor a softer illustrative look.",
+  "fix": "Preserve B as rejected. Rewrite C with precise facial design, layered hair highlights, directional light and digital cel compositing; review actual output.",
+  "prevention": "Translate modern high quality into visible linework, facial detail, materials and compositing targets. Do not approve merely because output is 2D.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv006-crooked-yellow/03-design/krea2_style_v001/review_B/record.json"
+  ],
+  "severity": "low",
+  "user_visible": true,
+  "refs": []
+}

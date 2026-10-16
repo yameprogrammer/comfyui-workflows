@@ -1,0 +1,25 @@
+{
+  "id": "FN-20261011-006",
+  "created_at": "2026-10-11T12:12:57+00:00",
+  "agent": "root",
+  "episode_id": "mv005-learning-you-at-night",
+  "shot_id": null,
+  "stage": "edit_qa",
+  "tags": [
+    "ffmpeg",
+    "frame-extraction",
+    "subtitle-qa"
+  ],
+  "symptom": "Sparse selected image2 VFR QA sequence can repeat or substitute frames even when total image count matches, misleading subtitle-off frame labels.",
+  "root_cause": "Original sparse PTS and image-output synchronization; checking only selected count did not establish exact n-to-image mapping.",
+  "fix": "Preserved old QA; regenerated using select,setpts=N/(fps*TB),fps_mode=passthrough. Independently extracted n103 and verified pixel equality; reviewed corrected boards and ceil cue edges. Final media unchanged.",
+  "prevention": "Use passthrough and continuous selected-frame PTS for QA image sequences; compare at least one independently extracted subtitle-off n frame. Use ceil(time*fps) for fractional first/off boundaries.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv005-learning-you-at-night/09-shorts-production_v001/CURATOR_HARIN/qa/final_accurate_v002/FRAME_MAPPING_VALIDATION.json"
+  ],
+  "severity": "medium",
+  "user_visible": false,
+  "refs": [
+    "FN-20261005-006"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "id": "FN-20261008-007",
+  "created_at": "2026-10-08T18:17:29+00:00",
+  "agent": "MV003-local",
+  "episode_id": "mv003-autumn-fireworks",
+  "shot_id": "S39",
+  "stage": "video",
+  "tags": [
+    "h3",
+    "eye",
+    "reflection",
+    "continuity"
+  ],
+  "symptom": "MV003 S39 T01 tiny gold iris-edge point grows and travels across iris",
+  "root_cause": "Observed I2V reinterpretation of localized reflection and light fade; backend root cause unconfirmed",
+  "fix": "Preserve T01; one T02 repair anchors faint point at original outer-right iris edge with stable eye geometry and illumination",
+  "prevention": "Inspect all-frame eye contact and native mid/end; visibility alone does not prove point size/location continuity; maximum one repair",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv003-autumn-fireworks/11_production_v001_20261009/motion_tests/S39/T01_work_v001/qa/TECHNICAL_QA_v001.json"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

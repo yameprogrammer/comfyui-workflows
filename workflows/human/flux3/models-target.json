@@ -1,0 +1,38 @@
+{
+  "all_valid": true,
+  "files": [
+    {
+      "path": "F:\\model\\diffusion_models\\flux3\\flux3_image_klein_sd_int8_convrot.safetensors",
+      "expected_sha256": "847d8933548afd93df4af2cac2498e70891bf28d9dae06d695f536992e168fe2",
+      "expected_bytes": 5827874779,
+      "bytes": 5827874779,
+      "sha256": "847d8933548afd93df4af2cac2498e70891bf28d9dae06d695f536992e168fe2",
+      "tensor_count": 650,
+      "header_bytes": 70896,
+      "header_valid": true,
+      "valid": true
+    },
+    {
+      "path": "F:\\model\\text_encoders\\flux3\\qwen3vl_4b_int8_convrot.safetensors",
+      "expected_sha256": "32de113cbf8282b02cbff0794b637b9d6676da09314a1db5a30bcea9bf4ee01c",
+      "expected_bytes": 4858559240,
+      "bytes": 4858559240,
+      "sha256": "32de113cbf8282b02cbff0794b637b9d6676da09314a1db5a30bcea9bf4ee01c",
+      "tensor_count": 1219,
+      "header_bytes": 149976,
+      "header_valid": true,
+      "valid": true
+    },
+    {
+      "path": "F:\\model\\vae\\flux3\\flux2-vae.safetensors",
+      "expected_sha256": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3",
+      "expected_bytes": 336211292,
+      "bytes": 336211292,
+      "sha256": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3",
+      "tensor_count": 251,
+      "header_bytes": 25792,
+      "header_valid": true,
+      "valid": true
+    }
+  ]
+}

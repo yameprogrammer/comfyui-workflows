@@ -50,12 +50,38 @@ class H3OptimizedToolTests(unittest.TestCase):
         for task in ('i2v', 'flf'):
             api, _, _ = runner.build_prompt(**self.options(task))
             self.assertEqual(api['202']['inputs']['conditioning'], ['217', 0])
-            self.assertEqual(api['217']['inputs']['positive_conditioning'], ['214', 0])
+            self.assertEqual(api['217']['inputs']['positive_conditioning'], ['195', 1])
             self.assertEqual(api['214']['inputs']['width'], ['215', 1])
             self.assertEqual(api['215']['inputs']['expression'], 'a * 2')
             self.assertEqual(api['214']['inputs']['first_frame'], ['210', 0])
             if task == 'flf':
                 self.assertEqual(api['214']['inputs']['last_frame'], ['211', 0])
+
+    def test_sampling_waits_for_all_encoders_and_releases_models(self):
+        # Reachability matters: no encoding branch may reload a VAE after cleanup.
+        for task in ('i2v', 'flf'):
+            api, _, _ = runner.build_prompt(**self.options(task))
+            def ancestors(node):
+                result = set()
+                for value in api[node]['inputs'].values():
+                    if isinstance(value, list):
+                        parent = str(value[0])
+                        result.add(parent)
+                        result.update(ancestors(parent))
+                return result
+            for node in ('218', '219', '220'):
+                self.assertEqual(api[node]['class_type'], 'VRAM_Debug')
+                for flag in ('unload_all_models', 'empty_cache', 'gc_collect'):
+                    self.assertTrue(api[node]['inputs'][flag])
+            self.assertTrue({'141', '214'}.issubset(ancestors('218')))
+            self.assertIn('218', ancestors('125'))
+            self.assertEqual(api['220']['inputs']['any_input'], ['125', 1])
+            self.assertEqual(api['196']['inputs']['av_latent'], ['220', 0])
+            self.assertIn('220', ancestors('197'))
+            self.assertTrue({'125', '197'}.issubset(ancestors('219')))
+            self.assertIn('219', ancestors('203'))
+            self.assertEqual(api['195']['inputs']['negative_conditioning'], ['214', 0])
+            self.assertEqual(api['217']['inputs']['positive_conditioning'], ['195', 1])
 
     def test_reference_inputs_use_generated_audio_and_bounded_audio(self):
         api, _, _ = runner.build_prompt(**self.options('ai2v'))

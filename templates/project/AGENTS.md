@@ -49,7 +49,9 @@ Seedance, Kling, Gemini 영상, HeyGen, 그 밖의 클라우드 영상 API는 �
 
 ## 영상 (H3)
 
-H3 일반 생성은 `generate_minimax_h3_optimized.py`를 우선 사용한다 (`--task t2v|i2v|flf|r2v|v2v|ai2v`, work/dense/5초). 숏츠는 `--aspect 9:16`. R2V는 기존 7+1 프리셋 재사용. 가이드: `workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md`. 아래 기존 CLI는 polish/carry/미지원 특수 입력이 필요한 경우에만 사유를 기록하고 사용한다.
+FL2VA 계열 **T2V/I2V/FLF는 `scripts/generate_minimax_h3.py` 기본 단일 샘플링을 우선 사용**한다. `--profile work` 또는 `native`, 숏츠는 `--aspect 9:16`. `native_fast`, `--latent-upscale 2` 및 개선형 FL2VA 15+5는 현재 제작 기본값에서 제외하고 원인 분리 실험에만 사용한다. **R2V/V2V/AI2V는 `scripts/generate_minimax_h3_optimized.py` 우선**을 유지한다. FLF는 기본형의 VAE 전 모델 해제 보완 후 8초·576×1024 저장 성공을 확인했고, 네이티브 해상도 성공은 사용자가 보고했다. 2026-10-05 기본 I2V는 8초·576×1024 두 번과 직후 짧은 실행을 서버 재시작 없이 검증했다. T2V 및 native 고해상도 전체의 장시간 안정성 검증을 뜻하지 않는다.
+
+실행 전 공용 가이드 `F:/Agent_media_tools/docs/comfyui_h3_stability.md`를 읽는다. 이 프로젝트 템플릿 복사만으로 서버 설정이나 로컬 KJNodes 패치가 설치되지는 않는다.
 
 ```bat
 python scripts/generate_minimax_h3_optimized.py --task r2v --aspect 9:16 -i F:/my_project/stills/hero.png --prompt-file F:/my_project/prompts/S01.txt -o F:/my_project/clips/S01.mp4 --seed 42

@@ -1,0 +1,21 @@
+{
+  "id": "FN-20261016-002",
+  "created_at": "2026-10-16T13:12:17+00:00",
+  "agent": "codex",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "keyframe",
+  "tags": [
+    "flux3",
+    "reference",
+    "background"
+  ],
+  "symptom": "Character edit retained original indoor plaster wall when garden was requested",
+  "root_cause": "Reference background anchoring with weak whole-background replacement instruction",
+  "fix": "Name complete outdoor background and explicitly replace original wall/window",
+  "prevention": "Check new setting separately from face identity",
+  "related_paths": [],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

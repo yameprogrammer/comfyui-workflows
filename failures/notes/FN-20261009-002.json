@@ -1,0 +1,24 @@
+{
+  "id": "FN-20261009-002",
+  "created_at": "2026-10-09T11:00:30+00:00",
+  "agent": "codex",
+  "episode_id": "short001-channel-welcome",
+  "shot_id": "S01",
+  "stage": "motion",
+  "tags": [
+    "infinitetalk",
+    "body_motion",
+    "cfg",
+    "performance"
+  ],
+  "symptom": "Welcome S01 prompt-only stable-talk T01 retains torso bounce; sparse flow dy17.12px baseline to22.19px candidate with fixed background.",
+  "root_cause": "Observed unchanged whole-body acting despite new text at CFG1. Internal cause not established; prompt compliance hypothesis.",
+  "fix": "Reject T01; representative T02 planned with CFG3, actual padded silence and audio_scale1.2. Result pending.",
+  "prevention": "Measure torso relative to background and inspect chronological full body before batch. Locked tripod and still shoulders text do not establish stable acting. Keep lip intensity separate from body control.",
+  "related_paths": [
+    "D:/yame-film/content/projects/short001-channel-welcome/08-motion_revision_v004_20261009/candidates/S01/T01/qa/technical.json"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

@@ -1,0 +1,26 @@
+{
+  "id": "FN-20261005-010",
+  "created_at": "2026-10-05T23:13:26+09:00",
+  "agent": "codex",
+  "episode_id": "short001-channel-welcome",
+  "shot_id": "S02",
+  "stage": "motion",
+  "tags": [
+    "infinitetalk",
+    "expression",
+    "audio_tail",
+    "puckered_lips"
+  ],
+  "symptom": "Welcome Seah pilot S02 retains kiss-like puckered lips and exaggerated eyebrows after the spoken sentence, through3.88s.",
+  "root_cause": "Observed persistence after nearly no source trailing silence; model audio-tail behavior suspected but not yet isolated.",
+  "fix": "Actual driving PCM WAV padded with1.2s silence, audio_scale1.2 and calm closed-lip recovery prompt. S02 v003 all97 face frames reviewed: closed-mouth smile from2.7s through3.88s; S03 v003165 frames also recovers after speech. Multiple conditions changed; causal isolation not claimed. Original rejected clip preserved.",
+  "prevention": "Inspect post-speech frames, not only speaking segment. Use complete driving audio including intended silent reaction, and explicitly test closed-lip recovery before producing longer dialogue shots.",
+  "related_paths": [
+    "D:/yame-film/content/projects/short001-channel-welcome/05-shots/review_v003/S02/record.json",
+    "D:/yame-film/content/projects/short001-channel-welcome/05-shots/review_v003/S02_v003/record.json",
+    "D:/yame-film/content/projects/short001-channel-welcome/05-shots/review_v003/S03_v003/record.json"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

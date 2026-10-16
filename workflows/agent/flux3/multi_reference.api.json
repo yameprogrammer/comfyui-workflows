@@ -1,0 +1,139 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "flux3\\flux3_image_klein_sd_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "flux3\\qwen3vl_4b_int8_convrot.safetensors",
+      "type": "flux3",
+      "device": "default"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux3\\flux2-vae.safetensors"
+    }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "Wide studio photograph of two separate ceramic teapots at equal scale on a pale oak table, viewed straight on from tabletop height. At frame-left, the complete cobalt-blue teapot <blue_pot> is taken from <ref_image_0>, including its domed lid, curved spout and round handle. At frame-right, the complete terracotta-red teapot <red_pot> is taken from <ref_image_1>, including its domed lid, curved spout and round handle. The two teapots are the same height and stand on the same depth plane. A wide strip of empty tabletop clearly separates their silhouettes; neither teapot overlaps or hides any part of the other. Every spout tip and handle is entirely inside the frame. The cups are removed, leaving exactly two teapots as the only objects on the table. The camera is pulled back enough to fit both complete objects and the gap between them. Soft daylight from the left casts consistent rightward shadows. The background is a warm-gray wall. [{\"id\":\"blue_pot\",\"bbox\":[300,30,850,440],\"desc\":\"Complete cobalt-blue teapot, same height as red teapot, fully visible including spout and handle\"},{\"id\":\"red_pot\",\"bbox\":[300,560,850,970],\"desc\":\"Complete terracotta-red teapot, same height as blue teapot, fully visible including spout and handle\"}]"
+    }
+  },
+  "5": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "4",
+        0
+      ]
+    }
+  },
+  "6": {
+    "class_type": "EmptyFlux2LatentImage",
+    "inputs": {
+      "width": 1344,
+      "height": 768,
+      "batch_size": 1
+    }
+  },
+  "7": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "17",
+        0
+      ],
+      "negative": [
+        "17",
+        1
+      ],
+      "latent_image": [
+        "6",
+        0
+      ],
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "8": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "7",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "9": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "8",
+        0
+      ],
+      "filename_prefix": "flux3/multi_reference"
+    }
+  },
+  "11": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "flux3_reference_0.png"
+    }
+  },
+  "12": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "flux3_reference_1.png"
+    }
+  },
+  "17": {
+    "class_type": "ReferenceMultiLatent",
+    "inputs": {
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "resolution": "resize",
+      "resolution.megapixels": 1.0,
+      "images.image0": [
+        "11",
+        0
+      ],
+      "images.image1": [
+        "12",
+        0
+      ]
+    }
+  }
+}

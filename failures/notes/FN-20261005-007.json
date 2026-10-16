@@ -1,0 +1,25 @@
+{
+  "id": "FN-20261005-007",
+  "created_at": "2026-10-05T12:45:26+00:00",
+  "agent": "Codex",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "video",
+  "tags": [
+    "minimax_h3",
+    "vram",
+    "hang",
+    "cache"
+  ],
+  "symptom": "MiniMax H3 holds almost all VRAM at 0/20 Model Initializing; shortening duration and restarting alone do not reliably fix it.",
+  "root_cause": "Reproduced cacheable VRAM_Debug skipping warm-run cleanup, missing base pre-sampler unload, and dynamic/async/headroom-sensitive stalls. Internal CUDA wait site is not proven.",
+  "fix": "Base pre-sampling unload + non-cacheable VRAM_Debug + async offload 2, reserve-vram 3, vram-headroom 2 on this RTX 4090. See verified run histories.",
+  "prevention": "Do not disable async offload in this tested dynamic-VRAM profile. Verify cleanup survives KJNodes updates, regenerate API graphs, and test same-input/new-seed repeats at production resolution. Do not equate short smoke success with native-resolution stability.",
+  "related_paths": [
+    "F:\\ComfyUI_windows_portable\\tmp\\comfy_diag_20261005",
+    "F:\\Agent_media_tools\\workflows\\human\\minimax_h3\\H3_OPTIMIZED_GUIDE.md"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

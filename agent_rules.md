@@ -66,7 +66,7 @@ agent_custom/
   - Qwen: `generate_qwen_edit` · `generate_qwen_inpaint` · `generate_qwen_angle`
   - video: `generate_i2v` / `generate_s2v` (LTX AIO 기본, Wan fallback) · `generate_flf2v`
   - **댄스 이식:** `generate_wan_animate2` (Wan-Animate-2, 포즈 추출 없음) · `generate_wan22_animate` (ViTPose 얼굴 고정)
-  - **MiniMax H3** (시댄스급 T2V/I2V/R2V/**A2V** + polish + 네이티브 오디오): `generate_minimax_h3_optimized` 우선 (T2V/I2V/FLF/R2V/V2V/AI2V, `--aspect 9:16`); 개선 프로필 `draft|work|1080` · 기존 `generate_minimax_h3`는 polish/carry/미지원 특수 입력에 사용 · 가이드 `workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md` · **에피 본선 I2V 기본은 여전히 LTX**
+  - **MiniMax H3**: FL2VA 계열 **T2V/I2V/FLF는 `scripts/generate_minimax_h3.py` 기본 단일 샘플링을 우선 사용**한다. `--profile work` 또는 `native`, 숏츠는 `--aspect 9:16`. `native_fast`, `--latent-upscale 2` 및 개선형 FL2VA 15+5는 현재 제작 기본값에서 제외하고 원인 분리 실험에만 사용한다. **R2V/V2V/AI2V는 `scripts/generate_minimax_h3_optimized.py` 우선**을 유지한다. FLF는 기본형의 VAE 전 모델 해제 보완 후 8초·576×1024 저장 성공을 확인했고, 네이티브 해상도 성공은 사용자가 보고했다. 2026-10-05 기본 I2V는 8초·576×1024 두 번과 직후 짧은 실행을 서버 재시작 없이 검증했다. T2V 및 native 고해상도 전체의 장시간 안정성 검증을 뜻하지 않는다. 운영·재발 대응: [H3 안정화](docs/comfyui_h3_stability.md). 가이드: `workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md`.
   - LTX 품질 티어: `--ltx-profile draft|work|hero` (기본 work; 히어로 컷만 hero). 리서치: `docs/ltx23_quality_research_and_improvement.md`
   - NSFW video: `generate_ltx_nsfw_i2v` / `generate_ltx_nsfw_director` (18+) · `generate_wan22_nsfw_i2v` (18+, Wan)
   - TTS: `generate_qwen3_tts` (custom/design/**clone**) · `voice_register` — 클론 ref **≤~30s** · 감정 `--instruct` · 가이드 `workflows/human/qwen3_tts/AGENT_GUIDE.md`

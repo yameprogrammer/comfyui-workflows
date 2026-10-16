@@ -1,0 +1,26 @@
+{
+  "id": "FN-20261005-006",
+  "created_at": "2026-10-05T07:37:43+00:00",
+  "agent": "codex",
+  "episode_id": "mv001-invisible-cape",
+  "shot_id": null,
+  "stage": "qa",
+  "tags": [
+    "qa_scope",
+    "source_hash",
+    "subtitle_sync",
+    "audio_compare"
+  ],
+  "symptom": "Earlier MV passed technical checks despite visible quality defects; automatic subtitle alignment and frame sampling could be misread as full audiovisual approval.",
+  "root_cause": "Technical validity, sampled visual inspection, realtime listening, subtitle synchronization and user approval are different evidence scopes.",
+  "fix": "Rebuild records adopted source hashes, 45 clip verdicts, MP4 0.48-second visual samples, all 44 cut boundaries, three master visual samples and separate PCM/AAC audio comparisons. Unperformed playback/listening and draft SRT timing are explicit.",
+  "prevention": "Store exactly what was opened, measured and heard. Invalidate source approval on changed hashes. PCM equivalence does not prove lyric timing; auto-aligned lyrics require vocal synchronization review. Reuse unchanged evidence to avoid unnecessary quota consumption.",
+  "related_paths": [
+    "D:/yame-film/docs/operations/mv-production-lessons-2026-10-05.md"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": [
+    "FN-20261005-001"
+  ]
+}

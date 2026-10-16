@@ -1,0 +1,340 @@
+{
+  "prompt": {
+    "1": {
+      "class_type": "UNETLoader",
+      "inputs": {
+        "unet_name": "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    "2": {
+      "class_type": "CLIPLoader",
+      "inputs": {
+        "clip_name": "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "type": "ltxv",
+        "device": "default"
+      }
+    },
+    "3": {
+      "class_type": "VAELoader",
+      "inputs": {
+        "vae_name": "ltx-2.5-audio-vae-bf16.safetensors"
+      }
+    },
+    "4": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "2",
+          0
+        ],
+        "text": "A close-up side view of a shallow clear forest stream flowing steadily over small rounded stones. The camera remains static as ripples and small splashes move downstream. Soft daylight reflects on the water."
+      }
+    },
+    "5": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "2",
+          0
+        ],
+        "text": ""
+      }
+    },
+    "6": {
+      "class_type": "LTXVConditioning",
+      "inputs": {
+        "positive": [
+          "4",
+          0
+        ],
+        "negative": [
+          "5",
+          0
+        ],
+        "frame_rate": 24
+      }
+    },
+    "7": {
+      "class_type": "KSamplerSelect",
+      "inputs": {
+        "sampler_name": "euler_ancestral"
+      }
+    },
+    "8": {
+      "class_type": "ManualSigmas",
+      "inputs": {
+        "sigmas": "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0"
+      }
+    },
+    "9": {
+      "class_type": "VAELoader",
+      "inputs": {
+        "vae_name": "ltx-2.5-video-vae-bf16.safetensors"
+      }
+    },
+    "10": {
+      "class_type": "LoadAudio",
+      "inputs": {
+        "audio": "ltx25_622fcfa7f099.flac"
+      }
+    },
+    "11": {
+      "class_type": "TrimAudioDuration",
+      "inputs": {
+        "audio": [
+          "10",
+          0
+        ],
+        "start_index": 0.0,
+        "duration": 2.0
+      }
+    },
+    "12": {
+      "class_type": "LTXVAudioVAEEncode",
+      "inputs": {
+        "audio": [
+          "11",
+          0
+        ],
+        "audio_vae": [
+          "3",
+          0
+        ]
+      }
+    },
+    "13": {
+      "class_type": "SolidMask",
+      "inputs": {
+        "value": 0.0,
+        "width": 1024,
+        "height": 1024
+      }
+    },
+    "14": {
+      "class_type": "SetLatentNoiseMask",
+      "inputs": {
+        "samples": [
+          "12",
+          0
+        ],
+        "mask": [
+          "13",
+          0
+        ]
+      }
+    },
+    "15": {
+      "class_type": "EmptyLTXVLatentVideo",
+      "inputs": {
+        "width": 384,
+        "height": 256,
+        "length": 49,
+        "batch_size": 1
+      }
+    },
+    "16": {
+      "class_type": "LTXVConcatAVLatent",
+      "inputs": {
+        "video_latent": [
+          "15",
+          0
+        ],
+        "audio_latent": [
+          "14",
+          0
+        ]
+      }
+    },
+    "17": {
+      "class_type": "RandomNoise",
+      "inputs": {
+        "noise_seed": 4646
+      }
+    },
+    "18": {
+      "class_type": "CFGGuider",
+      "inputs": {
+        "model": [
+          "1",
+          0
+        ],
+        "positive": [
+          "6",
+          0
+        ],
+        "negative": [
+          "6",
+          1
+        ],
+        "cfg": 1.0
+      }
+    },
+    "19": {
+      "class_type": "SamplerCustomAdvanced",
+      "inputs": {
+        "noise": [
+          "17",
+          0
+        ],
+        "guider": [
+          "18",
+          0
+        ],
+        "sampler": [
+          "7",
+          0
+        ],
+        "sigmas": [
+          "8",
+          0
+        ],
+        "latent_image": [
+          "16",
+          0
+        ]
+      }
+    },
+    "20": {
+      "class_type": "LTXVSeparateAVLatent",
+      "inputs": {
+        "av_latent": [
+          "19",
+          0
+        ]
+      }
+    },
+    "21": {
+      "class_type": "LatentUpscaleModelLoader",
+      "inputs": {
+        "model_name": "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors"
+      }
+    },
+    "22": {
+      "class_type": "LTXVLatentUpsampler",
+      "inputs": {
+        "samples": [
+          "20",
+          0
+        ],
+        "upscale_model": [
+          "21",
+          0
+        ],
+        "vae": [
+          "9",
+          0
+        ]
+      }
+    },
+    "23": {
+      "class_type": "LTXVConcatAVLatent",
+      "inputs": {
+        "video_latent": [
+          "22",
+          0
+        ],
+        "audio_latent": [
+          "14",
+          0
+        ]
+      }
+    },
+    "24": {
+      "class_type": "ManualSigmas",
+      "inputs": {
+        "sigmas": "0.909375, 0.725, 0.421875, 0.0"
+      }
+    },
+    "25": {
+      "class_type": "RandomNoise",
+      "inputs": {
+        "noise_seed": 4647
+      }
+    },
+    "26": {
+      "class_type": "SamplerCustomAdvanced",
+      "inputs": {
+        "noise": [
+          "25",
+          0
+        ],
+        "guider": [
+          "18",
+          0
+        ],
+        "sampler": [
+          "7",
+          0
+        ],
+        "sigmas": [
+          "24",
+          0
+        ],
+        "latent_image": [
+          "23",
+          0
+        ]
+      }
+    },
+    "27": {
+      "class_type": "LTXVSeparateAVLatent",
+      "inputs": {
+        "av_latent": [
+          "26",
+          0
+        ]
+      }
+    },
+    "28": {
+      "class_type": "VAEDecodeTiled",
+      "inputs": {
+        "samples": [
+          "27",
+          0
+        ],
+        "vae": [
+          "9",
+          0
+        ],
+        "tile_size": 512,
+        "overlap": 64,
+        "temporal_size": 64,
+        "temporal_overlap": 8
+      }
+    },
+    "29": {
+      "class_type": "VHS_VideoCombine",
+      "inputs": {
+        "images": [
+          "28",
+          0
+        ],
+        "audio": [
+          "11",
+          0
+        ],
+        "frame_rate": 24,
+        "loop_count": 0,
+        "filename_prefix": "video/ltx25_a2v",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 18,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true
+      }
+    }
+  },
+  "metadata": {
+    "task": "a2v",
+    "frames": 49,
+    "fps": 24,
+    "base_width": 384,
+    "base_height": 256,
+    "prompt_enhance": false,
+    "quality_loras": "official reference graph has no added quality adapters",
+    "audio_policy": "input audio frozen in both sampling stages; original trimmed waveform muxed"
+  }
+}

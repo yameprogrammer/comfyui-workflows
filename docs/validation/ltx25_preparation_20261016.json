@@ -1,0 +1,147 @@
+{
+  "scope": "API expansion only; no queue, model load, GPU or media QA",
+  "results": [
+    {
+      "mode": "t2v",
+      "result": "pass",
+      "nodes": 71,
+      "missing_node_classes": [],
+      "models": [
+        "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "ltx-2.5-audio-vae-bf16.safetensors",
+        "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
+        "ltx-2.5-video-vae-bf16.safetensors"
+      ]
+    },
+    {
+      "mode": "i2v",
+      "result": "pass",
+      "nodes": 74,
+      "missing_node_classes": [],
+      "models": [
+        "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "ltx-2.5-audio-vae-bf16.safetensors",
+        "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
+        "ltx-2.5-video-vae-bf16.safetensors"
+      ]
+    },
+    {
+      "mode": "flf",
+      "result": "pass",
+      "nodes": 79,
+      "missing_node_classes": [],
+      "models": [
+        "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "ltx-2.5-audio-vae-bf16.safetensors",
+        "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
+        "ltx-2.5-video-vae-bf16.safetensors"
+      ]
+    },
+    {
+      "mode": "fml",
+      "result": "pass",
+      "nodes": 83,
+      "missing_node_classes": [],
+      "models": [
+        "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "ltx-2.5-audio-vae-bf16.safetensors",
+        "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
+        "ltx-2.5-video-vae-bf16.safetensors"
+      ]
+    },
+    {
+      "mode": "v2v",
+      "result": "pass",
+      "nodes": 84,
+      "missing_node_classes": [],
+      "models": [
+        "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "ltx-2.5-audio-vae-bf16.safetensors",
+        "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
+        "ltx-2.5-video-vae-bf16.safetensors"
+      ]
+    },
+    {
+      "mode": "t2v_audio",
+      "result": "pass",
+      "nodes": 75,
+      "missing_node_classes": [],
+      "models": [
+        "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "ltx-2.5-audio-vae-bf16.safetensors",
+        "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
+        "ltx-2.5-video-vae-bf16.safetensors"
+      ]
+    },
+    {
+      "mode": "i2v_audio",
+      "result": "pass",
+      "nodes": 78,
+      "missing_node_classes": [],
+      "models": [
+        "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "ltx-2.5-audio-vae-bf16.safetensors",
+        "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
+        "ltx-2.5-video-vae-bf16.safetensors"
+      ]
+    },
+    {
+      "mode": "flf_audio",
+      "result": "pass",
+      "nodes": 83,
+      "missing_node_classes": [],
+      "models": [
+        "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "ltx-2.5-audio-vae-bf16.safetensors",
+        "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
+        "ltx-2.5-video-vae-bf16.safetensors"
+      ]
+    },
+    {
+      "mode": "fml_audio",
+      "result": "pass",
+      "nodes": 87,
+      "missing_node_classes": [],
+      "models": [
+        "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "ltx-2.5-audio-vae-bf16.safetensors",
+        "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
+        "ltx-2.5-video-vae-bf16.safetensors"
+      ]
+    },
+    {
+      "mode": "v2v_audio",
+      "result": "pass",
+      "nodes": 88,
+      "missing_node_classes": [],
+      "models": [
+        "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "ltx-2.5-audio-vae-bf16.safetensors",
+        "ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
+        "ltx-2.5-video-vae-bf16.safetensors"
+      ]
+    },
+    {
+      "mode": "legacy_2.3_default_regression",
+      "result": "pass"
+    }
+  ],
+  "result_contract_tests": {
+    "passed": 4,
+    "failed": 0
+  },
+  "gpu_generation": "not_run",
+  "quality_review": "not_run",
+  "environment_changes": "none",
+  "resource_gate": "waiting_for_parent"
+}

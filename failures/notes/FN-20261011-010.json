@@ -1,0 +1,25 @@
+{
+  "id": "FN-20261011-010",
+  "created_at": "2026-10-11T14:14:23+00:00",
+  "agent": "codex",
+  "episode_id": "mv006-crooked-yellow",
+  "shot_id": null,
+  "stage": "reference_repair",
+  "tags": [
+    "qwen",
+    "instantx",
+    "inpaint",
+    "mask",
+    "block_noise"
+  ],
+  "symptom": "MV006 K_PM masked wall repair produced colored block noise inside white mask and softened image with both2511Q2 and2509Q5.",
+  "root_cause": "Unconfirmed pipeline/model/control compatibility or mask handling. Both models reproduce artifact; quantization or2511 alone is not established cause.",
+  "fix": "Reject K_PM_v004 and v005, preserve source and mask, switch to regular full-image lighting edit. No shared factory code changed.",
+  "prevention": "Directly open masked output at native size before pass. Confirm masked and unmasked regions, actual model settings and no encoded/noise artifact. Do not treat exit0 as repair completion.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv006-crooked-yellow/03-design/reference-pack_v001/spaces"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

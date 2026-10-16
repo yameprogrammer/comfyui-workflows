@@ -1,0 +1,24 @@
+{
+  "id": "FN-20261010-004",
+  "created_at": "2026-10-10T05:41:15+00:00",
+  "agent": "unknown",
+  "episode_id": "mv004-fogged-glasses",
+  "shot_id": "S25",
+  "stage": "motion",
+  "tags": [
+    "minimax_h3",
+    "i2v",
+    "glasses",
+    "hand_contact"
+  ],
+  "symptom": "MV004 S25 v001 keeps glasses coherent but cuff retreats and bare fingertips obscure lens; fabric wiping action is weak.",
+  "root_cause": "Observed contact-phase ambiguity from source pose and outward-stroke wording; model internal cause unverified.",
+  "fix": "Preserve failed take; v002 describes cuff pressed on lower-left lens throughout sideways stroke and bare fingertips on outside rim.",
+  "prevention": "Review every frame of cloth/lens contact; anatomy stability alone is not action approval.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv004-fogged-glasses/05-shots/h3_motion_tests_v001/qa_S25_v001/record.json"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

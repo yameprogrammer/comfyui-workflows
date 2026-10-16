@@ -1,8 +1,8 @@
 {
-  "id": "e44814f1-8642-4d92-b199-347dcc170006",
+  "id": "842cbe9a-14a6-4807-81bc-41ed371d612a",
   "revision": 0,
   "last_node_id": 300,
-  "last_link_id": 53,
+  "last_link_id": 57,
   "nodes": [
     {
       "id": 119,
@@ -35,8 +35,8 @@
           "type": "VAE",
           "links": [
             7,
-            29,
-            45
+            30,
+            46
           ]
         }
       ],
@@ -137,7 +137,7 @@
           "type": "NOISE",
           "links": [
             19,
-            35
+            36
           ]
         }
       ],
@@ -155,7 +155,7 @@
       "id": 121,
       "type": "VAEDecodeAudio",
       "pos": [
-        5720,
+        7280,
         100
       ],
       "size": [
@@ -246,8 +246,8 @@
           "links": [
             6,
             25,
-            44,
-            53
+            45,
+            54
           ]
         }
       ],
@@ -273,7 +273,7 @@
       "id": 126,
       "type": "BasicGuider",
       "pos": [
-        2080,
+        2600,
         100
       ],
       "size": [
@@ -302,7 +302,7 @@
           "name": "GUIDER",
           "type": "GUIDER",
           "links": [
-            36
+            37
           ]
         }
       ],
@@ -363,7 +363,7 @@
           "type": "INT",
           "links": [
             11,
-            49
+            50
           ]
         },
         {
@@ -463,7 +463,7 @@
           "name": "LATENT",
           "type": "LATENT",
           "links": [
-            39
+            40
           ]
         }
       ],
@@ -481,7 +481,7 @@
       "id": 144,
       "type": "VHS_VideoCombine",
       "pos": [
-        6240,
+        7800,
         100
       ],
       "size": [
@@ -673,7 +673,7 @@
           "name": "MODEL",
           "type": "MODEL",
           "links": [
-            26
+            27
           ]
         }
       ],
@@ -698,7 +698,7 @@
       "id": 196,
       "type": "LTXVSeparateAVLatent",
       "pos": [
-        3120,
+        4160,
         100
       ],
       "size": [
@@ -721,7 +721,7 @@
           "name": "video_latent",
           "type": "LATENT",
           "links": [
-            40
+            41
           ]
         },
         {
@@ -743,7 +743,7 @@
       "id": 198,
       "type": "LTXVConcatAVLatent",
       "pos": [
-        4160,
+        5200,
         100
       ],
       "size": [
@@ -772,7 +772,7 @@
           "name": "latent",
           "type": "LATENT",
           "links": [
-            23
+            56
           ]
         }
       ],
@@ -787,7 +787,7 @@
       "id": 203,
       "type": "SamplerCustomAdvanced",
       "pos": [
-        4680,
+        6240,
         100
       ],
       "size": [
@@ -839,7 +839,7 @@
           "name": "denoised_output",
           "type": "LATENT",
           "links": [
-            27
+            28
           ]
         }
       ],
@@ -882,7 +882,7 @@
           "name": "negative_conditioning",
           "shape": 7,
           "type": "CONDITIONING",
-          "link": null
+          "link": 26
         }
       ],
       "outputs": [
@@ -890,13 +890,15 @@
           "name": "Positive Conditioning",
           "type": "CONDITIONING",
           "links": [
-            4
+            55
           ]
         },
         {
           "name": "Negative Conditioning",
           "type": "CONDITIONING",
-          "links": []
+          "links": [
+            53
+          ]
         }
       ],
       "properties": {
@@ -904,7 +906,8 @@
         "ver": "0.7.100",
         "Node name for S&R": "DenoTextEncoderUnload"
       },
-      "widgets_values": []
+      "widgets_values": [],
+      "title": "두 해상도 조건 준비 완료 후 TE 해제 (출력 2 = 고해상도 조건)"
     },
     {
       "id": 191,
@@ -925,7 +928,7 @@
           "localized_name": "model",
           "name": "model",
           "type": "MODEL",
-          "link": 26
+          "link": 27
         },
         {
           "localized_name": "backend",
@@ -942,8 +945,8 @@
           "name": "model",
           "type": "MODEL",
           "links": [
-            30,
-            41
+            31,
+            42
           ]
         }
       ],
@@ -987,7 +990,7 @@
           "type": "SAMPLER",
           "links": [
             21,
-            37
+            38
           ]
         }
       ],
@@ -1004,7 +1007,7 @@
       "id": 204,
       "type": "VRAM_Debug",
       "pos": [
-        5200,
+        6760,
         100
       ],
       "size": [
@@ -1020,7 +1023,7 @@
           "name": "any_input",
           "shape": 7,
           "type": "*",
-          "link": 27
+          "link": 28
         },
         {
           "localized_name": "image_pass",
@@ -1070,7 +1073,7 @@
           "type": "*",
           "links": [
             1,
-            28
+            29
           ]
         },
         {
@@ -1110,7 +1113,7 @@
       "id": 122,
       "type": "VAEDecode",
       "pos": [
-        5720,
+        7280,
         345
       ],
       "size": [
@@ -1125,13 +1128,13 @@
           "localized_name": "samples",
           "name": "samples",
           "type": "LATENT",
-          "link": 28
+          "link": 29
         },
         {
           "localized_name": "vae",
           "name": "vae",
           "type": "VAE",
-          "link": 29
+          "link": 30
         }
       ],
       "outputs": [
@@ -1169,7 +1172,7 @@
           "localized_name": "model",
           "name": "model",
           "type": "MODEL",
-          "link": 30
+          "link": 31
         },
         {
           "localized_name": "Legacy QKV projection optimization",
@@ -1249,7 +1252,7 @@
           "name": "MODEL",
           "type": "MODEL",
           "links": [
-            31
+            32
           ]
         }
       ],
@@ -1273,7 +1276,7 @@
       "id": 202,
       "type": "BasicGuider",
       "pos": [
-        2080,
+        2600,
         345
       ],
       "size": [
@@ -1288,13 +1291,13 @@
           "localized_name": "model",
           "name": "model",
           "type": "MODEL",
-          "link": 31
+          "link": 32
         },
         {
           "localized_name": "conditioning",
           "name": "conditioning",
           "type": "CONDITIONING",
-          "link": 32
+          "link": 33
         }
       ],
       "outputs": [
@@ -1344,7 +1347,7 @@
           "type": "STRING",
           "links": [
             8,
-            46
+            47
           ]
         }
       ],
@@ -1379,7 +1382,7 @@
           "localized_name": "model",
           "name": "model",
           "type": "MODEL",
-          "link": 33
+          "link": 34
         },
         {
           "localized_name": "scheduler",
@@ -1414,7 +1417,7 @@
           "name": "SIGMAS",
           "type": "SIGMAS",
           "links": [
-            34
+            35
           ]
         }
       ],
@@ -1434,7 +1437,7 @@
       "type": "SplitSigmas",
       "pos": [
         2080,
-        590
+        100
       ],
       "size": [
         340,
@@ -1448,7 +1451,7 @@
           "localized_name": "sigmas",
           "name": "sigmas",
           "type": "SIGMAS",
-          "link": 34
+          "link": 35
         },
         {
           "localized_name": "step",
@@ -1465,7 +1468,7 @@
           "name": "high_sigmas",
           "type": "SIGMAS",
           "links": [
-            38
+            39
           ]
         },
         {
@@ -1489,7 +1492,7 @@
       "id": 125,
       "type": "SamplerCustomAdvanced",
       "pos": [
-        2600,
+        3120,
         100
       ],
       "size": [
@@ -1504,31 +1507,31 @@
           "localized_name": "noise",
           "name": "noise",
           "type": "NOISE",
-          "link": 35
+          "link": 36
         },
         {
           "localized_name": "guider",
           "name": "guider",
           "type": "GUIDER",
-          "link": 36
+          "link": 37
         },
         {
           "localized_name": "sampler",
           "name": "sampler",
           "type": "SAMPLER",
-          "link": 37
+          "link": 38
         },
         {
           "localized_name": "sigmas",
           "name": "sigmas",
           "type": "SIGMAS",
-          "link": 38
+          "link": 39
         },
         {
           "localized_name": "latent_image",
           "name": "latent_image",
           "type": "LATENT",
-          "link": 39
+          "link": 40
         }
       ],
       "outputs": [
@@ -1541,7 +1544,7 @@
           "name": "denoised_output",
           "type": "LATENT",
           "links": [
-            16
+            57
           ]
         }
       ],
@@ -1688,7 +1691,7 @@
           "type": "INT",
           "links": [
             9,
-            42
+            43
           ]
         },
         {
@@ -1696,7 +1699,7 @@
           "type": "INT",
           "links": [
             10,
-            43
+            44
           ]
         }
       ],
@@ -1772,7 +1775,7 @@
       "id": 197,
       "type": "MinimaxH3LatentUpscaler3D",
       "pos": [
-        3640,
+        4680,
         100
       ],
       "size": [
@@ -1787,7 +1790,7 @@
           "localized_name": "latent",
           "name": "latent",
           "type": "*",
-          "link": 40
+          "link": 41
         },
         {
           "localized_name": "model_name",
@@ -1905,7 +1908,7 @@
           "localized_name": "model",
           "name": "model",
           "type": "MODEL",
-          "link": 41
+          "link": 42
         },
         {
           "localized_name": "Legacy QKV projection optimization",
@@ -1986,7 +1989,7 @@
           "type": "MODEL",
           "links": [
             3,
-            33
+            34
           ]
         }
       ],
@@ -2046,7 +2049,7 @@
           "type": "IMAGE",
           "links": [
             12,
-            50
+            51
           ]
         },
         {
@@ -2118,7 +2121,7 @@
           "type": "IMAGE",
           "links": [
             13,
-            51
+            52
           ]
         },
         {
@@ -2163,73 +2166,6 @@
       ],
       "flags": {},
       "order": 30,
-      "mode": 0,
-      "inputs": [
-        {
-          "label": "a",
-          "localized_name": "a",
-          "name": "values.a",
-          "type": "FLOAT,INT,BOOLEAN",
-          "link": 42
-        },
-        {
-          "localized_name": "b",
-          "name": "values.b",
-          "shape": 7,
-          "type": "FLOAT,INT,BOOLEAN",
-          "link": null
-        },
-        {
-          "localized_name": "expression",
-          "name": "expression",
-          "type": "STRING",
-          "widget": {
-            "name": "expression"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "FLOAT",
-          "type": "FLOAT",
-          "links": []
-        },
-        {
-          "name": "INT",
-          "type": "INT",
-          "links": [
-            47
-          ]
-        },
-        {
-          "name": "BOOL",
-          "type": "BOOLEAN",
-          "links": []
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.30.0",
-        "Node name for S&R": "ComfyMathExpression"
-      },
-      "widgets_values": [
-        "a * 2"
-      ]
-    },
-    {
-      "id": 216,
-      "type": "ComfyMathExpression",
-      "pos": [
-        520,
-        835
-      ],
-      "size": [
-        340,
-        180
-      ],
-      "flags": {},
-      "order": 31,
       "mode": 0,
       "inputs": [
         {
@@ -2285,6 +2221,73 @@
       ]
     },
     {
+      "id": 216,
+      "type": "ComfyMathExpression",
+      "pos": [
+        520,
+        835
+      ],
+      "size": [
+        340,
+        180
+      ],
+      "flags": {},
+      "order": 31,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "a",
+          "localized_name": "a",
+          "name": "values.a",
+          "type": "FLOAT,INT,BOOLEAN",
+          "link": 44
+        },
+        {
+          "localized_name": "b",
+          "name": "values.b",
+          "shape": 7,
+          "type": "FLOAT,INT,BOOLEAN",
+          "link": null
+        },
+        {
+          "localized_name": "expression",
+          "name": "expression",
+          "type": "STRING",
+          "widget": {
+            "name": "expression"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": []
+        },
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            49
+          ]
+        },
+        {
+          "name": "BOOL",
+          "type": "BOOLEAN",
+          "links": []
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.30.0",
+        "Node name for S&R": "ComfyMathExpression"
+      },
+      "widgets_values": [
+        "a * 2"
+      ]
+    },
+    {
       "id": 214,
       "type": "MiniMaxH3ImageToVideo",
       "pos": [
@@ -2302,29 +2305,29 @@
         {
           "name": "clip",
           "type": "CLIP",
-          "link": 44
+          "link": 45
         },
         {
           "name": "vae",
           "type": "VAE",
-          "link": 45
+          "link": 46
         },
         {
           "name": "first_frame",
-          "type": "IMAGE",
-          "link": 50,
-          "shape": 7
-        },
-        {
-          "name": "last_frame",
           "type": "IMAGE",
           "link": 51,
           "shape": 7
         },
         {
+          "name": "last_frame",
+          "type": "IMAGE",
+          "link": 52,
+          "shape": 7
+        },
+        {
           "name": "prompt",
           "type": "STRING",
-          "link": 46,
+          "link": 47,
           "widget": {
             "name": "prompt"
           }
@@ -2332,7 +2335,7 @@
         {
           "name": "width",
           "type": "INT",
-          "link": 47,
+          "link": 48,
           "widget": {
             "name": "width"
           }
@@ -2340,7 +2343,7 @@
         {
           "name": "height",
           "type": "INT",
-          "link": 48,
+          "link": 49,
           "widget": {
             "name": "height"
           }
@@ -2348,7 +2351,7 @@
         {
           "name": "length",
           "type": "INT",
-          "link": 49,
+          "link": 50,
           "widget": {
             "name": "length"
           }
@@ -2359,7 +2362,7 @@
           "name": "positive",
           "type": "CONDITIONING",
           "links": [
-            52
+            26
           ]
         },
         {
@@ -2382,8 +2385,8 @@
       "id": 217,
       "type": "DenoTextEncoderUnload",
       "pos": [
-        1560,
-        590
+        2080,
+        345
       ],
       "size": [
         340,
@@ -2397,13 +2400,13 @@
           "localized_name": "Positive Conditioning",
           "name": "positive_conditioning",
           "type": "CONDITIONING",
-          "link": 52
+          "link": 53
         },
         {
           "localized_name": "Text Encoder (CLIP)",
           "name": "text_encoder",
           "type": "CLIP",
-          "link": 53
+          "link": 54
         },
         {
           "localized_name": "Negative Conditioning",
@@ -2418,7 +2421,7 @@
           "name": "Positive Conditioning",
           "type": "CONDITIONING",
           "links": [
-            32
+            33
           ]
         },
         {
@@ -2435,6 +2438,321 @@
       "widgets_values": []
     },
     {
+      "id": 218,
+      "type": "VRAM_Debug",
+      "pos": [
+        2080,
+        590
+      ],
+      "size": [
+        340,
+        233
+      ],
+      "flags": {},
+      "order": 34,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "any_input",
+          "name": "any_input",
+          "shape": 7,
+          "type": "*",
+          "link": 55
+        },
+        {
+          "localized_name": "image_pass",
+          "name": "image_pass",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "model_pass",
+          "name": "model_pass",
+          "shape": 7,
+          "type": "MODEL",
+          "link": null
+        },
+        {
+          "localized_name": "empty_cache",
+          "name": "empty_cache",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "empty_cache"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "gc_collect",
+          "name": "gc_collect",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "gc_collect"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "unload_all_models",
+          "name": "unload_all_models",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "unload_all_models"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "any_output",
+          "type": "*",
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "image_pass",
+          "type": "IMAGE",
+          "links": []
+        },
+        {
+          "name": "model_pass",
+          "type": "MODEL",
+          "links": []
+        },
+        {
+          "name": "freemem_before",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "freemem_after",
+          "type": "INT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "3f20054214fec9f9234fd3841ae6f1e4287948f6",
+        "Node name for S&R": "VRAM_Debug"
+      },
+      "widgets_values": [
+        true,
+        true,
+        true
+      ],
+      "title": "1차 샘플링 전 TE·VAE 전체 해제"
+    },
+    {
+      "id": 219,
+      "type": "VRAM_Debug",
+      "pos": [
+        5720,
+        100
+      ],
+      "size": [
+        340,
+        233
+      ],
+      "flags": {},
+      "order": 35,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "any_input",
+          "name": "any_input",
+          "shape": 7,
+          "type": "*",
+          "link": 56
+        },
+        {
+          "localized_name": "image_pass",
+          "name": "image_pass",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "model_pass",
+          "name": "model_pass",
+          "shape": 7,
+          "type": "MODEL",
+          "link": null
+        },
+        {
+          "localized_name": "empty_cache",
+          "name": "empty_cache",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "empty_cache"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "gc_collect",
+          "name": "gc_collect",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "gc_collect"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "unload_all_models",
+          "name": "unload_all_models",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "unload_all_models"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "any_output",
+          "type": "*",
+          "links": [
+            23
+          ]
+        },
+        {
+          "name": "image_pass",
+          "type": "IMAGE",
+          "links": []
+        },
+        {
+          "name": "model_pass",
+          "type": "MODEL",
+          "links": []
+        },
+        {
+          "name": "freemem_before",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "freemem_after",
+          "type": "INT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "3f20054214fec9f9234fd3841ae6f1e4287948f6",
+        "Node name for S&R": "VRAM_Debug"
+      },
+      "widgets_values": [
+        true,
+        true,
+        true
+      ],
+      "title": "업스케일 완료 후 2차 샘플링 전 모델 해제"
+    },
+    {
+      "id": 220,
+      "type": "VRAM_Debug",
+      "pos": [
+        3640,
+        100
+      ],
+      "size": [
+        340,
+        233
+      ],
+      "flags": {},
+      "order": 36,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "any_input",
+          "name": "any_input",
+          "shape": 7,
+          "type": "*",
+          "link": 57
+        },
+        {
+          "localized_name": "image_pass",
+          "name": "image_pass",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "model_pass",
+          "name": "model_pass",
+          "shape": 7,
+          "type": "MODEL",
+          "link": null
+        },
+        {
+          "localized_name": "empty_cache",
+          "name": "empty_cache",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "empty_cache"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "gc_collect",
+          "name": "gc_collect",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "gc_collect"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "unload_all_models",
+          "name": "unload_all_models",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "unload_all_models"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "any_output",
+          "type": "*",
+          "links": [
+            16
+          ]
+        },
+        {
+          "name": "image_pass",
+          "type": "IMAGE",
+          "links": []
+        },
+        {
+          "name": "model_pass",
+          "type": "MODEL",
+          "links": []
+        },
+        {
+          "name": "freemem_before",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "freemem_after",
+          "type": "INT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "3f20054214fec9f9234fd3841ae6f1e4287948f6",
+        "Node name for S&R": "VRAM_Debug"
+      },
+      "widgets_values": [
+        true,
+        true,
+        true
+      ],
+      "title": "1차 샘플링 완료 후 업스케일 전 생성 모델 해제"
+    },
+    {
       "id": 300,
       "type": "Note",
       "pos": [
@@ -2446,7 +2764,7 @@
         300
       ],
       "flags": {},
-      "order": 34,
+      "order": 37,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -2486,11 +2804,11 @@
     ],
     [
       4,
-      195,
+      218,
       0,
       126,
       1,
-      "CONDITIONING"
+      "*"
     ],
     [
       5,
@@ -2582,11 +2900,11 @@
     ],
     [
       16,
-      125,
-      1,
+      220,
+      0,
       196,
       0,
-      "LATENT"
+      "*"
     ],
     [
       17,
@@ -2638,11 +2956,11 @@
     ],
     [
       23,
-      198,
+      219,
       0,
       203,
       4,
-      "LATENT"
+      "*"
     ],
     [
       24,
@@ -2662,6 +2980,14 @@
     ],
     [
       26,
+      214,
+      0,
+      195,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      27,
       127,
       0,
       191,
@@ -2669,7 +2995,7 @@
       "MODEL"
     ],
     [
-      27,
+      28,
       203,
       1,
       204,
@@ -2677,7 +3003,7 @@
       "LATENT"
     ],
     [
-      28,
+      29,
       204,
       0,
       122,
@@ -2685,7 +3011,7 @@
       "*"
     ],
     [
-      29,
+      30,
       119,
       0,
       122,
@@ -2693,7 +3019,7 @@
       "VAE"
     ],
     [
-      30,
+      31,
       191,
       0,
       201,
@@ -2701,7 +3027,7 @@
       "MODEL"
     ],
     [
-      31,
+      32,
       201,
       0,
       202,
@@ -2709,7 +3035,7 @@
       "MODEL"
     ],
     [
-      32,
+      33,
       217,
       0,
       202,
@@ -2717,7 +3043,7 @@
       "CONDITIONING"
     ],
     [
-      33,
+      34,
       190,
       0,
       185,
@@ -2725,7 +3051,7 @@
       "MODEL"
     ],
     [
-      34,
+      35,
       185,
       0,
       194,
@@ -2733,7 +3059,7 @@
       "SIGMAS"
     ],
     [
-      35,
+      36,
       129,
       0,
       125,
@@ -2741,7 +3067,7 @@
       "NOISE"
     ],
     [
-      36,
+      37,
       126,
       0,
       125,
@@ -2749,7 +3075,7 @@
       "GUIDER"
     ],
     [
-      37,
+      38,
       184,
       0,
       125,
@@ -2757,7 +3083,7 @@
       "SAMPLER"
     ],
     [
-      38,
+      39,
       194,
       0,
       125,
@@ -2765,7 +3091,7 @@
       "SIGMAS"
     ],
     [
-      39,
+      40,
       141,
       1,
       125,
@@ -2773,7 +3099,7 @@
       "LATENT"
     ],
     [
-      40,
+      41,
       196,
       0,
       197,
@@ -2781,7 +3107,7 @@
       "LATENT"
     ],
     [
-      41,
+      42,
       191,
       0,
       190,
@@ -2789,7 +3115,7 @@
       "MODEL"
     ],
     [
-      42,
+      43,
       145,
       1,
       215,
@@ -2797,7 +3123,7 @@
       "INT"
     ],
     [
-      43,
+      44,
       145,
       2,
       216,
@@ -2805,7 +3131,7 @@
       "INT"
     ],
     [
-      44,
+      45,
       128,
       0,
       214,
@@ -2813,7 +3139,7 @@
       "CLIP"
     ],
     [
-      45,
+      46,
       119,
       0,
       214,
@@ -2821,7 +3147,7 @@
       "VAE"
     ],
     [
-      46,
+      47,
       186,
       0,
       214,
@@ -2829,7 +3155,7 @@
       "STRING"
     ],
     [
-      47,
+      48,
       215,
       1,
       214,
@@ -2837,7 +3163,7 @@
       "INT"
     ],
     [
-      48,
+      49,
       216,
       1,
       214,
@@ -2845,7 +3171,7 @@
       "INT"
     ],
     [
-      49,
+      50,
       131,
       1,
       214,
@@ -2853,7 +3179,7 @@
       "INT"
     ],
     [
-      50,
+      51,
       210,
       0,
       214,
@@ -2861,7 +3187,7 @@
       "IMAGE"
     ],
     [
-      51,
+      52,
       211,
       0,
       214,
@@ -2869,20 +3195,44 @@
       "IMAGE"
     ],
     [
-      52,
-      214,
-      0,
+      53,
+      195,
+      1,
       217,
       0,
       "CONDITIONING"
     ],
     [
-      53,
+      54,
       128,
       0,
       217,
       1,
       "CLIP"
+    ],
+    [
+      55,
+      195,
+      0,
+      218,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      56,
+      198,
+      0,
+      219,
+      0,
+      "LATENT"
+    ],
+    [
+      57,
+      125,
+      1,
+      220,
+      0,
+      "LATENT"
     ]
   ],
   "groups": [],

@@ -1,0 +1,27 @@
+{
+  "id": "FN-20261005-005",
+  "created_at": "2026-10-05T07:37:43+00:00",
+  "agent": "codex",
+  "episode_id": "mv001-invisible-cape",
+  "shot_id": null,
+  "stage": "edit",
+  "tags": [
+    "fps",
+    "trim",
+    "concat",
+    "frame_count",
+    "endpoint"
+  ],
+  "symptom": "Mixed source/output frame grids and nested concat required endpoint correction in the direct-cut MV timeline.",
+  "root_cause": "Time-based clip trims and output-frame rounding can disagree at joins. This is a local compiler integration observation, not a universal FFmpeg defect.",
+  "fix": "Project renderer converts to target fps before frame-index trims, performs one concat, and resets PTS on the output grid. Final 274.880-second render decoded to 6872 frames at 25fps with valid frame steps.",
+  "prevention": "For direct cuts, allocate output frame counts explicitly and verify final decode, cut boundaries, end frame and audio offset. This project adaptation rejects transitions; do not copy it to transition timelines without validation.",
+  "related_paths": [
+    "D:/yame-film/docs/operations/mv-production-lessons-2026-10-05.md"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": [
+    "FN-20261005-001"
+  ]
+}

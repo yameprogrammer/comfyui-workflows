@@ -1,0 +1,2361 @@
+{
+  "updated_utc": "2026-10-16T14:10:43.616497+00:00",
+  "status": "INTEGRATED_IN_ORIGINAL_PORTABLE",
+  "server": "http://127.0.0.1:8188",
+  "portable_root": "F:\\ComfyUI_windows_portable",
+  "backup": "F:\\backups\\ComfyUI_before_flux3_20261016",
+  "six_modes_execution_success": true,
+  "six_modes_visual_qc_pass_count": 5,
+  "style_qc": "FAIL_STRICT_STYLE_CONTENT_FIDELITY_EXPERIMENTAL",
+  "ui_browser_execution": "NOT_TESTED_RUNTIME_UNAVAILABLE",
+  "ui_api_static_equivalence": [
+    {
+      "mode": "box_layout",
+      "ui_api_model_parameters_links_equal": true,
+      "all_node_classes_registered": true,
+      "required_models_visible": true,
+      "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+    },
+    {
+      "mode": "character_consistency",
+      "ui_api_model_parameters_links_equal": true,
+      "all_node_classes_registered": true,
+      "required_models_visible": true,
+      "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+    },
+    {
+      "mode": "multi_reference",
+      "ui_api_model_parameters_links_equal": true,
+      "all_node_classes_registered": true,
+      "required_models_visible": true,
+      "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+    },
+    {
+      "mode": "single_edit",
+      "ui_api_model_parameters_links_equal": true,
+      "all_node_classes_registered": true,
+      "required_models_visible": true,
+      "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+    },
+    {
+      "mode": "style_consistency",
+      "ui_api_model_parameters_links_equal": true,
+      "all_node_classes_registered": true,
+      "required_models_visible": true,
+      "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+    },
+    {
+      "mode": "t2i",
+      "ui_api_model_parameters_links_equal": true,
+      "all_node_classes_registered": true,
+      "required_models_visible": true,
+      "ui_browser_execution": "NOT_TESTED_BROWSER_RUNTIME_UNAVAILABLE"
+    }
+  ],
+  "final_modes": [
+    {
+      "status": "success",
+      "mode": "t2i",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": null,
+      "started_utc": "2026-10-16T13:37:36.413191+00:00",
+      "references": [],
+      "prompt_id": "f9866b41-3c53-474f-adf2-1ca9cdd6f314",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\t2i.png",
+      "output_sha256": "c7c816d70a209f72f6e4f7816c9d8e3d3c322f01694516616b44804a67a2b46b",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "t2i_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        },
+        "id": "ca67f19d-1f5d-43ec-9cc8-d2c67c8864da"
+      },
+      "qc": "pass",
+      "wall_seconds": 5.688,
+      "ended_utc": "2026-10-16T13:37:42.105162+00:00",
+      "sampled_total_gpu_peak_mib": 11866,
+      "vram_sample_count": 10,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: complete blue teapot and white cup; expected placement, coherent light and ceramic form.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\t2i\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "5224b00b09ed43bd9c6b858c21ca67bc02ed8bc7bda4bba97c51c439f623c4f9",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\t2i.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "single_edit",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": 1.0,
+      "started_utc": "2026-10-16T13:37:42.106667+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        }
+      ],
+      "prompt_id": "c63729d4-5041-4368-88ce-cfd75fc31682",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\single_edit.png",
+      "output_sha256": "15b53ff84b3047c498281d36950e35ab2cad1b6870709d410f03faecf8589152",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "single_edit_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        },
+        "id": "7bf0d37e-68e8-4bbc-86da-ce014095ed2c"
+      },
+      "qc": "pass",
+      "wall_seconds": 5.625,
+      "ended_utc": "2026-10-16T13:37:47.734955+00:00",
+      "sampled_total_gpu_peak_mib": 13325,
+      "vram_sample_count": 10,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet against original: terracotta-red teapot with cup/framing/setting preserved. Glaze is shinier than requested matte; material caveat.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\single_edit\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "0ff932477e5214ed5d7401b8bf048aa9b66bcb4c373df7b9d87e7a81c6f982e2",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\single_edit.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "multi_reference",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1344,
+      "height": 768,
+      "reference_megapixels": 1.0,
+      "started_utc": "2026-10-16T13:37:47.735955+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\02_single_edit.png",
+          "sha256": "8b85a9345c5289439a227375a562ed05105ec4451240b922e9021b6ec0eae23c"
+        }
+      ],
+      "prompt_id": "254fe7a8-8c90-4080-b647-07624e99b27a",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\multi_reference.png",
+      "output_sha256": "3f867c303155ce29b23e811d4083d39b75e91f24b1c66cc7d08fcbfe48876f16",
+      "actual_width": 1344,
+      "actual_height": 768,
+      "server_output": {
+        "filename": "multi_reference_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1344,
+          "height": 768
+        },
+        "id": "a69c297c-771b-4473-9f47-f9c1deb71901"
+      },
+      "qc": "pass",
+      "wall_seconds": 8.781,
+      "ended_utc": "2026-10-16T13:37:56.520420+00:00",
+      "sampled_total_gpu_peak_mib": 14915,
+      "vram_sample_count": 16,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: two complete equal-scale teapots, blue left and red right, clear gap; repair retained both reference designs.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\multi_reference\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1344,
+        768
+      ],
+      "pixel_sha256": "5b143a42a907bb1266c5141b5fb43e87a1061d1725c239dc5dcb585f212ee2ca",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\multi_reference.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "character_consistency",
+      "server": "http://127.0.0.1:8188",
+      "seed": 271828,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 768,
+      "height": 1024,
+      "reference_megapixels": 1.0,
+      "started_utc": "2026-10-16T13:37:56.521420+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\06_character_source.png",
+          "sha256": "93be1adcfc9a721e4bffa11c81c4cf4babf8793ee6747f313e23b90ddbce9087"
+        }
+      ],
+      "prompt_id": "e5f4b970-41ef-4f2b-98fd-bcdce698f28d",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\character_consistency.png",
+      "output_sha256": "cde61925c6c9de04a0d76c1f41c9c9025c56f48f53c1a7c798a6e22353a4908c",
+      "actual_width": 768,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "character_consistency_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 768,
+          "height": 1024
+        },
+        "id": "b46ad325-8c24-4401-8f32-521e89451f4c"
+      },
+      "qc": "pass",
+      "wall_seconds": 4.687,
+      "ended_utc": "2026-10-16T13:38:01.206021+00:00",
+      "sampled_total_gpu_peak_mib": 13077,
+      "vram_sample_count": 8,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet against source: same visible face/bob/glasses/freckles/shirt, complete garden/stone-wall replacement; no biometric verification implied.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\character_consistency\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        768,
+        1024
+      ],
+      "pixel_sha256": "74d811fc7ec21493f50f6e3c1303e3b3cf877bb62f6818a5e64e6cd613a8b023",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\character_consistency.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "style_consistency",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": 0.5,
+      "started_utc": "2026-10-16T13:38:01.208095+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\08_style_source.png",
+          "sha256": "5769bb0b00b4d643dd03425d989fb6749bef677c60dbe4f43087b5286275ed14"
+        }
+      ],
+      "prompt_id": "7c135337-60bc-45be-9c18-16b888676432",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\style_consistency.png",
+      "output_sha256": "c005a8511ad9df11c304fb8865c32cd98fef761e7bfe24726deb203ae5cc8932",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "style_consistency_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        },
+        "id": "02c2aeb0-0b8d-4aa1-9bfb-03ada0192ffc"
+      },
+      "qc": "fail",
+      "wall_seconds": 5.688,
+      "ended_utc": "2026-10-16T13:38:06.902260+00:00",
+      "sampled_total_gpu_peak_mib": 13215,
+      "vram_sample_count": 10,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: partial watercolor texture, but main subject retains photographic material. Strict source-content plus strong watercolor-medium intent fails; API execution succeeds.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\style_consistency\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "82f975cdacff3cedad4c330b262277be931ccad2136cda45c121caefd37c4844",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\style_consistency.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "box_layout",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": null,
+      "started_utc": "2026-10-16T13:38:06.903260+00:00",
+      "references": [],
+      "prompt_id": "06f4f77e-7f47-419b-937c-c848cfbee6a3",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\box_layout.png",
+      "output_sha256": "81af03473fe2198ec83b4e95e1ed0e219f4a642ac3ab1d2ecf181e575f83b183",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "box_layout_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        },
+        "id": "95d5189b-57cd-4e79-81c2-8110eba90aa5"
+      },
+      "qc": "pass",
+      "wall_seconds": 2.579,
+      "ended_utc": "2026-10-16T13:38:09.487971+00:00",
+      "sampled_total_gpu_peak_mib": 14809,
+      "vram_sample_count": 5,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: cup left and blue teapot right, complete; placement follows sides but is soft rather than strict bbox containment.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\box_layout\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "6817ffdc1594a986ff89c2da007da66586bc36e63cc224e2d4c694de469a0c34",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\box_layout.result.json"
+    }
+  ],
+  "regressions": [
+    {
+      "case": "krea",
+      "command": [
+        "C:\\Users\\parkp\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "scripts/generate_krea.py",
+        "-p",
+        "Studio photograph, medium still-life view at tabletop height. A single matte blue ceramic teapot stands at frame-right on a pale oak kitchen table, with a small white cup resting separately at frame-left. Both objects are completely inside the square frame, their bases resting on the same surface. The teapot has a curved spout pointing left, a round handle on its right, and a domed lid with a small knob. Soft window daylight enters from frame-left and casts a broad shadow to the right. A warm-gray plaster wall fills the background. Fine wood grain and small natural variations in the ceramic glaze remain visible.",
+        "--width",
+        "512",
+        "--height",
+        "512",
+        "--seed",
+        "314159",
+        "-o",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\krea.png"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 9.625,
+      "sampled_total_gpu_peak_mib": 19286,
+      "qc": "pass",
+      "status": "execution_success",
+      "qc_notes": "Opened actual512x512 PNG: complete blue teapot/white cup, photographic light. Existing Krea2 preset and model loader run successfully.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\reviews\\krea\\record.json",
+      "media": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\krea.png",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "png",
+            "codec_type": "video",
+            "width": 512,
+            "height": 512
+          }
+        ],
+        "format": {}
+      }
+    },
+    {
+      "case": "qwen",
+      "command": [
+        "C:\\Users\\parkp\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "scripts/generate_qwen_edit.py",
+        "-i",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+        "-p",
+        "Change only the blue teapot glaze to deep green. Keep the same teapot shape, white cup, table, window, framing and lighting unchanged.",
+        "--steps",
+        "8",
+        "--seed",
+        "314159",
+        "-o",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\qwen.png"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 37.016,
+      "sampled_total_gpu_peak_mib": 19715,
+      "qc": "pass",
+      "status": "execution_success",
+      "qc_notes": "Opened actual1024x1024 PNG: deep-green teapot, cup/window/framing retained. Existing Qwen instruction edit workflow executes correctly.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\reviews\\qwen\\record.json",
+      "media": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\qwen.png",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "png",
+            "codec_type": "video",
+            "width": 1024,
+            "height": 1024
+          }
+        ],
+        "format": {}
+      }
+    },
+    {
+      "case": "h3",
+      "command": [
+        "C:\\Users\\parkp\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "scripts/generate_minimax_h3.py",
+        "--task",
+        "i2v",
+        "--profile",
+        "work",
+        "-i",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+        "-p",
+        "A slow continuous rightward camera slide across this ceramic teapot and white cup on the oak table. The objects remain still and keep their shapes; soft daylight stays steady, subtle natural room ambience.",
+        "--duration",
+        "2",
+        "--megapixels",
+        "0.3",
+        "--aspect",
+        "16:9",
+        "--steps",
+        "8",
+        "--sage-attention",
+        "disabled",
+        "--seed",
+        "314159",
+        "-o",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\h3.mp4"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 24.735,
+      "sampled_total_gpu_peak_mib": 21485,
+      "qc": "fail_input_aspect_fixture",
+      "status": "execution_success",
+      "qc_notes": "Square input stretched to16:9; source/test aspect mismatch, corrected by separate h3_square sample.",
+      "media": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\h3.mp4",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 736,
+            "height": 416,
+            "nb_frames": "56"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "sample_rate": "32000",
+            "channels": 2,
+            "nb_frames": "74"
+          }
+        ],
+        "format": {
+          "duration": "2.333333"
+        }
+      }
+    },
+    {
+      "case": "h3_square",
+      "command": [
+        "C:\\Users\\parkp\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "scripts/generate_minimax_h3.py",
+        "--task",
+        "i2v",
+        "--profile",
+        "work",
+        "-i",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+        "-p",
+        "A slow continuous rightward camera slide across this ceramic teapot and white cup on the oak table. The objects remain still and keep their shapes; soft daylight stays steady, subtle natural room ambience.",
+        "--duration",
+        "2",
+        "--megapixels",
+        "0.3",
+        "--aspect",
+        "1:1",
+        "--steps",
+        "8",
+        "--sage-attention",
+        "disabled",
+        "--seed",
+        "314159",
+        "-o",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\h3_square.mp4"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 23.391,
+      "sampled_total_gpu_peak_mib": 21624,
+      "qc": "pass",
+      "status": "execution_success",
+      "qc_notes": "First/middle/late frames reviewed: geometry preserved at matching aspect, gentle continuous camera slide;56frames at576x576,2.333s.",
+      "media": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\h3_square.mp4",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 576,
+            "height": 576,
+            "nb_frames": "56"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "sample_rate": "32000",
+            "channels": 2,
+            "nb_frames": "74"
+          }
+        ],
+        "format": {
+          "duration": "2.333333"
+        }
+      }
+    },
+    {
+      "case": "yue2",
+      "command": [
+        "C:\\Users\\parkp\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "scripts/generate_yue2_music.py",
+        "--mode",
+        "text2music",
+        "--style",
+        "Instrumental solo acoustic piano, a short gentle melodic phrase, warm room sound, slow steady pulse, soft dynamics.",
+        "--lyrics",
+        "[Instrumental]",
+        "--duration",
+        "4",
+        "--min-duration",
+        "3",
+        "--no-abc-planning",
+        "--steps",
+        "8",
+        "--seed",
+        "314159",
+        "-o",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\yue2.wav"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 4.484,
+      "sampled_total_gpu_peak_mib": 11173,
+      "qc": "technical_pass_listening_unavailable",
+      "status": "execution_success",
+      "qc_notes": "4s FLAC/48kHz/stereo decoded, non-silent; peak-14.55dBFS/RMS-29.89dBFS. Original helper writes FLAC bytes despite .wav request. Audio input unsupported for this model, so piano/subjective listening QC not claimed.",
+      "media": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\yue2.wav",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "flac",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "4.000000"
+        }
+      }
+    }
+  ],
+  "all_flux3_runs": [
+    {
+      "status": "success",
+      "mode": "t2i",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:05:53.759960+00:00",
+      "references": [],
+      "prompt_id": "a440dbde-7144-4779-9d92-132aa80f68c7",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+      "output_sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "01_t2i_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 5.141,
+      "ended_utc": "2026-10-16T13:05:58.893399+00:00",
+      "sampled_total_gpu_peak_mib": 11997,
+      "vram_sample_count": 9,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Opened actual PNG: blue teapot and white cup complete; shape and placement coherent; left daylight and right shadows; natural ceramic texture. Slight background reframing is acceptable.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\01_t2i\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "ee9a3e61c3cbf0a5f9d90b39372b15bd09de964acde6428e8d919ae7e0d90024",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "single_edit",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:06:25.644633+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        }
+      ],
+      "prompt_id": "a07ee9ab-9298-4b24-adfc-f35f467ec557",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\02_single_edit.png",
+      "output_sha256": "8b85a9345c5289439a227375a562ed05105ec4451240b922e9021b6ec0eae23c",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "02_single_edit_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 6.797,
+      "ended_utc": "2026-10-16T13:06:32.446580+00:00",
+      "sampled_total_gpu_peak_mib": 14924,
+      "vram_sample_count": 12,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Opened reference and edit: terracotta color applied to body/spout/handle/lid; cup, framing, window and table visually stable. Requested matte surface is somewhat shinier/copper-like; color-edit function passes with material-fidelity limitation.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\02_single_edit\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "3a23f44a5e67de97ded898f40e7ea519463800e9d081d1ea0d8937493dcf56bc",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\02_single_edit.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "multi_reference",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:07:23.774422+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\02_single_edit.png",
+          "sha256": "8b85a9345c5289439a227375a562ed05105ec4451240b922e9021b6ec0eae23c"
+        }
+      ],
+      "prompt_id": "5f0bf4bf-57af-4527-bd09-bb9059fdc3ff",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\03_multi_reference.png",
+      "output_sha256": "7101def492ffa02e4144d8e6c53617a17b13a80ab15e13118c0c94a4bc5fb696",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "03_multi_reference_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "fail",
+      "wall_seconds": 9.734,
+      "ended_utc": "2026-10-16T13:07:33.511834+00:00",
+      "sampled_total_gpu_peak_mib": 13831,
+      "vram_sample_count": 17,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Blue handle occluded and unequal scale; composition fails",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\03_multi_reference\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "05d1e21e1fe67af81566a81857e83703d1d1e009def131396e5efdcb032f5746",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\03_multi_reference.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "multi_reference",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1344,
+      "height": 768,
+      "started_utc": "2026-10-16T13:08:31.376070+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\02_single_edit.png",
+          "sha256": "8b85a9345c5289439a227375a562ed05105ec4451240b922e9021b6ec0eae23c"
+        }
+      ],
+      "prompt_id": "3ac5335b-3f20-43a4-b04d-2ce9153dac9e",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\03b_multi_reference_wide.png",
+      "output_sha256": "3afe47ded6d1d21537996353248a3043b0ac363d1803e3e880375aa7d30be29f",
+      "actual_width": 1344,
+      "actual_height": 768,
+      "server_output": {
+        "filename": "03b_multi_reference_wide_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1344,
+          "height": 768
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 10.188,
+      "ended_utc": "2026-10-16T13:08:41.562888+00:00",
+      "sampled_total_gpu_peak_mib": 13846,
+      "vram_sample_count": 18,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Actual PNG opened: blue and red reference designs retained; both lids/spouts/handles complete, same height and depth plane, clear gap. Wide canvas and boxes repaired occlusion.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\03b_multi_reference_wide\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1344,
+        768
+      ],
+      "pixel_sha256": "f23b74b49c8059eb5817bae2d05c649fa9e1eb903975f482ff5f647f95191771",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\03b_multi_reference_wide.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "box_layout",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:09:09.127538+00:00",
+      "references": [],
+      "prompt_id": "dca18599-74a7-40a7-9581-bac10db2b2fb",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\04_box_layout.png",
+      "output_sha256": "f1a34d8f95a709db8b7d0dcd6f7fc6878c45c6b1f38087051c4722ccfef2cacd",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "04_box_layout_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 4.578,
+      "ended_utc": "2026-10-16T13:09:13.706059+00:00",
+      "sampled_total_gpu_peak_mib": 11738,
+      "vram_sample_count": 8,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Actual PNG opened: cup left and blue teapot right, complete shapes, believable lighting. Placement follows requested sides; handle extends beyond requested box right edge, confirming boxes are soft guidance rather than pixel masks.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\04_box_layout\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "7003a1725a5adbabbe4dd66538701c71362bd8b07c952dd12b37c7b4cf1d894d",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\04_box_layout.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "t2i",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:09:56.960938+00:00",
+      "references": [],
+      "prompt_id": "ea912dd8-34d6-4ad2-b1c8-d610b52f342f",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\05_t2i_repeat_after_switch.png",
+      "output_sha256": "eb28067156e26a61ab195a690028780ac58fe5681eb817bf098b1e0347102a18",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "05_t2i_repeat_after_switch_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 4.594,
+      "ended_utc": "2026-10-16T13:10:01.552044+00:00",
+      "sampled_total_gpu_peak_mib": 14614,
+      "vram_sample_count": 8,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Opened repeat PNG. Pixel SHA256 exactly matches original with cache-none and actual resampling; different PNG hash is metadata, not pixel drift.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\05_t2i_repeat_after_switch\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "ee9a3e61c3cbf0a5f9d90b39372b15bd09de964acde6428e8d919ae7e0d90024",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\05_t2i_repeat_after_switch.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "t2i",
+      "server": "http://127.0.0.1:8193",
+      "seed": 271828,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:10:31.250662+00:00",
+      "references": [],
+      "prompt_id": "9bbd5f25-9287-4b42-a0ca-40b10fe81a48",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\06_character_source.png",
+      "output_sha256": "93be1adcfc9a721e4bffa11c81c4cf4babf8793ee6747f313e23b90ddbce9087",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "06_character_source_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 4.141,
+      "ended_utc": "2026-10-16T13:10:35.393788+00:00",
+      "sampled_total_gpu_peak_mib": 12027,
+      "vram_sample_count": 8,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Opened actual PNG: coherent adult face, bob, glasses, freckles, teal crew-neck shirt and studs. Natural face proportions; usable identity reference.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\06_character_source\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "13a32d99071ce32caf1ca2cd04c57773fe01c5165ffed7966998bbfb6dcca9e1",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\06_character_source.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "character_consistency",
+      "server": "http://127.0.0.1:8193",
+      "seed": 271828,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:11:21.745645+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\06_character_source.png",
+          "sha256": "93be1adcfc9a721e4bffa11c81c4cf4babf8793ee6747f313e23b90ddbce9087"
+        }
+      ],
+      "prompt_id": "f031615a-26a4-4fab-b310-abcc789138c5",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\07_character_consistency.png",
+      "output_sha256": "13e7f7c675cea580c13b6012ee7c66077d3a30b4f2a221da5acd62989c910021",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "07_character_consistency_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "fail",
+      "wall_seconds": 6.656,
+      "ended_utc": "2026-10-16T13:11:28.408742+00:00",
+      "sampled_total_gpu_peak_mib": 13317,
+      "vram_sample_count": 12,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Identity, glasses, bob, freckles and shirt preserved very well, but original plaster wall dominates background; garden appears only at left edge. Scene-transfer intent incomplete.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\07_character_consistency\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "a15f70ac290cb3676a1320cb8eff0d5e8cc3eb44fca21984e95475f69afac102",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\07_character_consistency.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "character_consistency",
+      "server": "http://127.0.0.1:8193",
+      "seed": 271828,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 768,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:12:21.040620+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\06_character_source.png",
+          "sha256": "93be1adcfc9a721e4bffa11c81c4cf4babf8793ee6747f313e23b90ddbce9087"
+        }
+      ],
+      "prompt_id": "27ed4134-424d-4902-86dc-fe760512fbfc",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\07b_character_garden_portrait.png",
+      "output_sha256": "cd8befa6386d748505dcf5f031a0b956630ac11c125ce14a6dbfd8ce5784d3a4",
+      "actual_width": 768,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "07b_character_garden_portrait_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 768,
+          "height": 1024
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 6.125,
+      "ended_utc": "2026-10-16T13:12:27.155190+00:00",
+      "sampled_total_gpu_peak_mib": 13013,
+      "vram_sample_count": 11,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Actual source and repaired output opened: face, bob, black glasses, freckles, studs and teal shirt visually consistent; full garden, gravel path and stone wall now replace indoor background. Portrait768x1024 decoded correctly. Visual consistency only, no biometric identity guarantee.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\07b_character_garden_portrait\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        768,
+        1024
+      ],
+      "pixel_sha256": "ef2dd2ebbd5cf0480457ee53eb92a57d90e636b154010d42c4085836f8efcdfa",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\07b_character_garden_portrait.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "t2i",
+      "server": "http://127.0.0.1:8193",
+      "seed": 161803,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:13:07.692892+00:00",
+      "references": [],
+      "prompt_id": "00eee2a2-151e-403b-9589-8aa68d8c421e",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\08_style_source.png",
+      "output_sha256": "5769bb0b00b4d643dd03425d989fb6749bef677c60dbe4f43087b5286275ed14",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "08_style_source_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 4.125,
+      "ended_utc": "2026-10-16T13:13:11.815649+00:00",
+      "sampled_total_gpu_peak_mib": 12032,
+      "vram_sample_count": 8,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Actual PNG opened: transparent watercolor pools, paper grain, ink contours and ochre/violet palette clearly visible; complete teapot and cup. Usable style donor.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\08_style_source\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "29ce52acd5409c1445ba73de5322f24aa2901e7284bebde2e0084d65a4eaf68f",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\08_style_source.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "style_consistency",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:14:20.093522+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\08_style_source.png",
+          "sha256": "5769bb0b00b4d643dd03425d989fb6749bef677c60dbe4f43087b5286275ed14"
+        }
+      ],
+      "prompt_id": "66248af1-58be-47a4-b312-2433b2ea3678",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\09_style_consistency.png",
+      "output_sha256": "4c7b3afd3c106cf6e3d13ff90d5d0f308886f7fbfc679cd8eca31ea9c693be91",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "09_style_consistency_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "fail",
+      "wall_seconds": 9.719,
+      "ended_utc": "2026-10-16T13:14:29.817665+00:00",
+      "sampled_total_gpu_peak_mib": 13781,
+      "vram_sample_count": 17,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Composition preserved and background gains watercolor treatment, but teapot and table remain too photographic versus donor; complete watercolor-medium transfer incomplete.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\09_style_consistency\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "f37032187a2fcb78c6c66aaca2fef9745dbcf91442f80dc4cf25b3a72728d701",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\09_style_consistency.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "style_consistency",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:15:39.097301+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\08_style_source.png",
+          "sha256": "5769bb0b00b4d643dd03425d989fb6749bef677c60dbe4f43087b5286275ed14"
+        }
+      ],
+      "prompt_id": "fe820b98-7cd8-4b2f-8e6c-ad5b0700402d",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\09b_style_consistency.png",
+      "output_sha256": "e6e0296e0fe0fd76cb9f719162d755ed46e5a24bdb48ef702ce8cfd3f4c01a79",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "09b_style_consistency_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "fail",
+      "wall_seconds": 9.797,
+      "ended_utc": "2026-10-16T13:15:48.893084+00:00",
+      "sampled_total_gpu_peak_mib": 14187,
+      "vram_sample_count": 17,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Whole-frame treatment is stronger, but source teapot retains dense photoreal surface and shading; requested loose donor medium still too weak.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\09b_style_consistency\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "bd81bc36f36586c859c9dac9d8b9d4f5e197e17dc9677c4fef29edc9294756fe",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\09b_style_consistency.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "style_consistency",
+      "server": "http://127.0.0.1:8193",
+      "seed": 161803,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:16:49.161887+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\08_style_source.png",
+          "sha256": "5769bb0b00b4d643dd03425d989fb6749bef677c60dbe4f43087b5286275ed14"
+        }
+      ],
+      "prompt_id": "29aa99cc-4c76-4a29-8bc2-fdb35f8ba6ba",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\09c_style_lowref.png",
+      "output_sha256": "b88ce27a608109f2b75d2ed7a96d7f38cc5ff4dacdc2f90eb052831976fe3840",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "09c_style_lowref_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "fail",
+      "wall_seconds": 6.125,
+      "ended_utc": "2026-10-16T13:16:55.290356+00:00",
+      "sampled_total_gpu_peak_mib": 12835,
+      "vram_sample_count": 11,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Watercolor medium now succeeds, but output copies donor rounded teapot and composition; first-reference cylinder and window not retained. Lower reference size trades source-content fidelity for style dominance.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\09c_style_lowref\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "dbb480045a04c836dfb19711e816bfa19f00cb296e5eeb6252028d499ab5a444",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\09c_style_lowref.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "style_consistency",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "started_utc": "2026-10-16T13:17:56.040521+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\08_style_source.png",
+          "sha256": "5769bb0b00b4d643dd03425d989fb6749bef677c60dbe4f43087b5286275ed14"
+        }
+      ],
+      "prompt_id": "5a3b0523-170b-42b5-afcb-6e178fff3b60",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\09d_style_midref.png",
+      "output_sha256": "37175bda92699497233587e82f60970616b39c7b1ac51560a382d12ad1a8e1d0",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "09d_style_midref_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "fail",
+      "wall_seconds": 6.704,
+      "ended_utc": "2026-10-16T13:18:02.732782+00:00",
+      "sampled_total_gpu_peak_mib": 13097,
+      "vram_sample_count": 12,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Intermediate0.5MP preserves composition and adds watercolor paper/wall treatment, but teapot still has photo-like material. API works; strict style-content fidelity fails after bounded repairs. Keep as experimental with mandatory QC.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\reviews\\09d_style_midref\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "1693a5fd449ba743fb6828dca9c0618161053ce005b5158cd359dad8da7c5540",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\09d_style_midref.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "box_layout",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": null,
+      "started_utc": "2026-10-16T13:30:25.792793+00:00",
+      "references": [],
+      "prompt_id": "ced9f9cb-a889-421b-b547-2b0fee837ad1",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\box_layout.png",
+      "output_sha256": "f39312e28560d3a281adf64d84c4ca52cd8ccff3b26f09cd4451aab98becc30e",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "box_layout_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 4.141,
+      "ended_utc": "2026-10-16T13:30:29.921352+00:00",
+      "sampled_total_gpu_peak_mib": 12684,
+      "vram_sample_count": 8,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: cup left and blue teapot right, complete; placement follows sides but is soft rather than strict bbox containment.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\reviews\\box_layout\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "e8cd13c92d6848e726b1bc49634c94dfdc944d01c93420e085311a2e99c995bd",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\box_layout.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "character_consistency",
+      "server": "http://127.0.0.1:8193",
+      "seed": 271828,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 768,
+      "height": 1024,
+      "reference_megapixels": 1.0,
+      "started_utc": "2026-10-16T13:30:12.417529+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\06_character_source.png",
+          "sha256": "93be1adcfc9a721e4bffa11c81c4cf4babf8793ee6747f313e23b90ddbce9087"
+        }
+      ],
+      "prompt_id": "435920ec-cb19-4592-970a-53f83162cde1",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\character_consistency.png",
+      "output_sha256": "0e2de8fb161581b9d3f37e80e384db5c8161db224e34083ee66b3f7512c7aa1c",
+      "actual_width": 768,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "character_consistency_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 768,
+          "height": 1024
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 6.109,
+      "ended_utc": "2026-10-16T13:30:18.533407+00:00",
+      "sampled_total_gpu_peak_mib": 13131,
+      "vram_sample_count": 11,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet against source: same visible face/bob/glasses/freckles/shirt, complete garden/stone-wall replacement; no biometric verification implied.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\reviews\\character_consistency\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        768,
+        1024
+      ],
+      "pixel_sha256": "55305a9972ae532f78742bfe351356f8ab75b2ef94620f775588cb7841c504ff",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\character_consistency.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "multi_reference",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1344,
+      "height": 768,
+      "reference_megapixels": 1.0,
+      "started_utc": "2026-10-16T13:30:02.593871+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\02_single_edit.png",
+          "sha256": "8b85a9345c5289439a227375a562ed05105ec4451240b922e9021b6ec0eae23c"
+        }
+      ],
+      "prompt_id": "e798af3f-1bf6-4118-b2b6-c62ff9955db0",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\multi_reference.png",
+      "output_sha256": "3f12a32e6a41471654d86b9bdab0165f670a81a287d30bb72056534985f3f768",
+      "actual_width": 1344,
+      "actual_height": 768,
+      "server_output": {
+        "filename": "multi_reference_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1344,
+          "height": 768
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 9.812,
+      "ended_utc": "2026-10-16T13:30:12.416023+00:00",
+      "sampled_total_gpu_peak_mib": 13815,
+      "vram_sample_count": 18,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: two complete equal-scale teapots, blue left and red right, clear gap; repair retained both reference designs.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\reviews\\multi_reference\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1344,
+        768
+      ],
+      "pixel_sha256": "6d0574d0aa4b3461e8f0ce08c863d069555980cb66a6618d8d6ab7d851b60a3c",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\multi_reference.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "single_edit",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": 1.0,
+      "started_utc": "2026-10-16T13:29:55.971555+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        }
+      ],
+      "prompt_id": "f4952129-71c9-407e-9276-11784d3f2a28",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\single_edit.png",
+      "output_sha256": "168cf4f87698322ac38d1d160004791781bdbdc2d923bbf798986e21dfec9ab4",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "single_edit_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 6.625,
+      "ended_utc": "2026-10-16T13:30:02.593871+00:00",
+      "sampled_total_gpu_peak_mib": 13230,
+      "vram_sample_count": 12,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet against original: terracotta-red teapot with cup/framing/setting preserved. Glaze is shinier than requested matte; material caveat.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\reviews\\single_edit\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "2487482939ef4e7839911c01c21240123e2b74b2a4169c7d52f673a7980e66f1",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\single_edit.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "style_consistency",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": 0.5,
+      "started_utc": "2026-10-16T13:30:18.535407+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\08_style_source.png",
+          "sha256": "5769bb0b00b4d643dd03425d989fb6749bef677c60dbe4f43087b5286275ed14"
+        }
+      ],
+      "prompt_id": "c4312d0e-f263-445a-b10b-55191fe18d9c",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\style_consistency.png",
+      "output_sha256": "b46d3ecc1aee2aab05e65eaf940d47e45f9c8b2ed1999de12425eea22da3ee38",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "style_consistency_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "fail",
+      "wall_seconds": 7.25,
+      "ended_utc": "2026-10-16T13:30:25.791788+00:00",
+      "sampled_total_gpu_peak_mib": 13214,
+      "vram_sample_count": 13,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: partial watercolor texture, but main subject retains photographic material. Strict source-content plus strong watercolor-medium intent fails; API execution succeeds.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\reviews\\style_consistency\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "07e446e1d905a8e7e613a74ed8a9d0a9a0a56407313c84706e9a7a022f86a779",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\style_consistency.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "t2i",
+      "server": "http://127.0.0.1:8193",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": null,
+      "started_utc": "2026-10-16T13:29:51.310242+00:00",
+      "references": [],
+      "prompt_id": "b6a68ed6-fc37-468f-9b7e-608f9416dc3c",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\t2i.png",
+      "output_sha256": "b72996f29bfe989824e8ff3f7d2df16c1527623409f572bdf9ba1e118d2a8bf5",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "t2i_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        }
+      },
+      "qc": "pass",
+      "wall_seconds": 4.656,
+      "ended_utc": "2026-10-16T13:29:55.970554+00:00",
+      "sampled_total_gpu_peak_mib": 14402,
+      "vram_sample_count": 9,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: complete blue teapot and white cup; expected placement, coherent light and ceramic form.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\reviews\\t2i\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "b92aaa2de6d371c6eab83c7a414c9e7935210f28391dd8ea5789e2f31246c96d",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\compat457\\t2i.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "box_layout",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": null,
+      "started_utc": "2026-10-16T13:38:06.903260+00:00",
+      "references": [],
+      "prompt_id": "06f4f77e-7f47-419b-937c-c848cfbee6a3",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\box_layout.png",
+      "output_sha256": "81af03473fe2198ec83b4e95e1ed0e219f4a642ac3ab1d2ecf181e575f83b183",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "box_layout_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        },
+        "id": "95d5189b-57cd-4e79-81c2-8110eba90aa5"
+      },
+      "qc": "pass",
+      "wall_seconds": 2.579,
+      "ended_utc": "2026-10-16T13:38:09.487971+00:00",
+      "sampled_total_gpu_peak_mib": 14809,
+      "vram_sample_count": 5,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: cup left and blue teapot right, complete; placement follows sides but is soft rather than strict bbox containment.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\box_layout\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "6817ffdc1594a986ff89c2da007da66586bc36e63cc224e2d4c694de469a0c34",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\box_layout.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "character_consistency",
+      "server": "http://127.0.0.1:8188",
+      "seed": 271828,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 768,
+      "height": 1024,
+      "reference_megapixels": 1.0,
+      "started_utc": "2026-10-16T13:37:56.521420+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\06_character_source.png",
+          "sha256": "93be1adcfc9a721e4bffa11c81c4cf4babf8793ee6747f313e23b90ddbce9087"
+        }
+      ],
+      "prompt_id": "e5f4b970-41ef-4f2b-98fd-bcdce698f28d",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\character_consistency.png",
+      "output_sha256": "cde61925c6c9de04a0d76c1f41c9c9025c56f48f53c1a7c798a6e22353a4908c",
+      "actual_width": 768,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "character_consistency_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 768,
+          "height": 1024
+        },
+        "id": "b46ad325-8c24-4401-8f32-521e89451f4c"
+      },
+      "qc": "pass",
+      "wall_seconds": 4.687,
+      "ended_utc": "2026-10-16T13:38:01.206021+00:00",
+      "sampled_total_gpu_peak_mib": 13077,
+      "vram_sample_count": 8,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet against source: same visible face/bob/glasses/freckles/shirt, complete garden/stone-wall replacement; no biometric verification implied.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\character_consistency\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        768,
+        1024
+      ],
+      "pixel_sha256": "74d811fc7ec21493f50f6e3c1303e3b3cf877bb62f6818a5e64e6cd613a8b023",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\character_consistency.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "multi_reference",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1344,
+      "height": 768,
+      "reference_megapixels": 1.0,
+      "started_utc": "2026-10-16T13:37:47.735955+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\02_single_edit.png",
+          "sha256": "8b85a9345c5289439a227375a562ed05105ec4451240b922e9021b6ec0eae23c"
+        }
+      ],
+      "prompt_id": "254fe7a8-8c90-4080-b647-07624e99b27a",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\multi_reference.png",
+      "output_sha256": "3f867c303155ce29b23e811d4083d39b75e91f24b1c66cc7d08fcbfe48876f16",
+      "actual_width": 1344,
+      "actual_height": 768,
+      "server_output": {
+        "filename": "multi_reference_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1344,
+          "height": 768
+        },
+        "id": "a69c297c-771b-4473-9f47-f9c1deb71901"
+      },
+      "qc": "pass",
+      "wall_seconds": 8.781,
+      "ended_utc": "2026-10-16T13:37:56.520420+00:00",
+      "sampled_total_gpu_peak_mib": 14915,
+      "vram_sample_count": 16,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: two complete equal-scale teapots, blue left and red right, clear gap; repair retained both reference designs.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\multi_reference\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1344,
+        768
+      ],
+      "pixel_sha256": "5b143a42a907bb1266c5141b5fb43e87a1061d1725c239dc5dcb585f212ee2ca",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\multi_reference.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "single_edit",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": 1.0,
+      "started_utc": "2026-10-16T13:37:42.106667+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        }
+      ],
+      "prompt_id": "c63729d4-5041-4368-88ce-cfd75fc31682",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\single_edit.png",
+      "output_sha256": "15b53ff84b3047c498281d36950e35ab2cad1b6870709d410f03faecf8589152",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "single_edit_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        },
+        "id": "7bf0d37e-68e8-4bbc-86da-ce014095ed2c"
+      },
+      "qc": "pass",
+      "wall_seconds": 5.625,
+      "ended_utc": "2026-10-16T13:37:47.734955+00:00",
+      "sampled_total_gpu_peak_mib": 13325,
+      "vram_sample_count": 10,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet against original: terracotta-red teapot with cup/framing/setting preserved. Glaze is shinier than requested matte; material caveat.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\single_edit\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "0ff932477e5214ed5d7401b8bf048aa9b66bcb4c373df7b9d87e7a81c6f982e2",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\single_edit.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "style_consistency",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": 0.5,
+      "started_utc": "2026-10-16T13:38:01.208095+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+          "sha256": "6e189882acbd1458bfe31cbce3894e3f26183edb75a64516bebb09afaae5944f"
+        },
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\08_style_source.png",
+          "sha256": "5769bb0b00b4d643dd03425d989fb6749bef677c60dbe4f43087b5286275ed14"
+        }
+      ],
+      "prompt_id": "7c135337-60bc-45be-9c18-16b888676432",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\style_consistency.png",
+      "output_sha256": "c005a8511ad9df11c304fb8865c32cd98fef761e7bfe24726deb203ae5cc8932",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "style_consistency_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        },
+        "id": "02c2aeb0-0b8d-4aa1-9bfb-03ada0192ffc"
+      },
+      "qc": "fail",
+      "wall_seconds": 5.688,
+      "ended_utc": "2026-10-16T13:38:06.902260+00:00",
+      "sampled_total_gpu_peak_mib": 13215,
+      "vram_sample_count": 10,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: partial watercolor texture, but main subject retains photographic material. Strict source-content plus strong watercolor-medium intent fails; API execution succeeds.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\style_consistency\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "82f975cdacff3cedad4c330b262277be931ccad2136cda45c121caefd37c4844",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\style_consistency.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "t2i",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": null,
+      "started_utc": "2026-10-16T13:37:36.413191+00:00",
+      "references": [],
+      "prompt_id": "f9866b41-3c53-474f-adf2-1ca9cdd6f314",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\t2i.png",
+      "output_sha256": "c7c816d70a209f72f6e4f7816c9d8e3d3c322f01694516616b44804a67a2b46b",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "t2i_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        },
+        "id": "ca67f19d-1f5d-43ec-9cc8-d2c67c8864da"
+      },
+      "qc": "pass",
+      "wall_seconds": 5.688,
+      "ended_utc": "2026-10-16T13:37:42.105162+00:00",
+      "sampled_total_gpu_peak_mib": 11866,
+      "vram_sample_count": 10,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Decoded PNG and opened actual contact sheet: complete blue teapot and white cup; expected placement, coherent light and ceramic form.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\t2i\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "5224b00b09ed43bd9c6b858c21ca67bc02ed8bc7bda4bba97c51c439f623c4f9",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\t2i.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "single_edit",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": 1.0,
+      "started_utc": "2026-10-16T13:45:37.050935+00:00",
+      "references": [
+        {
+          "path": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\toolbox_t2i.png",
+          "sha256": "68a32d98b6e02ab20044ba69111257ee24b6d153a9682bb424a15857c69eefd5"
+        }
+      ],
+      "engine_session": {
+        "ok": true,
+        "family": "flux3_klein",
+        "last_family": "flux3_klein",
+        "policy": "on_switch",
+        "action": "skip_same_family",
+        "switched": false,
+        "caller": "generate_flux3",
+        "at": "2026-10-16T13:45:39+00:00",
+        "memory": {
+          "ram_free_gb": 36.410579681396484,
+          "vram_free_mb": 22877.5
+        }
+      },
+      "prompt_id": "5b0a19c4-65f1-4334-8707-f9e95d90f747",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\toolbox_single_edit.png",
+      "output_sha256": "82ad5d0a09ccaf374e0ee0ab9a8bebfe612c780e5d15f1e1178d39ce1d4621f0",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "toolbox_single_edit_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        },
+        "id": "84b29167-7e9a-4757-896c-8a0d0944411e"
+      },
+      "qc": "pass",
+      "wall_seconds": 8.453,
+      "ended_utc": "2026-10-16T13:45:45.507801+00:00",
+      "sampled_total_gpu_peak_mib": 13147,
+      "vram_sample_count": 11,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Opened actual full PNG against toolbox T2I: terracotta recolor, preserved cup/window/shape; same-family engine gate and original8188 confirmed. Matte caveat remains.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\toolbox_single_edit\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "3fcbedf78d1a3f3d7e4e1ffdfd72c079afb7aebf83d0ecb5ac3d7f1fb81a76ab",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\toolbox_single_edit.result.json"
+    },
+    {
+      "status": "success",
+      "mode": "t2i",
+      "server": "http://127.0.0.1:8188",
+      "seed": 314159,
+      "steps": 16,
+      "cfg": 1,
+      "sampler": "euler",
+      "scheduler": "simple",
+      "width": 1024,
+      "height": 1024,
+      "reference_megapixels": null,
+      "started_utc": "2026-10-16T13:44:56.472290+00:00",
+      "references": [],
+      "engine_session": {
+        "ok": true,
+        "family": "flux3_klein",
+        "last_family": "qwen_edit_2509",
+        "policy": "on_switch",
+        "action": "free_on_switch",
+        "switched": true,
+        "caller": "generate_flux3",
+        "at": "2026-10-16T13:44:58+00:00",
+        "free": {
+          "ok": true,
+          "freed": true,
+          "before": {
+            "ram_free_gb": 35.18696975708008,
+            "vram_free_mb": 6629.870143890381
+          },
+          "after": {
+            "ram_free_gb": 29.667572021484375,
+            "vram_free_mb": 15821.370937347412
+          },
+          "min_ram_free_gb": 12.0,
+          "min_vram_free_mb": 4000.0,
+          "reasons": [],
+          "elapsed_sec": 1.4
+        }
+      },
+      "prompt_id": "50e8123f-5462-4fd5-8f0c-5f66f96f3c56",
+      "output": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\toolbox_t2i.png",
+      "output_sha256": "68a32d98b6e02ab20044ba69111257ee24b6d153a9682bb424a15857c69eefd5",
+      "actual_width": 1024,
+      "actual_height": 1024,
+      "server_output": {
+        "filename": "toolbox_t2i_00001_.png",
+        "subfolder": "flux3",
+        "type": "output",
+        "metadata": {
+          "kind": "image",
+          "width": 1024,
+          "height": 1024
+        },
+        "id": "0330fc44-018e-45a5-9680-0efdd0062a4e"
+      },
+      "qc": "pass",
+      "wall_seconds": 11.984,
+      "ended_utc": "2026-10-16T13:45:08.463799+00:00",
+      "sampled_total_gpu_peak_mib": 15093,
+      "vram_sample_count": 15,
+      "vram_method": "nvidia-smi total GPU memory, sampled about every 0.5s; includes other apps, not exact CUDA peak",
+      "qc_notes": "Opened actual full PNG: blue teapot and white cup. New Agent_media_tools CLI and factory engine free_on_switch reached original8188 successfully.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\reviews\\toolbox_t2i\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "5224b00b09ed43bd9c6b858c21ca67bc02ed8bc7bda4bba97c51c439f623c4f9",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\production\\toolbox_t2i.result.json"
+    },
+    {
+      "case": "h3",
+      "command": [
+        "C:\\Users\\parkp\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "scripts/generate_minimax_h3.py",
+        "--task",
+        "i2v",
+        "--profile",
+        "work",
+        "-i",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+        "-p",
+        "A slow continuous rightward camera slide across this ceramic teapot and white cup on the oak table. The objects remain still and keep their shapes; soft daylight stays steady, subtle natural room ambience.",
+        "--duration",
+        "2",
+        "--megapixels",
+        "0.3",
+        "--aspect",
+        "16:9",
+        "--steps",
+        "8",
+        "--sage-attention",
+        "disabled",
+        "--seed",
+        "314159",
+        "-o",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\h3.mp4"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 24.735,
+      "sampled_total_gpu_peak_mib": 21485,
+      "qc": "fail_input_aspect_fixture",
+      "status": "execution_success",
+      "qc_notes": "Square input stretched to16:9; source/test aspect mismatch, corrected by separate h3_square sample.",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\h3.result.json"
+    },
+    {
+      "case": "h3_square",
+      "command": [
+        "C:\\Users\\parkp\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "scripts/generate_minimax_h3.py",
+        "--task",
+        "i2v",
+        "--profile",
+        "work",
+        "-i",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+        "-p",
+        "A slow continuous rightward camera slide across this ceramic teapot and white cup on the oak table. The objects remain still and keep their shapes; soft daylight stays steady, subtle natural room ambience.",
+        "--duration",
+        "2",
+        "--megapixels",
+        "0.3",
+        "--aspect",
+        "1:1",
+        "--steps",
+        "8",
+        "--sage-attention",
+        "disabled",
+        "--seed",
+        "314159",
+        "-o",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\h3_square.mp4"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 23.391,
+      "sampled_total_gpu_peak_mib": 21624,
+      "qc": "pass",
+      "status": "execution_success",
+      "qc_notes": "Decoded56frames at576x576/2.333s and opened first/middle/late frames. Teapot/cup proportions stable; coherent gentle slide, changing framing, no freeze padding or corrupted frames. Compact8step smoke only; audio stream decode checked, subjective audio quality not assessed.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\reviews\\h3_square\\record.json",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\h3_square.result.json"
+    },
+    {
+      "case": "krea",
+      "command": [
+        "C:\\Users\\parkp\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "scripts/generate_krea.py",
+        "-p",
+        "Studio photograph, medium still-life view at tabletop height. A single matte blue ceramic teapot stands at frame-right on a pale oak kitchen table, with a small white cup resting separately at frame-left. Both objects are completely inside the square frame, their bases resting on the same surface. The teapot has a curved spout pointing left, a round handle on its right, and a domed lid with a small knob. Soft window daylight enters from frame-left and casts a broad shadow to the right. A warm-gray plaster wall fills the background. Fine wood grain and small natural variations in the ceramic glaze remain visible.",
+        "--width",
+        "512",
+        "--height",
+        "512",
+        "--seed",
+        "314159",
+        "-o",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\krea.png"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 9.625,
+      "sampled_total_gpu_peak_mib": 19286,
+      "qc": "pass",
+      "status": "execution_success",
+      "qc_notes": "Opened actual512x512 PNG: complete blue teapot/white cup, photographic light. Existing Krea2 preset and model loader run successfully.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\reviews\\krea\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        512,
+        512
+      ],
+      "pixel_sha256": "f114b629c899a2173022db621beafd932fce72cee75dd73cc95a2052bfccfb2f",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\krea.result.json"
+    },
+    {
+      "case": "qwen",
+      "command": [
+        "C:\\Users\\parkp\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "scripts/generate_qwen_edit.py",
+        "-i",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\01_t2i.png",
+        "-p",
+        "Change only the blue teapot glaze to deep green. Keep the same teapot shape, white cup, table, window, framing and lighting unchanged.",
+        "--steps",
+        "8",
+        "--seed",
+        "314159",
+        "-o",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\qwen.png"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 37.016,
+      "sampled_total_gpu_peak_mib": 19715,
+      "qc": "pass",
+      "status": "execution_success",
+      "qc_notes": "Opened actual1024x1024 PNG: deep-green teapot, cup/window/framing retained. Existing Qwen instruction edit workflow executes correctly.",
+      "review_record": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\reviews\\qwen\\record.json",
+      "decoded": true,
+      "decoded_size": [
+        1024,
+        1024
+      ],
+      "pixel_sha256": "db67e17cb269b303153104e4a9d8d37034f71f28a32995c5ccad8e30c43e37a3",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\qwen.result.json"
+    },
+    {
+      "case": "yue2",
+      "command": [
+        "C:\\Users\\parkp\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "scripts/generate_yue2_music.py",
+        "--mode",
+        "text2music",
+        "--style",
+        "Instrumental solo acoustic piano, a short gentle melodic phrase, warm room sound, slow steady pulse, soft dynamics.",
+        "--lyrics",
+        "[Instrumental]",
+        "--duration",
+        "4",
+        "--min-duration",
+        "3",
+        "--no-abc-planning",
+        "--steps",
+        "8",
+        "--seed",
+        "314159",
+        "-o",
+        "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\yue2.wav"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 4.484,
+      "sampled_total_gpu_peak_mib": 11173,
+      "qc": "technical_pass_listening_unavailable",
+      "status": "execution_success",
+      "qc_notes": "4s FLAC/48kHz/stereo decoded, non-silent; peak-14.55dBFS/RMS-29.89dBFS. Original helper writes FLAC bytes despite .wav request. Audio input unsupported for this model, so piano/subjective listening QC not claimed.",
+      "result_file": "F:\\Agent_media_sandboxes\\flux3\\validation\\regression\\yue2.result.json"
+    }
+  ],
+  "seed_reproduction": {
+    "same_pixels": true,
+    "same_dimensions": true,
+    "sampled_after_qwen_engine_switch": true,
+    "cached_node_lists": [
+      []
+    ],
+    "sampler_cached": false,
+    "pixel_sha256_first": "5224b00b09ed43bd9c6b858c21ca67bc02ed8bc7bda4bba97c51c439f623c4f9",
+    "pixel_sha256_repeat": "5224b00b09ed43bd9c6b858c21ca67bc02ed8bc7bda4bba97c51c439f623c4f9"
+  },
+  "package_changes": [
+    {
+      "package": "comfy-aimdo",
+      "before": "0.5.5",
+      "after": "0.5.6"
+    },
+    {
+      "package": "comfy-kitchen",
+      "before": "0.2.35",
+      "after": "0.2.37"
+    },
+    {
+      "package": "comfyui-embedded-docs",
+      "before": "0.5.12",
+      "after": "0.5.14"
+    },
+    {
+      "package": "comfyui-frontend-package",
+      "before": "1.53.6",
+      "after": "1.55.17"
+    },
+    {
+      "package": "comfyui-workflow-templates",
+      "before": "0.11.69",
+      "after": "0.11.85"
+    },
+    {
+      "package": "comfyui-workflow-templates-core",
+      "before": "0.3.360",
+      "after": "0.3.376"
+    },
+    {
+      "package": "comfyui-workflow-templates-json",
+      "before": "0.1.95",
+      "after": "0.1.111"
+    },
+    {
+      "package": "comfyui-workflow-templates-media-assets-02",
+      "before": "0.1.5",
+      "after": "0.1.16"
+    }
+  ],
+  "node_registration_diff": {
+    "before_count": 4603,
+    "after_count": 4628,
+    "missing_previous_nodes": [
+      "OpenAIVideoSora2"
+    ],
+    "added_count": 26
+  },
+  "final_runtime_state": {
+    "utc": "2026-10-16T14:09:23.8421924Z",
+    "server": "http://127.0.0.1:8188",
+    "version": "0.41.1",
+    "python": "3.13.12 (tags/v3.13.12:1cbe481, Feb  3 2026, 18:22:25) [MSC v.1944 64 bit (AMD64)]",
+    "torch": "2.13.0+cu130",
+    "queue_idle": true,
+    "gpu_used_mib_and_util": "2327, 20",
+    "job_lock_present": false,
+    "isolated_server_listener": 0,
+    "argv": [
+      "ComfyUI\\main.py",
+      "--windows-standalone-build",
+      "--async-offload",
+      "2",
+      "--reserve-vram",
+      "3",
+      "--vram-headroom",
+      "2",
+      "--output-directory",
+      "F:\\ComfyUI_data\\output",
+      "--input-directory",
+      "F:\\ComfyUI_data\\input",
+      "--temp-directory",
+      "F:\\ComfyUI_data\\temp"
+    ]
+  },
+  "registration_checks": {
+    "existing_catalog_preserved": true,
+    "new_catalog_keys": [
+      "flux3_box_layout",
+      "flux3_character_consistency",
+      "flux3_multi_reference",
+      "flux3_single_edit",
+      "flux3_style_consistency",
+      "flux3_t2i",
+      "generate_flux3"
+    ],
+    "api_ui_installed_files_equal_stage": true,
+    "ui_default_reference_files_exist": true,
+    "existing_document_bodies_preserved": true,
+    "existing_intent_cards_preserved": true,
+    "vault_existing_h3_and_lifecycle_sections_preserved": true,
+    "vault_single_flux3_section": true,
+    "vault_index_pointer_count": 1,
+    "vault_frontmatter_updated": true,
+    "all_guide_paths_exist": true,
+    "vault_no_token_strings": true
+  },
+  "vault_recording": {
+    "utc": "2026-10-16T14:04:18.161806+00:00",
+    "changes": [
+      {
+        "path": "C:\\Users\\parkp\\ai-vault\\projects\\comfyui_workflows.md",
+        "before_sha256": "24df3a29a9ce6b74cf06c235c52a2aeaae292e4649bfafdada819f7d2397b6ff",
+        "after_sha256": "36400b76d2185c289ca8e7e2e584238835efe35727613271a0b59068123c6662",
+        "backup": "C:\\Users\\parkp\\Documents\\Codex\\2026-10-16\\task-5\\flux3-preparation\\evidence\\vault-before\\comfyui_workflows.md"
+      },
+      {
+        "path": "C:\\Users\\parkp\\ai-vault\\INDEX.md",
+        "before_sha256": "518aad6b9a61ff859ee50eab5ce47a9ff5e402e2d9a294c390da8ad266ad1b35",
+        "after_sha256": "a306b3de705e8f44dea17d743473132b2c1aa262d6207937da441e65245f1152",
+        "backup": "C:\\Users\\parkp\\Documents\\Codex\\2026-10-16\\task-5\\flux3-preparation\\evidence\\vault-before\\INDEX.md"
+      }
+    ],
+    "new_vault_files": 0
+  },
+  "final_model_verification": {
+    "all_valid": true,
+    "files": [
+      {
+        "path": "F:\\model\\diffusion_models\\flux3\\flux3_image_klein_sd_int8_convrot.safetensors",
+        "expected_sha256": "847d8933548afd93df4af2cac2498e70891bf28d9dae06d695f536992e168fe2",
+        "expected_bytes": 5827874779,
+        "bytes": 5827874779,
+        "sha256": "847d8933548afd93df4af2cac2498e70891bf28d9dae06d695f536992e168fe2",
+        "tensor_count": 650,
+        "header_bytes": 70896,
+        "header_valid": true,
+        "valid": true
+      },
+      {
+        "path": "F:\\model\\text_encoders\\flux3\\qwen3vl_4b_int8_convrot.safetensors",
+        "expected_sha256": "32de113cbf8282b02cbff0794b637b9d6676da09314a1db5a30bcea9bf4ee01c",
+        "expected_bytes": 4858559240,
+        "bytes": 4858559240,
+        "sha256": "32de113cbf8282b02cbff0794b637b9d6676da09314a1db5a30bcea9bf4ee01c",
+        "tensor_count": 1219,
+        "header_bytes": 149976,
+        "header_valid": true,
+        "valid": true
+      },
+      {
+        "path": "F:\\model\\vae\\flux3\\flux2-vae.safetensors",
+        "expected_sha256": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3",
+        "expected_bytes": 336211292,
+        "bytes": 336211292,
+        "sha256": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3",
+        "tensor_count": 251,
+        "header_bytes": 25792,
+        "header_valid": true,
+        "valid": true
+      }
+    ]
+  }
+}

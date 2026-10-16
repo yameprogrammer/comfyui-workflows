@@ -40,32 +40,40 @@ def _find_nodes(api: dict, class_type: str) -> list[str]:
 
 
 def extract_first_video(history: dict) -> tuple[str, str, str]:
-    """Return (filename, subfolder, type) for first video-like output."""
+    """Return generated video, preferring saved output to temp; never input previews."""
     outputs = history.get("outputs") or {}
-    for _nid, o in outputs.items():
+    candidates = []
+    for o in outputs.values():
         for key in ("gifs", "videos", "images"):
-            items = o.get(key) or []
-            for it in items:
-                fn = it.get("filename") or ""
-                if not fn:
-                    continue
-                lower = fn.lower()
-                if key in ("gifs", "videos") or lower.endswith(
-                    (".mp4", ".webm", ".gif", ".mkv", ".mov")
-                ):
-                    return fn, it.get("subfolder") or "", it.get("type") or "output"
-    # fallback any image seq entry that is mp4
-    for _nid, o in outputs.items():
-        for items in o.values():
-            if not isinstance(items, list):
-                continue
-            for it in items:
+            for it in o.get(key) or []:
                 if not isinstance(it, dict):
                     continue
                 fn = str(it.get("filename") or "")
-                if fn.lower().endswith((".mp4", ".webm", ".mkv", ".mov")):
-                    return fn, it.get("subfolder") or "", it.get("type") or "output"
-    raise RuntimeError(f"No video in history outputs: {list(outputs.keys())}")
+                ftype = it.get("type") or "output"
+                if fn and ftype in ("output", "temp") and (
+                    key in ("gifs", "videos")
+                    or fn.lower().endswith((".mp4", ".webm", ".gif", ".mkv", ".mov"))
+                ):
+                    candidates.append((fn, it.get("subfolder") or "", ftype))
+    if not candidates:
+        for o in outputs.values():
+            for items in o.values():
+                if not isinstance(items, list):
+                    continue
+                for it in items:
+                    if not isinstance(it, dict):
+                        continue
+                    fn = str(it.get("filename") or "")
+                    ftype = it.get("type") or "output"
+                    if ftype in ("output", "temp") and fn.lower().endswith(
+                        (".mp4", ".webm", ".mkv", ".mov")
+                    ):
+                        candidates.append((fn, it.get("subfolder") or "", ftype))
+    for preferred in ("output", "temp"):
+        for candidate in candidates:
+            if candidate[2] == preferred:
+                return candidate
+    raise RuntimeError(f"No generated video in history outputs: {list(outputs.keys())}")
 
 
 def _resolve_local_video(filename: str, subfolder: str, ftype: str) -> str:

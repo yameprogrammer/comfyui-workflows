@@ -56,10 +56,10 @@ python scripts/skill_equip.py install output-review
 
 | id | 경로 | 용도 | 상태 |
 |----|------|------|------|
-| **video-direction** | [video-direction/](video-direction/) | 기획·연출·샷 문법·시각 1–10층 | ✅ v1.11 |
+| **video-direction** | [video-direction/](video-direction/) | 기획·연출·샷 문법·시각 1–10층 | ✅ v1.13.0 |
 | **camera-previz** | [camera-previz/](camera-previz/) | Blender 블록 플레이트 → H3 카메라 잠금 (멀티샷·컬러코드·blend) | ✅ v1.2 |
 | **generation-prompt** | [generation-prompt/](generation-prompt/) | SHOT → 모델별 방언 프롬프트 | ✅ v1.3 |
-| **video-edit** | [video-edit/](video-edit/) | 말→EDIT_PLAN→타임라인→마스터 QA | ✅ v1.5 |
+| **video-edit** | [video-edit/](video-edit/) | 말→EDIT_PLAN→타임라인→마스터 QA | ✅ v1.9.0 |
 | **output-review** | [output-review/](output-review/) | generate_* 결과 능동 평가 · fail→레버 | ✅ v1.0 |
 | **music-caption-rewriter** | [music-caption-rewriter/](music-caption-rewriter/) | MiniMax Music 3 캡션. 라우터 → 패밀리 1개 → 템플릿 최대 3개. 1,000개를 전부 읽지 않음 | ✅ v1.0.0 (upstream 2026-08-14) |
 
@@ -85,3 +85,7 @@ CREATIVE + SHOT_DESIGN → still/i2v/si2v strings  →  generate_*         →  
 ## Music cover skill
 
 [yue2-cover](yue2-cover/SKILL.md) v1.0.0 — local reference melody covers, generated voice default, optional reference SVC. Independent of the video direction rail. `python scripts/skill_equip.py install yue2-cover --target all`.
+
+## PC-HOME music-locked handoff (2026-10-14)
+
+For music-led planning read video-direction/references/music_locked_handoff.md. PC-HOME delivery uses the shared Remotion/Blender pipeline and exact latest user-saved blend; generic edit_pack examples do not override project restrictions. v1.13.0 direction / v1.9.0 edit. Sync reviewed changed files only, preserve backups; skill_equip install replaces entire target directories.

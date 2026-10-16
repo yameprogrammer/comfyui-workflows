@@ -1,0 +1,23 @@
+{
+  "id": "FN-20261004-002",
+  "created_at": "2026-10-04T13:58:55+00:00",
+  "agent": "codex",
+  "episode_id": "mv001-invisible-cape",
+  "shot_id": "hold_horizontal",
+  "stage": "keyframe",
+  "tags": [
+    "anime",
+    "identity",
+    "multi_reference"
+  ],
+  "symptom": "Qwen edit of H02 retained original juvenile head silhouette rather than selected mature father reference",
+  "root_cause": "Complex scene and preservation wording competed with reference identity transfer",
+  "fix": "Simplify contact plate on neutral background, replace entire adult head from selected reference, then place in locked room",
+  "prevention": "Compare head contour and hairline after edit before using scene as production asset",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv001-invisible-cape/03-design/production-assets_v001/contact/hold_horizontal_identity_v001.png"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

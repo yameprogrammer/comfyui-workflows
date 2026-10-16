@@ -1,0 +1,53 @@
+[
+  {
+    "repository": "black-forest-labs/flux-3-image-klein-comfy",
+    "revision": "5c9b714851dc072b04a23ef6d2d36421f5ccb3a0",
+    "file": "diffusion_models/flux3_image_klein_sd_int8_convrot.safetensors",
+    "bytes": 5827874779,
+    "sha256": "847d8933548afd93df4af2cac2498e70891bf28d9dae06d695f536992e168fe2",
+    "required": true,
+    "status": "VERIFIED_READY_SHARED_WITH_PRODUCTION",
+    "physical_path": "F:\\model\\diffusion_models\\flux3\\flux3_image_klein_sd_int8_convrot.safetensors",
+    "namespace_file": "diffusion_models/flux3/flux3_image_klein_sd_int8_convrot.safetensors"
+  },
+  {
+    "repository": "black-forest-labs/flux-3-image-klein-comfy",
+    "revision": "5c9b714851dc072b04a23ef6d2d36421f5ccb3a0",
+    "file": "text_encoders/qwen3.5_9b_flux3_prompt_upsampler_int8_convrot.safetensors",
+    "bytes": 9748113996,
+    "sha256": "cb8cb9b9dcd2569509de755dca54d96fd93a16a7aabfd2f4051f0a144230620f",
+    "required": false,
+    "status": "NOT_INSTALLED_BY_DESIGN"
+  },
+  {
+    "repository": "black-forest-labs/flux-3-image-klein-comfy",
+    "revision": "5c9b714851dc072b04a23ef6d2d36421f5ccb3a0",
+    "file": "text_encoders/qwen3.5_9b_flux3_prompt_upsampler_w4a8.safetensors",
+    "bytes": 6724090780,
+    "sha256": "e5d85a7421d197bf5a12474511936ecabce19a833252f16e9310a983194a4458",
+    "required": false,
+    "status": "NOT_INSTALLED_BY_DESIGN"
+  },
+  {
+    "repository": "black-forest-labs/flux-3-image-klein-comfy",
+    "revision": "5c9b714851dc072b04a23ef6d2d36421f5ccb3a0",
+    "file": "text_encoders/qwen3vl_4b_int8_convrot.safetensors",
+    "bytes": 4858559240,
+    "sha256": "32de113cbf8282b02cbff0794b637b9d6676da09314a1db5a30bcea9bf4ee01c",
+    "required": true,
+    "status": "VERIFIED_READY_SHARED_WITH_PRODUCTION",
+    "physical_path": "F:\\model\\text_encoders\\flux3\\qwen3vl_4b_int8_convrot.safetensors",
+    "namespace_file": "text_encoders/flux3/qwen3vl_4b_int8_convrot.safetensors"
+  },
+  {
+    "repository": "black-forest-labs/flux-3-image-klein-comfy",
+    "revision": "5c9b714851dc072b04a23ef6d2d36421f5ccb3a0",
+    "file": "vae/flux2-vae.safetensors",
+    "bytes": 336211292,
+    "sha256": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3",
+    "required": true,
+    "status": "VERIFIED_READY_SHARED_WITH_PRODUCTION",
+    "physical_path": "F:\\model\\vae\\flux3\\flux2-vae.safetensors",
+    "namespace_file": "vae/flux3/flux2-vae.safetensors"
+  }
+]

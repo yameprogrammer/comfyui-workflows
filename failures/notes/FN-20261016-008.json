@@ -1,0 +1,29 @@
+{
+  "id": "FN-20261016-008",
+  "created_at": "2026-10-16T22:48:44+00:00",
+  "agent": "Codex",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "motion_quality",
+  "tags": [
+    "ltx25",
+    "ingredients",
+    "identity",
+    "speech",
+    "validation"
+  ],
+  "symptom": "Some face reference sheets retain panels; default-quality facial speech drifts and one earlier prompt ablation changed metadata only.",
+  "root_cause": "Not fully isolated. Public graph controls remove panels with same base/Ingredients stack. One same-prompt English adapter-off comparison reduces facial drift. No evidence of enhancer or I2V anchor causing the tested Ingredients failures.",
+  "fix": "Preserve failed trials; compare exact public original, portrait-only and matched-text cases. Bind actual Text Multiline prompt and assert it before queueing. Keep quality default; optional no-added-LoRA experiment remains explicit, with audio-level review.",
+  "prevention": "Separate execution from visual identity and listening. Record graph/input hashes and output QA. Do not infer model impossibility from local sheet failures or auditory quality from ASR. real_i2v_front_open is invalid; use correctedv2.",
+  "related_paths": [
+    "C:\\Users\\parkp\\Documents\\Codex\\2026-10-16\\task-8\\quality_validation_20261016_2208\\QUALITY_REPORT.md",
+    "C:\\Users\\parkp\\Documents\\Codex\\2026-10-16\\task-8\\quality_validation_20261016_2208\\QUALITY_RESULTS.json"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": [
+    "https://docs.ltx.io/open-source-model/integration-tools/ic-lo-ra-adapters",
+    "https://loopforge.cc/projects/ltx-2-5-loras/guitarist-on-a-stage/"
+  ]
+}

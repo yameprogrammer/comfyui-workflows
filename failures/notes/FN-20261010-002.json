@@ -1,0 +1,30 @@
+{
+  "id": "FN-20261010-002",
+  "created_at": "2026-10-10T04:39:19+00:00",
+  "agent": "codex",
+  "episode_id": "mv004-fogged-glasses",
+  "shot_id": "K03_K04",
+  "stage": "still",
+  "tags": [
+    "flow",
+    "nano_banana",
+    "multi_reference",
+    "layout_drift",
+    "contact",
+    "gaze"
+  ],
+  "symptom": "MV004 Flow new stills retained style-reference counter geometry or merely held glasses; first Final gazed toward viewer instead of partner.",
+  "root_cause": "Observed reference-background and pose competition. Flow internal cause unverified. Empty-room plate alone allowed subject relocation; natural-language action did not guarantee cuff-lens contact.",
+  "fix": "Separate face/style/layout references. Replace menu boards with blank panels. Final v002 uses explicit opposing head turns and meeting eyelines and passed draft visual review. K03 v001/v002 rejected; v003 contact-focused close shot submitted, verdict pending.",
+  "prevention": "Compare actual room topology, seat, eyelines and physical contact against references; specify cuff attached to sleeve and lens occlusion; choose action structure reference or tighten framing when contact fails. Never treat generation success as approval.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv004-fogged-glasses/05-shots/flow_review_v001/K03/qa_v002/record.json",
+    "D:/yame-film/content/projects/mv004-fogged-glasses/05-shots/flow_review_v001/K04/qa_v002/record.json"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": [
+    "FN-20261005-008",
+    "FN-20260902-005"
+  ]
+}

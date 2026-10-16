@@ -336,6 +336,7 @@ def build_aio_switched_api(
     vbvr_strength: float | None = None,
     asian_face: bool | None = None,
     asian_face_strength: float | None = None,
+    apply_legacy_loras: bool = True,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Apply mode switches on real AIO UI WF, expand to API, inject run params.
 
@@ -611,7 +612,7 @@ def build_aio_switched_api(
         omni_on=True,
         vbvr_on=vbvr_enable,
         vbvr_strength=vbvr_str,
-    )
+    ) if apply_legacy_loras else {"skipped": "LTX-2.3 quality LoRAs disabled for version-isolated caller"}
     if face_lora_report is not None:
         face_lora_report["ltx_profile"] = qprof.get("id")
         face_lora_report["tune"] = {

@@ -1,0 +1,24 @@
+{
+  "id": "FN-20261012-002",
+  "created_at": "2026-10-12T14:36:47+00:00",
+  "agent": "unknown",
+  "episode_id": "mv006-crooked-yellow",
+  "shot_id": "S19",
+  "stage": "tool",
+  "tags": [
+    "h3",
+    "ref_video",
+    "output_selection",
+    "input_preview"
+  ],
+  "symptom": "Image plus video R2V returned LoadVideo input preview rather than generated SaveVideo output.",
+  "root_cause": "History enumeration selected first video, including type input node220, before output node92.",
+  "fix": "Prefer type output then temp; never input. Recovered real S19 generated file. Seven regressions including real history passed.",
+  "prevention": "Check returned history video type and actual generated source; input-only history must fail closed.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv006-crooked-yellow/05-shots/h3_r2v_production_v001/tool_fix/REGRESSION_v001.json"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

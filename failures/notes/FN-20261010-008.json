@@ -1,0 +1,26 @@
+{
+  "id": "FN-20261010-008",
+  "created_at": "2026-10-10T12:34:39+00:00",
+  "agent": "unknown",
+  "episode_id": "mv004-fogged-glasses",
+  "shot_id": "H01",
+  "stage": "clip",
+  "tags": [
+    "h3",
+    "ref2va",
+    "exact_dialogue",
+    "prompt_leakage"
+  ],
+  "symptom": "MV004 H01 T01 independent ASR detected extra opening words before target dialogue; native frames drifted to close-up without hands.",
+  "root_cause": "Unconfirmed. Shorter prompt and long silent generation allowance may contribute; no causal proof.",
+  "fix": "Reused validated longer seated exact-dialogue prompt, changed requested duration6 to5seconds and seed. H01 T02 independently transcribes only target sentence and all124 native frames retain seated framing and hands.",
+  "prevention": "Inspect entire joint audio with independent ASR and all native face/body frames; exact reference does not guarantee exact words. Preserve rejected take, regenerate rather than cut extra words to hide failure. Direct listening remains separate.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv004-fogged-glasses/09-shorts-production_v001/curator/qa/H01_T01_fail_record.json"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": [
+    "FN-20261010-001"
+  ]
+}

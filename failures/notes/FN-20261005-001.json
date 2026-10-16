@@ -1,0 +1,23 @@
+{
+  "id": "FN-20261005-001",
+  "created_at": "2026-10-05T00:18:36+00:00",
+  "agent": "unknown",
+  "episode_id": "mv001-invisible-cape",
+  "shot_id": null,
+  "stage": "motion",
+  "tags": [
+    "minimax_h3",
+    "aspect_ratio",
+    "stretch"
+  ],
+  "symptom": "MV faces and props distorted after arbitrary aspect stills entered H3; small crops were enlarged.",
+  "root_cause": "Local MiniMax first_frame node uses plain resize with crop disabled; aspect mismatch stretches geometry. Prior source preparation also directly resized tiny crops.",
+  "fix": "Prepare complete source with uniform contain into actual native 1344x768 canvas; reject small effective sources; regenerate affected clips.",
+  "prevention": "Verify source dimensions and aspect-preserving geometry record before generation; review native output against source. Never approve from exit status alone.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv001-invisible-cape/08-rebuild_v002/planning/QUALITY_GATE.md"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

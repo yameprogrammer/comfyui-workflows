@@ -1,6 +1,6 @@
 ---
 name: video-edit
-version: 1.8.0
+version: 1.9.0
 description: >
   Editor-in-chief skill for agent_custom. After clips exist, turn a verbal brief
   into EDIT_PLAN + timeline + titles + master render + QA. Use when assembling,
@@ -21,6 +21,14 @@ description: >
 생성 붕괴(얼굴, freeze)는 여기서 고치지 않는다. 해당 클립을 다시 GENERATE.
 
 ---
+
+## PC-HOME / 사용자 편집본 분기 (일반 CLI 예시보다 우선)
+
+PC-HOME 작업은 먼저 `C:/Users/parkp/ai-vault/decisions/video_edit_pipeline.md`의 PC-HOME 절과 대상 프로젝트 AGENTS.md를 읽는다. 소재/로컬 클립 → Remotion 소스·짧은 그래픽/투명 출력 → Blender VSE 컷·오디오·편집 가능한 TEXT 자막 → 사용자 프리뷰·수정·저장 → 정확한 최신 저장본 인수 → 별도 렌더 사본·QC를 따른다. 아래 edit_pack/FFmpeg 기본 레일은 이 프로젝트 분기를 대체하지 않는다.
+
+음원 기반 타임코드/소스 인계는 설치된 `video-direction/references/music_locked_handoff.md`를 읽는다. 계획 JSON은 도구별 별도 변환이 필요한 계획 보조 자료이며 최신 사용자 `.blend`보다 우선하지 않는다. 이미 수동 편집한 blend의 출력 요청이면 기존 빌더/JSON으로 재생성하지 않고 정확한 저장 경로·해시·dirty 여부를 확인하여 인수한다. 동시 저장·원본 덮어쓰기·사용자 입력/포커스 점유를 피하고 원본 소재 연결/프록시 비활성 및 출력 QC를 확인한다. 새 저장/해시 변경 시 다시 인수한다.
+
+기존 하단 한글 번인과 사용자 컷·자막을 보존한다. 프로젝트 필수 EN/JA 선택형 SRT·KO/EN/JA 업로드 문구는 실제 최종 영상별로 검증한다. 미검수·미확인 항목은 완료로 쓰지 않는다. 드라마는 기획/프롬프트 범위·사용자 실행/렌더 담당·shell 영상 생성/렌더 금지를 유지한다. 현재 명시적 위임을 넘어 유료 생성·공개 게시를 시작하지 않는다.
 
 ## 게이트 (순서 고정)
 

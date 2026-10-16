@@ -46,7 +46,7 @@
         0
       ],
       "conditioning": [
-        "195",
+        "218",
         0
       ]
     }
@@ -128,8 +128,8 @@
     "class_type": "LTXVSeparateAVLatent",
     "inputs": {
       "av_latent": [
-        "125",
-        1
+        "220",
+        0
       ]
     }
   },
@@ -166,7 +166,7 @@
         1
       ],
       "latent_image": [
-        "198",
+        "219",
         0
       ]
     }
@@ -180,6 +180,10 @@
       ],
       "text_encoder": [
         "128",
+        0
+      ],
+      "negative_conditioning": [
+        "214",
         0
       ]
     }
@@ -426,13 +430,49 @@
     "class_type": "DenoTextEncoderUnload",
     "inputs": {
       "positive_conditioning": [
-        "214",
-        0
+        "195",
+        1
       ],
       "text_encoder": [
         "128",
         0
       ]
+    }
+  },
+  "218": {
+    "class_type": "VRAM_Debug",
+    "inputs": {
+      "any_input": [
+        "195",
+        0
+      ],
+      "empty_cache": true,
+      "gc_collect": true,
+      "unload_all_models": true
+    }
+  },
+  "219": {
+    "class_type": "VRAM_Debug",
+    "inputs": {
+      "any_input": [
+        "198",
+        0
+      ],
+      "empty_cache": true,
+      "gc_collect": true,
+      "unload_all_models": true
+    }
+  },
+  "220": {
+    "class_type": "VRAM_Debug",
+    "inputs": {
+      "any_input": [
+        "125",
+        1
+      ],
+      "empty_cache": true,
+      "gc_collect": true,
+      "unload_all_models": true
     }
   }
 }

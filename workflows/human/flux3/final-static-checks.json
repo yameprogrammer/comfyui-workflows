@@ -1,0 +1,22 @@
+{
+  "existing_catalog_preserved": true,
+  "new_catalog_keys": [
+    "flux3_box_layout",
+    "flux3_character_consistency",
+    "flux3_multi_reference",
+    "flux3_single_edit",
+    "flux3_style_consistency",
+    "flux3_t2i",
+    "generate_flux3"
+  ],
+  "api_ui_installed_files_equal_stage": true,
+  "ui_default_reference_files_exist": true,
+  "existing_document_bodies_preserved": true,
+  "existing_intent_cards_preserved": true,
+  "vault_existing_h3_and_lifecycle_sections_preserved": true,
+  "vault_single_flux3_section": true,
+  "vault_index_pointer_count": 1,
+  "vault_frontmatter_updated": true,
+  "all_guide_paths_exist": true,
+  "vault_no_token_strings": true
+}

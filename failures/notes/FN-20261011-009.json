@@ -1,0 +1,26 @@
+{
+  "id": "FN-20261011-009",
+  "created_at": "2026-10-11T13:42:58+00:00",
+  "agent": "codex",
+  "episode_id": "mv006-crooked-yellow",
+  "shot_id": null,
+  "stage": "reference_sheet",
+  "tags": [
+    "krea2",
+    "identity_edit",
+    "hair",
+    "viewpoint"
+  ],
+  "symptom": "MV006 generic side prompt ponytail if present invented tied hair on short-haired child and father; child rear attempt mixed rear head with front bib.",
+  "root_cause": "Observed prompt contamination from optional hairstyle mention; high identity ref boost also resisted viewpoint change. Existing pose-lock FN-20260902-005 applies.",
+  "fix": "State each short haircut ending above exposed nape, lower ref boost for viewpoint, specify entire body rear clothing. C_SIDE_v002 P_SIDE_v002 and C_BACK_v002 directly opened and passed. Mother uses dedicated Qwen angle then mouth-only Krea repair.",
+  "prevention": "Never reuse optional wardrobe or hair clauses across cast. Inspect head torso pelvis heels together; dedicated angle edit may introduce lips or costume details, recheck against master.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv006-crooked-yellow/03-design/reference-pack_v001"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": [
+    "FN-20260902-005"
+  ]
+}

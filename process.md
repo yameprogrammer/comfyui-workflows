@@ -1,3 +1,64 @@
+## 2026-10-16 — Codex — Higgs TTS 3 isolated integration
+
+- User accepted Boson model terms after a verified backup using backup_env.bat; backup: F:/backups/ComfyUI_env/env_20261016_232422_before_higgs3, with consistent SQLite restore supplement.
+- Preserved original Transformers4.57.3/Torch2.13/audio patches; added one local subprocess bridge node, private Transformers5.3 dependency overlay, frozen existing Suite MIT engine, official pinned weights, CLI and 3 UI/API workflows. Original8188 executes the graph; no separate ComfyUI substituted.
+- Korean/English neutral/elation/sadness/anger and user-created VoiceDesign reference fixtures executed through original8188; results, local ASR, acoustic QC, regressions and limitations are in workflows/human/higgs3_tts/TEST_MATRIX.md and F:/Agent_media_sandboxes/higgs3/validation. Hearing-based emotion/identity QC and browser UI execution remain unverified.
+- Agent discovery follow-up: linked Higgs guide/test matrix, ready_experimental and listening limits directly from root AGENTS.md; existing vault Higgs section links that route and official credit/license conditions. Existing LTX content preserved byte-for-byte.
+- Registered as ready_experimental; license/credit and clean rollback guidance included. Shared files were reread immediately before narrow insertions to preserve concurrent changes.
+
+## 2026-10-16 — Codex — LTX-2.5 isolated path preparation (GPU pending)
+
+- Preserved changed files and hashes in C:/Users/parkp/Documents/Codex/2026-10-16/task-8/before_ltx25 and ltx25-change-manifest.json; full pre-Higgs environment backup is env_20261016_232422_before_higgs3.
+- [Superseded by LoRA review below] Opt-in 2.5 temporarily disabled automatic legacy 2.3 quality LoRAs; 2.3 default behavior remains unchanged. Added model-family guard, strict completed/output success check, no implicit server launch, API-only export and render-vs-QA evidence.
+- Registered 2.5 consistently as ready_experimental; clarified ten modes and official-vs-production prompt/frame guidance. Official A2V/Ingredients expansion is staged, not installed or runtime verified.
+- GPU generation, shared Python/node updates and server restart are intentionally not run until parent resource coordination; no claim of runtime or quality success.
+
+## 2026-10-16 — Codex — FLUX3 Klein original portable integration
+
+- Objective: official distilled INT8 generation/reference features in F:/ComfyUI_windows_portable after isolated tests and explicit user approval.
+- Verified/moved three downloaded models, placed models in F:/model/.../flux3 physical folders without duplicates. Backed up full code/custom_nodes/user/config and embedded Python at F:/backups/ComfyUI_before_flux3_20261016.
+- Fast-forwarded official core to0.41.1 with all3local patches reapplied; changed8required packages, retained Python3.13/Torch2.13/transformers4.57.3 and original launch flags.
+- Added CLI/runner,6API/UI presets, catalog/intent discovery and guide. Actual runtime/QC and regression evidence in F:/Agent_media_sandboxes/flux3/validation.5mode final samples pass; strict style transfer remains experimental/QC fail. UI browser execution untested; static equivalence passed.
+- Existing toolbox edits preserved. Full test matrix documents measured scope and limitations; no claim of exhaustive legacy workflow coverage.
+
+## 2026-10-14 · Music-locked planning / PC-HOME handoff
+
+- Updated video-direction 1.13.0 and video-edit 1.9.0 with actual-audio evidence, inclusive/exclusive frame timing, source lineage and latest user-saved Blender authority; preserved project/drama scope.
+- Added one original text reference; no external skill/code/template copy, dependencies, downloads, watermark, deletion or media execution.
+- Selectively synchronized only existing installations using file backups and hashes; no directory replacement. Validation/evidence: C:/Users/parkp/Documents/Codex/2026-10-14/task-7/REVIEW.ko.md and change-manifest.json. App loading remains unverified.
+
+## 2026-10-05 · Codex · Publish H3 stability guidance for consuming agents
+
+- Added docs/comfyui_h3_stability.md as operational reference: three required components, local KJNodes update caveat, real server flags, fresh graph requirement, recurrence handling, and bounded validation scope.
+- Linked agent/tool entrypoints, catalog, project template, prompt reference and intent search. Corrected stale generic optimized-first advice and base CLI description; distinguished newly verified I2V from unverified modes/resolutions.
+- Verification: 2 base graph/decode tests + 6 optimized runner tests passed; intent search surfaces the stability guide; guide/evidence links resolve; git diff --check passed. tool_index_check: 0 errors, 1 unrelated existing catalog warning for generate_yue2_music.py.
+- Preserved historical final-run evidence in docs/validation/comfyui_h3_20261005.json. No new media generation, server restart, package update or commit in this documentation pass.
+
+## 2026-10-05 · Codex · H3 repeated-run memory cleanup and runtime stabilization
+
+- Added base-runner pre-sampling TE/VAE unload; retained pre-decode unload. Local KJNodes VRAM_Debug now invalidates its cache on every run. Same-input/new-seed repeat previously skipped cleanup and stalled; corrected repeat completed.
+- Dynamic VRAM + async off still failed at 8s, including reserve-vram 3. Dynamic off completed two cold 8s comparisons (~183s each) but used excessive system RAM. Reserve 3 + async on passed 480x864 but still stalled at 576x1024. Final choice: dynamic on, async on (2 streams), reserve-vram 3, vram-headroom 2; keep pinned memory defaults.
+- Three final same-server successes: headroom2_work_8s_1: 203.3s, headroom2_work_8s_2: 196.16s, headroom2_short_after_long: 22.27s. The first two use work 576x1024, 8s/20 steps; the third returns to 480x864, 0.9s/20 steps after both long runs. No claim of universal or long-term stability. Core CUDA wait cause not identified beyond the reproducible configuration interaction.
+- Persisted tested runtime flags in run_nvidia_gpu.bat; updated entrypoint/guides. Graph/decode dependency tests (2), optimized-runner regressions (6), and cache invalidation check passed. Evidence/backups: F:/ComfyUI_windows_portable/tmp/comfy_diag_20261005. No model/driver/package upgrades or commits.
+
+## 2026-10-04 · Codex · FL2VA production routing correction
+
+- User-directed policy: T2V/I2V/FLF use base single-pass generate_minimax_h3 work/native; 15+5/native_fast are experimental. Ref2VA R2V/V2V/AI2V optimized routing remains.
+- Base FLF 8s 576×1024 with pre-decode unload succeeded in 226.88s, 192 decoded video frames and audio. Native resolution success is user-reported. No blanket long-duration T2V/I2V validation claim.
+- Updated agent entrypoints, tool search/examples, guides and CLI help; documented attention/optimization versus two-pass comparison plan. No new generation or process interruption.
+
+## 2026-10-04 · Codex · Base FL2VA decode memory barrier
+
+- Base 8-second FLF completed all 20 steps in 195 seconds, then stalled after video VAE load. Route both decoders through a shared full model unload after the final sampler; preserve sampling settings and attention.
+- Regression checks cover single/two-pass final-sampler selection and both decoders. Full GPU completion remains unverified while the existing job is running.
+
+## 2026-10-04 · Codex · FLF/I2V sampling memory barriers
+
+- Follow-up: production FLF completed 15 sampling steps in ~49 s, then stalled inside the 3D upscaler. Add node 220 between first sampling and latent separation so diffusion is unloaded before the upscaler makes unmanaged CUDA allocations. Keep post-upscale/decode barriers. Full GPU validation remains pending.
+- Finish both keyframe conditioning resolutions before unloading TE/VAE; unload models again after latent upscale and before second sampling. Preserve models, resolution, duration and sampler settings.
+- Update agent presets and matching human workflows. Add dependency regression checks for both encoding branches and both sampler barriers.
+- Production 8-second GPU validation remains pending while another agent's job is running; prior 22-frame smoke results do not establish production stability.
+
 ## 2026-10-04 — Krea2 LoRA purpose catalog
 
 - Agents can list LoRAs dropped in `F:\model\loras\Krea2` and apply one only when its purpose card `when` matches. Empty cards stay off. `t2i` uses `generate_krea --lora`; identity and depth stay on their own CLIs.
@@ -1784,3 +1845,27 @@
 - CLI/runner: `--task a2v` (source audio mux) · `--task polish` (RTX VSR+RIFE, fallback rife)
 - Catalog / video_backends / tool_intent / tool_catalog updated
 - Smoke (4090): A2V 0.2MP ~50s · MultiRef ~110s · polish RTX+RIFE ~25s → 1216x704@48
+
+## LoRA compatibility review — 2026-10-16 correction
+
+The official LTX-2.5 model card says the large majority of LTX-2.3 LoRAs and IC-LoRAs run on 2.5 unchanged, with some exceptions requiring validation. A 2.3 filename is not grounds for disabling an adapter. https://huggingface.co/Lightricks/LTX-2.5#training--fine-tuning
+
+Restored the pre-change runtime default: `--lora-policy quality --ltx-profile work`. This enables `LTX2.3\ltx-2.3-22b-distilled-1.1_lora-dynamic_fro09_avg_rank_111_bf16.safetensors` at 0.7 and `LTX2.3\ltx2.3_upscale_ic-lora_06250.safetensors` at 0.45. The former is a distilled/speed/model-behavior LoRA; the latter is an upscale IC-LoRA (header reference_downscale_factor=2). They are not interchangeable with identity/Union/Ingredients adapters. The retained Cameraman slot is OFF@0.7 and was not affected. Detailer and Omni were not slots in this 2.5 graph; VBVR was already explicitly off before the change.
+
+`--lora-policy workflow` preserves the saved UI on/off/strength settings (all three current slots off); `--lora-policy none` explicitly disables all Power LoRA slots for a controlled baseline comparison. Neither setting is a compatibility verdict. Active filenames/strengths/policy are recorded in run metadata. Files and UI settings have never been deleted or replaced.
+
+Exact two-adapter-on-LTX2.5 quality/runtime evidence has not been found. The local July-17 detailer A/B supports the old 2.3 detailer use only, not these exact two files on 2.5. GPU remains pending parent coordination. The original automatic stack is preserved as requested; compare quality/workflow/none after the basic paths run.
+
+
+## Latest LTX-2.5 validation (2026-10-16T15:25:12.160419+00:00)
+
+Eight short GPU runs completed on original8188: T2V quality/none, I2V, FLF, T2A, A2V, Ingredients twice. Basic visual motion checks and technical audio checks passed; full playback/listening and production identity remain pending. **Ingredients visual QA failed both trials**, despite successful exact 2.5 adapter loading/execution. See [official-derived task guide](workflows/human/ltx25_official/AGENT_GUIDE.md) for commands, provenance and failures. Existing AIO quality LoRA policy and generic 2.3 defaults remain. No package/node updates or restart. Evidence: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/runtime-validation.json`. Earlier pending-stage entries below are historical and superseded by this entry.
+
+
+## Ingredients recovery update — 2026-10-16T15:42:42.646004+00:00
+
+Earlier two visual failures remain in history, but they are no longer the final result. A controlled untiled-only ablation failed; rebuilding the reference as one distinct prop panel plus a separate empty location and matching the positional inventory prompt removed the panel layout/dark occluder at the same seed4747, strength1, official768×448/121/24 bucket. This bounded prop/motion case visually PASSED. Black background is part of the official sheet contract and remains in the successful input; removing it is not the general fix. The individual contribution of image design versus wording is not isolated.
+
+The same INT8+new2.5 Ingredients stack also combined a published character/guitar/stage sheet into one scene; exact face/hair fidelity and listening remain pending. No general production identity guarantee. Detailed hypotheses, official/community confidence, actual API and contacts: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/INGREDIENTS_DIAGNOSIS.md`; latest records: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/ingredients-repair-status.json`.
+
+CLI Ingredients defaults are now5sec/768×448 with untiled reference encoding, strength1 and Euler ancestral. Community comparison controls are explicit `--adapter-strength 1.4 --sampler euler_ancestral_cfg_pp`; they do not replace the official default or original AIO quality policy. All prior T2A/A2V graphs and other successful paths are preserved. No new models/nodes/packages, no restart. Model remains only at `F:/model/loras/LTX2.5/ltx-2.5-22b-ic-lora-ingredients-0.9.safetensors`; Downloads duplicate absent and full SHA reverified.

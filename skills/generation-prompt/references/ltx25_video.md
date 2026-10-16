@@ -1,137 +1,63 @@
-# LTX 2.5 video prompts (T2V / TA2V / I2V / IA2V / FLF / FLFA / FML / FMLA / V2V)
+# LTX-2.5 prompt contract: user input, enhancer output, production policy
 
-**CLI:** `generate_ltx25_aio` (`python scripts/generate_ltx25_aio.py --mode <mode> --prompt "..." [-i image] [-a audio]`)  
-**Manifest:** `workflows/agent/ltx25_aio.manifest.json`  
-**Workflow:** `workflows/agent/ltx25AllInOneWorkflowForRTX_custom.json`  
-**Architecture:** 22B Distilled Transformer + Gemma 4 12B Text Encoder + Latent Video/Audio VAE  
+Updated 2026-10-16. CLI: `generate_ltx25_aio` (ten declared modes; GPU/QC pending).
+Do not infer 2.5 from generic `generate_i2v`/`generate_s2v`: their defaults remain 2.3.
 
----
+## 1. User input (official current guidance)
 
-## ⚠️ 핵심 하드 룰 (생성 전 필독)
+T2V: describe shot size/viewpoint, subject and space/light, chronological visible actions, camera motion or explicit static camera, and a concrete soundscape. Quote exact dialogue in its original language; specify voice/language/accent when relevant. Natural English prose for scene direction; preserve Korean dialogue in Korean.
 
-| 규칙 | 내용 |
-|------|------|
-| **메모리 선행 해제** | 24GB VRAM 환경에서 Gemma 4 (14.6GB) + 22B DiT 동시 적재 방지를 위해 사전 `free_comfy_memory` 필수 (CLI 자동 수행) |
-| **Gemma 4 자연어** | 태그 나열(tag-soup) 금지. 완전한 문장의 영화적 자연어(Natural Language) 기술 권장 |
-| **단일 클립 상한** | **최대 10초** (24fps @ 768p 기준 최대 240프레임). 초과 시 CLI 경고 발생. 긴 컷은 드리프트 방지를 위해 last frame 체인 분할 |
-| **I2V 프롬프트 원칙** | 이미지가 인물 외모·의상·공간을 소유. 프롬프트는 오직 **시간 축 모션 + 카메라 + 미세 액션**만 서술 |
-| **단일 의도 집중** | 한 클립 = 1개의 주 카메라 무브 또는 1개의 핵심 액션 (복합 카메라 충돌 금지) |
-| **오디오 태그 지원** | 오디오 동기화 모드(IA2V/TA2V 등)에서는 대사 `"dialogue in quotes"` 및 환경음(`rain sound`, `footsteps`) 묘사 가능 |
-
----
-
-## 1. 프롬프트 기본 구조 (Gemma 4 12B 최적화)
-
-Gemma 4 12B 텍스트 인코더는 문맥 이해도와 공간/시간 관계 인지력이 매우 뛰어납니다.  
-기계적인 품질 수식어(`masterpiece, best quality, 8k`)는 완전히 배제하고, 장면의 물리적 변화와 감정선을 명확한 영어 산문으로 기술합니다.
-
-### 1.1 Simple (단일 샷 기본형 — 권장)
-```text
-[Camera movement], [subject micro-action], [lighting/atmosphere behavior], continuous motion throughout, no warp
-```
-**예시:**
-```text
-Slow cinematic push-in toward the face, subtle breathing and gentle hair drift in the breeze, soft diffused lighting holds steady, continuous motion throughout, no warp no flicker.
-```
-
-### 1.2 Chronological (시간 순차 서술형)
-LTX 2.5는 0초에서 4초 사이의 사건 전개를 문맥적으로 해석합니다.
-```text
-[0–2s: initial state and motion]. [2–4s: transition or subtle action shift]. [Camera and ambient cues throughout].
-```
-**예시:**
-```text
-The woman sits in silence looking down at the letter; after two seconds, she slowly lifts her gaze toward the camera with restrained emotion. Smooth static medium shot with soft window backlight holding throughout.
-```
-
----
-
-## 2. 9가지 모드별 프롬프트 가이드
-
-### 2.1 T2V (Text to Video)
-인물, 공간, 액션, 카메라, 조명을 모두 텍스트로 서술합니다.
-```text
-A young detective in a beige trench coat stands beneath flickering neon signs in a rainy alley. He slowly lifts a brass lighter to illuminate his face, shadows dancing across wet brick walls. Slow dolly in, cinematic 35mm film grain, continuous rain ambience.
-```
-
-### 2.2 TA2V (Text + Audio to Video)
-대사와 인물 감정 전달이 오디오와 함께 동기화됩니다. 대사는 큰따옴표(`"..."`)로 감싸줍니다.
-```text
-Close-up of a radio operator speaking into a vintage microphone: "Transmission confirmed, hold your position." His lips synchronize cleanly with the speech, eyes scanning the dials, subtle head nods, warm amber cockpit illumination.
-```
-
-### 2.3 I2V (Image to Video)
-**입력 이미지가 룩앤필(의상, 헤어, 인물 정체성, 배경 디테일)을 100% 결정합니다.**  
-프롬프트에서 이미지를 다시 설명하지 마십시오.
-- ❌ **금지:** `A pretty Korean girl with long black hair wearing a white silk blouse stands in a cafe...`
-- ⭕ **권장:** `Slow elegant dolly forward, gentle breathing and subtle blinking, she slightly turns her head to the left while maintaining eye contact, continuous natural motion.`
-
-### 2.4 IA2V (Image + Audio to Video)
-입력 이미지의 인물이 전달된 음성 오디오에 맞춰 립싱크 및 표정 연기를 수행합니다.
-```text
-The character speaks naturally with realistic lip movement, slight eyebrow twitches matching vocal emphasis, natural blinking and micro head tilts, stable camera, identity locked.
-```
-
-### 2.5 FLF & FLFA (First–Last Frame Interpolation)
-시작 프레임과 종료 프레임 사이를 자연스럽게 이어주는 **브리지(Bridge) 모션**만 기술합니다. (새로운 인물이나 엉뚱한 사건 삽입 금지)
-```text
-Smooth continuous transition from opening posture to the ending pose, gradual camera pull-back, seamless interpolation with no morphing or sudden pops, preserving subject identity throughout.
-```
-
-### 2.6 FML & FMLA (First–Middle–Last Frame)
-중간 키프레임을 거치는 2단계 전환 모션입니다.
-```text
-Continuous flowing motion: moving smoothly through the middle action and resolving into the final pose, steady pan left matching subject movement, clean temporal consistency.
-```
-
-### 2.7 V2V (Video to Video)
-기존 영상의 모션 구조를 유지하면서 스타일, 조명, 텍스처를 변환합니다.
-```text
-Retain source motion and camera trajectory exactly, transform visual grade into moody neo-noir cinema, high contrast shadows, wet asphalt reflections, no ghosting.
-```
-
----
-
-## 3. 카메라 무브 어휘 (Camera Lexicon)
-
-카메라 무브는 **1샷당 1개만** 사용하는 것이 드리프트 방지에 가장 좋습니다.
-
-| 의도 | 권장 어휘 | 비고 |
-|------|-----------|------|
-| 전진 (줌인/달리) | `slow cinematic push-in`, `gentle dolly forward` | 피사체 집중, 인물 클로즈업 |
-| 후진 (줌아웃/달리) | `slow pull-back`, `gentle dolly out` | 공간 확장, 고립감 |
-| 수평 이동 | `steady lateral track left/right`, `slow horizontal pan` | 걷기, 시선 이동 |
-| 고정 샷 | `locked-off tripod shot`, `static medium frame` | 연기 집중, 잔잔한 대화 |
-| 틸트 | `slow tilt up to sky`, `gentle downward tilt` | 높이감, 인물 전신 스캔 |
-| 원형 회전 | `gentle orbital arc around subject` | 극적 긴장감 |
-| 미세 핸드헬드 | `subtle natural handheld drift` | 현실감, 다큐멘터리 무드 |
-
----
-
-## 4. 미세 액션 및 환경 어휘 (Micro-actions & Atmosphere)
-
-- **호흡/미세 동작:** `subtle chest micro-rise`, `gentle rhythmic breathing`, `relaxed posture`
-- **시선/표정:** `slow natural blink`, `gaze shifts softly to the side`, `subtle smirk playing on lips`, `repressed tension in jaw`
-- **헤어/의류 펄럭임:** `soft wind flutter in hair`, `gentle fabric drift`, `loose strands swaying lightly`
-- **환경 이펙트:** `floating dust motes in sunbeam`, `continuous gentle drizzle`, `subtle steam rising from coffee cup`
-
----
-
-## 5. Negative Prompt (네거티브 프롬프트 표준)
-
-LTX 2.5는 네거티브 프롬프트 민감도가 높습니다. 과도한 문장형보다는 결함 토큰을 명확히 전달합니다.
+I2V: the image supplies appearance/composition. Concentrate on what happens next, camera relative to the subject, and audio. Do not contradict the first image or invent a wardrobe change. Avoid repeating a long appearance essay in the user's motion input.
 
 ```text
-warp, identity morph, face melt, sudden jump cut, teleportation, distorted limbs, flickering lighting, extra fingers, text overlay, watermark, plastic skin texture, stuttering motion
+T2V: A medium shot frames [subject] from [viewpoint] in [setting/light]. [Action], then [next action/pause]. The camera [movement/remains static]. [Synchronized ambience]. [Speaker] says in [language/voice], "[exact dialogue]".
+I2V: The subject [action], then [next action or pause]. The camera [movement relative to subject/remains static]. [Sound or exact dialogue consistent with the shot].
+A2V: [Visual scene, subject performance and camera]. The input audio drives timing; do not request conflicting new dialogue/music.
+FLF/FML: [Motion between supplied opening, optional middle, and ending states], [camera], [audio].
 ```
 
----
+Reference inputs are task-specific. Ingredients uses a reference sheet/static reference video and its adapter-specific `Reference sheet: ... / Generated video: ...` description. Motion Transfer, sparse tracks, V2V and H3 R2V are not interchangeable, and H3 `<Picture>`/audio tags are not LTX syntax.
 
-## 6. 품질 검수 체크리스트 (Quality Gate)
+## 2. Gemma4 enhancement output (different from the user's short input)
 
-생성 명령 실행 전 다음 사항을 확인하십시오:
-- [ ] 실행 모드가 의도에 부합하는가? (예: 단일 이미지→`i2v`, 음성 포함→`ia2v` 또는 `ta2v`)
-- [ ] 단일 생성 길이가 권장 상한 **10초(240프레임) 이내**인가? (초과 시 경고 발생)
-- [ ] I2V/IA2V에서 외모·의상 재서술이 없고 모션에 집중되어 있는가?
-- [ ] 충돌하는 카메라 무브가 섞여 있지 않은가? (`push-in and quick pan` 등 금지)
-- [ ] 사전 VRAM 언로드가 준비되어 있는가? (`generate_ltx25_aio.py` 실행 시 자동 수행)
+The official Gemma3 I2V system prompt says to describe changes only in a concise paragraph. The Gemma4 I2V system prompt instead asks for a detailed caption faithfully grounded in the exact first image: same subject, clothing, lighting and composition, then chronological motion in a continuous take. Accurate image description is allowed here; invented appearance is not.
+
+Gemma4 requests an explicit shot size, camera movement/static state, viewpoint, integrated sound, objective physical cues, and one rich paragraph (roughly 150–220 words for the enhancer's output). This is not a mandatory length for every user's short input.
+
+The official local templates use **Gemma4 E2B as enhancer**, separately from the LTX-specific **Gemma4-12B text encoder**. Short/rough/cross-model prompts can benefit; detailed controlled prompts can leave enhancement off. Inspect the effective rewritten prompt. The AIO currently forces raw prompt passthrough and exposes no verified E2B enhancement option; do not claim enhancement ran just because the node exists.
+
+## 3. Multi-shot and timing
+
+LTX-2.5 supports native multi-shot. In a chronological prose paragraph, name each cut, re-establish framing and recurring identity, and say whether audio continues or changes. Official guidance suggests 2–4 shots. For first-frame I2V and precise lip performance, a continuous take remains the safer choice. The Gemma4 I2V enhancer's default no-hard-cut instruction means deliberately designed multi-shot should not be blindly passed through that single-take enhancer.
+
+An optional duration predictor can set length; actual pauses must be written into the action. A timestamp in prose is not an exact timing guarantee. The local AIO does not currently wire automatic duration prediction.
+
+## 4. Negative prompts and conservative house rules
+
+- The existing 2.3 guide's CFG 2–4, 97-frame cap, auto-face prompt suffixes and PrunaVAE policy must not be copied into 2.5 distilled configuration.
+- Distilled reference graphs use CFG=1 and a fixed sigma schedule. Negative-input availability does not guarantee negative conditioning changes the output. No official evidence was found for a universal 2.5-specific increase in negative-prompt sensitivity.
+- Put desired behavior positively into the main prompt. Do not append `no warp`, `identity locked` or a defect list as a substitute for concrete action and appropriate conditioning.
+- One primary move, simple action and an approximately ten-second limit are conservative production choices, not official 2.5 feature restrictions. Video frame grid is `8n+1`.
+- The input image does not guarantee 100% identity preservation. Inspect frames and motion under output-review.
+
+## Sources and change evidence
+
+- Previous official LTX-2 guide (2025-12-11): https://ltx.io/blog/prompting-guide-for-ltx-2
+- Current user/multi-shot/enhancer guide: https://docs.ltx.io/open-source-model/usage-guides/prompting-guide
+- I2V input: https://docs.ltx.io/open-source-model/usage-guides/image-to-video
+- A2V: https://docs.ltx.io/open-source-model/usage-guides/audio-to-video
+- Gemma3: https://github.com/Lightricks/LTX-2/blob/main/packages/ltx-core/src/ltx_core/text_encoders/gemma/encoders/prompts/gemma3_i2v_system_prompt.txt
+- Gemma4: https://github.com/Lightricks/LTX-2/blob/main/packages/ltx-core/src/ltx_core/text_encoders/gemma/encoders/prompts/gemma4_i2v_system_prompt.txt
+- Explicit 2.5/Gemma4 change record (2026-08-11): https://github.com/Lightricks/LTX-2/blob/main/CHANGELOG.md
+
+The model card/release record explicitly establishes 2.5 capabilities. Current documentation recommendations do not by themselves establish the exact date a wording first changed. Local short production templates are house recommendations, not quotations from the enhancer system prompt.
+
+## LoRA compatibility review — 2026-10-16 correction
+
+The official LTX-2.5 model card says the large majority of LTX-2.3 LoRAs and IC-LoRAs run on 2.5 unchanged, with some exceptions requiring validation. A 2.3 filename is not grounds for disabling an adapter. https://huggingface.co/Lightricks/LTX-2.5#training--fine-tuning
+
+Restored the pre-change runtime default: `--lora-policy quality --ltx-profile work`. This enables `LTX2.3\ltx-2.3-22b-distilled-1.1_lora-dynamic_fro09_avg_rank_111_bf16.safetensors` at 0.7 and `LTX2.3\ltx2.3_upscale_ic-lora_06250.safetensors` at 0.45. The former is a distilled/speed/model-behavior LoRA; the latter is an upscale IC-LoRA (header reference_downscale_factor=2). They are not interchangeable with identity/Union/Ingredients adapters. The retained Cameraman slot is OFF@0.7 and was not affected. Detailer and Omni were not slots in this 2.5 graph; VBVR was already explicitly off before the change.
+
+`--lora-policy workflow` preserves the saved UI on/off/strength settings (all three current slots off); `--lora-policy none` explicitly disables all Power LoRA slots for a controlled baseline comparison. Neither setting is a compatibility verdict. Active filenames/strengths/policy are recorded in run metadata. Files and UI settings have never been deleted or replaced.
+
+Exact two-adapter-on-LTX2.5 quality/runtime evidence has not been found. The local July-17 detailer A/B supports the old 2.3 detailer use only, not these exact two files on 2.5. GPU remains pending parent coordination. The original automatic stack is preserved as requested; compare quality/workflow/none after the basic paths run.

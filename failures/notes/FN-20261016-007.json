@@ -1,0 +1,27 @@
+{
+  "id": "FN-20261016-007",
+  "created_at": "2026-10-16T15:20:57+00:00",
+  "agent": "Codex",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "clip",
+  "tags": [
+    "ltx25",
+    "ingredients",
+    "reference-layout"
+  ],
+  "symptom": "Ingredients output retains reference-sheet black margins and second panel instead of a single full-frame shot.",
+  "root_cause": "Input reference-sheet design plus inventory/target wording strongly contributed in this case: keeping seed/schedule/strength unchanged, replacing duplicated mixed prop/location panels and matching their descriptions removed leakage. Individual image-vs-prompt effect not isolated. Untiled-encode-only ablation failed, so tiling was not sufficient cause. No evidence model family is unusable.",
+  "fix": "Clean one-prop panel plus separate empty location on black; accurate positional two-part description; 768x448/121/24fps, strength1, downscale1; untiled encode matches official recipe. Local clean_sheet visual test passes. Community INT8/new2.5 Ingredients strength1.4 CFGpp case also composes character/prop/location but exact facial identity remains pending.",
+  "prevention": "Do not put the same prop in both a location shot and a close-up and assume layout will be ignored. Keep official black background; describe each distinct panel precisely. Establish a known-clean sheet first. Distinguish retrieval/composition from exact identity. Do not claim all failures fixed or model unusable from a few seeds.",
+  "related_paths": [
+    "C:\\Users\\parkp\\Documents\\Codex\\2026-10-16\\task-8\\validation\\ingredients_ball.mp4",
+    "C:\\Users\\parkp\\Documents\\Codex\\2026-10-16\\task-8\\validation\\ingredients_clean_sheet.mp4",
+    "C:\\Users\\parkp\\Documents\\Codex\\2026-10-16\\task-8\\validation\\ingredients_untiled.mp4",
+    "C:\\Users\\parkp\\Documents\\Codex\\2026-10-16\\task-8\\validation\\ingredients_loopforge.mp4",
+    "C:\\Users\\parkp\\Documents\\Codex\\2026-10-16\\task-8\\INGREDIENTS_DIAGNOSIS.md"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

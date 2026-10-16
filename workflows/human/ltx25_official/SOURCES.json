@@ -1,0 +1,28 @@
+{
+  "captured_utc": "2026-10-16T14:47:26.392651+00:00",
+  "source_commit": "44c8a36b7c31ee00b4271daed11dc2a4aa481140",
+  "files": [
+    {
+      "file": "LTX-2.5_A2V_Two_Stage_Distilled.json",
+      "url": "https://raw.githubusercontent.com/Lightricks/ComfyUI-LTXVideo/44c8a36b7c31ee00b4271daed11dc2a4aa481140/example_workflows/2.5/LTX-2.5_A2V_Two_Stage_Distilled.json",
+      "sha256": "bcabfb983a6c4e5b4dfc9f4789f4522d8aa64076e34cb5b58791553389af252f",
+      "bytes": 225460
+    },
+    {
+      "file": "LTX-2.5_ICLoRA_Ingredients_Single_Stage_Distilled.json",
+      "url": "https://raw.githubusercontent.com/Lightricks/ComfyUI-LTXVideo/44c8a36b7c31ee00b4271daed11dc2a4aa481140/example_workflows/2.5/LTX-2.5_ICLoRA_Ingredients_Single_Stage_Distilled.json",
+      "sha256": "9884348041cfa3e2425d828e27f6942d06e23ed51f80a614b54826b72a298d30",
+      "bytes": 146063
+    },
+    {
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/Lightricks/ComfyUI-LTXVideo/44c8a36b7c31ee00b4271daed11dc2a4aa481140/LICENSE",
+      "sha256": "7c8ef302fa1444a3a5650c2dfa09c6927a52b233202431023abb32519f354397",
+      "bytes": 21467
+    }
+  ],
+  "status": "source_snapshot_only",
+  "models_downloaded": false,
+  "runtime_verified": false,
+  "deployment": "not installed in ComfyUI user workflows; preparation only"
+}

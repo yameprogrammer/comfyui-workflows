@@ -1,0 +1,23 @@
+{
+  "id": "FN-20261005-009",
+  "created_at": "2026-10-05T14:07:31+00:00",
+  "agent": "codex",
+  "episode_id": "short001-channel-welcome",
+  "shot_id": null,
+  "stage": "tool_preflight",
+  "tags": [
+    "qwen_image_21",
+    "preset_schema",
+    "comfy_validation"
+  ],
+  "symptom": "qwen_image_21_edit fails Comfy validation: switch missing, cache dtype missing/device default invalid, SaveImageAdvanced format fields missing.",
+  "root_cause": "Installed custom node schemas differ from checked-in preset required names and options, confirmed in HTTP400 node_errors.",
+  "fix": "For welcome production switched to installed qwen_edit_2511 CLI preset; no shared tool code edited.",
+  "prevention": "Validate current object_info required fields before generation; node type presence alone does not prove a preset can queue. Preserve error and use existing validated route without undocumented schema patches.",
+  "related_paths": [
+    "D:/yame-film/content/projects/short001-channel-welcome/PRODUCTION_PROGRESS_v003.md"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

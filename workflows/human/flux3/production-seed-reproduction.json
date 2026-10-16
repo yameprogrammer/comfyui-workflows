@@ -1,0 +1,11 @@
+{
+  "same_pixels": true,
+  "same_dimensions": true,
+  "sampled_after_qwen_engine_switch": true,
+  "cached_node_lists": [
+    []
+  ],
+  "sampler_cached": false,
+  "pixel_sha256_first": "5224b00b09ed43bd9c6b858c21ca67bc02ed8bc7bda4bba97c51c439f623c4f9",
+  "pixel_sha256_repeat": "5224b00b09ed43bd9c6b858c21ca67bc02ed8bc7bda4bba97c51c439f623c4f9"
+}

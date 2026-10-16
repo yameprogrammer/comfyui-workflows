@@ -1,0 +1,26 @@
+{
+  "id": "FN-20261005-008",
+  "created_at": "2026-10-05T13:59:38+00:00",
+  "agent": "codex",
+  "episode_id": "short001-channel-welcome",
+  "shot_id": null,
+  "stage": "keyframe",
+  "tags": [
+    "qwen",
+    "multi_reference",
+    "two_people",
+    "identity_merge"
+  ],
+  "symptom": "Welcome BG_HS first insertion retained one Harin-like face and changed yellow clothing to blue instead of adding separate Seah.",
+  "root_cause": "Observed multi-reference identity and preservation wording competition; exact internal cause unverified.",
+  "fix": "Explicit TWO DIFFERENT WOMEN left yellow Harin right blue long-haired Seah, raw prompt, seed51002; actual opened result has both distinct identities.",
+  "prevention": "Assert two heads/torsos and compare both original portraits before generating motion. For addition, specify count and left/right identity; do not assume identity lock suffix is appropriate for adding a second person.",
+  "related_paths": [
+    "D:/yame-film/content/projects/short001-channel-welcome/03-design/qa/BG_HS_v002/record.json"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": [
+    "FN-20261004-002"
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "prompt": {
+    "1": {
+      "class_type": "UNETLoader",
+      "inputs": {
+        "unet_name": "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    "2": {
+      "class_type": "CLIPLoader",
+      "inputs": {
+        "clip_name": "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "type": "ltxv",
+        "device": "default"
+      }
+    },
+    "3": {
+      "class_type": "VAELoader",
+      "inputs": {
+        "vae_name": "ltx-2.5-audio-vae-bf16.safetensors"
+      }
+    },
+    "4": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "2",
+          0
+        ],
+        "text": "A continuous close recording of clear water flowing over small river stones, gentle splashes and smooth rushing water at steady volume. No speech is present. No music is present."
+      }
+    },
+    "5": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "2",
+          0
+        ],
+        "text": ""
+      }
+    },
+    "6": {
+      "class_type": "LTXVConditioning",
+      "inputs": {
+        "positive": [
+          "4",
+          0
+        ],
+        "negative": [
+          "5",
+          0
+        ],
+        "frame_rate": 24
+      }
+    },
+    "7": {
+      "class_type": "KSamplerSelect",
+      "inputs": {
+        "sampler_name": "euler_ancestral"
+      }
+    },
+    "8": {
+      "class_type": "ManualSigmas",
+      "inputs": {
+        "sigmas": "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0"
+      }
+    },
+    "9": {
+      "class_type": "LTXVAudioOnlyModel",
+      "inputs": {
+        "model": [
+          "1",
+          0
+        ]
+      }
+    },
+    "10": {
+      "class_type": "LTXVAudioOnlyEmptyVideoLatent",
+      "inputs": {}
+    },
+    "11": {
+      "class_type": "LTXVEmptyLatentAudio",
+      "inputs": {
+        "frames_number": 49,
+        "frame_rate": 24,
+        "batch_size": 1,
+        "audio_vae": [
+          "3",
+          0
+        ]
+      }
+    },
+    "12": {
+      "class_type": "LTXVConcatAVLatent",
+      "inputs": {
+        "video_latent": [
+          "10",
+          0
+        ],
+        "audio_latent": [
+          "11",
+          0
+        ]
+      }
+    },
+    "13": {
+      "class_type": "RandomNoise",
+      "inputs": {
+        "noise_seed": 4545
+      }
+    },
+    "14": {
+      "class_type": "CFGGuider",
+      "inputs": {
+        "model": [
+          "9",
+          0
+        ],
+        "positive": [
+          "6",
+          0
+        ],
+        "negative": [
+          "6",
+          1
+        ],
+        "cfg": 1.0
+      }
+    },
+    "15": {
+      "class_type": "SamplerCustomAdvanced",
+      "inputs": {
+        "noise": [
+          "13",
+          0
+        ],
+        "guider": [
+          "14",
+          0
+        ],
+        "sampler": [
+          "7",
+          0
+        ],
+        "sigmas": [
+          "8",
+          0
+        ],
+        "latent_image": [
+          "12",
+          0
+        ]
+      }
+    },
+    "16": {
+      "class_type": "LTXVSeparateAVLatent",
+      "inputs": {
+        "av_latent": [
+          "15",
+          0
+        ]
+      }
+    },
+    "17": {
+      "class_type": "LTXVAudioVAEDecode",
+      "inputs": {
+        "samples": [
+          "16",
+          1
+        ],
+        "audio_vae": [
+          "3",
+          0
+        ]
+      }
+    },
+    "18": {
+      "class_type": "SaveAudioAdvanced",
+      "inputs": {
+        "audio": [
+          "17",
+          0
+        ],
+        "filename_prefix": "audio/ltx25_t2a",
+        "format": "flac"
+      }
+    }
+  },
+  "metadata": {
+    "task": "t2a",
+    "frames": 49,
+    "fps": 24,
+    "base_width": 384,
+    "base_height": 256,
+    "prompt_enhance": false,
+    "quality_loras": "official reference graph has no added quality adapters",
+    "audio_policy": "audio only generated"
+  }
+}

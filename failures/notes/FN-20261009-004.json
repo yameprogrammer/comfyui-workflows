@@ -1,0 +1,24 @@
+{
+  "id": "FN-20261009-004",
+  "created_at": "2026-10-09T15:03:10+00:00",
+  "agent": "codex",
+  "episode_id": "short001-channel-welcome",
+  "shot_id": "S05",
+  "stage": "s2v",
+  "tags": [
+    "comfyui",
+    "gpu",
+    "execution_interrupted",
+    "concurrency"
+  ],
+  "symptom": "Native calm S05 sampler interrupted at 10/20; another prompt then ran.",
+  "root_cause": "ComfyUI history explicitly records execution_interrupted. Originator of interruption unverified; overlapping tool activity observed.",
+  "fix": "Preserve failed graph/result/history; do not interrupt the other task; retry identical settings only after empty queue.",
+  "prevention": "Coordinate exclusive GPU window and monitor only own prompt_id; empty preflight queue alone does not prevent later interference.",
+  "related_paths": [
+    "D:/yame-film/content/projects/short001-channel-welcome/11-native-calm-full-v005/S05/failed_attempt_01_interrupted"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

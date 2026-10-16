@@ -1,0 +1,23 @@
+{
+  "id": "FN-20261008-005",
+  "created_at": "2026-10-08T17:26:37+00:00",
+  "agent": "MV003 local worker",
+  "episode_id": "mv003-autumn-fireworks",
+  "shot_id": "S15,S16",
+  "stage": "motion",
+  "tags": [
+    "minimax_h3",
+    "night_continuity",
+    "gaze"
+  ],
+  "symptom": "S15 reflected golden light became sunrise/daylight; S16 pupil-only awareness became full inward head rotation.",
+  "root_cause": "Temporal illumination and localized eye action were interpreted more broadly than requested; inferred from output pixels, model cause unproven.",
+  "fix": "One T02 per shot: explicitly retain deep blue-violet NIGHT background, confine amber changes to cheek; head/nose orientation anchored while pupils move. Both revised pilots passed limited work pixel QA.",
+  "prevention": "Separate localized face illumination from scene time of day. State exact head orientation and defer completed turn. Compare original/first/mid/last and all-frame sheet before selection.",
+  "related_paths": [
+    "D:\\yame-film\\content\\projects\\mv003-autumn-fireworks\\11_production_v001_20261009\\MOTION_BATCH05_REPORT_v001.md"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": []
+}

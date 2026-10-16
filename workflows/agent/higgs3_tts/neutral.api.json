@@ -1,0 +1,23 @@
+{
+  "1": {
+    "class_type": "Higgs3IsolatedTTS",
+    "inputs": {
+      "text": "안녕하세요. 오늘은 새로운 이야기를 시작합니다.",
+      "emotion": "neutral",
+      "seed": 42,
+      "max_new_tokens": 512,
+      "temperature": 0.8,
+      "reference_text": ""
+    }
+  },
+  "2": {
+    "class_type": "SaveAudio",
+    "inputs": {
+      "audio": [
+        "1",
+        0
+      ],
+      "filename_prefix": "higgs3/neutral"
+    }
+  }
+}

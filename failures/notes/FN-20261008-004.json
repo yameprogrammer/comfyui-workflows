@@ -1,0 +1,26 @@
+{
+  "id": "FN-20261008-004",
+  "created_at": "2026-10-08T16:58:33+00:00",
+  "agent": "MV003 local worker",
+  "episode_id": "MV003",
+  "shot_id": "S11",
+  "stage": "motion",
+  "tags": [
+    "minimax_h3",
+    "continuity",
+    "event_timing",
+    "fireworks"
+  ],
+  "symptom": "MV003 S11 T01 adds multiple colored fireworks before designed first event S14",
+  "root_cause": "Observed invented background event despite negative wording; model internal cause unverified",
+  "fix": "Preserve rejected T01; T02 changes prompt to affirmative quiet waiting sky and constant reference lights; QA pending",
+  "prevention": "Lock pre-event background positively and inspect all frame time-state before edit; do not approve solely from foreground action",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv003-autumn-fireworks/11_production_v001_20261009/motion_tests/S11/T01_work_v001/qa/TECHNICAL_QA_v001.json"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": [
+    "FN-20261008-002"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "FN-20261008-003",
+  "created_at": "2026-10-08T16:10:01+00:00",
+  "agent": "unknown",
+  "episode_id": "mv003-autumn-fireworks",
+  "shot_id": "S44",
+  "stage": "inpaint",
+  "tags": [
+    "qwen",
+    "inpaint",
+    "mouth",
+    "mask",
+    "artifacts"
+  ],
+  "symptom": "S44 local Qwen ye pose has colored mosaic clusters around lip border",
+  "root_cause": "Exact model or mask cause unverified; output pixel boundary visibly corrupt",
+  "fix": "Rejected Qwen pose; existing Blender 2D pose planes tracked into H3 base; first bright patch rejected then local skin-plane matching reduced seam",
+  "prevention": "Inspect native mouth boundary before composing or making other poses; retain outside-ROI pixels and record exact-phrase/realtime limits",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv003-autumn-fireworks/11_production_v001_20261009/S44_repair/COMPOSITE_TRIAL_MANIFEST_T04_v001.json"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": [
+    "FN-20261008-001"
+  ]
+}

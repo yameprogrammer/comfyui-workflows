@@ -1,0 +1,26 @@
+{
+  "id": "FN-20261010-006",
+  "created_at": "2026-10-10T07:51:01+00:00",
+  "agent": "codex",
+  "episode_id": "mv004-fogged-glasses",
+  "shot_id": "S09",
+  "stage": "clip",
+  "tags": [
+    "minimax_h3",
+    "silent_reaction",
+    "closed_mouth",
+    "expression"
+  ],
+  "symptom": "MV004 S09 quiet two-shot introduced repeated boy jaw/lip opening despite tiny closed-mouth smile and no-talking instructions.",
+  "root_cause": "Observed semantic action drift from he answers with a smile into apparent talking; model internal cause unverified.",
+  "fix": "Reject and preserve v001; v002 removes answers language, specifies lips gently pressed together and still jaw, eye-only reaction, new seed. Repair validation pending.",
+  "prevention": "Use physical closed-lip/jaw state in silent reactions; avoid respond/answer wording where no dialogue is intended. Review mouth motion through all frames, not only endpoints.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv004-fogged-glasses/05-shots/h3_native_v001/qa_S09_v001/record.json"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": [
+    "FN-20260902-004"
+  ]
+}

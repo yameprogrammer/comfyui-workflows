@@ -4,6 +4,67 @@ Do not edit by hand — `python scripts/failure_note.py add` regenerates.
 
 | id | sev | stage | tags | symptom |
 |----|-----|-------|------|---------|
+| `FN-20261016-009` | medium | advanced_motion_quality | ltx25, retake, extension, union, control | Temporal mask Retake runs but requested blue-ball rewrite fails; Union canny ... |
+| `FN-20261016-008` | medium | motion_quality | ltx25, ingredients, identity, speech, va | Some face reference sheets retain panels; default-quality facial speech drift... |
+| `FN-20261016-007` | medium | clip | ltx25, ingredients, reference-layout | Ingredients output retains reference-sheet black margins and second panel ins... |
+| `FN-20261016-006` | medium | audio | higgs3, windows, encoding, subprocess | Higgs3 original8188 inference loaded weights but worker failed on progress-ba... |
+| `FN-20261016-005` | medium | keyframe | flux3, style_transfer, content_drift | 0.25MP style transfer copied donor composition |
+| `FN-20261016-004` | medium | keyframe | flux3, style_transfer, reference_resolut | Stronger whole-image style caption still retains photographic material |
+| `FN-20261016-003` | medium | keyframe | flux3, style_transfer, reference | Watercolor transfer kept photographic teapot and wood texture |
+| `FN-20261016-002` | medium | keyframe | flux3, reference, background | Character edit retained original indoor plaster wall when garden was requested |
+| `FN-20261016-001` | medium | keyframe | flux3, multi_reference, framing | Two-reference teapot composition occluded blue handle and mismatched scale |
+| `FN-20261014-001` | medium | clip | minimax_h3, r2v, loop, gaze | Pia 1080 R2V7+1 preserved viewer gaze and changed late head/mouth, breaking d... |
+| `FN-20261012-004` | medium | edit | shorts, first-frame, cut-boundary, flash | Music-selected Shorts start exposes 1-2 frames of prior shot, and a brief nex... |
+| `FN-20261012-003` | high | edit | render_edit, chained_concat, duration, f | Five valid video sections total4837frames rendered into3789video frames while... |
+| `FN-20261012-002` | high | tool | h3, ref_video, output_selection, input_p | Image plus video R2V returned LoadVideo input preview rather than generated S... |
+| `FN-20261012-001` | medium | clip | h3, r2v, ref2va, spatial_continuity, pro | MV006 direct image-reference production S02v001 preserves family identities b... |
+| `FN-20261011-011` | medium | clip | h3, r2v, paper, fold, scale, framing | MV006 S19 image-reference R2V v001 and v002 convert small single-fold N04 int... |
+| `FN-20261011-010` | medium | reference_repair | qwen, instantx, inpaint, mask, block_noi | MV006 K_PM masked wall repair produced colored block noise inside white mask ... |
+| `FN-20261011-009` | medium | reference_sheet | krea2, identity_edit, hair, viewpoint | MV006 generic side prompt ponytail if present invented tied hair on short-hai... |
+| `FN-20261011-008` | low | keyframe | krea2, style, prompt_adherence | MV006 modern anime sample B rendered as simplified storybook illustration ins... |
+| `FN-20261011-007` | medium | still | krea2, framing, paper, contact | MV006 watercolor look v001 cropped legs and invented memo touch; v002 still c... |
+| `FN-20261011-006` | medium | edit_qa | ffmpeg, frame-extraction, subtitle-qa | Sparse selected image2 VFR QA sequence can repeat or substitute frames even w... |
+| `FN-20261011-005` | high | clip | minimax_h3, near_static_tail, motion_qa | MV005 S12 v002 had a 4+ second near-static generated tail. A frame pass based... |
+| `FN-20261011-004` | high | clip | minimax_h3, unrequested_prop, book_conti | MV005 S15 face reaction generated an open book and supporting hand entering t... |
+| `FN-20261011-003` | high | video | minimax_h3, native, bag, screen_directio | MV005 S57 native v001 sat naturally but placed dark bag inside the next woman... |
+| `FN-20261011-002` | high | edit_qa | ffmpeg, animatic, color_range, frame_cou | MV005 render_edit reported344.32sec/exit0 but video229.24sec5731frames; audio... |
+| `FN-20261011-001` | high | output_review | anatomy, continuity, quality | Still QA passed incorrect hand and lap ownership plus degraded style; user ca... |
+| `FN-20261010-009` | medium | previz | blender, camera, marker | Additional overhead layout rendered with shot camera despite assigning layout... |
+| `FN-20261010-008` | medium | clip | h3, ref2va, exact_dialogue, prompt_leaka | MV004 H01 T01 independent ASR detected extra opening words before target dial... |
+| `FN-20261010-007` | medium | motion | minimax_h3, hands, incomplete_motion | MV004 S26 native73frames keeps hands at temples; planned2.72s slot lacks comp... |
+| `FN-20261010-006` | medium | clip | minimax_h3, silent_reaction, closed_mout | MV004 S09 quiet two-shot introduced repeated boy jaw/lip opening despite tiny... |
+| `FN-20261010-005` | medium | clip | minimax_h3, condensation, glasses, conti | MV004 S08 clear-lens glance I2V introduced persistent droplets on the left le... |
+| `FN-20261010-004` | medium | motion | minimax_h3, i2v, glasses, hand_contact | MV004 S25 v001 keeps glasses coherent but cuff retreats and bare fingertips o... |
+| `FN-20261010-003` | low | previz | blender, previz, exposure, visibility | MV004 first S07/S28 3D plates kept dolly framing but Standard-view bright are... |
+| `FN-20261010-002` | medium | still | flow, nano_banana, multi_reference, layo | MV004 Flow new stills retained style-reference counter geometry or merely hel... |
+| `FN-20261010-001` | high | clip | h3, r2v, ref2va, two-subject, gesture | Ref2VA two-person input became Harin-only close portrait; Seah omitted and ra... |
+| `FN-20261009-004` | high | s2v | comfyui, gpu, execution_interrupted, con | Native calm S05 sampler interrupted at 10/20; another prompt then ran. |
+| `FN-20261009-003` | high | composite.qa | head, neck, torso, warp, temporal_QC | User rejected welcome v004: excessive head movement and detached head versus ... |
+| `FN-20261009-002` | medium | motion | infinitetalk, body_motion, cfg, performa | Welcome S01 prompt-only stable-talk T01 retains torso bounce; sparse flow dy1... |
+| `FN-20261009-001` | medium | composite.qa | blender, mouth, seam, tracking | MV003 S44 T04 has a detached faint chin mark in frames38-46 and78-88 below no... |
+| `FN-20261008-007` | medium | video | h3, eye, reflection, continuity | MV003 S39 T01 tiny gold iris-edge point grows and travels across iris |
+| `FN-20261008-006` | medium | motion | minimax_h3, i2v, gesture, continuity | MV003 S29 T01 gaze-down prompt invented unjoined hand rising to chest from fr... |
+| `FN-20261008-005` | high | motion | minimax_h3, night_continuity, gaze | S15 reflected golden light became sunrise/daylight; S16 pupil-only awareness ... |
+| `FN-20261008-004` | medium | motion | minimax_h3, continuity, event_timing, fi | MV003 S11 T01 adds multiple colored fireworks before designed first event S14 |
+| `FN-20261008-003` | medium | inpaint | qwen, inpaint, mouth, mask, artifacts | S44 local Qwen ye pose has colored mosaic clusters around lip border |
+| `FN-20261008-002` | medium | motion | minimax_h3, i2v, gesture, continuity | MV003 S55 T01 added right-hand chin touch during blink despite relaxed arms b... |
+| `FN-20261008-001` | medium | motion | minimax_h3, silent_articulation, phoneme | MV003 S44 work I2V T01 produced three broad similar openings with0.67secclose... |
+| `FN-20261005-010` | medium | motion | infinitetalk, expression, audio_tail, pu | Welcome Seah pilot S02 retains kiss-like puckered lips and exaggerated eyebro... |
+| `FN-20261005-011` | medium | audio_prepare | qwen3_tts, SaveAudioMP3, container, wav_ | generate_qwen3_tts -o S01.wav writes MP3 payload because graph uses SaveAudio... |
+| `FN-20261005-009` | medium | tool_preflight | qwen_image_21, preset_schema, comfy_vali | qwen_image_21_edit fails Comfy validation: switch missing, cache dtype missin... |
+| `FN-20261005-008` | high | keyframe | qwen, multi_reference, two_people, ident | Welcome BG_HS first insertion retained one Harin-like face and changed yellow... |
+| `FN-20261005-007` | high | video | minimax_h3, vram, hang, cache | MiniMax H3 holds almost all VRAM at 0/20 Model Initializing; shortening durat... |
+| `FN-20261005-006` | high | qa | qa_scope, source_hash, subtitle_sync, au | Earlier MV passed technical checks despite visible quality defects; automatic... |
+| `FN-20261005-005` | high | edit | fps, trim, concat, frame_count, endpoint | Mixed source/output frame grids and nested concat required endpoint correctio... |
+| `FN-20261005-004` | high | motion | minimax_h3, reflection, lip_motion, hand | MV rebuild R018 reflection blinked and turned independently; R022/R029 produc... |
+| `FN-20261005-003` | high | thumbnail | style_mismatch, viewer_expectation, refe | Dedicated MV thumbnail v001 looked much more detailed than the actual animati... |
+| `FN-20261005-002` | high | audio_mix | adelay, afade, silent_music, qa_scope | Lumi curation v003 became digitally silent after 14 seconds despite global pe... |
+| `FN-20261005-001` | high | motion | minimax_h3, aspect_ratio, stretch | MV faces and props distorted after arbitrary aspect stills entered H3; small ... |
+| `FN-20261004-002` | high | keyframe | anime, identity, multi_reference | Qwen edit of H02 retained original juvenile head silhouette rather than selec... |
+| `FN-20261004-001` | medium | storyboard | anima, framing, infant, hands | Storyboard T2I produced duplicate portraits for a hand insert and implausible... |
+| `FN-20261003-003` | medium | clip | minimax_h3 | B native contains an unintended 0-3 second spoken preface before the complete... |
+| `FN-20261003-002` | medium | clip | minimax_h3 | Carry-from generation returned the 22-frame silent input preview instead of t... |
+| `FN-20261003-001` | medium | clip | minimax_h3 | Greeting wave at 0.7-2.2 seconds but speech starts at 3.8 seconds in A native. |
 | `FN-20260924-003` | high | h3_i2v | h3, vae | Video decode stays at full GPU after the sampler finishes and never writes th... |
 | `FN-20260924-002` | high | h3_i2v | h3, rainbow | A colored spectrum band grows across the rooftop floor. |
 | `FN-20260924-001` | high | keyframe | s02, krea2_style, crop | 16:9 kneel crops the eyes or turns into a reach |
@@ -41,4 +102,4 @@ Do not edit by hand — `python scripts/failure_note.py add` regenerates.
 | `FN-20260715-002` | high | keyframe | anatomy_feet, insert_failed, face_cu_spa | Shoe insert requested but result was face close-up with deformed raised leg/f... |
 | `FN-20260715-001` | critical | clip | freeze_pad, duration_mismatch, qa_skippe | All cuts freeze for last 30-50 percent of duration (e.g. S01 freezes 5s-8s). ... |
 
-_Updated: 2026-09-24T09:50:29+00:00 · count=36_
+_Updated: 2026-10-16T23:00:31+00:00 · count=97_

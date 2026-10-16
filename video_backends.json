@@ -13,7 +13,8 @@
     "ltx25_aio": {
       "max_duration_sec": 10.0,
       "max_frames": 240,
-      "notes": "Max recommended single clip = 10.0s (240 frames @ 24fps 768p). Longer single clips emit warning; use last-frame chain for longer cuts."
+      "notes": "Production recommendation, not an official hard limit. Actual frame counts follow 8n+1; validate effective output duration.",
+      "grid": "8n+1"
     },
     "ltx23_legacy": {
       "max_duration_sec": 4.0,
@@ -22,7 +23,7 @@
     }
   },
   "ltx_clip_hard_cap_frames": 97,
-  "ltx_clip_hard_cap_note": "Legacy LTX 2.3 = 97 frames @24fps. LTX 2.5 extends single clip recommended max to 10.0s (240 frames @ 24fps 768p).",
+  "ltx_clip_hard_cap_note": "Legacy LTX-2.3 policy only. LTX-2.5 has a separate conservative 10-second recommendation and an 8n+1 frame grid; do not interpret 240 as a valid model frame count.",
   "default_backend_s2v": "ltx23_aio",
   "default_format": "cinematic_16x9",
   "default_work_preset": "work_16x9_720",
@@ -607,12 +608,13 @@
         "baseline": "24fps @ 768p",
         "notes": "Max recommended single clip = 8.0s (192 frames @ 24fps 768p). Snaps to 17k+5 grid. Longer single clips emit warning."
       },
-      "notes": "For ordinary H3 generation prefer generate_minimax_h3_optimized; retain this tool for unsupported specialized inputs/polish/carry. NOT episode default I2V (default remains ltx23_aio_i2v). Use for quality hero shorts, T2V with baked-in audio, R2V identity, A2V lip-sync/MV (source audio mux), polish rtx_rife|rife. Models under F:\\model MinimaxH3 + qwen3vl_32b. ComfyUI ≥0.30. Bench 4090: work 0.4MP 5s ~113s; a2v/multiref smoke ~50–110s; polish ~25s (2026-08-12).",
+      "notes": "FL2VA T2V/I2V/FLF: prefer generate_minimax_h3 work/native single pass with pre-decode unload. FL2VA 15+5/native_fast experimental. R2V/V2V/AI2V: prefer generate_minimax_h3_optimized. Specialized inputs/polish/carry remain available. NOT episode default I2V (default remains ltx23_aio_i2v). Use for quality hero shorts, T2V with baked-in audio, R2V identity, A2V lip-sync/MV (source audio mux), polish rtx_rife|rife. Models under F:\\model MinimaxH3 + qwen3vl_32b. ComfyUI ≥0.30. Bench 4090: work 0.4MP 5s ~113s; a2v/multiref smoke ~50–110s; polish ~25s (2026-08-12).",
       "preferred_image_r2v": "minimax_h3_7plus1",
-      "preferred_generator": "minimax_h3_optimized"
+      "preferred_generator": "minimax_h3",
+      "preferred_ref2va_generator": "minimax_h3_optimized"
     },
     "ltx25_aio": {
-      "status": "ready",
+      "status": "ready_experimental",
       "kind": "t2v_ta2v_i2v_ia2v_flf_fml_v2v",
       "family": "ltx25",
       "engine": "LTX 2.5 22B Distilled Transformer + Gemma 4 12B",
@@ -625,17 +627,22 @@
         "max_duration_sec": 10.0,
         "max_frames": 240,
         "baseline": "24fps @ 768p",
-        "notes": "Max recommended single clip = 10.0s (240 frames @ 24fps 768p). Longer single clips emit warning; use last-frame chain for longer cuts."
+        "notes": "Production recommendation, not an official hard limit. Actual frame counts follow 8n+1; validate effective output duration.",
+        "frame_grid": "8n+1"
       },
       "strengths": [
+        "version_isolated_2.5_stack",
         "gemma4_natural_language",
-        "22b_transformer",
-        "audio_synced_video",
-        "high_motion_stability",
-        "aio_9_modes"
+        "declared_multimodal_modes"
       ],
       "quality_tier": "modern_flagship",
-      "notes": "Modernized LTX 2.5 upgrade with 9 generation modes. Gemma 4 text encoder + 22B DiT. Recommended max single clip = 10.0s @ 24fps 768p."
+      "notes": "Short T2V/I2V/FLF execution verified; remaining declared modes and broad quality not verified. Explicit 2.5 route; generic defaults remain 2.3.",
+      "runtime_verified": false,
+      "runtime_verified_modes": [
+        "t2v",
+        "i2v",
+        "flf"
+      ]
     },
     "minimax_h3_7plus1": {
       "status": "ready",
@@ -653,7 +660,7 @@
       ],
       "default_attention": "dense",
       "validated_duration_sec": 5,
-      "notes": "Existing verified R2V preset reused by generate_minimax_h3_optimized, which adds portrait sizing. Prefer the optimized tool for ordinary H3 generation. Dense default; Sol only final R2V step."
+      "notes": "Existing verified R2V preset reused by generate_minimax_h3_optimized, which adds portrait sizing. Prefer the optimized tool for R2V/V2V/AI2V; FL2VA uses base single pass. Dense default; Sol only final R2V step."
     },
     "minimax_h3_optimized": {
       "status": "ready",
@@ -684,6 +691,26 @@
       "default_profile": "work",
       "description": "Preferred MiniMax H3 generator: memory optimization and explicit pre-decode model unload, landscape/portrait. R2V reuses verified 7+1; T2V/I2V/FLF use matching 15+5.",
       "notes": "Five new modes passed short 22-frame generation/save tests; full production quality requires review. V2V/AI2V are references, not exact motion or lip-sync guarantees."
+    },
+    "ltx25_official_a2v": {
+      "status": "ready_experimental",
+      "kind": "audio_to_video",
+      "family": "ltx25",
+      "cli": "scripts/generate_ltx25_official.py",
+      "guide": "workflows/human/ltx25_official/AGENT_GUIDE.md",
+      "runtime_verified": true,
+      "quality_review": "partial_pending",
+      "notes": "Explicit API task, not generic default; short tests only; browser UI not verified"
+    },
+    "ltx25_ingredients": {
+      "status": "ready_experimental",
+      "kind": "reference_to_video",
+      "family": "ltx25",
+      "cli": "scripts/generate_ltx25_official.py",
+      "guide": "workflows/human/ltx25_official/AGENT_GUIDE.md",
+      "runtime_verified": true,
+      "quality_review": "bounded_prop_case_visual_pass; human_identity_audio_pending",
+      "notes": "Reference/prompt design sensitive. Official bucket/default strength1 validated with clean prop/location sheet; initial leakage failures retained. Explicit experimental API task, no generic default change."
     }
   },
   "default_backend_flf": "ltx23_aio_flf",

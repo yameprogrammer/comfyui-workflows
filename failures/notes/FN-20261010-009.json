@@ -1,0 +1,25 @@
+{
+  "id": "FN-20261010-009",
+  "created_at": "2026-10-10T15:24:00+00:00",
+  "agent": "Codex",
+  "episode_id": "mv005-learning-you-at-night",
+  "shot_id": null,
+  "stage": "previz",
+  "tags": [
+    "blender",
+    "camera",
+    "marker"
+  ],
+  "symptom": "Additional overhead layout rendered with shot camera despite assigning layout camera.",
+  "root_cause": "Timeline camera marker evaluation overrides active camera during frame/render evaluation.",
+  "fix": "Temporarily clear marker camera bindings, set layout camera, render, restore bindings and shot camera. Opened resulting connected three-space overview.",
+  "prevention": "For extra diagnostic views, suspend camera marker bindings during render and restore them afterwards. Inspect actual render; camera assignment alone is insufficient.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv005-learning-you-at-night/04-previz/blender_block_v003/repair_layout.py"
+  ],
+  "severity": "medium",
+  "user_visible": false,
+  "refs": [
+    "FN-20261010-003"
+  ]
+}

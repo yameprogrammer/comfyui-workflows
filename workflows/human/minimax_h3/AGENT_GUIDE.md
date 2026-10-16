@@ -1,8 +1,20 @@
 # MiniMax H3 — Agent 가이드
 
-일반 MiniMax H3 생성은 **`generate_minimax_h3_optimized` 우선**. [개선 도구 사용법](H3_OPTIMIZED_GUIDE.md). 이 문서의 기존 도구 예시는 개선 CLI가 지원하지 않는 특수 기능·polish·carry 경로에 사용한다.
+운영·업데이트 확인·재발 대응: [H3 반복 안정화 가이드](../../../docs/comfyui_h3_stability.md).
 
-**2026-10-02 이미지 참조 R2V 기본 선택:** `generate_minimax_h3_7plus1.py`. [7+1 가이드](H3_7PLUS1_GUIDE.md)에서 프로필·검수·기존 방식 전환 기준을 먼저 읽는다. 이 가이드의 기존 도구는 다른 task와 비교 후보로 유지한다.
+## 2026-10-05 이 PC의 H3 정체 재발 보완
+
+- 기본 러너: 이미지/텍스트 인코딩 완료 → node 145 전체 모델 해제 → 단일 샘플링 → node 144 전체 모델 해제 → 영상/오디오 디코딩.
+- 로컬 `ComfyUI/custom_nodes/ComfyUI-KJNodes/nodes/nodes.py`의 `VRAM_Debug.IS_CHANGED`가 매번 NaN을 반환하도록 수정했다. 이 수정 없이 노드만 추가하면 같은 입력·다른 시드 실행에서 정리가 캐시되어 건너뛰어질 수 있다. KJNodes 업데이트로 덮어쓰면 이 보완도 확인해야 한다.
+- 검증된 현재 실행 조합: **Dynamic VRAM 켜짐, async offload 2 streams 켜짐, `--reserve-vram 3 --vram-headroom 2`**. `--disable-async-offload`를 붙이지 않는다. `F:/ComfyUI_windows_portable/run_nvidia_gpu.bat`에 반영했다. 이 옵션은 실제 여유 VRAM이 항상 3GiB임을 보장하지 않는다.
+- 메모리 정리만 보완한 dynamic/async-off 조합은 0.9초 연속 실행은 성공했지만 8초에서 정체했다. reserve 3만 추가해도 실패했고, async를 켜면 480×864의 8초 연속 저장은 성공했지만 576×1024는 여전히 정체했다. `--vram-headroom 2`로 다른 앱을 포함한 추가 여유 공간을 확보한 조합을 최종 검증했다. 정확한 CUDA 내부 교착 위치까지 증명한 것은 아니다.
+- dynamic 비활성화도 8초 저장에는 성공했으나 시스템 RAM 여유가 약 0.5~2GiB까지 줄어 기본값으로 선택하지 않았다. 최종 dynamic/async-on 비교에서는 샘플링 중 약 28~35GiB의 RAM 여유를 관측했다.
+- 검증 범위: 기본 I2V, 같은 참조/프롬프트, 단일 20스텝. 8초 work 576×1024의 시드 변경 연속 실행 및 이후 0.9초 재실행. 다른 모델·native 고해상도·개선형 15+5 전체의 무재발 보장은 아니다. 기술적 파일 완성을 검증했으며 원본 카메라 고정 연출의 품질 승인은 아니다.
+- 이미 저장한 API JSON은 자동 변경되지 않는다. 기본 도구로 새 그래프를 생성한다. 상세 실행 기록과 원본 백업: `F:/ComfyUI_windows_portable/tmp/comfy_diag_20261005`.
+
+FL2VA 계열 **T2V/I2V/FLF는 `scripts/generate_minimax_h3.py` 기본 단일 샘플링을 우선 사용**한다. `--profile work` 또는 `native`, 숏츠는 `--aspect 9:16`. `native_fast`, `--latent-upscale 2` 및 개선형 FL2VA 15+5는 현재 제작 기본값에서 제외하고 원인 분리 실험에만 사용한다. **R2V/V2V/AI2V는 `scripts/generate_minimax_h3_optimized.py` 우선**을 유지한다. FLF는 기본형의 VAE 전 모델 해제 보완 후 8초·576×1024 저장 성공을 확인했고, 네이티브 해상도 성공은 사용자가 보고했다. 2026-10-05 기본 I2V는 8초·576×1024 두 번과 직후 짧은 실행을 서버 재시작 없이 검증했다. T2V 및 native 고해상도 전체의 장시간 안정성 검증을 뜻하지 않는다.
+
+**2026-10-02 이미지 참조 R2V 호환 경로(현재 신규 작업은 optimized 우선):** `generate_minimax_h3_7plus1.py`. [7+1 가이드](H3_7PLUS1_GUIDE.md)에서 프로필·검수·기존 방식 전환 기준을 먼저 읽는다. 이 가이드의 기존 도구는 다른 task와 비교 후보로 유지한다.
 
 
 > **Toolbox shelf:** MOTION (Seedance-class local T2V / I2V / R2V + polish + **native stereo audio**)  
@@ -228,3 +240,19 @@ python scripts/upscale_ltx_spatial.py -i work.mp4 -o out.mp4 --path full
 | 클론 VO 파형을 입에 그대로 | s2v | `python scripts/generate_s2v.py -i face.png -a line.wav -o talk.mp4` |
 | H3가 말하게 | minimax i2v | `python scripts/generate_minimax_h3.py --task i2v -i face.png -p "... <d>[Korean] …</d>"` |
 | 카메라 의도만 | camera_move | `python scripts/generate_camera_move.py -i key.png --preset push_in -o clip.mp4` |
+
+## 2026-10-04 기본 FL2VA 디코딩 전 메모리 해제
+
+기본 `generate_minimax_h3.py --task flf --profile work`의 단일 샘플링 경로는 8초·576×1024·20단계를 약 195초에 완료했으나 영상 VAE 로딩 뒤 정체했다. 기본 러너에 최종 샘플러 → VRAM_Debug(전체 모델 해제·캐시 정리) → 영상/오디오 VAE 디코딩을 추가했다. 단일 샘플링·기존 SageAttention·모델·해상도·스텝은 유지한다. 같은 러너의 다른 생성 모드도 공통 디코딩 경계를 사용한다.
+
+현재 FLF 비교 검증에는 이 기본 단일 샘플링 경로를 사용한다. 개선형 15+5는 8초에서 두 번째 샘플링 정체가 남아 있어 안정화 완료로 취급하지 않는다. 이미 제출한 큐에는 소급 적용되지 않으며 다음 호출에서 새 그래프를 제출해야 한다. 수정 후 기본 FLF는 8초·576×1024·192프레임·오디오 포함 MP4 저장과 전체 영상 프레임 디코딩을 확인했다(226.88초, prompt a8cf609d-879b-43d1-8911-3bd03950799b). 네이티브 해상도 성공은 사용자 보고다.
+
+## 개선형 FL2VA 원인 분리 계획
+
+제작 기본값은 위의 단일 샘플링 경로다. 개선형 FL2VA를 자동 재시도하거나 해상도만 낮추며 반복하지 않는다.
+
+확인된 사실: 생성 모델 해제 후 업스케일 자체는 완료된다. 개선형은 두 번째 샘플링에서 정체한다. 기본형은 SageAttention, 개선형은 Kitchen INT8 및 H3MemoryOptimization이므로 단계 수만의 문제로 확정할 수 없다.
+
+별도 실험에서는 이미지·프롬프트·시드·8초·576×1024·모델·실행 옵션을 고정한다. 성공한 단일+Sage를 기준으로 (1) 단일+Kitchen만, (2) 단일+Kitchen+H3MemoryOptimization, (3) 두 단계+Sage로 변수를 분리한다. 각 비교는 VAE 전 해제를 유지하고, 두 단계는 업스케일 전후 해제도 유지한다. 현재 정체 상태의 프로세스에서 연속 비교하지 않는다.
+
+모델 재로딩 및 같은 원본에서 파생한 두 최적화 모델의 패치/캐시 수명도 확인한다. 첫 패스의 denoised_output을 확대해 두 번째 구간에 다시 노이즈를 넣는 방식은 연속 20스텝과 동일하지 않고 res_multistep 내부 이력도 새로 시작한다. 이는 별도 품질·수치 검증 대상이며 정체 원인으로 확정된 것은 아니다. 전체 저장 성공, 실행 시간, 단계별 최대 VRAM, 시작·끝 프레임 및 오디오 품질을 비교한 뒤에만 제작 기본값 승격을 검토한다.

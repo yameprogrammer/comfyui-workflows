@@ -1,0 +1,24 @@
+{
+  "id": "FN-20261009-001",
+  "created_at": "2026-10-09T00:07:12+00:00",
+  "agent": "MV003-local",
+  "episode_id": "MV003",
+  "shot_id": "S44",
+  "stage": "composite.qa",
+  "tags": [
+    "blender",
+    "mouth",
+    "seam",
+    "tracking"
+  ],
+  "symptom": "MV003 S44 T04 has a detached faint chin mark in frames38-46 and78-88 below normal lower-lip shadow; silent exact word remains unproven.",
+  "root_cause": "Tracked mouth patch residual observed in decoded base/composite comparison; exact compositing cause not isolated.",
+  "fix": "Pending local pose distinction and clean skin/chin-edge patch; preserve T04 and89frames. Reported minimal correction, not repaired yet.",
+  "prevention": "Decode and inspect all consecutive mouth frames and matched base samples; outsideROI zero alone cannot certify temporal boundary or silent-word readability.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv003-autumn-fireworks/11_production_v001_20261009/S44_repair/chronological_QA_v002/S44_MINIMUM_CORRECTION_REPORT_v002.md"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "package": "comfy-aimdo",
+    "before": "0.5.5",
+    "after": "0.5.6"
+  },
+  {
+    "package": "comfy-kitchen",
+    "before": "0.2.35",
+    "after": "0.2.37"
+  },
+  {
+    "package": "comfyui-embedded-docs",
+    "before": "0.5.12",
+    "after": "0.5.14"
+  },
+  {
+    "package": "comfyui-frontend-package",
+    "before": "1.53.6",
+    "after": "1.55.17"
+  },
+  {
+    "package": "comfyui-workflow-templates",
+    "before": "0.11.69",
+    "after": "0.11.85"
+  },
+  {
+    "package": "comfyui-workflow-templates-core",
+    "before": "0.3.360",
+    "after": "0.3.376"
+  },
+  {
+    "package": "comfyui-workflow-templates-json",
+    "before": "0.1.95",
+    "after": "0.1.111"
+  },
+  {
+    "package": "comfyui-workflow-templates-media-assets-02",
+    "before": "0.1.5",
+    "after": "0.1.16"
+  }
+]

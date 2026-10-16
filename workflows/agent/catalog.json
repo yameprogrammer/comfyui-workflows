@@ -28,6 +28,22 @@
     ]
   },
   "workflows": {
+    "higgs3_tts": {
+      "file": "higgs3_tts/neutral.api.json",
+      "role": "text_to_speech",
+      "status": "ready_experimental",
+      "scripts": [
+        "scripts/generate_higgs3_tts.py"
+      ],
+      "guide": "workflows/human/higgs3_tts/AGENT_GUIDE.md",
+      "human_ui": [
+        "workflows/human/higgs3_tts/neutral.json",
+        "workflows/human/higgs3_tts/emotion.json",
+        "workflows/human/higgs3_tts/reference.json"
+      ],
+      "server": "http://127.0.0.1:8188",
+      "notes": "Private Transformers5 worker; source Transformers4 preserved; listening/UI browser QC unavailable"
+    },
     "t2i_moody": {
       "file": "_legacy/T2I-moody.json",
       "role": "text_to_image",
@@ -173,9 +189,10 @@
       ],
       "hf": "https://huggingface.co/Comfy-Org/MiniMax-H3",
       "docs": "https://docs.comfy.org/tutorials/video/minimax/minimax-h3",
-      "notes": "For ordinary H3 generation prefer generate_minimax_h3_optimized; retain this tool for unsupported specialized inputs/polish/carry. Not episode default I2V (still LTX). Quality+audio tool. A2V muxes source audio. Polish: rtx_rife|rife. Bench 4090: work 5s~113s; a2v/multiref smoke 0.2MP ~50–110s; polish ~25s (2026-08-12). Engine family minimax_h3.",
+      "notes": "FL2VA T2V/I2V/FLF: prefer generate_minimax_h3 work/native single pass with pre-decode unload. FL2VA 15+5/native_fast experimental. R2V/V2V/AI2V: prefer generate_minimax_h3_optimized. Specialized inputs/polish/carry remain available. Not episode default I2V (still LTX). Quality+audio tool. A2V muxes source audio. Polish: rtx_rife|rife. Bench 4090: work 5s~113s; a2v/multiref smoke 0.2MP ~50–110s; polish ~25s (2026-08-12). Engine family minimax_h3.",
       "preferred_image_r2v": "minimax_h3_7plus1",
-      "preferred_generator": "minimax_h3_optimized"
+      "preferred_generator": "minimax_h3",
+      "preferred_ref2va_generator": "minimax_h3_optimized"
     },
     "wan22_face_enhance": {
       "file": "presets/wan22_face_enhance.api.json",
@@ -1487,6 +1504,103 @@
       ],
       "notes": "Replaces planned generate_inpaint.py / flux1-fill-dev gap."
     },
+    "generate_flux3": {
+      "file": "flux3/t2i.api.json",
+      "format": "api",
+      "role": "text_to_image_and_reference_edit",
+      "family": "flux3_klein",
+      "status": "ready",
+      "shelf": "GENERATE",
+      "description": "FLUX3 distilled INT8 on original portable localhost8188. Six API modes executed; strict style transfer QC remains experimental. UI browser import not tested.",
+      "runner": "lib/flux3_runner.py",
+      "guide": "workflows/human/flux3/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/generate_flux3.py"
+      ],
+      "used_by": [
+        "scripts/generate_flux3.py"
+      ],
+      "tasks": [
+        "t2i",
+        "single_edit",
+        "multi_reference",
+        "character_consistency",
+        "style_consistency",
+        "box_layout"
+      ]
+    },
+    "flux3_t2i": {
+      "file": "flux3/t2i.api.json",
+      "format": "api",
+      "role": "t2i",
+      "family": "flux3_klein",
+      "status": "ready",
+      "shelf": "GENERATE",
+      "guide": "workflows/human/flux3/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/generate_flux3.py"
+      ]
+    },
+    "flux3_single_edit": {
+      "file": "flux3/single_edit.api.json",
+      "format": "api",
+      "role": "single_edit",
+      "family": "flux3_klein",
+      "status": "ready",
+      "shelf": "TRANSFORM",
+      "guide": "workflows/human/flux3/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/generate_flux3.py"
+      ]
+    },
+    "flux3_multi_reference": {
+      "file": "flux3/multi_reference.api.json",
+      "format": "api",
+      "role": "multi_reference",
+      "family": "flux3_klein",
+      "status": "ready",
+      "shelf": "TRANSFORM",
+      "guide": "workflows/human/flux3/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/generate_flux3.py"
+      ]
+    },
+    "flux3_character_consistency": {
+      "file": "flux3/character_consistency.api.json",
+      "format": "api",
+      "role": "character_consistency",
+      "family": "flux3_klein",
+      "status": "ready",
+      "shelf": "TRANSFORM",
+      "guide": "workflows/human/flux3/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/generate_flux3.py"
+      ]
+    },
+    "flux3_style_consistency": {
+      "file": "flux3/style_consistency.api.json",
+      "format": "api",
+      "role": "style_consistency",
+      "family": "flux3_klein",
+      "status": "experimental",
+      "shelf": "TRANSFORM",
+      "guide": "workflows/human/flux3/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/generate_flux3.py"
+      ]
+    },
+    "flux3_box_layout": {
+      "file": "flux3/box_layout.api.json",
+      "format": "api",
+      "role": "box_layout",
+      "family": "flux3_klein",
+      "status": "ready",
+      "shelf": "GENERATE",
+      "guide": "workflows/human/flux3/AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/generate_flux3.py"
+      ]
+    },
     "generate_flux2_klein": {
       "file": null,
       "format": "native_api_graph",
@@ -1644,7 +1758,7 @@
         "images"
       ],
       "benchmarks": "workflows/human/minimax_h3/H3_7PLUS1_BENCHMARK.json",
-      "notes": "Existing verified R2V preset reused by generate_minimax_h3_optimized, which adds portrait sizing. Prefer the optimized tool for ordinary H3 generation. Dense default; Sol only final R2V step."
+      "notes": "Existing verified R2V preset reused by generate_minimax_h3_optimized, which adds portrait sizing. Prefer the optimized tool for R2V/V2V/AI2V; FL2VA uses base single pass. Dense default; Sol only final R2V step."
     },
     "minimax_h3_7plus1_sol": {
       "file": "presets/minimax_h3_7plus1_sol.api.json",
@@ -1773,6 +1887,42 @@
         "scripts/generate_minimax_h3_optimized.py"
       ],
       "guide": "workflows/human/minimax_h3/H3_OPTIMIZED_GUIDE.md"
+    },
+    "ltx25_aio": {
+      "file": null,
+      "format": "ui_expand",
+      "role": "video_generation",
+      "family": "ltx25",
+      "status": "ready_experimental",
+      "runtime_verified": false,
+      "source_ui": "workflows/human/ltx25AllInOneWorkflowForRTX_custom.json",
+      "manifest": "workflows/agent/ltx25_aio.manifest.json",
+      "guide": "workflows/human/LTX25_AIO_AGENT_GUIDE.md",
+      "scripts": [
+        "scripts/generate_ltx25_aio.py"
+      ],
+      "notes": "Short T2V quality/none, I2V/FLF executed. Remaining declared modes and broad quality unverified. Explicit2.5 route; generic2.3 defaults preserved."
+    },
+    "ltx25_official": {
+      "file": "ltx25_official/a2v.api.json",
+      "role": "t2a_a2v_ingredients",
+      "status": "ready_experimental",
+      "scripts": [
+        "scripts/generate_ltx25_official.py"
+      ],
+      "guide": "workflows/human/ltx25_official/AGENT_GUIDE.md",
+      "api_presets": [
+        "ltx25_official/t2a.api.json",
+        "ltx25_official/a2v.api.json",
+        "ltx25_official/ingredients.api.json"
+      ],
+      "runtime_verified_tasks": [
+        "t2a",
+        "a2v",
+        "ingredients"
+      ],
+      "quality": "Prop reference/motion visual pass after reference+prompt repair; human identity/audio pending; initial failures retained",
+      "notes": "Official-derived API adaptations; browser UI execution not verified; no generic default change"
     }
   }
 }

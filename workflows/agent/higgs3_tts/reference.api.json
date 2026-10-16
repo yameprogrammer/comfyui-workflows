@@ -1,0 +1,33 @@
+{
+  "1": {
+    "class_type": "Higgs3IsolatedTTS",
+    "inputs": {
+      "text": "안녕하세요. 오늘은 새로운 이야기를 시작합니다.",
+      "emotion": "neutral",
+      "seed": 42,
+      "max_new_tokens": 512,
+      "temperature": 0.8,
+      "reference_text": "핵심은 단순해요. 복잡한 건 우리가 나눠서 보면 됩니다.",
+      "reference_audio": [
+        "3",
+        0
+      ]
+    }
+  },
+  "2": {
+    "class_type": "SaveAudio",
+    "inputs": {
+      "audio": [
+        "1",
+        0
+      ],
+      "filename_prefix": "higgs3/reference"
+    }
+  },
+  "3": {
+    "class_type": "LoadAudio",
+    "inputs": {
+      "audio": "higgs3_park_soft_design.wav"
+    }
+  }
+}

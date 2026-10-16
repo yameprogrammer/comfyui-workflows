@@ -1,0 +1,328 @@
+{
+  "prompt": {
+    "1": {
+      "class_type": "UNETLoader",
+      "inputs": {
+        "unet_name": "ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    "2": {
+      "class_type": "LTXICLoRALoaderModelOnly",
+      "inputs": {
+        "model": [
+          "1",
+          0
+        ],
+        "lora_name": "LTX2.5\\ltx-2.5-22b-ic-lora-ingredients-0.9.safetensors",
+        "strength_model": 1.0
+      }
+    },
+    "3": {
+      "class_type": "CLIPLoader",
+      "inputs": {
+        "clip_name": "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+        "type": "ltxv",
+        "device": "default"
+      }
+    },
+    "4": {
+      "class_type": "VAELoader",
+      "inputs": {
+        "vae_name": "ltx-2.5-video-vae-bf16.safetensors"
+      }
+    },
+    "5": {
+      "class_type": "VAELoader",
+      "inputs": {
+        "vae_name": "ltx-2.5-audio-vae-bf16.safetensors"
+      }
+    },
+    "6": {
+      "class_type": "LoadImage",
+      "inputs": {
+        "image": "ltx25_ingredients_clean_sheet.png"
+      }
+    },
+    "7": {
+      "class_type": "ImageScale",
+      "inputs": {
+        "image": [
+          "6",
+          0
+        ],
+        "upscale_method": "lanczos",
+        "width": 768,
+        "height": 448,
+        "crop": "disabled"
+      }
+    },
+    "8": {
+      "class_type": "RepeatImageBatch",
+      "inputs": {
+        "image": [
+          "7",
+          0
+        ],
+        "amount": 121
+      }
+    },
+    "9": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "3",
+          0
+        ],
+        "text": "Reference sheet: Top center (Prop): One close product view of a glossy red and yellow painted wooden toy ball. The upper hemisphere is bright red with a small yellow flower-like mark, and a broad yellow band wraps the lower hemisphere. Bottom full-width panel (Location): An empty pale wooden tabletop with visible wood grain and a plain light gray studio wall behind it, evenly illuminated by soft daylight. The panels are an inventory of one prop and one empty location. Generated video: A single continuous cinematic medium-wide shot fills the screen with the pale wooden tabletop and light gray studio wall from the bottom location panel. One red and yellow painted wooden toy ball from the top prop panel rolls slowly from the left side toward the right side across the table, rotating naturally as it travels and gradually slowing. The camera is fixed at tabletop height with a clear unobstructed view of the moving ball. Soft natural daylight creates a gentle contact shadow under the ball. Quiet wooden rolling sounds accompany the movement. The scene remains one continuous view of the tabletop throughout."
+      }
+    },
+    "10": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": [
+          "3",
+          0
+        ],
+        "text": "worst quality, inconsistent motion, blurry, jittery, distorted"
+      }
+    },
+    "11": {
+      "class_type": "LTXVConditioning",
+      "inputs": {
+        "positive": [
+          "9",
+          0
+        ],
+        "negative": [
+          "10",
+          0
+        ],
+        "frame_rate": 24
+      }
+    },
+    "12": {
+      "class_type": "EmptyLTXVLatentVideo",
+      "inputs": {
+        "width": 768,
+        "height": 448,
+        "length": 121,
+        "batch_size": 1
+      }
+    },
+    "13": {
+      "class_type": "LTXAddVideoICLoRAGuide",
+      "inputs": {
+        "positive": [
+          "11",
+          0
+        ],
+        "negative": [
+          "11",
+          1
+        ],
+        "vae": [
+          "4",
+          0
+        ],
+        "latent": [
+          "12",
+          0
+        ],
+        "image": [
+          "8",
+          0
+        ],
+        "frame_idx": 0,
+        "strength": 1.0,
+        "latent_downscale_factor": 1.0,
+        "crop": "disabled",
+        "use_tiled_encode": false,
+        "tile_size": 256,
+        "tile_overlap": 64
+      }
+    },
+    "14": {
+      "class_type": "LTXVEmptyLatentAudio",
+      "inputs": {
+        "frames_number": 121,
+        "frame_rate": 24,
+        "batch_size": 1,
+        "audio_vae": [
+          "5",
+          0
+        ]
+      }
+    },
+    "15": {
+      "class_type": "LTXVConcatAVLatent",
+      "inputs": {
+        "video_latent": [
+          "13",
+          2
+        ],
+        "audio_latent": [
+          "14",
+          0
+        ]
+      }
+    },
+    "16": {
+      "class_type": "CFGGuider",
+      "inputs": {
+        "model": [
+          "2",
+          0
+        ],
+        "positive": [
+          "13",
+          0
+        ],
+        "negative": [
+          "13",
+          1
+        ],
+        "cfg": 1.0
+      }
+    },
+    "17": {
+      "class_type": "RandomNoise",
+      "inputs": {
+        "noise_seed": 4747
+      }
+    },
+    "18": {
+      "class_type": "KSamplerSelect",
+      "inputs": {
+        "sampler_name": "euler_ancestral"
+      }
+    },
+    "19": {
+      "class_type": "ManualSigmas",
+      "inputs": {
+        "sigmas": "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0"
+      }
+    },
+    "20": {
+      "class_type": "SamplerCustomAdvanced",
+      "inputs": {
+        "noise": [
+          "17",
+          0
+        ],
+        "guider": [
+          "16",
+          0
+        ],
+        "sampler": [
+          "18",
+          0
+        ],
+        "sigmas": [
+          "19",
+          0
+        ],
+        "latent_image": [
+          "15",
+          0
+        ]
+      }
+    },
+    "21": {
+      "class_type": "LTXVSeparateAVLatent",
+      "inputs": {
+        "av_latent": [
+          "20",
+          0
+        ]
+      }
+    },
+    "22": {
+      "class_type": "LTXVCropGuides",
+      "inputs": {
+        "positive": [
+          "13",
+          0
+        ],
+        "negative": [
+          "13",
+          1
+        ],
+        "latent": [
+          "21",
+          0
+        ]
+      }
+    },
+    "23": {
+      "class_type": "VAEDecodeTiled",
+      "inputs": {
+        "samples": [
+          "22",
+          2
+        ],
+        "vae": [
+          "4",
+          0
+        ],
+        "tile_size": 512,
+        "overlap": 64,
+        "temporal_size": 64,
+        "temporal_overlap": 8
+      }
+    },
+    "24": {
+      "class_type": "LTXVAudioVAEDecode",
+      "inputs": {
+        "samples": [
+          "21",
+          1
+        ],
+        "audio_vae": [
+          "5",
+          0
+        ]
+      }
+    },
+    "25": {
+      "class_type": "VHS_VideoCombine",
+      "inputs": {
+        "images": [
+          "23",
+          0
+        ],
+        "audio": [
+          "24",
+          0
+        ],
+        "frame_rate": 24,
+        "loop_count": 0,
+        "filename_prefix": "video/ltx25_ingredients_clean_sheet",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 18,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true
+      }
+    }
+  },
+  "metadata": {
+    "task": "ingredients",
+    "frames": 121,
+    "fps": 24,
+    "width": 768,
+    "height": 448,
+    "adapter": "LTX2.5/ltx-2.5-22b-ic-lora-ingredients-0.9.safetensors",
+    "source": "2.5 model-card candidate, not an unchanged official 2.3-adapter workflow",
+    "reference_downscale_factor": 1,
+    "adapter_strength": 1.0,
+    "reference_frames": 121,
+    "quality_loras": "task-specific Ingredients adapter only; existing AIO quality policy unchanged",
+    "diagnostic": {
+      "hypothesis": "Duplicated same object in location and product panels plus narrow location causes layout leakage",
+      "change": "One prop product panel, separate empty-location panel; prompt matches exact panel inventory; same seed,schedule,strength; untiled encode retained"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "FN-20261012-004",
+  "created_at": "2026-10-12T23:14:42+00:00",
+  "agent": "Codex",
+  "episode_id": "mv006-crooked-yellow",
+  "shot_id": null,
+  "stage": "edit",
+  "tags": [
+    "shorts",
+    "first-frame",
+    "cut-boundary",
+    "flash"
+  ],
+  "symptom": "Music-selected Shorts start exposes 1-2 frames of prior shot, and a brief next shot at the end",
+  "root_cause": "Music phrase inpoint differs from video cut boundary; 0.3s QA thumbnail skips initial frames",
+  "fix": "Preserve v001; hold music/lyrics inpoints, advance PROMO01 visual80ms and PROMO02 visual40ms, replace PROMO01 trailing fragment with1.68s existing mother reaction; record actual EDL",
+  "prevention": "Open f0/f1/f2 and last3frames after render; record video and audio inpoints separately",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv006-crooked-yellow/09-shorts-production_v001"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

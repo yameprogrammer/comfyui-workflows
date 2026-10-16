@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """LTX 2.5 All-In-One Video Generator CLI.
 
-Supports T2V, TA2V, I2V, IA2V, FLF, FLFA, FML, FMLA, V2V with LTX-2.5 models.
+Supports T2V, TA2V, I2V, IA2V, FLF, FLFA, FML, FMLA, V2V, V2VA with LTX-2.5 models.
 
 Examples:
   # Smoke test (fast, 768px, 2s)
@@ -16,14 +16,18 @@ Examples:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _bootstrap  # noqa: F401
 
 import argparse
+import json
+import urllib.request
 import os
 import shutil
-import sys
 import time
-from pathlib import Path
 
 # Safe utf-8 output on Windows
 if sys.platform == "win32":
@@ -35,15 +39,14 @@ if sys.platform == "win32":
 
 from lib.comfy_client import (
     DEFAULT_SERVER,
-    ensure_comfy_running,
     free_comfy_memory,
-    get_comfy_data_dir,
     get_comfy_input_dir,
     get_comfy_output_dir,
     queue_prompt,
     wait_for_history,
 )
 from lib.ltx_aio_workflow_runner import build_aio_switched_api
+from lib.ltx25_contract import check_ltx25_graph, find_completed_media, active_loras
 
 DEFAULT_UI_WF = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -92,7 +95,21 @@ def main(argv=None) -> int:
     p.add_argument("--server", default=DEFAULT_SERVER, help=f"ComfyUI host:port (default: {DEFAULT_SERVER})")
     p.add_argument("--smoke", action="store_true", help="Fast smoke test mode (768px, 2.0s duration)")
 
+    p.add_argument("--export-api", type=Path, help="Build/export API JSON only; never stage inputs, free memory or queue")
+    p.add_argument("--object-info", type=Path, help="Saved object_info JSON for offline export")
+    p.add_argument("--lora-policy", choices=["quality", "workflow", "none"], default="quality", help="quality: preserve original profile tuning; workflow: saved UI switches; none: explicit no-LoRA comparison")
+    p.add_argument("--ltx-profile", choices=["draft", "work", "hero"], default="work", help="Existing quality-LoRA profile; 2.5 quality benefit remains unverified")
     args = p.parse_args(argv)
+    required = []
+    if args.mode.startswith(("i2v", "flf", "fml")): required.append((args.image, "--image"))
+    if args.mode.endswith("_audio"): required.append((args.audio, "--audio"))
+    if args.mode.startswith(("flf", "fml")): required.append((args.last, "--last"))
+    if args.mode.startswith("fml"): required.append((args.mid, "--mid"))
+    if args.mode.startswith("v2v"): required.append((args.video, "--video"))
+    for value, flag in required:
+        if not value or not Path(value).is_file(): p.error(f"{args.mode} requires an existing {flag} file")
+    if not args.export_api and Path(args.output).resolve().is_relative_to(Path(__file__).resolve().parents[1]):
+        p.error("--output must point outside the toolbox repository")
 
     if args.smoke:
         if not args.prompt:
@@ -124,20 +141,21 @@ def main(argv=None) -> int:
     print(f"  Server:      {args.server}")
     print("=" * 60)
 
-    # 1. ComfyUI server check
-    run_check = ensure_comfy_running(server_address=args.server)
-    if not run_check.get("ok"):
-        print(f"[ERROR] ComfyUI server {args.server} is not reachable: {run_check}")
-        return 1
-
-    input_dir = get_comfy_input_dir(server_address=args.server)
-
-    # 2. Stage media files
-    img_name = _stage_input_file(args.image, input_dir)
-    audio_name = _stage_input_file(args.audio, input_dir)
-    last_name = _stage_input_file(args.last, input_dir)
-    mid_name = _stage_input_file(args.mid, input_dir)
-    vid_name = _stage_input_file(args.video, input_dir)
+    # No auto-start/restart: shared ComfyUI must already be available.
+    object_info = json.loads(args.object_info.read_text(encoding="utf-8")) if args.object_info else None
+    if args.export_api:
+        img_name, audio_name, last_name, mid_name, vid_name = [
+            Path(value).name if value else None
+            for value in (args.image, args.audio, args.last, args.mid, args.video)
+        ]
+    else:
+        with urllib.request.urlopen(f"http://{args.server}/system_stats", timeout=10) as response:
+            json.load(response)
+        input_dir = get_comfy_input_dir(server_address=args.server)
+        img_name, audio_name, last_name, mid_name, vid_name = [
+            _stage_input_file(value, input_dir)
+            for value in (args.image, args.audio, args.last, args.mid, args.video)
+        ]
 
     # 3. Build API workflow
     print("[1/3] Building API workflow from LTX 2.5 custom schema...")
@@ -158,59 +176,49 @@ def main(argv=None) -> int:
         video_vae="ltx-2.5-video-vae-bf16.safetensors",
         vbvr=False,
         face_stability=False,
+        apply_legacy_loras=args.lora_policy == "quality",
+        ltx_profile=args.ltx_profile,
+        object_info=object_info,
         ui_workflow_path=DEFAULT_UI_WF,
     )
 
-    # 4. Pre-flight memory cleanup and submit prompt
-    print("[2/3] Cleaning stale VRAM and submitting prompt to ComfyUI queue...")
+    if args.lora_policy == "none":
+        for node in api.values():
+            for key, value in node.get("inputs", {}).items():
+                if key.startswith("lora_") and isinstance(value, dict):
+                    value["on"] = False
+    selected = check_ltx25_graph(api, lora_policy=args.lora_policy)
+    meta["lora_policy"] = args.lora_policy
+    meta["active_loras"] = active_loras(api)
+    if args.export_api:
+        args.export_api.parent.mkdir(parents=True, exist_ok=True)
+        args.export_api.write_text(json.dumps({"prompt": api, "metadata": meta, "models": selected}, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"[EXPORTED, NOT EXECUTED] {args.export_api}")
+        return 0
+
     free_comfy_memory(server_address=args.server, unload_models=True, free_memory=True)
     prompt_id = queue_prompt(args.server, api)
-    print(f"  Queue successful! Prompt ID: {prompt_id}")
-
-    # 5. Wait for history
-    print("[3/3] Waiting for generation to complete...")
-    t0 = time.time()
-    history = wait_for_history(args.server, prompt_id, timeout_sec=600)
-    elapsed = time.time() - t0
-
-    if not history:
-        print("[ERROR] Timed out or execution failed.")
-        return 1
-
-    # Extract output video
-    outputs = history.get("outputs", {})
-    output_files = []
-    for nid, out_data in outputs.items():
-        if "gifs" in out_data:
-            for g in out_data["gifs"]:
-                output_files.append(g.get("filename"))
-        if "images" in out_data:
-            for img in out_data["images"]:
-                if img.get("filename", "").endswith((".mp4", ".mkv", ".webm")):
-                    output_files.append(img.get("filename"))
-
-    out_dir = get_comfy_output_dir(server_address=args.server)
-    found_path = None
-    for fname in output_files:
-        p = Path(out_dir) / fname
-        if p.is_file():
-            found_path = p
-            break
-
-    if found_path:
-        out_dst = Path(args.output).resolve()
-        out_dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(found_path, out_dst)
-        print("=" * 60)
-        print(f"[SUCCESS] Generation Completed in {elapsed:.1f}s!")
-        print(f"  Output saved to: {out_dst}")
-        print(f"  File size:       {out_dst.stat().st_size:,} bytes")
-        print("=" * 60)
-        return 0
-    else:
-        print(f"[WARN] Completed in {elapsed:.1f}s, but no video file found in outputs: {output_files}")
-        return 0
+    print(f"Prompt ID: {prompt_id}")
+    started = time.time()
+    history = wait_for_history(args.server, prompt_id, timeout_sec=1800)
+    source = find_completed_media(history, get_comfy_output_dir(server_address=args.server))
+    destination = Path(args.output).resolve()
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if source != destination:
+        shutil.copy2(source, destination)
+    evidence = {"model_family": "ltx25", "prompt_id": prompt_id, "mode": args.mode,
+                "models": selected, "workflow": DEFAULT_UI_WF, "metadata": meta,
+                "status": history.get("status"), "output": str(destination),
+                "size_bytes": destination.stat().st_size, "elapsed_sec": time.time() - started,
+                "execution": "completed", "quality_review": "not_run"}
+    destination.with_suffix(destination.suffix + ".run.json").write_text(json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[RENDER COMPLETE; QA REQUIRED] {destination}")
+    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except (OSError, ValueError, RuntimeError, TimeoutError) as error:
+        print(f"[ERROR] {error}", file=sys.stderr)
+        sys.exit(1)

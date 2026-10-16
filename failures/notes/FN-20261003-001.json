@@ -1,0 +1,21 @@
+{
+  "id": "FN-20261003-001",
+  "created_at": "2026-10-03T00:55:16+00:00",
+  "agent": "codex",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "clip",
+  "tags": [
+    "minimax_h3"
+  ],
+  "symptom": "Greeting wave at 0.7-2.2 seconds but speech starts at 3.8 seconds in A native.",
+  "root_cause": "Timing instruction was vague; timbre-conditioned take added a long silent lead. Causal impact of audio reference not established.",
+  "fix": "Explicit opening speech within half second, waist-up framing, brighter voice per human request, omit calm audio anchor for revised A.",
+  "prevention": "Check actual speech onset and gesture timing, not only transcript accuracy.",
+  "related_paths": [
+    "D:/code-and-melody/ContentDocs/20261003-0925_CodeGirl-Hello/clips/A_native.mp4"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

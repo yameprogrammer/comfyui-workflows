@@ -1,0 +1,26 @@
+[
+  {
+    "previous_physical_directory": "F:\\Agent_media_sandboxes\\flux3\\models\\diffusion_models",
+    "final_physical_directory": "F:\\model\\diffusion_models\\flux3",
+    "model": "F:\\model\\diffusion_models\\flux3\\flux3_image_klein_sd_int8_convrot.safetensors",
+    "sha256": "847d8933548afd93df4af2cac2498e70891bf28d9dae06d695f536992e168fe2",
+    "kind": "physical_directory",
+    "junction_removed": true
+  },
+  {
+    "previous_physical_directory": "F:\\Agent_media_sandboxes\\flux3\\models\\text_encoders",
+    "final_physical_directory": "F:\\model\\text_encoders\\flux3",
+    "model": "F:\\model\\text_encoders\\flux3\\qwen3vl_4b_int8_convrot.safetensors",
+    "sha256": "32de113cbf8282b02cbff0794b637b9d6676da09314a1db5a30bcea9bf4ee01c",
+    "kind": "physical_directory",
+    "junction_removed": true
+  },
+  {
+    "previous_physical_directory": "F:\\Agent_media_sandboxes\\flux3\\models\\vae",
+    "final_physical_directory": "F:\\model\\vae\\flux3",
+    "model": "F:\\model\\vae\\flux3\\flux2-vae.safetensors",
+    "sha256": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3",
+    "kind": "physical_directory",
+    "junction_removed": true
+  }
+]

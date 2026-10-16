@@ -1,6 +1,6 @@
 ---
 name: video-direction
-version: 1.12.0
+version: 1.13.0
 description: >
   World-class music-video / shorts / story film DIRECTOR skill for agent_custom factory.
   Use when the user wants a video, MV, short, reel, story episode, dance challenge,
@@ -22,6 +22,12 @@ If the user says “just generate,” do one sentence why gates matter, then fin
 This skill is the **portable brain**. Factory hands = `python scripts/...` in `agent_custom`.
 
 ---
+
+## Music-led and PC-HOME routing
+
+For music-led work, read [references/music_locked_handoff.md](references/music_locked_handoff.md) before timed beats/shots: lock the actual selected audio with evidence, frame intervals and source lineage. Use existing CREATIVE / SHOT_DESIGN / PROMPT_PACK, with provisional timing clearly marked when audio is unavailable.
+
+On PC-HOME, the same reference's project-specific Remotion → Blender VSE → latest user-saved blend handoff overrides generic factory Gate 7 delivery examples below. Existing project authority, including drama planning-only restrictions, remains in force. An already edited blend output request does not require rebuilding direction documents or its timeline.
 
 ## 0. Equip check (mandatory)
 

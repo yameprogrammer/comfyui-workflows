@@ -1,0 +1,23 @@
+{
+  "1": {
+    "class_type": "Higgs3IsolatedTTS",
+    "inputs": {
+      "text": "We finally made it. I am so glad to see you.",
+      "emotion": "elation",
+      "seed": 42,
+      "max_new_tokens": 512,
+      "temperature": 0.8,
+      "reference_text": ""
+    }
+  },
+  "2": {
+    "class_type": "SaveAudio",
+    "inputs": {
+      "audio": [
+        "1",
+        0
+      ],
+      "filename_prefix": "higgs3/emotion"
+    }
+  }
+}

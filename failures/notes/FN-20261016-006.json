@@ -1,0 +1,24 @@
+{
+  "id": "FN-20261016-006",
+  "created_at": "2026-10-16T14:51:09+00:00",
+  "agent": "Codex",
+  "episode_id": null,
+  "shot_id": null,
+  "stage": "audio",
+  "tags": [
+    "higgs3",
+    "windows",
+    "encoding",
+    "subprocess"
+  ],
+  "symptom": "Higgs3 original8188 inference loaded weights but worker failed on progress-bar UnicodeEncodeError",
+  "root_cause": "Embedded Python -I ignores PYTHONIOENCODING and redirected stdout retained cp949",
+  "fix": "Reconfigure worker stdout and stderr explicitly to UTF-8 before model imports",
+  "prevention": "Set stream encoding in isolated worker itself; do not rely only on inherited PYTHONIOENCODING under -I",
+  "related_paths": [
+    "F:\\Agent_media_sandboxes\\higgs3\\validation\\first-attempt\\last-worker.log"
+  ],
+  "severity": "medium",
+  "user_visible": true,
+  "refs": []
+}

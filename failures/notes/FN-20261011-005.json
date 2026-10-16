@@ -1,0 +1,25 @@
+{
+  "id": "FN-20261011-005",
+  "created_at": "2026-10-11T04:55:20+00:00",
+  "agent": "codex",
+  "episode_id": "mv005-learning-you-at-night",
+  "shot_id": "S12",
+  "stage": "clip",
+  "tags": [
+    "minimax_h3",
+    "near_static_tail",
+    "motion_qa"
+  ],
+  "symptom": "MV005 S12 v002 had a 4+ second near-static generated tail. A frame pass based on non-identical pixels was revoked after comparing native middle/end body poses.",
+  "root_cause": "A small average frame difference (0.0671) and zero identical image pairs measured pixel changes, not meaningful body/hand motion. Early-action completion left most of the slot as a hold.",
+  "fix": "Revoke selection and C1 pass; generate v003 with pickup/lowering staged through the full shot and remove early completion/settling-tail instruction.",
+  "prevention": "Compare actual body/hand silhouettes and pose over the tail, not only pixel MAD or hashes. Keep generated duration covered by actual action; use shorter approved action or a genuine continuation, never freeze padding.",
+  "related_paths": [
+    "D:/yame-film/content/projects/mv005-learning-you-at-night/05-shots/h3_native_full_v001/qa/S12_v002/VALIDATION_v001.json"
+  ],
+  "severity": "high",
+  "user_visible": true,
+  "refs": [
+    "FN-20260715-001"
+  ]
+}
