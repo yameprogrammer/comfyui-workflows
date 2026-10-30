@@ -1,3 +1,7 @@
+<!-- MOSS_IMAGE_TOOL -->
+MOSS-Image native image tools: `python scripts/generate_moss_image.py --status`; seven modes and offline dry-run. [Usage and community weight limits](workflows/human/moss_image/AGENT_GUIDE.md).
+<!-- /MOSS_IMAGE_TOOL -->
+
 # agent_custom — ComfyUI 미디어 **공구함**
 
 로컬 ComfyUI를 에이전트·사람이 **CLI로 호출**하는 **의도 중심 도구 상자**입니다.  

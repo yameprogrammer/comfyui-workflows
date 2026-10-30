@@ -231,6 +231,7 @@
     }
   },
   "backends": {
+    "minimax_h3_denomix": {"status": "ready_experimental", "cli": "scripts/generate_minimax_h3_denomix.py", "guide": "workflows/human/minimax_h3_denomix/AGENT_GUIDE.md", "human_ui": "workflows/human/minimax_h3_denomix/DenoMix_H3_R2V_8plus2.json", "tasks": ["r2v"], "max_requested_duration_sec": 10, "aligned_frames_at_max": 243, "notes": "Local operational cap; not the base H3 model maximum. Existing backend defaults remain unchanged."},
     "wan22": {
       "status": "ready",
       "family": "wan22",

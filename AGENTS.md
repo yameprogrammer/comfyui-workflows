@@ -1,3 +1,33 @@
+<!-- MOSS_IMAGE_TOOL -->
+MOSS-Image agent route: `python scripts/generate_moss_image.py --status`, then `--help`. Seven native image modes: t2i/layout/edit/multi-edit/control/color/depth. Read `workflows/human/moss_image/AGENT_GUIDE.md`; use generation-prompt and output-review. Missing weights fail without downloads. Never restart/clear/cancel ComfyUI from this tool. Edit weights have no separately stated original license; commercial review required.
+<!-- /MOSS_IMAGE_TOOL -->
+
+<!-- MOSS-SPEECH-20261019 -->
+## MOSS speech generation — TTS / TTSD / VoiceGenerator
+
+For speech creation, use [MOSS speech guide](workflows/human/moss_speech/AGENT_GUIDE.md): `generate_moss_tts.py` (Korean/multilingual + authorized voice reference), `generate_moss_ttsd.py` (S1/S2 dialogue continuation), `generate_moss_voice.py` (English/Chinese instruction voice design). Actual WAV execution verified in isolated F:/MOSS-TTS; status ready_experimental with listening/identity/emotion limits. Existing character voice locks remain. This is separate from `transcribe_moss.py`, which converts audio to text. Read [measured validation](F:/MOSS-TTS/validation/VALIDATION_REPORT.md); outputs belong to caller project. No undocumented TTS emotion tags, no direct Korean VoiceGenerator promise.
+
+<!-- MOSS-NATIVE-20261019 -->
+## MOSS local transcription / diarization
+
+Use [MOSS Windows native guide](workflows/human/moss_transcribe/AGENT_GUIDE.md) and `python scripts/transcribe_moss.py -i F:/my_project/speech.wav -o F:/my_project/moss_take01`. Isolated Python3.12, local-only CUDA/BF16/SDPA, no ComfyUI changes. `ready_experimental`: synthetic English execution passed; specified Korean original is missing, real Korean / ~5min validation pending. Raw output retained; anonymous IDs are not cross-file identities; token cap warns. Read the guide and execution/quality limits before use.
+
+
+<!-- IMAGE-TOOL-PRIORITY-20261018 -->
+## 이미지 도구 선택 — 최신 사용자 지침 (2026-10-18)
+
+> 로컬 도구들이 텍스트가 포함된 뭔가를 만들 때는 좀 성능이 떨어지니까 텍스트가 포함된 뭔가를 만드는건 보조관의 이미지 도구를 사용하고 그외에는 Flux3나 Krea2 모델을 사용해서 작업 하는걸로 합시다.
+
+- **이미지 안에 글자가 포함되면 보좌관 이미지 생성 도구를 사용한다.** 로컬 모델의 글자 표현 한계를 고려한 선택이다. 생성 후 실제 이미지를 열어 철자·문구·누락·가독성을 검수한다.
+- **글자 없는 이미지는 로컬 FLUX3 또는 Krea2를 사용한다.** FLUX3는 full-caption, Krea2는 해당 모델의 자연어 프롬프트 규칙을 따른다.
+- 이번 지침은 이전 **“텍스트가 있으면 Flow 또는 보좌관 이미지 도구”**보다 최신이며 이미지 선택 시 우선 적용한다. **Flow 전면 금지를 뜻하지 않는다.**
+- 정확한 자막·타이틀·광고 문구는 기존대로 Remotion/Blender 등의 별도 텍스트 소스·레이어로 후반 합성할 수 있다. 글자 없는 배경·원화 생성은 위 로컬 모델을 사용한다.
+- 적용 범위는 이미지 생성 도구 선택이다. **영상·TTS·Blender·Remotion 도구 선택과 기존 편집 워크플로우는 변경하지 않는다.**
+
+[이미지 선택 가이드](docs/agent_native_capability_autonomy.md) · [도구 카탈로그](docs/tool_catalog.md)
+
+<!-- /IMAGE-TOOL-PRIORITY-20261018 -->
+
 <!-- LTX25-ADVANCED-FOLLOWUP-20261017 -->
 ## LTX-2.5 latest validation states — 2026-10-17T08:00:31.657607+09:00
 
@@ -89,6 +119,10 @@ Catalog SSOT: intent-first **[docs/tool_catalog.md](docs/tool_catalog.md)** · M
 
 
 
+
+## FLUX3 Klein — prompt and usage entry
+
+For `generate_flux3.py` read [FLUX3 usage](workflows/human/flux3/AGENT_GUIDE.md), [full-caption / reference / typography guidance](skills/generation-prompt/references/flux3_still.md), and [measured validation limits](workflows/human/flux3/TEST_MATRIX.md). This local distilled INT8 profile has no prompt upsampler node: supply the expanded final-scene caption. FLUX.1/2 short-prompt recipes do not apply. Typography examples are untested; strict style QC remains experimental.
 
 ## LTX-2.5 — explicit version and validation scope
 
@@ -447,3 +481,9 @@ python scripts/export_episode_to_workspace.py -e EP --dest "$AGENT_WORKSPACE/epi
 
 
 For YuE2 커버곡 / generated singing / reference singing: read `skills/yue2-cover/SKILL.md`, then use `python scripts/cover_music.py doctor`. Follow `workflows/human/cover_music/AGENT_GUIDE.md`. Generated voice is the default; reference voice conversion is optional when requested. This audio-only workflow does not need video direction or camera skills.
+
+<!-- DENOMIX-8PLUS2-20261030 -->
+## DenoMix H3 R2V8+2 — opt-in
+
+Use `python scripts/generate_minimax_h3_denomix.py --status`, then [DenoMix guide](workflows/human/minimax_h3_denomix/AGENT_GUIDE.md). Default requested5s, hard local request cap10s;10s aligns to243frames/10.125s.15s was safely interrupted for resource pressure, not an OOM exception. Within-shot appearance and ASR are bounded observations; exact identity, listening and lip sync remain unapproved. No installs, service restart or queue cancellation. Existing H3 default routes remain unchanged.
+<!-- /DENOMIX-8PLUS2-20261030 -->

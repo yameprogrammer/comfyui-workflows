@@ -1,3 +1,23 @@
+<!-- MOSS_IMAGE_TOOL -->
+2026-10-28: Added native MOSS-Image agent CLI, seven API presets, discovery cards and guide. Existing ComfyUI/shared models reused; no model/package install, server restart or MV resume. Strict submission opts out of auto-start/retry while preserving existing shared-client defaults. Validation: workflows/human/moss_image/TEST_MATRIX.md.
+<!-- /MOSS_IMAGE_TOOL -->
+
+<!-- MOSS-SPEECH-20261019 -->
+## 2026-10-19 — Codex — approved MOSS speech family installation
+
+Added isolated F:/MOSS-TTS runtime and fixed official TTS-v1.5,TTSD-v1.0,VoiceGenerator,Audio-Tokenizer snapshots. Native Python3.12.11/torch2.9.1+cu128/Transformers5.0.0; official HF CPU-offload/staged codec path selected after reviewing issue165 and Unix-oriented GGUF bridge. Actual Korean TTS/owner-reference repeat/2-character TTSD and English design WAVs generated. No voice production defaults changed; character references copied read-only; no external upload. Initial processor-kwarg/device-map wrapper compatibility failures and a raw PCM-peak warning retained. Full execution/content/perceptual states: F:/MOSS-TTS/validation/VALIDATION_REPORT.md. New3 CLIs, shared launcher, worker source and guide registered; transcribe_moss remains separate and preserved.
+
+<!-- MOSS-NATIVE-20261019 -->
+## 2026-10-19 — Codex — isolated MOSS Windows native integration
+
+Installed official MOSS source e3bdd93 (includes cb765f2), model revision 704aa4a into F:/MOSS-Transcribe-Diarize; Python3.12.11 + torch/torchaudio2.8.0+cu128 + Transformers5.16.1. Added scripts/transcribe_moss.py and source-controlled strict worker/guide, catalog and discovery links. Actual synthetic English CUDA/BF16/SDPA transcribed; one word error observed. Korean original missing; Korean and ~5min tests pending. No shared environment, original media, ComfyUI process or existing user changes replaced. Full details: workflows/human/moss_transcribe/AGENT_GUIDE.md; local evidence in task-2/VALIDATION_REPORT.md.
+
+## 2026-10-18 — Codex — FLUX3 prompt documentation discovery
+
+- Added root AGENTS direct usage/prompt links and a separate FLUX3 full-caption/reference/typography reference; retained FLUX.1/2 recipes and six historical validation prompt fixtures.
+- Checked official BFL Comfy model card, external-VLM caption instructions and Comfy tutorial; replaced unsupported 100–350 wording with attributed typical 200–350 guidance, not a hard limit. Literal quoted text, caption newline convention, practical typography advice and unverified local language/glyph accuracy are separated.
+- Factory skills/ is SSOT (skills/README.md); hub and current Codex copies received only this documentation delta, preserving unrelated Krea routing differences. No installer, model/workflow execution, image generation, commit/push or upload. Saved-file/link/hash checks recorded in the task workspace.
+
 ## 2026-10-16 — Codex — Higgs TTS 3 isolated integration
 
 - User accepted Boson model terms after a verified backup using backup_env.bat; backup: F:/backups/ComfyUI_env/env_20261016_232422_before_higgs3, with consistent SQLite restore supplement.
@@ -1869,3 +1889,9 @@ Earlier two visual failures remain in history, but they are no longer the final 
 The same INT8+new2.5 Ingredients stack also combined a published character/guitar/stage sheet into one scene; exact face/hair fidelity and listening remain pending. No general production identity guarantee. Detailed hypotheses, official/community confidence, actual API and contacts: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/INGREDIENTS_DIAGNOSIS.md`; latest records: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/ingredients-repair-status.json`.
 
 CLI Ingredients defaults are now5sec/768×448 with untiled reference encoding, strength1 and Euler ancestral. Community comparison controls are explicit `--adapter-strength 1.4 --sampler euler_ancestral_cfg_pp`; they do not replace the official default or original AIO quality policy. All prior T2A/A2V graphs and other successful paths are preserved. No new models/nodes/packages, no restart. Model remains only at `F:/model/loras/LTX2.5/ltx-2.5-22b-ic-lora-ingredients-0.9.safetensors`; Downloads duplicate absent and full SHA reverified.
+
+<!-- DENOMIX-8PLUS2-20261030 -->
+## 2026-10-30 — DenoMix agent tool
+
+Added separate DenoMix R2V8+2 CLI/runner, API/ports/UI preset, pinned model provenance, GPL workflow license and operating guide. Default5s/requested cap10s with243frame/10.125s alignment metadata; pre-submit invalid-duration rejection, read-only status, offline dry-run, busy-queue refusal and durable prompt-ID/output tracking. Existing H3 defaults unchanged. Recorded5/10s execution passes,15s controlled resource-pressure interruption, incomplete yaw and pending listening/identity/lip-sync review; no new weights/nodes/services.
+<!-- /DENOMIX-8PLUS2-20261030 -->

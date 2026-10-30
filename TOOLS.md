@@ -1,3 +1,41 @@
+<!-- MOSS_IMAGE_TOOL -->
+MOSS-Image (GENERATE/TRANSFORM): `python scripts/generate_moss_image.py --help` / `--status`. Native INT8 T2I, Layout, Single/Multi Edit, Color/Depth Control. [Guide](workflows/human/moss_image/AGENT_GUIDE.md).
+<!-- /MOSS_IMAGE_TOOL -->
+
+<!-- MOSS-SPEECH-20261019 -->
+## MOSS speech generation (VOICE)
+
+| Tool | CLI example | Guide |
+|---|---|---|
+| MOSS-TTS v1.5 | `python scripts/generate_moss_tts.py -t "안녕하세요." -o F:/my_project/moss_tts01` | [speech guide](workflows/human/moss_speech/AGENT_GUIDE.md) |
+| MOSS-TTSD v1.0 | `python scripts/generate_moss_ttsd.py --help` | S1/S2 continuation +2 references |
+| VoiceGenerator1.7B | `python scripts/generate_moss_voice.py -t "Hello." --language English --instruction "Warm clear adult voice" -o F:/my_project/moss_design01` | English/Chinese design |
+
+Actual WAV execution is ready_experimental; content ASR is separate from listening/identity/emotion approval. Audio-to-text uses the separate transcribe_moss tool.
+
+<!-- MOSS-NATIVE-20261019 -->
+## MOSS transcription / diarization (VOICE)
+
+| Tool | CLI | Status / guide |
+|---|---|---|
+| MOSS local HF | `python scripts/transcribe_moss.py -i F:/my_project/speech.wav -o F:/my_project/moss_take01` | ready_experimental · [guide](workflows/human/moss_transcribe/AGENT_GUIDE.md) |
+
+
+<!-- IMAGE-TOOL-PRIORITY-20261018 -->
+## 이미지 도구 선택 — 최신 사용자 지침 (2026-10-18)
+
+> 로컬 도구들이 텍스트가 포함된 뭔가를 만들 때는 좀 성능이 떨어지니까 텍스트가 포함된 뭔가를 만드는건 보조관의 이미지 도구를 사용하고 그외에는 Flux3나 Krea2 모델을 사용해서 작업 하는걸로 합시다.
+
+- **이미지 안에 글자가 포함되면 보좌관 이미지 생성 도구를 사용한다.** 로컬 모델의 글자 표현 한계를 고려한 선택이다. 생성 후 실제 이미지를 열어 철자·문구·누락·가독성을 검수한다.
+- **글자 없는 이미지는 로컬 FLUX3 또는 Krea2를 사용한다.** FLUX3는 full-caption, Krea2는 해당 모델의 자연어 프롬프트 규칙을 따른다.
+- 이번 지침은 이전 **“텍스트가 있으면 Flow 또는 보좌관 이미지 도구”**보다 최신이며 이미지 선택 시 우선 적용한다. **Flow 전면 금지를 뜻하지 않는다.**
+- 정확한 자막·타이틀·광고 문구는 기존대로 Remotion/Blender 등의 별도 텍스트 소스·레이어로 후반 합성할 수 있다. 글자 없는 배경·원화 생성은 위 로컬 모델을 사용한다.
+- 적용 범위는 이미지 생성 도구 선택이다. **영상·TTS·Blender·Remotion 도구 선택과 기존 편집 워크플로우는 변경하지 않는다.**
+
+[이미지 선택 가이드](docs/agent_native_capability_autonomy.md)
+
+<!-- /IMAGE-TOOL-PRIORITY-20261018 -->
+
 <!-- LTX25-CURRENT-START -->
 > **LTX-2.5 현재 상태 (2026-10-16T15:46:24.123116+00:00): ready_experimental.** T2V/I2V/FLF/T2A/A2V 짧은 실행 확인; Ingredients는 소품/장소 참조 시각 PASS, 정확 얼굴·청취는 pending. 이전 실패/접근 차단 문장은 당시 이력이다. [현재 사용 가이드](F:/Agent_media_tools/workflows/human/ltx25_official/AGENT_GUIDE.md)에서 시트 규칙·실패 양상·검증 입력/출력·정확 재현 명령·미검증 목록을 확인한다. [복구 진단](C:/Users/parkp/Documents/Codex/2026-10-16/task-8/INGREDIENTS_DIAGNOSIS.md).
 <!-- LTX25-CURRENT-END -->
@@ -159,3 +197,9 @@ Earlier two visual failures remain in history, but they are no longer the final 
 The same INT8+new2.5 Ingredients stack also combined a published character/guitar/stage sheet into one scene; exact face/hair fidelity and listening remain pending. No general production identity guarantee. Detailed hypotheses, official/community confidence, actual API and contacts: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/INGREDIENTS_DIAGNOSIS.md`; latest records: `C:/Users/parkp/Documents/Codex/2026-10-16/task-8/ingredients-repair-status.json`.
 
 CLI Ingredients defaults are now5sec/768×448 with untiled reference encoding, strength1 and Euler ancestral. Community comparison controls are explicit `--adapter-strength 1.4 --sampler euler_ancestral_cfg_pp`; they do not replace the official default or original AIO quality policy. All prior T2A/A2V graphs and other successful paths are preserved. No new models/nodes/packages, no restart. Model remains only at `F:/model/loras/LTX2.5/ltx-2.5-22b-ic-lora-ingredients-0.9.safetensors`; Downloads duplicate absent and full SHA reverified.
+
+<!-- DENOMIX-8PLUS2-20261030 -->
+## DenoMix H3 R2V8+2
+
+`python scripts/generate_minimax_h3_denomix.py --status` → [guide](workflows/human/minimax_h3_denomix/AGENT_GUIDE.md). Opt-in896×512→1792×1024 native audio. Default5s, requested max10s (243frames/10.125s). Above10 rejected before submission;15s refinement resource-pressure stop. Use `--dry-run` for offline graph inspection; audio/identity/lip-sync review remains separate.
+<!-- /DENOMIX-8PLUS2-20261030 -->

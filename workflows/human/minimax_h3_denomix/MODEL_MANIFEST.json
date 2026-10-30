@@ -1,0 +1,50 @@
+{
+  "workflow_source": "https://huggingface.co/Deno2026/MiniMax-H3-DenoMix/blob/489aa1513a65fd188fd0a043c9da2eac10587910/workflows/Deno_MiniMax_H3_R2V_Turbo_8plus2.json",
+  "workflow_sha256": "42794082764491f647b0030d8136317e6d46733f66557194625103043d34b073",
+  "workflow_license": "GPL-3.0-only; author DENO; adapted dropdown paths and CLI operating policy",
+  "models": [
+    {
+      "repo": "Deno2026/MiniMax-H3-DenoMix",
+      "revision": "489aa1513a65fd188fd0a043c9da2eac10587910",
+      "file": "MiniMax-H3_DenoMix_ref2va_pruned_int8_v3.safetensors",
+      "size": 20967647432,
+      "sha256": "6fc735bb1d2e9e44951106b3ec6a4c063df1535c567bc7d44aaff4c9052add52",
+      "url": "https://huggingface.co/Deno2026/MiniMax-H3-DenoMix/resolve/489aa1513a65fd188fd0a043c9da2eac10587910/MiniMax-H3_DenoMix_ref2va_pruned_int8_v3.safetensors",
+      "model_path": "diffusion_models/MinimaxH3/MiniMax-H3_DenoMix_ref2va_pruned_int8_v3.safetensors"
+    },
+    {
+      "repo": "Kijai/MiniMax-H3-experimental",
+      "revision": "f5c3b1d5a63e008a691fca1b6096fd57a5307536",
+      "file": "loras/MiniMax-H3-Ref2VA-Acc-8Step_pruned_comfy.safetensors",
+      "size": 1725921392,
+      "sha256": "6f18e1c2eccb14b37322607730f26b16bf1169b56cd098ea006cffaec43d1e39",
+      "url": "https://huggingface.co/Kijai/MiniMax-H3-experimental/resolve/f5c3b1d5a63e008a691fca1b6096fd57a5307536/loras/MiniMax-H3-Ref2VA-Acc-8Step_pruned_comfy.safetensors",
+      "model_path": "loras/DenoMix_8plus2/MiniMax-H3-Ref2VA-Acc-8Step_pruned_comfy.safetensors"
+    },
+    {
+      "repo": "Kijai/MiniMax-H3-experimental",
+      "revision": "f5c3b1d5a63e008a691fca1b6096fd57a5307536",
+      "file": "loras/minimax_h3_open_regenerate_2k_refiner_rank_16_bf16.safetensors",
+      "size": 155133472,
+      "sha256": "add559cd92e2b17b42ac080516b476df120903e485fc98add4538e0217820fbd",
+      "url": "https://huggingface.co/Kijai/MiniMax-H3-experimental/resolve/f5c3b1d5a63e008a691fca1b6096fd57a5307536/loras/minimax_h3_open_regenerate_2k_refiner_rank_16_bf16.safetensors",
+      "model_path": "loras/DenoMix_8plus2/minimax_h3_open_regenerate_2k_refiner_rank_16_bf16.safetensors"
+    },
+    {
+      "repo": "Comfy-Org/MiniMax-H3",
+      "revision": "912b6e38b2092ec4d2e86d24183e0d59ea059d48",
+      "file": "vae/minimax_h3_video_vae_int8_convrot.safetensors",
+      "size": 2811065184,
+      "sha256": "52a2c8c73583c86e4f41cdcce3a6ad0ea562987bc0bf3d60a0cef5f5c8e60c0e",
+      "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/912b6e38b2092ec4d2e86d24183e0d59ea059d48/vae/minimax_h3_video_vae_int8_convrot.safetensors",
+      "model_path": "vae/minimax_h3_video_vae_int8_convrot.safetensors"
+    }
+  ],
+  "reused": [
+    "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "minimax_h3_dmd_ref2va_8step_turbo_pruned.safetensors",
+    "minimax_h3_latent_upscaler_3d_bf16.safetensors",
+    "minimax_h3_audio_vae_fp32.safetensors"
+  ],
+  "nvidia_project": "https://nvlabs.github.io/Sana/Sol-Refiner/"
+}

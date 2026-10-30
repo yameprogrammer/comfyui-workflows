@@ -1,3 +1,7 @@
+<!-- MOSS_IMAGE_TOOL -->
+MOSS-Image: `python scripts/generate_moss_image.py --help` (t2i/layout/edit/multi-edit/control/color/depth), `--status`, `--dry-run`. [Guide](../workflows/human/moss_image/AGENT_GUIDE.md).
+<!-- /MOSS_IMAGE_TOOL -->
+
 # scripts/ — 에이전트 CLI 도구
 
 **H3 이미지 참조 R2V:** `generate_minimax_h3_7plus1.py` 우선. [7+1 가이드](../workflows/human/minimax_h3/H3_7PLUS1_GUIDE.md). 기존 H3 도구는 T2V/I2V/FLF/참조 영상과 비교 후보로 유지.
@@ -198,3 +202,9 @@ python scripts/character_create.py --id hero_v1 --name "Hero" --appearance-promp
 `python scripts/generate_flux3.py --mode t2i --prompt-file workflows/human/flux3/prompts/t2i.txt -o F:/my_project/flux3.png`
 
 Original portable ComfyUI v0.41.1 at http://127.0.0.1:8188. Six API modes executed; T2I/edit/multi-reference/character/box final samples passed visual QC. Strict style transfer remains experimental after failed repairs. UI/API static equivalence passed; browser UI import/Queue untested. [Guide](../workflows/human/flux3/AGENT_GUIDE.md), [test matrix](../workflows/human/flux3/TEST_MATRIX.md). Original environment was backed up, core upgraded with local patches preserved, and8required packages changed while Torch/transformers retained.
+
+<!-- DENOMIX-8PLUS2-20261030 -->
+## DenoMix video CLI
+
+`generate_minimax_h3_denomix.py`: separate R2V8+2; `--status`, offline `--dry-run`, default5s/requested max10s, job ID/output sidecars. [Guide](../workflows/human/minimax_h3_denomix/AGENT_GUIDE.md).
+<!-- /DENOMIX-8PLUS2-20261030 -->

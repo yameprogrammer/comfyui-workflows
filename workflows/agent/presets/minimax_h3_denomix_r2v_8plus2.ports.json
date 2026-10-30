@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "ports": {
+    "positive": {
+      "node": "186",
+      "key": "text"
+    },
+    "reference_images": {
+      "node": "142",
+      "key": "image_paths"
+    },
+    "duration": {
+      "node": "132",
+      "key": "value"
+    },
+    "seed": {
+      "node": "129",
+      "key": "noise_seed"
+    },
+    "filename_prefix": {
+      "node": "144",
+      "key": "filename_prefix"
+    }
+  }
+}
