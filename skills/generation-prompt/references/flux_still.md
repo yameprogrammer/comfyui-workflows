@@ -14,6 +14,8 @@
 
 ---
 
+FLUX3 is separate: use [flux3_still.md](flux3_still.md) for `generate_flux3`. The 30–80-word, no-upsample and Fill recipes below apply to the named FLUX.1/2 paths only.
+
 ## Shared official formula (BFL)
 
 ```text

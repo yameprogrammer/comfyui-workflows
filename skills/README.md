@@ -58,7 +58,7 @@ python scripts/skill_equip.py install output-review
 |----|------|------|------|
 | **video-direction** | [video-direction/](video-direction/) | 기획·연출·샷 문법·시각 1–10층 | ✅ v1.13.0 |
 | **camera-previz** | [camera-previz/](camera-previz/) | Blender 블록 플레이트 → H3 카메라 잠금 (멀티샷·컬러코드·blend) | ✅ v1.2 |
-| **generation-prompt** | [generation-prompt/](generation-prompt/) | SHOT → 모델별 방언 프롬프트 | ✅ v1.3 |
+| **generation-prompt** | [generation-prompt/](generation-prompt/) | SHOT → 모델별 방언 프롬프트; FLUX3 full-caption/typography | ✅ v1.4.3 |
 | **video-edit** | [video-edit/](video-edit/) | 말→EDIT_PLAN→타임라인→마스터 QA | ✅ v1.9.0 |
 | **output-review** | [output-review/](output-review/) | generate_* 결과 능동 평가 · fail→레버 | ✅ v1.0 |
 | **music-caption-rewriter** | [music-caption-rewriter/](music-caption-rewriter/) | MiniMax Music 3 캡션. 라우터 → 패밀리 1개 → 템플릿 최대 3개. 1,000개를 전부 읽지 않음 | ✅ v1.0.0 (upstream 2026-08-14) |

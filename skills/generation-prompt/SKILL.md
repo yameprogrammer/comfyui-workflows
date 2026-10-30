@@ -1,13 +1,29 @@
 ---
 name: generation-prompt
-version: 1.4.2
+version: 1.4.3
 description: >
   Translate shot design into high-quality IMAGE and VIDEO model prompts for agent_custom.
   Routes each factory CLI/backend to its researched dialect (Krea2 NL, Z-Image clauses,
-  Illustrious Danbooru, Flux/SDXL NL, Qwen edit instructions, Ideogram JSON, Wan/LTX motion).
+  Illustrious Danbooru, FLUX3 full captions, Flux.1/2/SDXL NL, Qwen edit instructions, Ideogram JSON, Wan/LTX motion).
   Use for T2I/I2I/I2V/SI2V, shot_compose, generate_*, prompt pack, "make it more detailed".
   Bans tag-soup on photoreal paths and wardrobe re-essay on motion. Slash: /generation-prompt
 ---
+
+<!-- IMAGE-TOOL-PRIORITY-20261018 -->
+## 이미지 도구 선택 — 최신 사용자 지침 (2026-10-18)
+
+> 로컬 도구들이 텍스트가 포함된 뭔가를 만들 때는 좀 성능이 떨어지니까 텍스트가 포함된 뭔가를 만드는건 보조관의 이미지 도구를 사용하고 그외에는 Flux3나 Krea2 모델을 사용해서 작업 하는걸로 합시다.
+
+- **이미지 안에 글자가 포함되면 보좌관 이미지 생성 도구를 사용한다.** 로컬 모델의 글자 표현 한계를 고려한 선택이다. 생성 후 실제 이미지를 열어 철자·문구·누락·가독성을 검수한다.
+- **글자 없는 이미지는 로컬 FLUX3 또는 Krea2를 사용한다.** FLUX3는 full-caption, Krea2는 해당 모델의 자연어 프롬프트 규칙을 따른다.
+- 이번 지침은 이전 **“텍스트가 있으면 Flow 또는 보좌관 이미지 도구”**보다 최신이며 이미지 선택 시 우선 적용한다. **Flow 전면 금지를 뜻하지 않는다.**
+- 정확한 자막·타이틀·광고 문구는 기존대로 Remotion/Blender 등의 별도 텍스트 소스·레이어로 후반 합성할 수 있다. 글자 없는 배경·원화 생성은 위 로컬 모델을 사용한다.
+- 적용 범위는 이미지 생성 도구 선택이다. **영상·TTS·Blender·Remotion 도구 선택과 기존 편집 워크플로우는 변경하지 않는다.**
+
+[Still picker](references/still_model_picker.md). 아래 방언·Typography 설명은 기술 참고이며 위 선택 지침을 대체하지 않는다.
+
+<!-- /IMAGE-TOOL-PRIORITY-20261018 -->
+
 
 # generation-prompt — Image & video prompt craft (factory)
 
@@ -80,6 +96,7 @@ G. Call scripts/generate_*.py with that string only
 | `generate_illustrious_*` | Danbooru + quality tags | `illustrious_tags.md` |
 | **`generate_anima`** | **2D tags** (not Krea) | `anima_2d.md` |
 | `generate_flux` / `generate_flux2_klein` | NL 1–3 sentences | `flux_still.md` |
+| `generate_flux3` | Full final-scene caption; local upsampler absent | [flux3_still.md](references/flux3_still.md) |
 | `generate_flux_fill` | Mask contents only | `flux_still.md` |
 | `generate_sdxl` | short NL / Pony scores | `sdxl_still.md` |
 | `generate_qwen_edit` / inpaint / angle | Imperative keep-rest. 2.1 preset: no auto suffix | `qwen_edit.md` |
@@ -134,6 +151,7 @@ Same tag family as Illustrious. **Never** a Krea photoreal paragraph. Replace th
 |------|------------|-----|
 | Moody I2I | **what changes** + keep face | still_image + moody_zimage |
 | Qwen Edit | **imperative change** + keep rest | qwen_edit.md |
+| FLUX3 reference edit | Complete final scene + change/preserve + reference roles | [flux3_still.md](references/flux3_still.md) |
 | Qwen Inpaint | masked content only | qwen_edit.md §inpaint |
 | Face lock 2-img | roles of image1/image2 explicit | qwen_edit.md |
 
@@ -160,7 +178,7 @@ Shared hard rules: **`motion_video_prompts.md`**
 
 - Ideogram: structured JSON / factory slots — `ideogram4_typography.md`  
 - Boogu pipeline: prose + `exactly reading "TEXT"`  
-- Literal on-image text → typed `text` field, never hope free prose spells brands  
+- Literal on-image text → use the chosen model's literal-text mechanism. FLUX3: quoted wording in prose — [flux3_still.md](references/flux3_still.md). A `text`/`--text` field applies only where the CLI exposes it; spelling still needs visual review.
 
 ---
 
@@ -230,7 +248,8 @@ backend=krea2|moody|ltx23|wan22|... | source=SHOT_DESIGN
 | LTX depth | `references/ltx23_video.md` |
 | Wan I2V | `references/wan22_i2v.md` |
 | Anima 2D | `references/anima_2d.md` |
-| Flux.1 / Klein | `references/flux_still.md` |
+| Flux.1 / Flux.2 Klein | `references/flux_still.md` |
+| FLUX3 Klein (separate full-caption dialect) | [references/flux3_still.md](references/flux3_still.md) |
 | SDXL photoreal | `references/sdxl_still.md` |
 | Krea2 style/control/detail | `references/krea2_transform.md` |
 | Camera-move presets | `references/camera_move.md` |

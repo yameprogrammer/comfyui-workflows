@@ -20,6 +20,7 @@ If a CLI is **not** in this table: **stop**. Do not invent a Krea essay. Add a r
 | **`generate_anima`** | Anima DiT 2B | Hybrid tags + short NL (not Krea) | `anima_2d.md` |
 | **`generate_flux`** | Flux.1 Dev | BFL NL 30–80w; no negatives | `flux_still.md` |
 | **`generate_flux2_klein`** | Flux.2 Klein 9B | BFL Subject→Action→Style→Context; no upsample | `flux_still.md` |
+| **`generate_flux3`** | FLUX3 Klein distilled INT8 | Full scene caption; local caller expands; not FLUX.1/2 short recipe | [flux3_still.md](flux3_still.md) |
 | **`generate_sdxl`** | SDXL | Juggernaut NL or tags; Pony scores | `sdxl_still.md` |
 | Grok `image_gen` | Grok | NL 2–5 sentences | SKILL §Grok |
 
@@ -36,6 +37,7 @@ Picker: `python scripts/prompt_dialect.py pick "…"` · `show <id>` · `still_m
 | `generate_qwen_edit` | Imperative, one change. `--preset qwen_image_21_edit`: same dialect, no auto keep-suffix, no Lightning | `qwen_edit.md` |
 | `generate_qwen_inpaint` | Masked region only | `qwen_edit.md` §inpaint |
 | `generate_flux_fill` | Mask contents only | `flux_still.md` |
+| `generate_flux3` reference modes | Finished scene + change/preserve + indexed references; style remains experimental | [flux3_still.md](flux3_still.md) |
 | `generate_qwen_angle` | Angle + keep identity | `qwen_edit.md` §angle |
 | `generate_krea2_style` | Krea NL **content**; style from `-i` | `krea2_transform.md` |
 | `generate_krea2_control` | Materials/light; pose from map | `krea2_transform.md` |

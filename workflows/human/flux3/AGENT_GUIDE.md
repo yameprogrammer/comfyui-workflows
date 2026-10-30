@@ -40,11 +40,17 @@ python scripts/generate_flux3.py --mode box_layout --prompt-file workflows/human
 
 ## 프롬프트·참조
 
-FLUX.1/FLUX.2의 짧은 프롬프트 규칙을 그대로 쓰지 않는다. FLUX3 공식 카드/시스템프롬프트에 맞춰 보통100~350단어의 구체적인 장면을 작성한다: medium, 구도, 대상 수와 위치, 외형·재료, 조명, 배경. 편집은 결과 장면과 변경할 내용, 보존할 내용을 구체적으로 쓴다. style은 이름보다 palette/stroke/texture를 묘사한다.
+FLUX.1/FLUX.2의 짧은 프롬프트 규칙을 그대로 쓰지 않는다. 공식 외부 VLM용 지침의 t2i 기준으로 보통200~350단어(복잡한 장면은500)의 구체적인 장면을 작성한다. 이는 권장 밀도이며 하드 제한이나 최소 길이가 아니므로 단순 장면을 억지로 늘리지 않는다: medium, 구도, 대상 수와 위치, 외형·재료, 조명, 배경. 편집은 결과 장면과 변경할 내용, 보존할 내용을 구체적으로 쓴다. style은 이름보다 palette/stroke/texture를 묘사한다.
 
 최대10장까지 `-i` 반복 가능. `<ref_image_0>`, `<ref_image_1>` 순서로 각 역할을 지시한다. `ReferenceMultiLatent`로 positive/negative 양쪽에 같은 참조를 연결한다. 기본 출력 크기는 독립 `EmptyFlux2LatentImage`로 설정하므로 첫 참조의 종횡비에 종속되지 않는다. 원본 공식 editing template의 reference-latent 출력 크기 경로와 이 점이 다르다.
 
 box는 캡션 뒤 JSON 배열로 `[top,left,bottom,right]` 0~1000 좌표를 붙인다. id는 캡션의 `<id>`에 대응시킨다. **soft guidance**로 실제 픽셀 경계나 영역외 불변을 보장하지 않는다. 이 패키지는 ControlNet/mask-inpainting/Fill/LoRA 로딩을 지원 확인하지 않았다. BASE의 LoRA 학습 연구 용도와 호환 LoRA 실행 워크플로우를 혼동하지 않는다.
+
+### 이미지 내 텍스트 / 타이포그래피
+
+[Flux3 전용 프롬프트 참조](../../../skills/generation-prompt/references/flux3_still.md)에 공식 근거, 장면 구조, 참조 편집, 정확한 인용 문구·줄바꿈·서체/색/위치 규칙과 포스터/간판 예시가 있다. 일반 실무 권장(위계·대비·빈 배경·후편집 대안)과 미검증 범위를 따로 표시했다. 문구는 원래 언어/대소문자로 큰따옴표 안에 쓰고 주변 장면은 영어로 작성한다. 이 CLI에는 별도 `--text` 옵션이 없다. 글자 정확도와 한국어 성능은 검증하지 않았으며 예시는 생성/QC 통과본이 아니다.
+
+공식 권장 upsampling은 모델을 추가 설치하라는 뜻으로 적용하지 않는다. 현재 API에는 upsampler가 없으므로 호출 에이전트가 공식 [외부 VLM 지침](https://github.com/black-forest-labs/flux-3-image-klein/blob/main/src/flux3/pup_prompts_external_vlm.json)을 따라 완성 캡션을 작성하여 `--prompt-file`로 전달한다. 기존 여섯 프롬프트는 당시 검증 fixture로 보존하며 권장 길이를 맞추려고 변경하지 않는다.
 
 ## 실제 발견한 한계와 QC
 
