@@ -1064,17 +1064,26 @@ def _format_node_errors(node_errors: dict[str, Any]) -> str:
     return "; ".join(parts) if parts else str(node_errors)
 
 
-def queue_prompt(server_address: str, api_prompt: dict) -> str:
+class PromptSubmissionUncertainError(ConnectionError):
+    """A strict caller must inspect queue/history before resubmission."""
+
+
+def queue_prompt(server_address: str, api_prompt: dict, *, ensure: bool = True,
+                 retry_on_connection_error: bool = True, client_id: str | None = None) -> str:
     """Submit workflow; auto-starts local ComfyUI if needed (see ensure_comfy_running).
 
     Raises RuntimeError if Comfy returns node_errors (e.g. LoadImage missing file
     because input was copied to the wrong directory). Silent partial success is
     treated as failure — otherwise I2I can finish with empty history images.
     """
-    ensure_comfy_running(server_address)
+    if ensure:
+        ensure_comfy_running(server_address)
     # Clear dir cache so get_comfy_input_dir sees this process's argv after launch.
     _comfy_dirs_cache.pop((server_address or DEFAULT_SERVER).strip(), None)
-    payload = json.dumps({"prompt": api_prompt}).encode("utf-8")
+    payload_data = {"prompt": api_prompt}
+    if client_id is not None:
+        payload_data["client_id"] = client_id
+    payload = json.dumps(payload_data).encode("utf-8")
 
     def _post() -> str:
         req = urllib.request.Request(
@@ -1109,6 +1118,10 @@ def queue_prompt(server_address: str, api_prompt: dict) -> str:
             f"ComfyUI HTTP {e.code} at {server_address}: {e.reason}. {body}"
         ) from e
     except urllib.error.URLError as e:
+        if not retry_on_connection_error:
+            raise PromptSubmissionUncertainError(
+                f"ComfyUI submission response lost at {server_address}; inspect client_id before retrying"
+            ) from e
         # One recovery attempt if the process died between ensure and POST.
         _ready_servers.discard(server_address)
         try:
@@ -1117,6 +1130,14 @@ def queue_prompt(server_address: str, api_prompt: dict) -> str:
         except Exception:
             pass
         raise ConnectionError(f"ComfyUI unreachable at {server_address}: {e}") from e
+
+
+    except OSError as e:
+        if not retry_on_connection_error:
+            raise PromptSubmissionUncertainError(
+                f"ComfyUI submission response lost at {server_address}; inspect client_id before retrying"
+            ) from e
+        raise
 
 
 def history_execution_error(history_entry: dict) -> str | None:

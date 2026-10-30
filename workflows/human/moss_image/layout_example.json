@@ -1,0 +1,43 @@
+{
+  "width": 768,
+  "height": 768,
+  "prompt": "Clean minimalist editorial still-life poster on ivory paper, with one blue ceramic teapot and one ripe orange fruit. Soft studio daylight and generous blank margins. The headline consists of exactly four uppercase letters MOSS, with no punctuation or other marks.",
+  "boxes": [
+    {
+      "x": 75,
+      "y": 40,
+      "width": 618,
+      "height": 125,
+      "metadata": {
+        "type": "text",
+        "text": "MOSS",
+        "desc": "Large clean dark navy sans-serif uppercase title, legible and centered inside this top title region.",
+        "palette": []
+      }
+    },
+    {
+      "x": 50,
+      "y": 265,
+      "width": 360,
+      "height": 390,
+      "metadata": {
+        "type": "obj",
+        "text": "",
+        "desc": "A complete matte blue ceramic teapot, curved handle on the left, short spout on the right, blue lid, soft studio photograph.",
+        "palette": []
+      }
+    },
+    {
+      "x": 485,
+      "y": 430,
+      "width": 215,
+      "height": 215,
+      "metadata": {
+        "type": "obj",
+        "text": "",
+        "desc": "One complete ripe orange fruit, realistic pebbled orange peel, soft studio photograph.",
+        "palette": []
+      }
+    }
+  ]
+}

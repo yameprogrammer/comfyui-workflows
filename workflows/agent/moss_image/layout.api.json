@@ -1,0 +1,177 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "moss_image_sft_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3.5_9b_int8_convrot.safetensors",
+      "type": "moss_image",
+      "device": "default"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux2-vae.safetensors"
+    }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": [
+        "11",
+        0
+      ]
+    }
+  },
+  "5": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "nsfw, worst quality, bad anatomy, watermark, jpeg artifact"
+    }
+  },
+  "6": {
+    "class_type": "EmptyFlux2LatentImage",
+    "inputs": {
+      "width": 768,
+      "height": 768,
+      "batch_size": 1
+    }
+  },
+  "7": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "12",
+        0
+      ],
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "latent_image": [
+        "6",
+        0
+      ],
+      "seed": 20261029,
+      "steps": 25,
+      "cfg": 2.5,
+      "sampler_name": "er_sde",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "8": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "7",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "9": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "8",
+        0
+      ],
+      "filename_prefix": "agent_moss/REQUIRED_RUN_ID/layout"
+    }
+  },
+  "10": {
+    "class_type": "CreateBoundingBoxes",
+    "inputs": {
+      "width": 768,
+      "height": 768,
+      "editor_state": {
+        "__value__": [
+          {
+            "x": 75,
+            "y": 40,
+            "width": 618,
+            "height": 125,
+            "metadata": {
+              "type": "text",
+              "text": "MOSS",
+              "desc": "Large clean dark navy sans-serif uppercase title, legible and centered inside this top title region.",
+              "palette": []
+            }
+          },
+          {
+            "x": 50,
+            "y": 265,
+            "width": 360,
+            "height": 390,
+            "metadata": {
+              "type": "obj",
+              "text": "",
+              "desc": "A complete matte blue ceramic teapot, curved handle on the left, short spout on the right, blue lid, soft studio photograph.",
+              "palette": []
+            }
+          },
+          {
+            "x": 485,
+            "y": 430,
+            "width": 215,
+            "height": 215,
+            "metadata": {
+              "type": "obj",
+              "text": "",
+              "desc": "One complete ripe orange fruit, realistic pebbled orange peel, soft studio photograph.",
+              "palette": []
+            }
+          }
+        ]
+      }
+    }
+  },
+  "11": {
+    "class_type": "MOSSImageLayoutPrompt",
+    "inputs": {
+      "prompt": "Clean minimalist editorial still-life poster on ivory paper, with one blue ceramic teapot and one ripe orange fruit. Soft studio daylight and generous blank margins. The headline consists of exactly four uppercase letters MOSS, with no punctuation or other marks.",
+      "element": [
+        "10",
+        2
+      ],
+      "width": 768,
+      "height": 768,
+      "character_boxes": ""
+    }
+  },
+  "12": {
+    "class_type": "SkipLayerGuidanceDiTSimple",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "double_layers": "",
+      "single_layers": "22",
+      "start_percent": 0.0,
+      "end_percent": 0.5
+    }
+  }
+}
